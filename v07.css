@@ -1,0 +1,173 @@
+/* GB IMPORTS / V07 — "GB / IN MOTION" (nome interno). Uma gramática: câmera, luz, peso, gesto.
+   Preto cria a cena · papel torna a peça comprável · amarelo é assinatura e ação. */
+:root{--gb-yellow:#FFD447;--gb-ink:#111214;--gb-paper:#F4F1E8;--gb-gray:#666864;--gb-ease:cubic-bezier(.2,.8,.2,1);--gb-ease-io:cubic-bezier(.7,0,.3,1)}
+
+/* =============== HERO / PALCO DE CÂMERA =============== */
+.has-trio .hero-art-product,.has-trio .v04-hero-ghost{display:none!important}
+.has-trio .hero-art,.hero-trio,.hero-scene-tag{pointer-events:auto}
+/* camadas decorativas do palco nunca interceptam o toque */
+.hero-stage::before,.hero-stage::after,.hero-noise,.hero-kinetic-grid,.hero-lightbar,.hero-giant-mark,.hero-art::before,.hero-art-circle,.hero-art-light,.hero-art-caption,.hero-edge,.hero-left-index,.hero-object-plate{pointer-events:none}
+.hero-art{touch-action:pan-y}
+.hero-trio{position:absolute;inset:4% 3% 15% 3%;z-index:4}
+.trio-obj{position:absolute;left:21%;top:6%;width:58%;height:84%;border:0;padding:0;background:none;cursor:pointer;transform-origin:50% 60%;-webkit-tap-highlight-color:transparent}
+.trio-media{position:absolute;inset:0;display:grid;place-items:center;transition:filter .5s ease}
+.trio-media .garment-svg{width:100%;height:100%;filter:drop-shadow(0 26px 22px #000a)}
+.trio-shadow{position:absolute;left:16%;right:16%;bottom:-2%;height:9%;border-radius:50%;background:radial-gradient(closest-side,#000c,#0000);pointer-events:none}
+.trio-obj:not(.is-front):hover .trio-media{filter:brightness(.8)!important}
+.trio-obj:focus-visible{outline:3px solid var(--gb-yellow);outline-offset:-6px;box-shadow:none}
+.trio-floor{position:absolute;left:12%;right:12%;bottom:-6%;height:20%;border-radius:50%;pointer-events:none;background:radial-gradient(ellipse at 50% 40%,#ffd44714,#0000 68%);border-top:1px solid #ffd44740;transform:perspective(600px) rotateX(58deg);z-index:0}
+.has-trio .hero-art-circle{opacity:.22}
+.hero-art.is-dragging{cursor:grabbing}
+.hero-art.is-dragging .trio-obj{pointer-events:none}
+/* tipografia como peça gráfica: lâmina amarela varre cada linha e revela o texto */
+.hero-v05 .hero-copy .hl{position:relative}
+.hero-v05 .hero-copy .hl::after{content:'';position:absolute;left:0;right:.14em;top:.1em;bottom:.12em;background:var(--gb-yellow);transform:scaleX(0);transform-origin:0 50%;pointer-events:none}
+.hero-v05 .hero-stage.is-intro .hero-copy .hl>span,.hero-v05 .hero-stage.is-in .hero-copy .hl>span{animation:gbInkText .78s steps(1,end) both;animation-delay:calc(var(--l)*95ms + var(--hl-base,0ms))}
+.hero-v05 .hero-stage.is-intro .hero-copy .hl::after,.hero-v05 .hero-stage.is-in .hero-copy .hl::after{animation:gbBlade .78s var(--gb-ease-io) both;animation-delay:calc(var(--l)*95ms + var(--hl-base,0ms))}
+@keyframes gbInkText{0%{opacity:0}46%{opacity:1}100%{opacity:1}}
+@keyframes gbBlade{0%{transform:scaleX(0);transform-origin:0 50%}45%{transform:scaleX(1);transform-origin:0 50%}46%{transform:scaleX(1);transform-origin:100% 50%}100%{transform:scaleX(0);transform-origin:100% 50%}}
+@media(max-width:780px){
+  .hero-trio{inset:0 0 8% 0}
+  .trio-obj{left:18%;width:64%;height:88%;top:4%}
+}
+
+/* =============== GB WIPE / TRANSIÇÃO DE CAPÍTULO =============== */
+.gb-wipe{position:fixed;inset:0;z-index:300;pointer-events:none;visibility:hidden;overflow:hidden}
+.gb-wipe-sheet{position:absolute;inset:0;transform:translate3d(0,101%,0)}
+.gb-wipe-ink{background:var(--gb-ink)}
+.gb-wipe-sun{background:var(--gb-yellow);display:grid;place-items:center;align-content:center;gap:26px}
+.gb-wipe-sun img{width:min(36vw,240px);height:auto;transform:scale(.62)}
+.gb-wipe-label{font:900 clamp(22px,4.4vw,56px)/1 var(--display);letter-spacing:-.04em;color:var(--gb-ink);white-space:nowrap}
+.gb-wipe-label i{display:inline-block;font-style:normal;opacity:0;transform:translateY(.45em)}
+.gb-wipe.is-cover{visibility:visible;pointer-events:auto}
+.gb-wipe.is-cover .gb-wipe-ink{transform:none;transition:transform .4s var(--gb-ease-io)}
+.gb-wipe.is-cover .gb-wipe-sun{transform:none;transition:transform .42s var(--gb-ease-io) .07s}
+.gb-wipe.is-cover .gb-wipe-sun img{animation:gbMark .5s var(--gb-ease) .16s both}
+.gb-wipe.is-cover .gb-wipe-label i{animation:gbLetter .32s var(--gb-ease) both;animation-delay:calc(var(--c)*24ms + 230ms)}
+.gb-wipe.is-reveal .gb-wipe-sun{transform:translate3d(0,-101%,0);transition:transform .5s var(--gb-ease-io)}
+.gb-wipe.is-reveal .gb-wipe-ink{transform:translate3d(0,-101%,0);transition:transform .52s var(--gb-ease-io) .07s}
+.gb-wipe.is-lite .gb-wipe-ink{display:none}
+.gb-wipe.is-lite .gb-wipe-label{display:none}
+@keyframes gbLetter{to{opacity:1;transform:none}}
+
+/* =============== GB RAIL / BARRA EM CURVA, COMPOSIÇÃO MOBILE =============== */
+.rail-pipe{background:none!important;box-shadow:none!important;height:0!important}
+.rail-bar{position:absolute;left:3%;width:94%;top:calc(18% - 5px);height:60px;z-index:10;overflow:visible;pointer-events:none}
+.rail-bar path{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round}
+.rail-bar-shadow{stroke:#00000024;stroke-width:9px;transform:translateY(5px)}
+.rail-bar-metal{stroke:#8d8c86;stroke-width:7px}
+.rail-bar-light{stroke:#fbfaf6;stroke-width:1.6px;opacity:.75;transform:translateY(-1.6px)}
+.rail-items.is-moving .rail-card{will-change:transform}
+.rail-card{will-change:auto}
+.rail-hanger svg{stroke:#5d5d58}
+@media(max-width:599px){
+  .rail-viewport{height:540px}
+  .rail-card{width:min(60vw,300px);left:calc(50% - min(30vw,150px));height:66%}
+  .rail-side-stamp{display:none}
+  .rail-hint{display:none}
+}
+
+/* =============== PRODUTO / INFORMAÇÃO EM OUTRO RITMO =============== */
+.product-modal:not([hidden]) .product-detail>*{animation:gbFadeUp .55s var(--gb-ease) both}
+.product-modal:not([hidden]) .product-detail>*:nth-child(2){animation-delay:.05s}
+.product-modal:not([hidden]) .product-detail>*:nth-child(3){animation-delay:.09s}
+.product-modal:not([hidden]) .product-detail>*:nth-child(4){animation-delay:.13s}
+.product-modal:not([hidden]) .product-detail>*:nth-child(5){animation-delay:.17s}
+.product-modal:not([hidden]) .product-detail>*:nth-child(n+6){animation-delay:.21s}
+::view-transition-group(gb-product){animation-duration:.62s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+::view-transition-old(gb-product),::view-transition-new(gb-product){height:100%;object-fit:contain}
+::view-transition-old(root){animation:.28s ease both gbVtOut}
+::view-transition-new(root){animation:.36s ease .06s both gbVtIn}
+@keyframes gbVtOut{to{opacity:0}}
+@keyframes gbVtIn{from{opacity:0}}
+
+/* =============== NIGHT SHOWROOM / TROCA EM PERSPECTIVA =============== */
+.sf-layer{scale:none!important;translate:none!important;transform:perspective(1400px) translateX(calc(var(--dir,1)*7%)) rotateY(calc(var(--dir,1)*-18deg)) scale(.92);transition:opacity .5s ease,transform .9s var(--gb-ease)!important}
+.sf-layer.is-on{transform:none;opacity:1}
+.sf-layer.is-off{opacity:0;transform:perspective(1400px) translateX(calc(var(--dir,1)*-6%)) rotateY(calc(var(--dir,1)*14deg)) scale(.95)}
+.sf-layer .garment-svg{filter:drop-shadow(0 40px 34px #000b)}
+.showroom-feature-foot strong{letter-spacing:.02em}
+@media(hover:none){.showroom-feature:after{background:radial-gradient(circle at 50% 40%,#ffd4471f 0%,#ffd4470a 26%,transparent 50%)}}
+
+/* =============== CHROMATIC LAB / MESMO MOLDE, CAMADAS DE COR =============== */
+.colorlab-media{position:relative}
+.cl-layer{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transition:opacity .6s ease,transform .8s var(--gb-ease)}
+.cl-layer .garment-svg{width:100%;height:100%;max-height:660px}
+.cl-layer.is-on{opacity:1;transform:none}
+.cl-layer.is-ghost{opacity:0;transform:translateX(-5%)}
+.colorlab-canvas{touch-action:pan-y;cursor:grab}
+.colorlab-legal{background:var(--gb-ink);color:var(--gb-yellow);padding:7px 10px;letter-spacing:1.4px}
+
+/* =============== LOOK STUDIO / ENCAIXE, ARRASTE, A/B =============== */
+.look-dock{position:absolute;z-index:1;border:1px dashed #ffffff2e;border-radius:6px;pointer-events:none;transition:border-color .3s,background-color .3s}
+.look-dock span{position:absolute;left:10px;top:8px;font:800 8px var(--font);letter-spacing:1.6px;color:#ffffff66}
+.look-dock[data-dock="top"]{left:5%;top:10%;width:48%;height:54%}
+.look-dock[data-dock="bottom"]{right:4%;top:30%;width:44%;height:52%}
+.look-dock.is-snap{animation:gbDockSnap .7s var(--gb-ease)}
+@keyframes gbDockSnap{0%{border-color:var(--gb-yellow);background:#ffd4471c}100%{border-color:#ffffff2e;background:transparent}}
+.look-stage.is-dropping .look-dock{border-color:#ffffff55}
+.look-stage.is-dropping[data-drop="top"] .look-dock[data-dock="top"],.look-stage.is-dropping[data-drop="bottom"] .look-dock[data-dock="bottom"]{border:1px solid var(--gb-yellow);background:#ffd44714}
+.look-option{user-select:none;-webkit-user-drag:none}
+@media(pointer:fine){.look-option{cursor:grab}}
+.look-drag-ghost{position:fixed;left:0;top:0;width:120px;height:140px;z-index:500;pointer-events:none;filter:drop-shadow(0 18px 18px #0006);transition:opacity .15s}
+.look-drag-ghost .garment-svg{width:100%;height:100%}
+.look-preview-top,.look-preview-bottom{transition:transform .65s var(--gb-ease),filter .3s}
+.look-stage.is-compare .look-preview-top{transform:translateX(-14%) rotate(-10deg) scale(.74)}
+.look-stage.is-compare .look-preview-bottom{transform:translateX(-62%) translateY(8%) rotate(10deg) scale(.7)}
+.look-stage.is-compare .look-dock{opacity:0}
+.look-stage.is-compare::after{content:'A / ATUAL';position:absolute;left:24px;top:52px;z-index:5;font:800 9px var(--font);letter-spacing:1.6px;color:var(--gb-yellow)}
+.look-compare{position:absolute;right:0;top:0;bottom:0;width:48%;z-index:3;border-left:1px solid #ffffff26;background:linear-gradient(90deg,#0000,#00000033);animation:gbFadeUp .5s var(--gb-ease) both}
+.look-compare-tag{position:absolute;left:18px;top:52px;font:800 9px var(--font);letter-spacing:1.6px;color:var(--gb-yellow)}
+.look-compare-top,.look-compare-bottom{position:absolute;display:grid;place-items:center;filter:drop-shadow(10px 20px 14px #0007)}
+.look-compare-top{left:6%;top:14%;width:72%;height:44%;transform:rotate(-8deg)}
+.look-compare-bottom{left:22%;top:46%;width:66%;height:40%;transform:rotate(8deg)}
+.look-compare .garment-svg{width:100%;height:100%}
+.look-compare-name{position:absolute;left:18px;right:18px;bottom:62px;font:700 11px/1.4 var(--font);color:#e9e4d4}
+.look-tools{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:6px 0 4px}
+.look-tools span{font-size:11px;color:#5f5d55;line-height:1.5;flex:1;min-width:180px}
+.look-compare-btn{min-height:44px;padding:0 16px;border:1px solid var(--gb-ink);background:transparent;font:800 10px var(--font);letter-spacing:1.1px;cursor:pointer}
+.look-compare-btn[aria-pressed="true"],.look-compare-btn:hover{background:var(--gb-ink);color:#fff}
+@media(max-width:780px){
+  .look-stage{min-height:440px!important}
+  .look-tools span{display:none}
+  .look-compare-name{bottom:56px;font-size:10px}
+}
+
+/* =============== CAMPANHA / SLOTS PARA MÍDIA AUTORIZADA =============== */
+.media-slot{margin:0}
+.slot-campaign{position:absolute;z-index:2;right:5vw;top:64px;width:min(40%,560px)}
+.slot-frame{position:relative;aspect-ratio:16/10;overflow:hidden;background:#0b0c0d;border:1px solid #ffffff1f}
+.slot-frame>img,.slot-frame>video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.slot-study{position:absolute;inset:0;overflow:hidden;background:radial-gradient(ellipse at 70% 30%,#24231f,#0b0c0d 70%)}
+.slot-curve{position:absolute;width:250%;height:auto;left:-40%;top:-62%;opacity:.95;transform:rotate(-8deg)}
+.slot-grid{position:absolute;inset:0;background:repeating-linear-gradient(90deg,#ffffff0d 0 1px,transparent 1px 25%),repeating-linear-gradient(0deg,#ffffff0d 0 1px,transparent 1px 33.33%)}
+.media-slot figcaption{display:flex;justify-content:space-between;gap:14px;padding-top:12px;font:800 9px/1.5 var(--font);letter-spacing:1.4px;color:#b8b6ad}
+.slot-status{color:var(--gb-yellow)}
+.slot-tiles{position:absolute;inset:0;z-index:3;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,1fr);pointer-events:none}
+.slot-tiles i{background:#111214;transform-origin:50% 0;transition:transform .7s var(--gb-ease-io);transition-delay:var(--t)}
+.media-slot.is-revealed .slot-tiles i{transform:scaleY(0)}
+@media(max-width:780px){
+  .slot-campaign{position:relative;right:auto;top:auto;width:100%;margin:10px 0 220px}
+  .media-slot figcaption{flex-direction:column;gap:4px}
+}
+
+/* =============== CONTRASTE (WCAG AA sobre papel e preto) =============== */
+.rail-info-label,#railFocusIndex,.rail-info>span,.rail-head-top span:last-child{color:#5f605c!important}
+.rail-disclaimer,.small-caption,.catalog-topline,.section-aside .small-caption{color:#666864!important}
+.shop-entry-number{color:#b3b2ac!important}
+.section-collection h2 em,.rail-title-row h2 em,.look-intro h2 em,.identity-copy h2 em,.category-intro h2 em,.how-heading h2 em{color:#77746a!important}
+.filter{color:#5a5953}
+.filter sup{color:inherit;opacity:1}
+.look-controls-eyebrow,.look-step-title,.look-current span,.look-legal,.product-sub,.product-overline{color:#5f5d55!important}
+.identity-legend,.identity-eye,.identity-copy p{color:#5f5e57!important}
+
+/* =============== MOVIMENTO REDUZIDO / APARELHO MODESTO =============== */
+@media(prefers-reduced-motion:reduce){
+  .hero-v05 .hero-copy .hl::after{display:none}
+  .hero-v05 .hero-copy .hl>span{animation:none!important;opacity:1!important}
+  .slot-tiles{display:none}
+  .gb-wipe{display:none}
+  .cl-layer,.sf-layer,.look-preview-top,.look-preview-bottom{transition:none!important}
+}
+.gb-lite .trio-media{transition:none}
+.gb-lite .showroom-feature:before{display:none}

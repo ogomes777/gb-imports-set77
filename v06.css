@@ -57,15 +57,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[t
 @media(min-width:1101px){.hero-v05 .hero-art-product{inset:-2% -3% -1% 13%}.hero-v05 .hero-copy h1{font-size:clamp(60px,6.3vw,104px)}}
 @media(min-width:781px){.hero-scene-tag{top:auto;bottom:138px;right:auto;left:30%}}
 
-/* ---------- GB WIPE: transição de marca entre editorial e loja ---------- */
-.gb-wipe{position:fixed;inset:0;z-index:300;background:var(--gb-yellow);transform:translate3d(0,101%,0);pointer-events:none;display:grid;place-items:center;align-content:center;gap:22px;visibility:hidden}
-.gb-wipe img{width:min(34vw,240px);height:auto;transform:scale(.62)}
-.gb-wipe span{font:800 10px var(--font);letter-spacing:3px;color:var(--gb-ink);opacity:0}
-.gb-wipe.is-cover{visibility:visible;transform:none;transition:transform .38s var(--gb-ease-io);pointer-events:auto}
-.gb-wipe.is-cover img{animation:gbMark .5s var(--gb-ease) .08s both}
-.gb-wipe.is-cover span{opacity:1;transition:opacity .2s .2s}
-.gb-wipe.is-reveal{transform:translate3d(0,-101%,0);transition:transform .52s var(--gb-ease-io)}
-
+/* GB WIPE: definido em v07.css (transição de capítulo V07) */
 /* ---------- GB RAIL: posição controlada por JS (sem transição de transform) ---------- */
 .rail-card{transition:filter .5s ease!important;transform-origin:50% 4%;will-change:transform,opacity}
 .rail-viewport.is-dragging{cursor:grabbing}
@@ -256,7 +248,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[t
 /* ---------- Movimento reduzido: estado final estático ---------- */
 @media(prefers-reduced-motion:reduce){
   .hl>span,.split-ready .hl>span{transform:none!important;animation:none!important}
-  .gb-wipe{display:none}
   .sf-layer{transition:none}
   .hero-v05 .hero-art,.hero-v05 .v04-hero-ghost,.hero-v05 .hero-giant-mark{translate:none!important}
 }

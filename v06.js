@@ -12,17 +12,22 @@ const fine=matchMedia('(pointer:fine)').matches;
 const hasIO='IntersectionObserver'in window;
 const stage=q('#heroStage');
 
-/* ---------- GB WIPE: cortina amarela com o monograma (0 / 90 / 180 ms, como no manual V1) ---------- */
+/* ---------- GB WIPE: transição de capítulo — lâmina amarela + lâmina preta, monograma e destino ----------
+ * Só em mudança narrativa (entrar na loja / numa coleção). Nunca em filtro, favorito ou busca.
+ * Sem JS os links continuam âncoras normais; com movimento reduzido o destino abre direto. */
+const lite=!!window.GBMotion?.Prefs.lite;
 const wipe=document.createElement('div');wipe.className='gb-wipe';wipe.setAttribute('aria-hidden','true');
-wipe.innerHTML='<img src="./assets/brand/gb-monograma-preto.svg" alt="" decoding="async"><span>GB / THE EDIT</span>';
+wipe.innerHTML='<span class="gb-wipe-sheet gb-wipe-ink"></span><span class="gb-wipe-sheet gb-wipe-sun"><img src="./assets/brand/gb-monograma-preto.svg" alt="" width="240" height="160" decoding="async"><b class="gb-wipe-label"></b></span>';
 document.body.appendChild(wipe);
+const wipeLabel=wipe.querySelector('.gb-wipe-label');
 let wiping=false;
-window.gbWipe=function(cb){
+window.gbWipe=function(cb,label='A CURADORIA'){
   if(reduced||wiping){cb();return}
-  wiping=true;wipe.classList.add('is-cover');
-  setTimeout(()=>{cb();requestAnimationFrame(()=>{wipe.classList.add('is-reveal');setTimeout(()=>{wipe.classList.remove('is-cover','is-reveal');wiping=false},560)})},380);
+  wiping=true;wipeLabel.innerHTML=[...label].map((c,i)=>`<i style="--c:${i}">${c===' '?'&nbsp;':c}</i>`).join('');
+  wipe.classList.toggle('is-lite',lite);wipe.classList.remove('is-reveal');void wipe.offsetWidth;wipe.classList.add('is-cover');
+  setTimeout(()=>{cb();requestAnimationFrame(()=>{wipe.classList.add('is-reveal');setTimeout(()=>{wipe.classList.remove('is-cover','is-reveal');wiping=false},620)})},lite?320:470);
 };
-q('.hero-cta .btn-yellow')?.addEventListener('click',e=>{e.preventDefault();window.gbWipe(()=>q('#colecao').scrollIntoView({behavior:'auto'}))});
+q('.hero-cta .btn-yellow')?.addEventListener('click',e=>{e.preventDefault();window.gbWipe(()=>q('#colecao').scrollIntoView({behavior:'auto'}),'A CURADORIA')});
 
 /* ---------- HERO: intro curta, capítulos automáticos com barra de progresso e pausa ---------- */
 const sceneTag=q('#heroSceneTag'),sceneName=q('#heroSceneName');
@@ -47,6 +52,7 @@ if(!reduced&&bar){
   // diálogos abertos também pausam
   new MutationObserver(()=>{document.body.classList.contains('no-scroll')?pauses.add('dialog'):pauses.delete('dialog');setPaused()}).observe(document.body,{attributes:true,attributeFilter:['class']});
   restartBar();setPaused();
+  window.GBHeroAuto={pause(r){pauses.add(r);setPaused()},resume(r){pauses.delete(r);setPaused()},restart:restartBar};
 }else if(toggle){toggle.hidden=true}
 
 if(!reduced){

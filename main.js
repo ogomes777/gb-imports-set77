@@ -151,8 +151,8 @@ function catalogList(){
 }
 function makeCard(p,i){
  const n=PRODUCTS.indexOf(p)+1,fav=favorites.includes(p.id)
- const second=availableViews(p).includes('top')?`<span class="card-media card-media-b" aria-hidden="true">${productMedia(p,'top')}</span>`:''
- return `<article class="product-card" style="--i:${i}"><button class="product-visual" data-product="${p.id}" aria-label="Ver detalhes de ${escaped(p.name)}"><span class="product-index">GB / ${pad2(n)}</span><span class="card-media card-media-a">${productMedia(p)}</span>${second}<span class="product-badge">${hasPhoto(p)?'FOTO REAL / CADASTRO EM REVISÃO':'ESTUDO / CADASTRO EM REVISÃO'}</span></button><button class="favorite-toggle ${fav?'is-fav':''}" data-fav="${p.id}" aria-label="${fav?'Remover dos favoritos':'Salvar nos favoritos'}: ${escaped(p.name)}" aria-pressed="${fav}">${heartSVG}</button><div class="product-meta"><div><div class="product-overline">${escaped(p.label.toUpperCase())} / ${hasPhoto(p)?'FOTO':'ESTUDO'}</div><div class="product-name">${escaped(p.name)}</div><div class="product-sub">Preço e tamanhos: a validar</div></div><span class="product-arrow" aria-hidden="true">↗</span></div></article>`
+ const second=availableViews(p).includes('top')?`<span class="card-media card-media-b" aria-hidden="true" data-lazy-view="top"></span>`:''
+ return `<article class="product-card" style="--i:${i}"><button class="product-visual" data-product="${p.id}" aria-label="Ver detalhes de ${escaped(p.name)}"><span class="product-index" aria-hidden="true">GB / ${pad2(n)}</span><span class="card-media card-media-a">${productMedia(p)}</span>${second}<span class="product-badge" aria-hidden="true">${hasPhoto(p)?'FOTO REAL / CADASTRO EM REVISÃO':'ESTUDO / CADASTRO EM REVISÃO'}</span></button><button class="favorite-toggle ${fav?'is-fav':''}" data-fav="${p.id}" aria-label="${fav?'Remover dos favoritos':'Salvar nos favoritos'}: ${escaped(p.name)}" aria-pressed="${fav}">${heartSVG}</button><div class="product-meta"><div><div class="product-overline">${escaped(p.label.toUpperCase())} / ${hasPhoto(p)?'FOTO':'ESTUDO'}</div><div class="product-name">${escaped(p.name)}</div><div class="product-sub">Preço e tamanhos: a validar</div></div><span class="product-arrow" aria-hidden="true">↗</span></div></article>`
 }
 function renderProducts(){
  const products=catalogList(),grid=$('#productGrid')
@@ -183,7 +183,16 @@ function toggleFavorite(id){if(favorites.includes(id))favorites=favorites.filter
 /* ---------- Diálogos ---------- */
 function hideAll(){$$('.drawer,.product-modal').forEach(x=>x.hidden=true);$('#productModal').classList.remove('no-anim');$('#overlay').hidden=true;document.body.classList.remove('no-scroll')}
 function openDialog(id){const wasOpen=$$('.drawer,.product-modal').some(x=>!x.hidden);if(!wasOpen)lastFocus=document.activeElement;if(id!=='productModal')clearProductURL();hideAll();const el=$('#'+id);if(!el)return;el.hidden=false;$('#overlay').hidden=false;document.body.classList.add('no-scroll');const close=el.querySelector('[data-close],.modal-close');close?.focus({preventScroll:true})}
-function closeAll(returnFocus=true){const modalWasOpen=!$('#productModal').hidden;hideAll();if(modalWasOpen)clearProductURL();if(returnFocus)lastFocus?.focus?.({preventScroll:true})}
+function closeAll(returnFocus=true){const modalWasOpen=!$('#productModal').hidden;if(modalWasOpen&&returnFocus)closeProductVisual(hideAll);else hideAll();if(modalWasOpen)clearProductURL();if(returnFocus)lastFocus?.focus?.({preventScroll:true})}
+// Ao fechar, a peça volta para o card de origem quando ele está na tela (View Transitions); senão fecha direto.
+function closeProductVisual(done){
+ const card=activeModal&&$(`#productGrid [data-product="${activeModal.id}"] .card-media-a`),hero=$('#galleryHero')
+ const r=card?.getBoundingClientRect()
+ if(!document.startViewTransition||reducedMotion()||!card||!hero||!r||r.bottom<0||r.top>innerHeight){done();return}
+ hero.style.viewTransitionName='gb-product';document.documentElement.classList.add('vt-product')
+ const vt=document.startViewTransition(()=>{hero.style.viewTransitionName='';done();card.style.viewTransitionName='gb-product'})
+ vt.finished.finally(()=>{card.style.viewTransitionName='';document.documentElement.classList.remove('vt-product')})
+}
 function clearProductURL(){
  if(!new URL(location.href).searchParams.has('peca'))return
  if(productPushed){productPushed=false;history.back();return}
@@ -230,7 +239,7 @@ function detailModal(p,opts={}){
   document.documentElement.classList.add('vt-product')
   const vt=document.startViewTransition(()=>{src.style.viewTransitionName='';show();$('#productModal').classList.add('no-anim');const hero=$('#galleryHero');if(hero)hero.style.viewTransitionName='gb-product'})
   vt.finished.finally(()=>{const hero=$('#galleryHero');if(hero)hero.style.viewTransitionName='';document.documentElement.classList.remove('vt-product')})
- }else show()
+ }else{show();if(opts.transition&&window.GBMotion&&!sameProduct){const hero=$('#galleryHero .garment-svg');if(hero)GBMotion.flipClone(opts.transition,hero)}}
  const u=new URL(location.href),had=u.searchParams.has('peca')
  if(u.searchParams.get('peca')!==p.id){u.searchParams.set('peca',p.id);if(opts.replace||had)history.replaceState({peca:p.id},'',u);else{history.pushState({peca:p.id},'',u);productPushed=true}}
  rememberRecent(p.id)
@@ -282,7 +291,8 @@ function saveInterest(){
 const splitLines=(html)=>html.split(/<br\s*\/?>/i).map((line,i)=>`<span class="hl" style="--l:${i}"><span>${line}</span></span>`).join('')
 function changeHero(next){
  heroIndex=(next+heroSlides.length)%heroSlides.length;const slide=heroSlides[heroIndex],stage=$('#heroStage')
- const swap=()=>{$('#heroEyebrow').textContent=slide.eyebrow;$('#heroTitle').innerHTML=splitLines(slide.title);$('#heroSub').textContent=slide.sub;$('#heroProduct').innerHTML=productMedia(slide.product);$('#heroNum').textContent=pad2(heroIndex+1);const tag=$('#heroSceneName');if(tag)tag.textContent=slide.product.name;document.dispatchEvent(new CustomEvent('gb:hero',{detail:{index:heroIndex,product:slide.product}}))}
+ window.GBHeroStage?.go(heroIndex) // V07: o trio gira imediatamente; o texto troca em seguida
+ const swap=()=>{$('#heroEyebrow').textContent=slide.eyebrow;$('#heroTitle').innerHTML=splitLines(slide.title);$('#heroSub').textContent=slide.sub;if(!window.GBHeroStage)$('#heroProduct').innerHTML=productMedia(slide.product);$('#heroNum').textContent=pad2(heroIndex+1);const tag=$('#heroSceneName');if(tag)tag.textContent=slide.product.name;document.dispatchEvent(new CustomEvent('gb:hero',{detail:{index:heroIndex,product:slide.product}}))}
  if(reducedMotion()){swap();return}
  stage.classList.remove('is-in');stage.classList.add('is-out')
  setTimeout(()=>{swap();stage.classList.remove('is-out');void stage.offsetWidth;stage.classList.add('is-in')},260)
@@ -307,8 +317,9 @@ function init(){
  $$('#showMore').forEach(b=>b.addEventListener('click',()=>{showAll=!showAll;renderProducts()}))
  $('#sortSelect')?.addEventListener('change',e=>{sortMode=e.target.value;renderProducts()})
  let searchTimer=0;$('#catalogSearch')?.addEventListener('input',e=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{searchQuery=e.target.value.trim().slice(0,60);renderProducts()},120)})
- $$('.category-tile').forEach(b=>b.addEventListener('click',()=>{const go=()=>{selectFilter(b.dataset.goFilter);$('#colecao').scrollIntoView({behavior:window.gbWipe?'auto':'smooth'})};window.gbWipe?window.gbWipe(go):go()}))
+ $$('.category-tile').forEach(b=>b.addEventListener('click',()=>{const go=()=>{selectFilter(b.dataset.goFilter);$('#colecao').scrollIntoView({behavior:window.gbWipe?'auto':'smooth'})};window.gbWipe?window.gbWipe(go,b.dataset.goFilter==='track'?'CONJUNTOS':'CAMISA + SHORT'):go()}))
  $('#productGrid').addEventListener('click',e=>{const fav=e.target.closest('[data-fav]');if(fav){toggleFavorite(fav.dataset.fav);return}if(e.target.closest('[data-catalog-reset]')){searchQuery='';const i=$('#catalogSearch');if(i)i.value='';selectFilter('all');return}const product=e.target.closest('[data-product]');if(product)detailModal(productById(product.dataset.product),{transition:product.querySelector('.card-media-a')})})
+ $('#productGrid').addEventListener('pointerover',e=>{const v=e.target.closest?.('.product-visual'),b=v?.querySelector('[data-lazy-view]');if(b&&!b.firstChild){b.innerHTML=productMedia(productById(v.dataset.product),b.dataset.lazyView)}},{passive:true})
  $('#recentStrip')?.addEventListener('click',e=>{const b=e.target.closest('[data-product]');if(b)detailModal(productById(b.dataset.product))})
  $('#menuOpen').addEventListener('click',()=>openDialog('navDrawer'))
  $('#searchOpen').addEventListener('click',()=>{renderSearch($('#searchInput').value);openDialog('searchDrawer');setTimeout(()=>$('#searchInput').focus(),50)})
@@ -344,7 +355,7 @@ function init(){
  $('#bagCopy')?.addEventListener('click',()=>{if(!bag.length)return;copyText(interestMessage(bag.map(i=>({p:productById(i.id),top:i.top,bottom:i.bottom})))).then(ok=>toast(ok?'Lista copiada para enviar à GB.':'Não foi possível copiar automaticamente.'))})
  // Foto real quebrada volta ao estudo, sem caixa vazia.
  document.addEventListener('error',e=>{const img=e.target;if(img?.classList?.contains('actual-photo')){const p=productById(img.dataset.pid);if(p){const w=document.createElement('div');w.innerHTML=garmentSVG(p,img.dataset.mode||'combo');img.replaceWith(w.firstElementChild)}}},true)
- window.addEventListener('popstate',()=>{const id=new URL(location.href).searchParams.get('peca');productPushed=false;if(id&&productById(id)){activeModal=productById(id);modalView=availableViews(activeModal)[0];renderProductModal();if($('#productModal').hidden)openDialog('productModal')}else if(!$('#productModal').hidden){hideAll();lastFocus?.focus?.({preventScroll:true})}})
+ window.addEventListener('popstate',()=>{const id=new URL(location.href).searchParams.get('peca');productPushed=false;if(id&&productById(id)){activeModal=productById(id);modalView=availableViews(activeModal)[0];renderProductModal();if($('#productModal').hidden)openDialog('productModal')}else if(!$('#productModal').hidden){closeProductVisual(hideAll);lastFocus?.focus?.({preventScroll:true})}})
  const initial=new URL(location.href).searchParams.get('peca');if(initial&&productById(initial))detailModal(productById(initial),{replace:true})
  if('IntersectionObserver'in window&&!reducedMotion()){document.body.classList.add('js-motion');const io=new IntersectionObserver(entries=>entries.forEach(en=>{if(en.isIntersecting){en.target.classList.add('visible');io.unobserve(en.target)}}),{threshold:.12});$$('.reveal').forEach(el=>io.observe(el))}
 }
