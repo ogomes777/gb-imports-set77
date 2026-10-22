@@ -1,0 +1,431 @@
+{
+  "gerado_em": "2026-10-22",
+  "legenda": {
+    "foto_real": "recorte real importado e vinculado",
+    "arte_estudo": "ilustração SVG de estudo exibida no lugar da foto",
+    "pendente": "foto real ainda não importada"
+  },
+  "aviso": "Manifesto técnico de mídia. Não confirma preço, estoque, marca, licença ou procedência.",
+  "itens": [
+    {
+      "id": "gb-tr-01",
+      "nome_trabalho": "Conjunto Argentina",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "top": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "bottom": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": true,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-tr-02",
+      "nome_trabalho": "Conjunto Real Madrid",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "top": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "bottom": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": true,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-tr-03",
+      "nome_trabalho": "Conjunto Arsenal",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "top": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "bottom": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": true,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-tr-04",
+      "nome_trabalho": "Conjunto Inter",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "top": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "bottom": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": true,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-tr-05",
+      "nome_trabalho": "Conjunto Chelsea",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "top": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "bottom": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": true,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-tr-06",
+      "nome_trabalho": "Conjunto Alemanha",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "top": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "bottom": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": true,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-sh-01",
+      "nome_trabalho": "Kit Real Madrid",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "top": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "bottom": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": true,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-sh-02",
+      "nome_trabalho": "Kit Manchester City",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "top": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "bottom": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": true,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-sh-03",
+      "nome_trabalho": "Kit Manchester United / A",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "top": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "bottom": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": true,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-sh-04",
+      "nome_trabalho": "Kit Manchester United / B",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "top": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "bottom": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": true,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-sh-05",
+      "nome_trabalho": "Kit 05 / catalogar",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "top": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "bottom": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": true,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-sh-06",
+      "nome_trabalho": "Kit 06 / catalogar",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "top": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "bottom": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": true,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-sh-07",
+      "nome_trabalho": "Kit 07 / catalogar",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "top": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "bottom": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": true,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-sh-08",
+      "nome_trabalho": "Kit 08 / catalogar",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "top": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        },
+        "bottom": {
+          "foto_real": false,
+          "arte_estudo": true,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": true,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-ex-01",
+      "nome_trabalho": "Conjunto branco athleisure",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": false,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": false,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-ex-02",
+      "nome_trabalho": "Jaqueta The North Face preta",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": false,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": false,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-ex-03",
+      "nome_trabalho": "Jaqueta The North Face branca",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": false,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": false,
+      "commercial_status": "pendente_validacao"
+    },
+    {
+      "id": "gb-ex-04",
+      "nome_trabalho": "Moletom cinza Nike",
+      "vistas": {
+        "combo": {
+          "foto_real": false,
+          "arte_estudo": false,
+          "pendente": true,
+          "arquivo": null
+        }
+      },
+      "exibido_no_site": false,
+      "commercial_status": "pendente_validacao"
+    }
+  ]
+}

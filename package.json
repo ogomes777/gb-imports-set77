@@ -1,0 +1,12 @@
+{
+  "name": "gb-imports-flagship",
+  "private": true,
+  "description": "GB IMPORTS / Flagship — protótipo estático (SET77 LABS). Sem dependências de runtime.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "npx http-server . -p 8080 -c-1",
+    "preview": "node scripts/build.mjs && npx http-server dist -p 8081 -c-1",
+    "test:e2e": "node tests/e2e.mjs",
+    "fotos": "python3 scripts/importar_produtos.py"
+  }
+}
