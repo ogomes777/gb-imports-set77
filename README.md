@@ -13,16 +13,19 @@ styles.css · main.js     núcleo: tokens, catálogo, busca, filtros, detalhe, s
 v03.css · v03.js         hero editorial, Look Studio, filme em 3 cenas, entrada de loja
 v04.css · v04.js         GB Rail (arara física), viewer, Night Showroom, Chromatic Lab
 v05.css · v05.js         identidade V1 (ORIGEM / TRAMA / SINAL), monograma vetorial
-v06.css · v06.js         direção de movimento: hero com capítulos, GB Wipe, header adaptativo
+v06.css · v06.js         capítulos do hero (autoplay pausável), GB Wipe, header adaptativo
+motion-core.js           núcleo de movimento V07 (tokens, molas, relógio rAF único, gesto, FLIP, mídia)
+v07.css · v07.js         palco de câmera do hero, slots de campanha, cenas V07
 assets-map.js            vínculo produto → vista → foto real (gerado pelo importador)
+campaign-map.js          mídia de campanha autorizada por slot (vazio = composição de estudo)
 assets/brand/            monograma e assinaturas SVG/PNG da proposta V1 (em revisão)
 assets/products/         fotos reais em WebP (vazio até a importação)
 data/catalogo-fontes.json   14 posições de vitrine + 4 do acervo, status por item
 data/manifesto-ativos.json  flags foto_real / arte_estudo / pendente por item e vista
 scripts/build.mjs        build com hash + dist/gb-standalone.html (abre offline)
 scripts/importar_produtos.py importa recortes PNG → WebP e atualiza mapa/manifesto
-tests/e2e.mjs            QA automatizado (Playwright) em 5 larguras + movimento reduzido
-docs/                    arquitetura, QA, pendências de publicação
+tests/e2e.mjs            QA automatizado (Playwright) em 5 larguras + movimento reduzido (46 verificações por largura)
+docs/                    arquitetura, direção V07, QA, pendências de publicação
 ```
 
 ## Rodar
