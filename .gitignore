@@ -1,0 +1,8 @@
+# Saída de build (gerada por scripts/build.mjs)
+dist/
+node_modules/
+.DS_Store
+# Material privado (vídeos de referência, manual, briefing, skills) nunca entra no repositório público
+private/
+references/
+*.mp4

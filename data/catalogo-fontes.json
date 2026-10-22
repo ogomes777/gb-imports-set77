@@ -1,0 +1,286 @@
+{
+  "versao": "v05",
+  "proveniencia": "informacoes de produtos em conversas e acervo GB; não comprova estoque, marcas ou autenticidade",
+  "items": [
+    {
+      "id": "gb-tr-01",
+      "nome_trabalho": "Conjunto Argentina",
+      "categoria": "Agasalho + calça",
+      "media": {
+        "combo": "assets/products/gb-tr-01-combo.webp",
+        "top": "assets/products/gb-tr-01-top.webp",
+        "bottom": "assets/products/gb-tr-01-bottom.webp"
+      },
+      "asset_status": "pendente_importacao",
+      "observacao": "arquivo existente na Biblioteca, não acessível em bytes nesta sessão",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null
+    },
+    {
+      "id": "gb-tr-02",
+      "nome_trabalho": "Conjunto Real Madrid",
+      "categoria": "Agasalho + calça",
+      "media": {
+        "combo": "assets/products/gb-tr-02-combo.webp",
+        "top": "assets/products/gb-tr-02-top.webp",
+        "bottom": "assets/products/gb-tr-02-bottom.webp"
+      },
+      "asset_status": "pendente_importacao",
+      "observacao": "arquivo existente na Biblioteca, não acessível em bytes nesta sessão",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null
+    },
+    {
+      "id": "gb-tr-03",
+      "nome_trabalho": "Conjunto Arsenal",
+      "categoria": "Agasalho + calça",
+      "media": {
+        "combo": "assets/products/gb-tr-03-combo.webp",
+        "top": "assets/products/gb-tr-03-top.webp",
+        "bottom": "assets/products/gb-tr-03-bottom.webp"
+      },
+      "asset_status": "pendente_importacao",
+      "observacao": "arquivo existente na Biblioteca, não acessível em bytes nesta sessão",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null
+    },
+    {
+      "id": "gb-tr-04",
+      "nome_trabalho": "Conjunto Inter",
+      "categoria": "Agasalho + calça",
+      "media": {
+        "combo": "assets/products/gb-tr-04-combo.webp",
+        "top": "assets/products/gb-tr-04-top.webp",
+        "bottom": "assets/products/gb-tr-04-bottom.webp"
+      },
+      "asset_status": "pendente_importacao",
+      "observacao": "arquivo existente na Biblioteca, não acessível em bytes nesta sessão",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null
+    },
+    {
+      "id": "gb-tr-05",
+      "nome_trabalho": "Conjunto Chelsea",
+      "categoria": "Agasalho + calça",
+      "media": {
+        "combo": "assets/products/gb-tr-05-combo.webp",
+        "top": "assets/products/gb-tr-05-top.webp",
+        "bottom": "assets/products/gb-tr-05-bottom.webp"
+      },
+      "asset_status": "pendente_importacao",
+      "observacao": "arquivo existente na Biblioteca, não acessível em bytes nesta sessão",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null
+    },
+    {
+      "id": "gb-tr-06",
+      "nome_trabalho": "Conjunto Alemanha",
+      "categoria": "Agasalho + calça",
+      "media": {
+        "combo": "assets/products/gb-tr-06-combo.webp",
+        "top": "assets/products/gb-tr-06-top.webp",
+        "bottom": "assets/products/gb-tr-06-bottom.webp"
+      },
+      "asset_status": "pendente_importacao",
+      "observacao": "arquivo existente na Biblioteca, não acessível em bytes nesta sessão",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null
+    },
+    {
+      "id": "gb-sh-01",
+      "nome_trabalho": "Kit Real Madrid",
+      "categoria": "Camisa + short",
+      "media": {
+        "combo": "assets/products/gb-sh-01-combo.webp",
+        "top": "assets/products/gb-sh-01-top.webp",
+        "bottom": "assets/products/gb-sh-01-bottom.webp"
+      },
+      "asset_status": "pendente_importacao",
+      "observacao": "arquivo existente na Biblioteca, não acessível em bytes nesta sessão",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null
+    },
+    {
+      "id": "gb-sh-02",
+      "nome_trabalho": "Kit Manchester City",
+      "categoria": "Camisa + short",
+      "media": {
+        "combo": "assets/products/gb-sh-02-combo.webp",
+        "top": "assets/products/gb-sh-02-top.webp",
+        "bottom": "assets/products/gb-sh-02-bottom.webp"
+      },
+      "asset_status": "pendente_importacao",
+      "observacao": "arquivo existente na Biblioteca, não acessível em bytes nesta sessão",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null
+    },
+    {
+      "id": "gb-sh-03",
+      "nome_trabalho": "Kit Manchester United / A",
+      "categoria": "Camisa + short",
+      "media": {
+        "combo": "assets/products/gb-sh-03-combo.webp",
+        "top": "assets/products/gb-sh-03-top.webp",
+        "bottom": "assets/products/gb-sh-03-bottom.webp"
+      },
+      "asset_status": "pendente_importacao",
+      "observacao": "arquivo existente na Biblioteca, não acessível em bytes nesta sessão",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null
+    },
+    {
+      "id": "gb-sh-04",
+      "nome_trabalho": "Kit Manchester United / B",
+      "categoria": "Camisa + short",
+      "media": {
+        "combo": "assets/products/gb-sh-04-combo.webp",
+        "top": "assets/products/gb-sh-04-top.webp",
+        "bottom": "assets/products/gb-sh-04-bottom.webp"
+      },
+      "asset_status": "pendente_importacao",
+      "observacao": "arquivo existente na Biblioteca, não acessível em bytes nesta sessão",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null
+    },
+    {
+      "id": "gb-sh-05",
+      "nome_trabalho": "Kit 05 / catalogar",
+      "categoria": "Camisa + short",
+      "media": {
+        "combo": "assets/products/gb-sh-05-combo.webp",
+        "top": "assets/products/gb-sh-05-top.webp",
+        "bottom": "assets/products/gb-sh-05-bottom.webp"
+      },
+      "asset_status": "pendente_importacao",
+      "observacao": "nome/arquivo a revisar",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null
+    },
+    {
+      "id": "gb-sh-06",
+      "nome_trabalho": "Kit 06 / catalogar",
+      "categoria": "Camisa + short",
+      "media": {
+        "combo": "assets/products/gb-sh-06-combo.webp",
+        "top": "assets/products/gb-sh-06-top.webp",
+        "bottom": "assets/products/gb-sh-06-bottom.webp"
+      },
+      "asset_status": "pendente_importacao",
+      "observacao": "nome/arquivo a revisar",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null
+    },
+    {
+      "id": "gb-sh-07",
+      "nome_trabalho": "Kit 07 / catalogar",
+      "categoria": "Camisa + short",
+      "media": {
+        "combo": "assets/products/gb-sh-07-combo.webp",
+        "top": "assets/products/gb-sh-07-top.webp",
+        "bottom": "assets/products/gb-sh-07-bottom.webp"
+      },
+      "asset_status": "pendente_importacao",
+      "observacao": "nome/arquivo a revisar",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null
+    },
+    {
+      "id": "gb-sh-08",
+      "nome_trabalho": "Kit 08 / catalogar",
+      "categoria": "Camisa + short",
+      "media": {
+        "combo": "assets/products/gb-sh-08-combo.webp",
+        "top": "assets/products/gb-sh-08-top.webp",
+        "bottom": "assets/products/gb-sh-08-bottom.webp"
+      },
+      "asset_status": "pendente_importacao",
+      "observacao": "nome/arquivo a revisar",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null
+    },
+    {
+      "id": "gb-ex-01",
+      "nome_trabalho": "Conjunto branco athleisure",
+      "categoria": "Conjunto",
+      "media": {
+        "combo": "assets/products/gb-ex-01-combo.webp"
+      },
+      "asset_status": "arquivos_identificados_na_biblioteca_sem_bytes_disponiveis",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null,
+      "observacao": "Não exibir no catálogo até vincular o PNG real e conferir atributos."
+    },
+    {
+      "id": "gb-ex-02",
+      "nome_trabalho": "Jaqueta The North Face preta",
+      "categoria": "Jaqueta",
+      "media": {
+        "combo": "assets/products/gb-ex-02-combo.webp"
+      },
+      "asset_status": "arquivos_identificados_na_biblioteca_sem_bytes_disponiveis",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null,
+      "observacao": "Não exibir no catálogo até vincular o PNG real e conferir atributos."
+    },
+    {
+      "id": "gb-ex-03",
+      "nome_trabalho": "Jaqueta The North Face branca",
+      "categoria": "Jaqueta",
+      "media": {
+        "combo": "assets/products/gb-ex-03-combo.webp"
+      },
+      "asset_status": "arquivos_identificados_na_biblioteca_sem_bytes_disponiveis",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null,
+      "observacao": "Não exibir no catálogo até vincular o PNG real e conferir atributos."
+    },
+    {
+      "id": "gb-ex-04",
+      "nome_trabalho": "Moletom cinza Nike",
+      "categoria": "Moletom",
+      "media": {
+        "combo": "assets/products/gb-ex-04-combo.webp"
+      },
+      "asset_status": "arquivos_identificados_na_biblioteca_sem_bytes_disponiveis",
+      "commercial_status": "pendente_validacao",
+      "preco": null,
+      "estoque": null,
+      "procedencia": null,
+      "observacao": "Não exibir no catálogo até vincular o PNG real e conferir atributos."
+    }
+  ]
+}
