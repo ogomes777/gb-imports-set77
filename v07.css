@@ -114,7 +114,8 @@
 .look-preview-top,.look-preview-bottom{transition:transform .65s var(--gb-ease),filter .3s}
 .look-stage.is-compare .look-preview-top{transform:translateX(-14%) rotate(-10deg) scale(.74)}
 .look-stage.is-compare .look-preview-bottom{transform:translateX(-62%) translateY(8%) rotate(10deg) scale(.7)}
-.look-stage.is-compare .look-dock{opacity:0}
+.look-stage.is-compare .look-dock,.look-stage.is-compare .look-cycle{opacity:0;pointer-events:none}
+.look-cycle{transition:opacity .3s}
 .look-stage.is-compare::after{content:'A / ATUAL';position:absolute;left:24px;top:52px;z-index:5;font:800 9px var(--font);letter-spacing:1.6px;color:var(--gb-yellow)}
 .look-compare{position:absolute;right:0;top:0;bottom:0;width:48%;z-index:3;border-left:1px solid #ffffff26;background:linear-gradient(90deg,#0000,#00000033);animation:gbFadeUp .5s var(--gb-ease) both}
 .look-compare-tag{position:absolute;left:18px;top:52px;font:800 9px var(--font);letter-spacing:1.6px;color:var(--gb-yellow)}
@@ -154,7 +155,16 @@
 /* =============== CONTRASTE (WCAG AA sobre papel e preto) =============== */
 .rail-info-label,#railFocusIndex,.rail-info>span,.rail-head-top span:last-child{color:#5f605c!important}
 .rail-disclaimer,.small-caption,.catalog-topline,.section-aside .small-caption{color:#666864!important}
-.shop-entry-number{color:#b3b2ac!important}
+.shop-entry-number{color:#b3b2ac!important;opacity:1!important}
+.catalog-note{color:#666864!important}
+.category-bottom-rail span,.detail-footer{color:#666864!important}
+.showroom-selector button span{color:#9d9c95!important}
+.kicker-label,.how-card p,.identity-top span:last-child,.identity-switch button,.identity-switch button span{color:#5c5b55!important}
+.identity-switch button.selected,.identity-switch button.selected span{color:#111214!important}
+.how-num{color:#6b6a62!important}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.product-frame{position:relative}
+.product-frame .product-index,.product-frame .product-badge{pointer-events:none}
 .section-collection h2 em,.rail-title-row h2 em,.look-intro h2 em,.identity-copy h2 em,.category-intro h2 em,.how-heading h2 em{color:#77746a!important}
 .filter{color:#5a5953}
 .filter sup{color:inherit;opacity:1}

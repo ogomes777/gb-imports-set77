@@ -36,7 +36,7 @@ const step=()=>mobile()?Math.max(150,innerWidth*.56):Math.min(230,Math.max(118,i
 const sagPx=()=>Math.min(26,vw*.02);
 const barY=x=>{const h=vw*.47;const t=clamp(x/h,-1.2,1.2);return sagPx()*(1-t*t)};
 function buildRail(){
-  railTrack.innerHTML=railItems.map((p,i)=>`<button class="rail-card" type="button" data-rail-item="${i}" tabindex="-1" aria-label="${escaped(p.name)}, ${i+1} de ${railItems.length}"><span class="rail-hanger" aria-hidden="true"><svg viewBox="0 0 100 55"><path d="M48 16a9 9 0 1 1 9 9c-8 4-15 9-39 23-4 3-2 5 2 5h61c4 0 6-2 2-5L56 27"/></svg></span><span class="rail-media">${productMedia(p,'top')}</span><span class="rail-card-index" aria-hidden="true">${fmt(i)} / ${escaped(p.label.toUpperCase())}</span></button>`).join('');
+  railTrack.innerHTML=railItems.map((p,i)=>`<button class="rail-card" type="button" data-rail-item="${i}" tabindex="-1" aria-label="${escaped(p.name)} — ${fmt(i)} / ${escaped(p.label.toUpperCase())}, ${i+1} de ${railItems.length}"><span class="rail-hanger" aria-hidden="true"><svg viewBox="0 0 100 55"><path d="M48 16a9 9 0 1 1 9 9c-8 4-15 9-39 23-4 3-2 5 2 5h61c4 0 6-2 2-5L56 27"/></svg></span><span class="rail-media">${productMedia(p,'top')}</span><span class="rail-card-index">${fmt(i)} / ${escaped(p.label.toUpperCase())}</span></button>`).join('');
   cards=qa('.rail-card',railTrack);
 }
 // barra desenhada como parábola (Bézier quadrática simétrica): mesma curva usada pelos ganchos

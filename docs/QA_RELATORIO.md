@@ -1,4 +1,31 @@
-# GB Flagship / QA V06 (22/10/2026)
+# GB Flagship / QA V07 (22/10/2026)
+
+## Automatizado — `node tests/e2e.mjs`
+Playwright 1.56 / Chromium. Fonte (`/`), build (`dist/`) e preview da Vercel: **278/278 verificações aprovadas** em cada.
+Larguras 1440, 1024, 768, 390 (touch), 320 (touch) e 390 com `prefers-reduced-motion` — 46 verificações por largura.
+
+Novos fluxos V07: trio do hero (3 peças persistentes; periférica assume o capítulo; protagonista = capítulo ativo; protagonista abre a ficha; arrasto troca capítulo), ficha aberta e fechada 10 vezes seguidas sem erro, foco devolvido ao card, URL limpa, botão voltar fecha a ficha, arara com arrasto 1:1 (erro < 14 px em 80 px), barra em curva, Chromatic sem deslocar o molde (mesma caixa entre estados) e com rótulo de estudo, encaixe e comparação A/B no Look Studio, slot de campanha presente.
+
+## Lighthouse mobile (simulado, mesma máquina, mesmo método)
+| | Performance | Acessibilidade | Boas práticas | FCP | LCP | TBT | CLS |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| V06 (produção, antes) | 89 | 96 | 96 | 2,9 s | 2,9 s | 0 ms | 0 |
+| V07 (preview, 2 execuções) | 92 / 97 | 100* | 96 | 1,9 s | 3,0 / 2,2 s | 120 / 70 ms | 0 |
+
+\* 100 medido no build local após o ajuste final de contraste e nomes acessíveis (61 → 0 falhas de contraste; 27 → 0 nomes divergentes).
+Lighthouse não mede INP de campo; os números são de laboratório. Em CPU 4× mais lenta, as interações medidas responderam entre 35 e 180 ms.
+
+## Movimento
+- Um único `requestAnimationFrame` compartilhado (GBMotion.Ticker), ativo só durante gesto ou acomodação; zero loop ocioso.
+- Transições usam `transform`/`opacity`; brilho das peças do hero só em aparelhos não-`lite`.
+- `prefers-reduced-motion`: sem intro, autoplay, wipe, mosaico, lâmina do título ou molas — tudo navegável (cenário dedicado no E2E).
+
+## Não testado / limites
+iPhone e Android físicos, Safari real (View Transitions no Safari 18 não verificado em aparelho), leitores de tela, 60 fps medidos em aparelho mediano, Core Web Vitals de campo.
+
+---
+
+## Histórico — QA V06 (22/10/2026)
 
 ## Automatizado — `node tests/e2e.mjs`
 Chromium headless (Playwright 1.56). Rodado na fonte (`/`) e no build (`dist/`): **189/189 verificações aprovadas** em cada.

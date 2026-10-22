@@ -1,5 +1,15 @@
 # GB Flagship / Changelog
 
+## V07 — 22/10/2026 · "GB / IN MOTION"
+- `motion-core.js` (GBMotion): tokens, preferências, relógio rAF único, molas interrompíveis, gesto, FLIP, MediaSlot.
+- Hero vira palco de câmera: trio em profundidade dirigido por uma fase contínua; seleção, arrasto, teclado; título por lâmina amarela.
+- GB Rail com barra em catenária, ganchos ancorados na curva, inércia com fricção e composição mobile própria.
+- Catálogo ↔ ficha com continuidade nos dois sentidos (View Transitions + FLIP de reserva).
+- Night Showroom em perspectiva com luz amortecida e prévia por intenção; Chromatic Lab por camadas sobre o mesmo molde.
+- Look Studio com áreas de encaixe, arraste da lista ao palco e comparação A/B.
+- GB Wipe de capítulo (lâminas preta + amarela, destino letra a letra); slots de campanha para mídia autorizada.
+- Fontes sem bloquear renderização, acessibilidade Lighthouse 100, bug de clique no hero corrigido.
+
 ## V06 — 22/10/2026
 - Fonte separada em camadas modulares (a V05 publicada era um único HTML de 444 KB).
 - Arte de estudo das peças redesenhada (zíper, golas, punhos, cós, sombreamento), sem marcas de terceiros.
