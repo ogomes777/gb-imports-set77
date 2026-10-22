@@ -100,6 +100,54 @@ async function run(w,h,reduced=false){
   // Deep link + voltar
   await page.goto(BASE+'?peca=gb-sh-02',{waitUntil:'networkidle'});
   check(vp,'deep link abre peça',(await page.locator('#productModal h2').textContent()).includes('MANCHESTER CITY'));
+  // ===== V07 =====
+  await page.goto(BASE,{waitUntil:'networkidle'});await page.waitForTimeout(500);
+  // Hero: trio persistente, periférica vira protagonista, protagonista abre a peça
+  check(vp,'hero: trio com 3 peças',await page.locator('#heroTrio .trio-obj').count()===3);
+  const num0=await page.locator('#heroNum').textContent();
+  await page.locator('#heroTrio .trio-obj:not(.is-front)').first().click({force:true});await page.waitForTimeout(1300);
+  check(vp,'hero: periférica assume o capítulo',(await page.locator('#heroNum').textContent())!==num0);
+  const frontIdx=await page.locator('#heroTrio .trio-obj.is-front').getAttribute('data-trio');
+  check(vp,'hero: protagonista = capítulo ativo',Number(frontIdx)===Number(await page.locator('#heroNum').textContent())-1);
+  await page.locator('#heroTrio .trio-obj.is-front').click({force:true});await page.waitForTimeout(900);
+  check(vp,'hero: protagonista abre a peça',await page.locator('#productModal').isVisible()&&page.url().includes('peca='));
+  await page.keyboard.press('Escape');await page.waitForTimeout(700);
+  if(!mobile){const art=await page.locator('#heroArt').boundingBox();const n1=await page.locator('#heroNum').textContent();
+    await page.mouse.move(art.x+art.width*.7,art.y+art.height*.45);await page.mouse.down();for(let i=1;i<=12;i++)await page.mouse.move(art.x+art.width*.7-i*24,art.y+art.height*.45);await page.mouse.up();await page.waitForTimeout(1300);
+    check(vp,'hero: arrasto troca capítulo',(await page.locator('#heroNum').textContent())!==n1)}
+  // Produto: abrir/fechar 10 vezes, foco volta ao card, URL limpa, voltar do navegador fecha
+  await page.locator('#colecao .product-grid').scrollIntoViewIfNeeded();
+  let okLoop=true;
+  for(let i=0;i<10;i++){await page.locator('#productGrid .product-visual').nth(i%4).click();await page.waitForTimeout(250);if(!(await page.locator('#productModal').isVisible()))okLoop=false;await page.keyboard.press('Escape');await page.waitForTimeout(450);if(await page.locator('#productModal').isVisible())okLoop=false}
+  check(vp,'produto: abrir/fechar 10x',okLoop);
+  check(vp,'produto: URL limpa após 10x',!page.url().includes('peca='));
+  check(vp,'produto: foco volta ao card',await page.evaluate(()=>!!document.activeElement?.closest('#productGrid')));
+  await page.locator('#productGrid .product-visual').first().click();await page.waitForTimeout(500);
+  await page.goBack();await page.waitForTimeout(800);
+  check(vp,'produto: voltar do navegador fecha',!(await page.locator('#productModal').isVisible()));
+  // Arara: arrasto 1:1 (deslocamento da peça acompanha o ponteiro)
+  await page.locator('#railViewport').scrollIntoViewIfNeeded();await page.waitForTimeout(300);
+  if(!mobile){const rb=await page.locator('#railViewport').boundingBox();const card=page.locator('.rail-card.is-active');const x0=(await card.boundingBox()).x;
+    await page.mouse.move(rb.x+rb.width*.5,rb.y+rb.height*.55);await page.mouse.down();await page.mouse.move(rb.x+rb.width*.5-20,rb.y+rb.height*.55);await page.mouse.move(rb.x+rb.width*.5-80,rb.y+rb.height*.55,{steps:4});await page.waitForTimeout(80);
+    const x1=(await card.boundingBox()).x;await page.mouse.up();await page.waitForTimeout(900);
+    check(vp,'arara: arrasto 1:1',Math.abs((x0-x1)-80)<14,`${Math.round(x0-x1)}px`)}
+  check(vp,'arara: barra em curva',await page.locator('#railBar path').count()===3);
+  // Chromatic: molde idêntico entre estados
+  await page.locator('#colorlab').scrollIntoViewIfNeeded();await page.waitForTimeout(300);
+  const g0=await page.locator('.cl-layer.is-on .garment-svg').boundingBox();
+  await page.locator('[data-color-index="2"]').click();await page.waitForTimeout(900);
+  const g1=await page.locator('.cl-layer.is-on .garment-svg').boundingBox();
+  check(vp,'chromatic: troca sem mover o molde',g0&&g1&&Math.abs(g0.x-g1.x)<1&&Math.abs(g0.width-g1.width)<1);
+  check(vp,'chromatic: rótulo de estudo',(await page.locator('.colorlab-legal').textContent()).includes('NÃO É VARIANTE'));
+  // Look Studio: encaixe e comparação A/B
+  await page.locator('#lookstudio').scrollIntoViewIfNeeded();
+  await page.locator('#lookTops .look-option').nth(4).click();
+  if(!reduced)check(vp,'look: encaixe sinaliza a área',await page.locator('.look-dock[data-dock="top"].is-snap').count()===1);
+  await page.locator('#lookSave').click();await page.locator('#lookCompareBtn').click();
+  check(vp,'look: comparação A/B abre',await page.locator('#lookCompare').isVisible());
+  await page.locator('#lookCompareBtn').click();
+  // Campanha: slot pronto para mídia autorizada
+  check(vp,'campanha: slot de mídia presente',await page.locator('[data-media-slot="campaign-hero"] .slot-frame').count()===1);
   // Overflow após rolar a página inteira
   const H=await page.evaluate(()=>document.documentElement.scrollHeight);
   await page.keyboard.press('Escape');
