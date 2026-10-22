@@ -56,7 +56,7 @@ const SHADE_DEFS=`<svg width="0" height="0" style="position:absolute" aria-hidde
  <pattern id="gbKnit" width="5" height="5" patternUnits="userSpaceOnUse"><path d="M0 5 5 0" stroke="#fff" stroke-opacity=".045"/></pattern>
 </defs></svg>`
 const MIRROR=(inner)=>`<g transform="translate(214 0) scale(-1 1)">${inner}</g>`
-function shade(d){return `<path d="${d}" fill="url(#gbShadeH)"/><path d="${d}" fill="url(#gbShadeV)"/><path d="${d}" fill="url(#gbKnit)"/>`}
+function shade(d){return `<path d="${d}" fill="url(#gbShadeH)"/><path d="${d}" fill="url(#gbShadeV)"/>`}
 function jacketShape(p){
  const torso='M72 34Q107 47 142 34L166 44Q172 47 172 58L170 236Q170 246 160 246L54 246Q44 246 44 236L42 58Q42 47 48 44Z'
  const sleeve='M48 44Q30 50 24 72L6 206Q5 214 13 216L33 220Q40 221 41 213L50 98Z'

@@ -84,7 +84,8 @@ function choose(mode,id,dir,snap=false){
  paintPiece(mode,dir,snap);renderOptions();renderSummary();if(comparing)renderCompare();
 }
 function cycle(mode,d){const cur=mode==='top'?selectedTop:selectedBottom;const i=lookPool.findIndex(p=>p.id===cur);choose(mode,lookPool[(i+d+lookPool.length)%lookPool.length].id,d)}
-renderStudio();
+// monta o estúdio só quando ele se aproxima da tela (menos trabalho no carregamento)
+if(window.GBMotion){const off=GBMotion.onVisible(one('#lookstudio'),v=>{if(v){off();renderStudio()}},{margin:'900px 0px'})}else renderStudio();
 for(const id of ['lookTops','lookBottoms'])one('#'+id)?.addEventListener('click',e=>{
  const btn=e.target.closest('[data-look-id]'); if(!btn)return;
  const mode=btn.dataset.lookMode,cur=mode==='top'?selectedTop:selectedBottom;

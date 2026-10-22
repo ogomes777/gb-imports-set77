@@ -36,7 +36,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[t
 @keyframes gbFadeUp{from{opacity:0;translate:0 14px}to{opacity:1;translate:0 0}}
 @keyframes gbProductIn{from{opacity:0;scale:.9;translate:6% 3%}to{opacity:1;scale:1;translate:0 0}}
 @keyframes gbGhostIn{from{opacity:0;scale:.86}to{opacity:.52;scale:1}}
-@keyframes gbMarkIn{from{opacity:0;scale:.9}to{opacity:.13;scale:1}}
+@keyframes gbMarkIn{from{scale:.9}to{scale:1}} /* só escala: a marca já pinta no 1º quadro (LCP) */
 .hero-v05 .hero-art{translate:calc(var(--px,0)*-16px) calc(var(--py,0)*-10px);transition:translate .5s var(--gb-ease)}
 .hero-v05 .v04-hero-ghost{translate:calc(var(--px,0)*22px) calc(var(--py,0)*14px);transition:translate .6s var(--gb-ease)}
 .hero-v05 .hero-giant-mark{translate:calc(var(--px,0)*10px) calc(var(--py,0)*8px);transition:translate .8s var(--gb-ease)}
