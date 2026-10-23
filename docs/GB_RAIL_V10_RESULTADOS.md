@@ -1,6 +1,6 @@
 # GB RAIL V10 — Relatório de implementação
 
-**Branch:** `feat/gb-rail-v10` · **Preview:** link da Vercel no PR/painel da branch (`gb-imports-set77-git-feat-gb-rail-v10-…vercel.app`) · **Produção:** não publicada, aguardando validação visual.
+**Branch:** `feat/gb-rail-v10` · **Preview:** https://gb-imports-set77-git-feat-gb-rail-v10-ogomes77-s-projects.vercel.app · **Produção:** não publicada, aguardando validação visual.
 
 ## O que mudou na arara
 | Antes | V10 |
@@ -34,7 +34,7 @@ Auditoria completa em `docs/GB_RAIL_V10_ASSET_AUDIT.md` e `data/gb-rail-audit.cs
 | Arara física, catálogo curado, arrasto/inércia/mola, foco 3/4 → frente, fichas de cor reais, kits com partes reais, Object View unificado, acessibilidade, movimento reduzido | **Costas e lateral**: precisam de fotos reais da mesma peça e cor (`views.back`/`side`). **360°**: sequência de 12–36 fotos ou modelo 3D validado. **Partes isoladas** dos kits que só têm foto do kit (002, 008, 010 inferior, 011, 012, 013 inferior, 014). **Novas cores**: foto de cada cor. **Confirmação da GB** para `s-126` e para nomes, marcas e procedência |
 
 ## Testes
-- `node tests/e2e.mjs`: **613/613** na fonte e no build (`dist/`), em 1440, 1024, 768, 390 e 320 px e com movimento reduzido. São 33 cenários V10 por largura, cobrindo:
+- `node tests/e2e.mjs`: **613/613** na fonte, no build (`dist/`) e na **preview da Vercel** (rede real), em 1440, 1024, 768, 390 e 320 px e com movimento reduzido. São 33 cenários V10 por largura, cobrindo:
   - catálogo: sem SVG nem estudo, contagem derivada, sem repetição;
   - física: gancho na barra, gola no cabide, presilhas no cós;
   - navegação: setas, teclado, mola interrompível quadro a quadro, arrasto 1:1, inércia, gesto vertical;

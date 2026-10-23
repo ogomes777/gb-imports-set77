@@ -1,4 +1,32 @@
-# GB Flagship / QA V09 — GB Fit Studio (23/10/2026)
+# GB Flagship / QA V10 — GB RAIL (23/10/2026)
+
+## Automatizado
+- `node tests/e2e.mjs`: **613/613** na fonte, no `dist/` e na preview `feat/gb-rail-v10` da Vercel (1440, 1024, 768, 390, 320 e 390 com movimento reduzido).
+- 33 verificações V10 por largura. Detalhe em `docs/GB_RAIL_V10_RESULTADOS.md`.
+- `node scripts/gerar-rail-v10.mjs --check` e `node scripts/validar-crt.mjs` verdes; no CI, rodam antes do build.
+
+## Desempenho
+Chromium headless sem GPU, CPU 4× mais lenta, 10 s de arrasto contínuo + trocas de cor:
+- mobile 390: 0 tarefas longas, quadro p50/p95 de 16,7/33 ms (main: 8 tarefas, 16,7/50 ms);
+- desktop 1440: 6 tarefas longas com pico de 60 ms e quadro p50 de 33 ms (main: 3 tarefas com pico de 64 ms, p50 de 66 ms).
+
+A sombra em `blur()` CSS da primeira versão custava 82 tarefas longas e foi trocada por sombras pré-calculadas.
+
+## Defeitos encontrados e corrigidos durante o QA
+- Fichas fora da tela no celular, chegando a rolar o palco: o palco agora usa `overflow:clip` e centraliza peça + fichas.
+- Home/End perdia o foco do teclado e a página rolava.
+- Apertar, arrastar na vertical e soltar abria a peça; agora o clique exige movimento menor que 10 px.
+- Virtualização abortava imagens ainda carregando.
+- O viewer mostrava fichas da peça anterior até a foto nova chegar.
+- A foto alta do kit invadia a legenda.
+- O standalone triplicava imagens embutidas (52 MB); voltou a 17,7 MB.
+
+## Não testado
+Aparelhos físicos, Safari/iOS real e leitor de tela real.
+
+---
+
+## Histórico — QA V09 — GB Fit Studio (23/10/2026)
 
 ## Automatizado — `node tests/e2e.mjs`
 Playwright / Chromium. Fonte (`/`), build (`dist/`) e preview da Vercel da branch: **442/442 verificações aprovadas** em cada.
