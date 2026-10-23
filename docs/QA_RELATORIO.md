@@ -1,4 +1,51 @@
-# GB Flagship / QA V07 (22/10/2026)
+# GB Flagship / QA V09 — GB Fit Studio (23/10/2026)
+
+## Automatizado — `node tests/e2e.mjs`
+Playwright / Chromium. Fonte (`/`), build (`dist/`) e preview da Vercel da branch: **442/442 verificações aprovadas** em cada.
+Larguras 1440, 1024, 768, 390 (touch), 320 (touch) e 390 com `prefers-reduced-motion`.
+
+Fluxos V09 cobertos:
+- **Base**
+  - Um único manequim vestindo superior e inferior, com IDs iguais à seleção.
+  - Aviso de simulação editorial visível.
+  - Corpo inteiro ocupando ≥ 78 % do palco e dentro dele.
+  - Controles com 44 px e fora da nav fixa.
+- **Trocas**
+  - 3 trocas rápidas de superior convergem para a última, sem empilhar fantasmas; o inferior não muda.
+  - Nenhuma animação ativa depois que a peça assenta.
+  - Evento `gb:look-change` com `{topId,bottomId,changedPart,source}`; rótulo acessível atualizado.
+  - 3 trocas de inferior preservam o superior.
+  - MISTURAR entra em `switching-both`, troca as duas peças e volta a `idle`.
+- **Mesmo estado final por qualquer origem**
+  - Clique, setas, swipe (mobile) e arraste até o corpo (desktop) chegam ao mesmo resultado.
+- **Salvar, restaurar e A/B**
+  - Look salvo guarda IDs reais + `presentationVersion`.
+  - A/B com o look salvo no mesmo corpo e escala; divisor ajustável; sem rótulo duplicado.
+  - Fechar o A/B remove a figura B; restaurar veste o look salvo.
+- **Acesso**
+  - Troca pelo teclado.
+  - Movimento reduzido troca sem animar.
+- **Regressão V06–V08**
+  - Catálogo, busca, filtros, viewer de peça, cores na peça, arara, hero, ficha e campanha.
+  - Sem overflow e sem erros de JS ou de rede.
+
+## Revisão visual
+Capturas 1440/1024/390/320 e vídeos de troca (desktop e mobile) revisados quadro a quadro. Corrigidos durante a revisão:
+- quadril aparecendo pela lateral da barra;
+- listras laterais da camisa pesadas demais;
+- aviso legal sobre as setas;
+- palco do desktop mais alto que a tela (agora sticky, com o corpo inteiro visível);
+- rótulo "A / ATUAL" herdado da V07 duplicado no A/B;
+- MISTURAR sobre o rótulo B;
+- MISTURAR que às vezes mantinha uma das peças.
+
+## Não testado / limites
+- Não testado: aparelhos físicos, Safari real, leitores de tela reais (só semântica e rótulos verificados) e fps medido em aparelho mediano.
+- O provador é uma composição editorial: não mede caimento nem tamanho e não simula tecido.
+
+---
+
+## Histórico — QA V07 (22/10/2026)
 
 ## Automatizado — `node tests/e2e.mjs`
 Playwright 1.56 / Chromium. Fonte (`/`), build (`dist/`) e preview da Vercel: **278/278 verificações aprovadas** em cada.
