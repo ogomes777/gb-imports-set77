@@ -13,7 +13,8 @@ const check=(vp,name,ok,info='')=>{results.push({vp,name,ok,info});if(!ok){failu
 
 // ===== GB RAIL V10: catálogo real, física da arara, fichas de cor e vistas honestas =====
 async function railV10(page,vp,mobile,reduced,w,h){
-  await page.goto(BASE,{waitUntil:'networkidle'});
+  // sem recarregar a página (recarga aborta imagens do catálogo ainda chegando): estado reiniciado pela API
+  await page.evaluate(()=>{GBRail.close();GBRail.setFilter('all')});
   const toRail=()=>page.evaluate(m=>{const r=document.querySelector('#railViewport');scrollTo({top:r.getBoundingClientRect().top+scrollY-(m?120:130),behavior:'instant'})},mobile);
   await toRail();await page.waitForTimeout(900);
   const st=()=>page.evaluate(()=>GBRail.state);
@@ -86,7 +87,8 @@ async function railV10(page,vp,mobile,reduced,w,h){
   check(vp,'V10: 4 fichas = 4 cores fotografadas (uma selecionada)',tags.n===4&&tags.pressed===1&&tags.labels.join()==='CINZA,CREME,AZUL,GRAFITE',JSON.stringify(tags));
   check(vp,'V10: fichas não cobrem a roupa nem saem da tela',!tags.hit&&!tags.out,JSON.stringify(tags));
   if(reduced)check(vp,'V10: movimento reduzido sem animação de fichas',tags.anims===0,String(tags.anims));
-  await page.locator('.r10-item.is-focus .gb-tag[data-variant="2"]').click();await page.waitForTimeout(reduced?120:700);
+  await page.locator('.r10-item.is-focus .gb-tag[data-variant="2"]').click();
+  await page.waitForFunction(()=>[...document.querySelectorAll('.r10-item.is-focus .hg:not(.is-leaving) .hg-fig img')].some(i=>/gb-crt-0(38|39|40)/.test(i.getAttribute('src')||'')),null,{timeout:4000}).catch(()=>{});await page.waitForTimeout(reduced?60:500);
   const sv=await page.evaluate(()=>({s:GBRail.state,src:[...document.querySelectorAll('.r10-item.is-focus .hg:not(.is-leaving) .hg-fig img')].map(i=>i.getAttribute('src')).join(' '),pressed:document.querySelector('.r10-item.is-focus .gb-tag[aria-pressed="true"]')?.dataset.variant}));
   check(vp,'V10: ficha troca a foto da mesma peça (produto canônico preservado)',sv.s.itemId==='gb-v10-tech-fleece'&&sv.s.productId==='gb-crt-003'&&sv.s.variantId==='azul'&&/gb-crt-0(38|39|40)/.test(sv.src)&&sv.pressed==='2',JSON.stringify(sv));
   const iSingle=await page.evaluate(()=>GBRail.items().findIndex(i=>i.variants.length===1));await page.evaluate(i=>GBRail.navigate(i),iSingle);await settle();await page.waitForTimeout(reduced?50:500);
@@ -104,7 +106,8 @@ async function railV10(page,vp,mobile,reduced,w,h){
   await page.locator('#railViewer [data-orient="back"]').click({force:true});
   check(vp,'V10: clicar em COSTAS não inventa vista',(await page.evaluate(()=>document.querySelector('#railViewer').dataset.orientation))==='front');
   await page.locator('#railViewer [data-rail-view="top"]').click();await page.waitForTimeout(reduced?100:600);
-  await page.locator('#railViewer .gb-tag[data-variant="1"]').click();await page.waitForTimeout(reduced?150:800);
+  await page.locator('#railViewer .gb-tag[data-variant="1"]').click();
+  await page.waitForFunction(()=>[...document.querySelectorAll('#railViewer .r10-vhost .hg:not(.is-leaving) img')].some(i=>/gb-crt-032/.test(i.getAttribute('src')||'')),null,{timeout:4000}).catch(()=>{});await page.waitForTimeout(reduced?60:500);
   const cr=await page.evaluate(()=>{const v=document.querySelector('#railViewer');return{...v.dataset,views:[...v.querySelectorAll('[data-rail-view]')].filter(b=>!b.hidden).map(b=>b.dataset.railView).join(','),sw:v.querySelector('.rail-view-switch').hidden,src:[...v.querySelectorAll('.r10-vhost .hg:not(.is-leaving) img')].map(i=>i.getAttribute('src')).join(' ')}});
   check(vp,'V10: creme só tem foto do conjunto → superior/inferior somem, volta ao conjunto',cr.variant==='creme'&&cr.view==='combo'&&cr.productId==='gb-crt-002'&&/gb-crt-032/.test(cr.src)&&cr.sw===true,JSON.stringify(cr));
   await page.keyboard.press('Escape');await page.waitForTimeout(300);

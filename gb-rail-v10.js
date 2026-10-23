@@ -305,7 +305,9 @@ async function chooseVariant(it,i,scope){
   // a vista escolhida segue valendo se a nova cor também foi fotografada nela; senão volta ao conjunto
   if(S.open&&S.current===it&&!modeFor(it,v,S.view)){S.view='combo';announce.textContent=`A cor ${v.label.toLowerCase()} não tem foto ${VIEW_NAME[S.view]?.toLowerCase()}; mostrando o conjunto.`}
   const ri=S.list.indexOf(it),card=cards[ri];
-  if(card){const ok=await swapFigure(card.turn,figure(it,v,'combo').html,{dir});if(!ok){variantSel.set(it.id,prev);return}renderCard(ri,false);card.fig=null;card.hydrated=true;swing.v+=dir*(reduced()?0:22);kick();if(railTags&&ri===target)swingTags(railTags,i)}
+  // a ficha responde na hora; a roupa troca quando a foto nova estiver decodificada
+  if(railTags&&ri===target)swingTags(railTags,i);
+  if(card){const ok=await swapFigure(card.turn,figure(it,v,'combo').html,{dir});if(!ok){variantSel.set(it.id,prev);if(railTags&&ri===target)swingTags(railTags,prev);return}renderCard(ri,false);card.fig=null;card.hydrated=true;swing.v+=dir*(reduced()?0:22);kick()}
   if(ri===target)updateCaptionOnly(it);
   if(S.open&&S.current===it){await drawViewer({dir,variantOnly:true});}
   announce.textContent=`${it.title}: cor ${v.label.toLowerCase()} selecionada.`;
@@ -406,10 +408,11 @@ async function drawViewer({dir=0,entry=false,variantOnly=false}={}){
   if(it.study){vHost.innerHTML=`<div class="r10-study">${productMedia(p,S.view)}</div>`;vTags.innerHTML=''}
   else{
     const html=figure(it,v,S.view).html;fitViewer();
-    if(entry||!vHost.firstElementChild){vHost.innerHTML=html;await Promise.all(qa('img',vHost).map(i=>i.decode?.().catch(()=>{})));}
-    else await swapFigure(vHost,html,{dir});
+    // fichas primeiro (síncrono): nunca sobra ficha da peça anterior enquanto a foto nova carrega
     if(!variantOnly||!vTags.firstElementChild){vTags.innerHTML=tagsHTML(it,variantSel.get(it.id),'viewer');if(entry)dropTags(vTags.firstElementChild)}
     else swingTags(vTags.firstElementChild,variantSel.get(it.id));
+    if(entry||!vHost.firstElementChild){vHost.innerHTML=html;await Promise.all(qa('img',vHost).map(i=>i.decode?.().catch(()=>{})));}
+    else await swapFigure(vHost,html,{dir});
     vSwing.v+=dir*(reduced()?0:26)+(entry&&!reduced()?14:0);vKick();
   }
 }
