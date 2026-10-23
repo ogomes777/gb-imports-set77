@@ -139,6 +139,9 @@ async function run(w,h,reduced=false){
   check(vp,"sem overflow horizontal (topo)",await overflow()<=0,String(await overflow()));
   const cards=()=>page.locator('#productGrid .product-card').count();
   check(vp,'grade inicial com 8 cards',await cards()===8,String(await cards()));
+  const hiddenShorts=await page.evaluate(()=>({all:PUBLIC_PRODUCTS.length,hidden:HIDDEN_SMALL_BERMUDA_IDS.size,leaks:PUBLIC_PRODUCTS.filter(p=>HIDDEN_SMALL_BERMUDA_IDS.has(p.id)).map(p=>p.id),kitsIntact:PUBLIC_PRODUCTS.some(p=>p.id==='gb-crt-007')&&PUBLIC_PRODUCTS.some(p=>p.id==='gb-crt-009'),indices:[...document.querySelectorAll('#productGrid .product-index')].map(el=>el.textContent.trim())}));
+  check(vp,'SHOP: 22 bermudas avulsas pequenas fora da vitrine',hiddenShorts.all===92&&hiddenShorts.hidden===22&&hiddenShorts.leaks.length===0,JSON.stringify(hiddenShorts));
+  check(vp,'SHOP: kits reais preservados após ocultar bermudas avulsas',hiddenShorts.kitsIntact);
   // Filtros
   // Contagens do SHOP usam somente mídia vinculada, sem os 14 estudos SVG legados.
   const nCat=await page.evaluate(()=>({track:PUBLIC_PRODUCTS.filter(p=>p.category==='track').length,short:PUBLIC_PRODUCTS.filter(p=>p.category==='short').length,all:PUBLIC_PRODUCTS.length}));
