@@ -129,12 +129,12 @@ qa('[data-rail-view]').forEach(b=>b.addEventListener('click',()=>{viewerMode=b.d
 q('#railViewerProduct')?.addEventListener('click',()=>{const p=focusOverride||railItems[target];closeRailViewer();detailModal(p,{detailOnly:true})});
 window.GBOpenProductExperience=p=>{if(!p)return false;const found=railItems.findIndex(x=>x.id===p.id);if(found>=0){focusOverride=null;navigateRail(found)}else focusOverride=p;openRailViewer();return true};
 let vx=0,vy=0;viewer.addEventListener('touchstart',e=>{vx=e.touches[0].clientX;vy=e.touches[0].clientY},{passive:true});
-viewer.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-vx,dy=e.changedTouches[0].clientY-vy;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.3)viewerStep(dx<0?1:-1)},{passive:true});
+viewer.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-vx,dy=e.changedTouches[0].clientY-vy;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.3){if(viewer.classList.contains('gb-mode-color'))window.GBColorLabStep?.(dx<0?1:-1);else viewerStep(dx<0?1:-1)}},{passive:true});
 document.addEventListener('keydown',e=>{
  if(!viewer.hidden){
   if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeRailViewer();return;}
-  if(e.key==='ArrowRight'){e.preventDefault();viewerStep(1);return}
-  if(e.key==='ArrowLeft'){e.preventDefault();viewerStep(-1);return}
+  if(e.key==='ArrowRight'){e.preventDefault();if(viewer.classList.contains('gb-mode-color'))window.GBColorLabStep?.(1);else viewerStep(1);return}
+  if(e.key==='ArrowLeft'){e.preventDefault();if(viewer.classList.contains('gb-mode-color'))window.GBColorLabStep?.(-1);else viewerStep(-1);return}
  }
  if(e.key!=='Tab')return;
  // Focus trap compartilhado (rail, filme, produto, gavetas).
