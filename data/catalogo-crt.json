@@ -1,0 +1,3394 @@
+{
+  "name": "GB IMPORTS · ACERVO DE REFERÊNCIAS",
+  "version": "CRT-01",
+  "status": "demo_visual_sem_validacao_comercial",
+  "total_product_cards": 114,
+  "total_unique_images": 126,
+  "total_original_images": 131,
+  "disclaimer": "Imagens enviadas, algumas geradas digitalmente. Não comprova autenticidade das marcas, existência/estoque, procedência, disponibilidade, combinação ou preço. Combos são estudos visuais; não presumir venda avulsa.",
+  "products": [
+    {
+      "id": "gb-crt-001",
+      "name": "Conjunto sportswear cinza",
+      "label": "Conjunto",
+      "category": "track",
+      "tag": "ACERVO · A VALIDAR",
+      "single": false,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-030.webp",
+        "top": "assets/products/gb-crt/gb-crt-034.webp",
+        "bottom": "assets/products/gb-crt/gb-crt-036.webp"
+      },
+      "source_indices": [
+        30,
+        34,
+        36
+      ],
+      "source_files": [
+        "image-gen-1(5) (1).png",
+        "image-gen-2(5) (1).png",
+        "image-gen-3(5) (1).png"
+      ]
+    },
+    {
+      "id": "gb-crt-002",
+      "name": "Conjunto sportswear creme",
+      "label": "Conjunto",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-032.webp"
+      },
+      "source_indices": [
+        32
+      ],
+      "source_files": [
+        "image-gen-10(4) (1).png"
+      ]
+    },
+    {
+      "id": "gb-crt-003",
+      "name": "Conjunto sportswear azul",
+      "label": "Conjunto",
+      "category": "track",
+      "tag": "ACERVO · A VALIDAR",
+      "single": false,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-038.webp",
+        "top": "assets/products/gb-crt/gb-crt-039.webp",
+        "bottom": "assets/products/gb-crt/gb-crt-040.webp"
+      },
+      "source_indices": [
+        38,
+        39,
+        40
+      ],
+      "source_files": [
+        "image-gen-4(5).png",
+        "image-gen-5(5).png",
+        "image-gen-6(5).png"
+      ]
+    },
+    {
+      "id": "gb-crt-004",
+      "name": "Conjunto sportswear grafite",
+      "label": "Conjunto",
+      "category": "track",
+      "tag": "ACERVO · A VALIDAR",
+      "single": false,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-041.webp",
+        "top": "assets/products/gb-crt/gb-crt-042.webp",
+        "bottom": "assets/products/gb-crt/gb-crt-044.webp"
+      },
+      "source_indices": [
+        41,
+        42,
+        44
+      ],
+      "source_files": [
+        "image-gen-7(5).png",
+        "image-gen-8(5) (1).png",
+        "image-gen-9(4).png"
+      ]
+    },
+    {
+      "id": "gb-crt-005",
+      "name": "Conjunto preto com lettering neon",
+      "label": "Conjunto",
+      "category": "short",
+      "tag": "ACERVO · A VALIDAR",
+      "single": false,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-012.webp",
+        "top": "assets/products/gb-crt/gb-crt-011.webp",
+        "bottom": "assets/products/gb-crt/gb-crt-119.webp"
+      },
+      "source_indices": [
+        12,
+        11,
+        119
+      ],
+      "source_files": [
+        "Conjunto Nike Preto com Detalhes Arco-╓ris.png",
+        "Camiseta Nike Neon sobre Piso de Madeira.png",
+        "Shorts Nike pretos com logo neon arco-íris.png"
+      ]
+    },
+    {
+      "id": "gb-crt-006",
+      "name": "Moletom e calça branca",
+      "label": "Conjunto",
+      "category": "track",
+      "tag": "ACERVO · A VALIDAR",
+      "single": false,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-018.webp",
+        "top": "assets/products/gb-crt/gb-crt-028.webp",
+        "bottom": "assets/products/gb-crt/gb-crt-017.webp"
+      },
+      "source_indices": [
+        18,
+        28,
+        17
+      ],
+      "source_files": [
+        "gb_conjunto_branco_transparente.png",
+        "gb_moletom_branco_transparente.png",
+        "gb_calca_branca_transparente.png"
+      ]
+    },
+    {
+      "id": "gb-crt-007",
+      "name": "Camiseta e short Nike World",
+      "label": "Conjunto",
+      "category": "short",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-010.webp",
+        "top": "assets/products/gb-crt/gb-crt-104.webp"
+      },
+      "source_indices": [
+        10,
+        104
+      ],
+      "source_files": [
+        "ab57e7f4-a28f-4754-9f7e-c5ab8f8ff739.png",
+        "Imagem do ChatGPT 22 de out. de 2026, 14_08_33-6.png"
+      ]
+    },
+    {
+      "id": "gb-crt-008",
+      "name": "Camiseta e short cinza",
+      "label": "Conjunto",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-006.webp"
+      },
+      "source_indices": [
+        6
+      ],
+      "source_files": [
+        "5dac45b5-cbc4-470a-bfcb-51c9e6e9fb14.png"
+      ]
+    },
+    {
+      "id": "gb-crt-009",
+      "name": "Polo areia e short marinho",
+      "label": "Conjunto",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-015.webp"
+      },
+      "source_indices": [
+        15
+      ],
+      "source_files": [
+        "fae62e96-b432-4f6e-9544-4d0aacceb1d9.png"
+      ]
+    },
+    {
+      "id": "gb-crt-010",
+      "name": "Conjunto de moletom cinza",
+      "label": "Conjunto",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-090.webp"
+      },
+      "source_indices": [
+        90
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 13_21_20-2.png"
+      ]
+    },
+    {
+      "id": "gb-crt-011",
+      "name": "Conjunto agasalho branco",
+      "label": "Conjunto",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-092.webp"
+      },
+      "source_indices": [
+        92
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 13_21_22-4.png"
+      ]
+    },
+    {
+      "id": "gb-crt-012",
+      "name": "Conjunto agasalho preto e branco",
+      "label": "Conjunto",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-093.webp"
+      },
+      "source_indices": [
+        93
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 13_21_23-5.png"
+      ]
+    },
+    {
+      "id": "gb-crt-013",
+      "name": "Moletom e bermuda preto",
+      "label": "Conjunto",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-094.webp",
+        "top": "assets/products/gb-crt/gb-crt-118.webp"
+      },
+      "source_indices": [
+        94,
+        118
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 13_21_24-6.png",
+        "Moletom Nike Preto Isolado.png"
+      ]
+    },
+    {
+      "id": "gb-crt-014",
+      "name": "Conjunto esportivo preto",
+      "label": "Conjunto",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-097.webp"
+      },
+      "source_indices": [
+        97
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 13_21_28-9.png"
+      ]
+    },
+    {
+      "id": "gb-crt-015",
+      "name": "Jaquetas corta-vento preta e branca",
+      "label": "Jaqueta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-091.webp"
+      },
+      "source_indices": [
+        91
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 13_21_21-3.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-001",
+      "name": "Camiseta branca gola contraste",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-001.webp"
+      },
+      "source_indices": [
+        1
+      ],
+      "source_files": [
+        "003f2876-e0ee-4854-9f26-50b0196fc6e4.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-002",
+      "name": "Camiseta vermelha gola contraste",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-002.webp"
+      },
+      "source_indices": [
+        2
+      ],
+      "source_files": [
+        "055a2bd7-61a0-4259-8846-12745db668f6.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-003",
+      "name": "Camiseta listrada preta e branca",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-003.webp"
+      },
+      "source_indices": [
+        3
+      ],
+      "source_files": [
+        "20c4cb93-1db5-4f2b-a7e1-c3a4cc0ddc11.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-004",
+      "name": "Camiseta preta estampa esportiva",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-004.webp"
+      },
+      "source_indices": [
+        4
+      ],
+      "source_files": [
+        "21637536-a551-4613-8aff-a2f81c1e0220.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-005",
+      "name": "Polo bege",
+      "label": "Polo",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-005.webp"
+      },
+      "source_indices": [
+        5
+      ],
+      "source_files": [
+        "349ea3c8-4451-4d45-bcdf-7855dadea582.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-007",
+      "name": "Camiseta branca estampada",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-007.webp"
+      },
+      "source_indices": [
+        7
+      ],
+      "source_files": [
+        "6ff674d3-3490-47a2-abd9-b1447c917dee.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-008",
+      "name": "Camiseta preta gola contraste",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-008.webp"
+      },
+      "source_indices": [
+        8
+      ],
+      "source_files": [
+        "77caa767-1dd4-4fad-833d-2b2bfdd52d45.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-009",
+      "name": "Camiseta preta EA7",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-009.webp"
+      },
+      "source_indices": [
+        9
+      ],
+      "source_files": [
+        "9020a2ce-ba31-46f3-9999-abd006e8f249.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-013",
+      "name": "Conjunto preto lettering neon — apresentação",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-013.webp"
+      },
+      "source_indices": [
+        13
+      ],
+      "source_files": [
+        "e21ed456-b7ad-466a-84dc-0360078c0b0b.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-014",
+      "name": "Camiseta preta padronagem geométrica",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-014.webp"
+      },
+      "source_indices": [
+        14
+      ],
+      "source_files": [
+        "e4a52b68-a248-4abb-9c9b-287cea2004e1.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-016",
+      "name": "Camiseta preta EA7 dourada",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-016.webp"
+      },
+      "source_indices": [
+        16
+      ],
+      "source_files": [
+        "fc2bbf50-da8c-44a6-9be6-1ceee27b38c5.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-019",
+      "name": "Camiseta preta Just Do It",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-019.webp"
+      },
+      "source_indices": [
+        19
+      ],
+      "source_files": [
+        "GB_faltante_01_camiseta_preta_just_do_it.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-020",
+      "name": "Camiseta preta Air Basketball",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-020.webp"
+      },
+      "source_indices": [
+        20
+      ],
+      "source_files": [
+        "GB_faltante_02_camiseta_preta_air_basketball.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-021",
+      "name": "Camiseta branca Just Do It",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-021.webp"
+      },
+      "source_indices": [
+        21
+      ],
+      "source_files": [
+        "GB_faltante_03_camiseta_branca_just_do_it.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-022",
+      "name": "Polo branca",
+      "label": "Polo",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-022.webp"
+      },
+      "source_indices": [
+        22
+      ],
+      "source_files": [
+        "GB_faltante_04_polo_branca.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-023",
+      "name": "Polo preta canelada",
+      "label": "Polo",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-023.webp"
+      },
+      "source_indices": [
+        23
+      ],
+      "source_files": [
+        "GB_faltante_05_polo_preta_canelada.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-024",
+      "name": "Boné azul com padronagem LV",
+      "label": "Boné",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-024.webp"
+      },
+      "source_indices": [
+        24
+      ],
+      "source_files": [
+        "gb_imports_bone_lv_azul_monograma_aba_couro_transparente_4k.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-025",
+      "name": "Boné preto com padronagem LV",
+      "label": "Boné",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-025.webp"
+      },
+      "source_indices": [
+        25
+      ],
+      "source_files": [
+        "gb_imports_bone_lv_preto_couro_relevo_transparente_4k.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-026",
+      "name": "Jaqueta branca estilo corta-vento",
+      "label": "Jaqueta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-026.webp"
+      },
+      "source_indices": [
+        26
+      ],
+      "source_files": [
+        "gb_jaqueta_north_face_branca_transparente.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-027",
+      "name": "Jaqueta preta estilo corta-vento",
+      "label": "Jaqueta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-027.webp"
+      },
+      "source_indices": [
+        27
+      ],
+      "source_files": [
+        "gb_jaqueta_north_face_preta_transparente.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-029",
+      "name": "Moletom cinza com zíper",
+      "label": "Moletom",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-029.webp"
+      },
+      "source_indices": [
+        29
+      ],
+      "source_files": [
+        "gb_moletom_nike_cinza_transparente.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-045",
+      "name": "Tênis esportivo roxo",
+      "label": "Tênis",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-045.webp"
+      },
+      "source_indices": [
+        45
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_03_24-1.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-046",
+      "name": "Tênis esportivo vinho e preto",
+      "label": "Tênis",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-046.webp"
+      },
+      "source_indices": [
+        46
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_03_26-2.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-047",
+      "name": "Tênis esportivo vermelho e preto",
+      "label": "Tênis",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-047.webp"
+      },
+      "source_indices": [
+        47
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_03_33.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-048",
+      "name": "Tênis esportivo preto com detalhe rosa",
+      "label": "Tênis",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-048.webp"
+      },
+      "source_indices": [
+        48
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_03_38.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-049",
+      "name": "Tênis verde e branco",
+      "label": "Tênis",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-049.webp"
+      },
+      "source_indices": [
+        49
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_04_17.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-050",
+      "name": "Tênis branco e verde",
+      "label": "Tênis",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-050.webp"
+      },
+      "source_indices": [
+        50
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_04_25.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-051",
+      "name": "Tênis azul-claro com amortecimento",
+      "label": "Tênis",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-051.webp"
+      },
+      "source_indices": [
+        51
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_04_48-1.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-052",
+      "name": "Tênis preto e branco",
+      "label": "Tênis",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-052.webp"
+      },
+      "source_indices": [
+        52
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_04_49-2.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-053",
+      "name": "Tênis azul esportivo",
+      "label": "Tênis",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-053.webp"
+      },
+      "source_indices": [
+        53
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_04_50-3.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-054",
+      "name": "Tênis branco e roxo",
+      "label": "Tênis",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-054.webp"
+      },
+      "source_indices": [
+        54
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_04_51-4.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-055",
+      "name": "Tênis preto de amortecimento",
+      "label": "Tênis",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-055.webp"
+      },
+      "source_indices": [
+        55
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_04_51-5.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-056",
+      "name": "Tênis preto e branco cano médio",
+      "label": "Tênis",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-056.webp"
+      },
+      "source_indices": [
+        56
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_04_52-6.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-057",
+      "name": "Tênis azul e branco cano médio",
+      "label": "Tênis",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-057.webp"
+      },
+      "source_indices": [
+        57
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_04_53-7.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-058",
+      "name": "Tênis preto com solado branco",
+      "label": "Tênis",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-058.webp"
+      },
+      "source_indices": [
+        58
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_04_54-8.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-059",
+      "name": "Tênis branco monocromático",
+      "label": "Tênis",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-059.webp"
+      },
+      "source_indices": [
+        59
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_04_54-9.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-060",
+      "name": "Tênis branco com detalhe preto",
+      "label": "Tênis",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-060.webp"
+      },
+      "source_indices": [
+        60
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_04_55-10.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-061",
+      "name": "Camisa Alemanha preta",
+      "label": "Camisa futebol",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-061.webp"
+      },
+      "source_indices": [
+        61
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_30_59.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-062",
+      "name": "Camisa Real Madrid branca retrô",
+      "label": "Camisa futebol",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-062.webp"
+      },
+      "source_indices": [
+        62
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_36_08-1.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-063",
+      "name": "Camisa Manchester United vermelha",
+      "label": "Camisa futebol",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-063.webp"
+      },
+      "source_indices": [
+        63
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_36_09-2.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-064",
+      "name": "Camisa Milan rubro-negra",
+      "label": "Camisa futebol",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-064.webp"
+      },
+      "source_indices": [
+        64
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_36_10-3.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-065",
+      "name": "Camisa Brasil azul",
+      "label": "Camisa futebol",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-065.webp"
+      },
+      "source_indices": [
+        65
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_36_11-4.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-066",
+      "name": "Camisa Milan branca",
+      "label": "Camisa futebol",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-066.webp"
+      },
+      "source_indices": [
+        66
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_36_12-5.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-067",
+      "name": "Camisa Real Madrid preta",
+      "label": "Camisa futebol",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-067.webp"
+      },
+      "source_indices": [
+        67
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_36_13-6.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-068",
+      "name": "Camisa Brasil preta",
+      "label": "Camisa futebol",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-068.webp"
+      },
+      "source_indices": [
+        68
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_36_14-7.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-069",
+      "name": "Camisa Alemanha branca",
+      "label": "Camisa futebol",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-069.webp"
+      },
+      "source_indices": [
+        69
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_36_14-8.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-070",
+      "name": "Camisa Alemanha preta manga longa",
+      "label": "Camisa futebol",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-070.webp"
+      },
+      "source_indices": [
+        70
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_36_15-9.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-071",
+      "name": "Camisa Barcelona azul e grená",
+      "label": "Camisa futebol",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-071.webp"
+      },
+      "source_indices": [
+        71
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_36_16-10.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-072",
+      "name": "Camisa Brasil azul número 8",
+      "label": "Camisa futebol",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-072.webp"
+      },
+      "source_indices": [
+        72
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_36_26-1.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-073",
+      "name": "Camisa Santos branca",
+      "label": "Camisa futebol",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-073.webp"
+      },
+      "source_indices": [
+        73
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 11_36_27-2.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-074",
+      "name": "Boné monograma grafite",
+      "label": "Boné",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-074.webp"
+      },
+      "source_indices": [
+        74
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 12_20_49-1.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-075",
+      "name": "Boné monograma verde",
+      "label": "Boné",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-075.webp"
+      },
+      "source_indices": [
+        75
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 12_20_50-2.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-076",
+      "name": "Boné monograma azul",
+      "label": "Boné",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-076.webp"
+      },
+      "source_indices": [
+        76
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 12_20_51-3.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-077",
+      "name": "Boné monograma verde — vista 02",
+      "label": "Boné",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-077.webp"
+      },
+      "source_indices": [
+        77
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 12_20_52-4.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-078",
+      "name": "Boné Nike SB azul acinzentado",
+      "label": "Boné",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-078.webp"
+      },
+      "source_indices": [
+        78
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 12_20_53-5.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-079",
+      "name": "Bermuda marinho",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-079.webp"
+      },
+      "source_indices": [
+        79
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 12_41_40-1.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-080",
+      "name": "Bermuda preta logo branco",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-080.webp"
+      },
+      "source_indices": [
+        80
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 12_41_41-2.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-081",
+      "name": "Bermuda cargo preta e areia",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-081.webp"
+      },
+      "source_indices": [
+        81
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 12_41_42-3.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-082",
+      "name": "Bermuda cinza",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-082.webp"
+      },
+      "source_indices": [
+        82
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 12_41_43-4.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-083",
+      "name": "Bermuda preta esportiva",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-083.webp"
+      },
+      "source_indices": [
+        83
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 12_41_45-5.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-084",
+      "name": "Bermuda cargo cinza",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-084.webp"
+      },
+      "source_indices": [
+        84
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 12_41_47-6.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-085",
+      "name": "Bermuda jeans preta",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-085.webp"
+      },
+      "source_indices": [
+        85
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 12_41_49-7.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-086",
+      "name": "Bermuda jeans azul",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-086.webp"
+      },
+      "source_indices": [
+        86
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 12_41_50-8.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-087",
+      "name": "Bermuda jeans grafite",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-087.webp"
+      },
+      "source_indices": [
+        87
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 12_41_52-9.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-088",
+      "name": "Bermuda Jordan preta",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-088.webp"
+      },
+      "source_indices": [
+        88
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 12_41_53-10.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-089",
+      "name": "Moletom azul-marinho",
+      "label": "Moletom",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-089.webp"
+      },
+      "source_indices": [
+        89
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 13_21_19-1.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-095",
+      "name": "Jaqueta preta",
+      "label": "Jaqueta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-095.webp"
+      },
+      "source_indices": [
+        95
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 13_21_26-7.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-096",
+      "name": "Jaqueta branca",
+      "label": "Jaqueta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-096.webp"
+      },
+      "source_indices": [
+        96
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 13_21_27-8.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-098",
+      "name": "Moletom preto bordado",
+      "label": "Moletom",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-098.webp"
+      },
+      "source_indices": [
+        98
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 13_21_30-10.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-099",
+      "name": "Polo areia",
+      "label": "Polo",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-099.webp"
+      },
+      "source_indices": [
+        99
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_08_26-1.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-100",
+      "name": "Camiseta branca Nike Air",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-100.webp"
+      },
+      "source_indices": [
+        100
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_08_27-2.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-101",
+      "name": "Camiseta branca Nike",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-101.webp"
+      },
+      "source_indices": [
+        101
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_08_29-3.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-102",
+      "name": "Polo cinza",
+      "label": "Polo",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-102.webp"
+      },
+      "source_indices": [
+        102
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_08_30-4.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-103",
+      "name": "Camiseta preta Nike multicolor",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-103.webp"
+      },
+      "source_indices": [
+        103
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_08_32-5.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-105",
+      "name": "Camiseta preta lisa",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-105.webp"
+      },
+      "source_indices": [
+        105
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_08_34-7.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-106",
+      "name": "Camiseta branca Chevron",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-106.webp"
+      },
+      "source_indices": [
+        106
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_08_36-8.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-107",
+      "name": "Camiseta branca Nike Air",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-107.webp"
+      },
+      "source_indices": [
+        107
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_08_37-9.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-108",
+      "name": "Camiseta preta Jordan",
+      "label": "Camiseta",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-108.webp"
+      },
+      "source_indices": [
+        108
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_08_39-10.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-109",
+      "name": "Chinelo branco acolchoado",
+      "label": "Chinelo",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-109.webp"
+      },
+      "source_indices": [
+        109
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_46_50-1.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-110",
+      "name": "Chinelo preto acolchoado",
+      "label": "Chinelo",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-110.webp"
+      },
+      "source_indices": [
+        110
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_46_52-2.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-111",
+      "name": "Chinelo cinza e branco",
+      "label": "Chinelo",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-111.webp"
+      },
+      "source_indices": [
+        111
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_46_53-3.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-112",
+      "name": "Chinelo branco e preto",
+      "label": "Chinelo",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-112.webp"
+      },
+      "source_indices": [
+        112
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_46_54-4.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-113",
+      "name": "Chinelo preto e branco",
+      "label": "Chinelo",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-113.webp"
+      },
+      "source_indices": [
+        113
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_46_56-5.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-114",
+      "name": "Chinelo preto Nike bold",
+      "label": "Chinelo",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-114.webp"
+      },
+      "source_indices": [
+        114
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_46_57-6.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-115",
+      "name": "Chinelo vermelho e preto",
+      "label": "Chinelo",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-115.webp"
+      },
+      "source_indices": [
+        115
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_46_59-7.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-116",
+      "name": "Chinelo preto texturizado",
+      "label": "Chinelo",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-116.webp"
+      },
+      "source_indices": [
+        116
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_47_00-8.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-117",
+      "name": "Chinelo bege Nike",
+      "label": "Chinelo",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-117.webp"
+      },
+      "source_indices": [
+        117
+      ],
+      "source_files": [
+        "Imagem do ChatGPT 22 de out. de 2026, 14_47_02-9.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-120",
+      "name": "Bermuda preta com faixa branca",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-120.webp"
+      },
+      "source_indices": [
+        120
+      ],
+      "source_files": [
+        "01_nike_preta_faixa_branca_swoosh.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-121",
+      "name": "Bermuda preta Nike",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-121.webp"
+      },
+      "source_indices": [
+        121
+      ],
+      "source_files": [
+        "02_nike_preta_letras_grandes.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-122",
+      "name": "Bermuda cargo cinza",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-122.webp"
+      },
+      "source_indices": [
+        122
+      ],
+      "source_files": [
+        "03_nike_cargo_cinza.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-123",
+      "name": "Bermuda preta swoosh",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-123.webp"
+      },
+      "source_indices": [
+        123
+      ],
+      "source_files": [
+        "04_nike_preta_swoosh_gigante_TM.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-124",
+      "name": "Bermuda Nike World branca",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-124.webp"
+      },
+      "source_indices": [
+        124
+      ],
+      "source_files": [
+        "05_nike_world_branca.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-125",
+      "name": "Bermuda Nike World preta",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-125.webp"
+      },
+      "source_indices": [
+        125
+      ],
+      "source_files": [
+        "06_nike_world_preta.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-126",
+      "name": "Bermuda Jordan preta",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-126.webp"
+      },
+      "source_indices": [
+        126
+      ],
+      "source_files": [
+        "07_jordan_basquete_preta.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-127",
+      "name": "Bermuda Nike cinza",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-127.webp"
+      },
+      "source_indices": [
+        127
+      ],
+      "source_files": [
+        "08_nike_cinza_logo_grande.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-128",
+      "name": "Bermuda jeans azul XO",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-128.webp"
+      },
+      "source_indices": [
+        128
+      ],
+      "source_files": [
+        "09_bermuda_jeans_azul_xo.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-129",
+      "name": "Bermuda jeans preta rasgada",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-129.webp"
+      },
+      "source_indices": [
+        129
+      ],
+      "source_files": [
+        "10_bermuda_jeans_preta_rasgada.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-130",
+      "name": "Bermuda jeans cargo azul",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-130.webp"
+      },
+      "source_indices": [
+        130
+      ],
+      "source_files": [
+        "11_bermuda_jeans_cargo_azul_claro.png"
+      ]
+    },
+    {
+      "id": "gb-crt-s-131",
+      "name": "Bermuda cargo preta e areia",
+      "label": "Bermuda",
+      "category": "extra",
+      "tag": "ACERVO · A VALIDAR",
+      "single": true,
+      "photo_status": "material_de_referencia",
+      "commercial_status": "nao_validado",
+      "media": {
+        "combo": "assets/products/gb-crt/gb-crt-131.webp"
+      },
+      "source_indices": [
+        131
+      ],
+      "source_files": [
+        "12_nike_preta_cargo_bege.png"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "n": 1,
+      "filename": "003f2876-e0ee-4854-9f26-50b0196fc6e4.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "176513bdedd5a07fd28914568aa3c90c64a7645309e0c70ebb07e3181bdb2d14",
+      "width": 0,
+      "mapped_to": "gb-crt-s-001",
+      "duplicate_of": null
+    },
+    {
+      "n": 2,
+      "filename": "055a2bd7-61a0-4259-8846-12745db668f6.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "7d5486eab6abba4b8ede953dfcd652555fb226c1aa918b86e98001bcc2cce5b0",
+      "width": 0,
+      "mapped_to": "gb-crt-s-002",
+      "duplicate_of": null
+    },
+    {
+      "n": 3,
+      "filename": "20c4cb93-1db5-4f2b-a7e1-c3a4cc0ddc11.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "f49d01e9bb68ba9a4aa37df19579a2dafac4db6c02f5ab1723f4d2e97e214a36",
+      "width": 0,
+      "mapped_to": "gb-crt-s-003",
+      "duplicate_of": null
+    },
+    {
+      "n": 4,
+      "filename": "21637536-a551-4613-8aff-a2f81c1e0220.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "b4e97e8f9820d5c002ded27cc3a4ebc5b09bcc2c00bce29b3f6c7e80ed99eb18",
+      "width": 0,
+      "mapped_to": "gb-crt-s-004",
+      "duplicate_of": null
+    },
+    {
+      "n": 5,
+      "filename": "349ea3c8-4451-4d45-bcdf-7855dadea582.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "991566e4ff51124da59b24c270cc417c87f69dfc372f26ae2a17491b4ab58ebb",
+      "width": 0,
+      "mapped_to": "gb-crt-s-005",
+      "duplicate_of": null
+    },
+    {
+      "n": 6,
+      "filename": "5dac45b5-cbc4-470a-bfcb-51c9e6e9fb14.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "d87e5b9bd011f244f719017faf239f0375fbc60d8e85f07903faff0ce136c32a",
+      "width": 0,
+      "mapped_to": "gb-crt-008",
+      "duplicate_of": null
+    },
+    {
+      "n": 7,
+      "filename": "6ff674d3-3490-47a2-abd9-b1447c917dee.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "f3338ab2cefbe6d8aa4c104e65c35f6f065af095d16f2e36fbc7aec56dc00b22",
+      "width": 0,
+      "mapped_to": "gb-crt-s-007",
+      "duplicate_of": null
+    },
+    {
+      "n": 8,
+      "filename": "77caa767-1dd4-4fad-833d-2b2bfdd52d45.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "c427169eed7dce4920f7e218ea5095229140c22d35873b42c040dcb4ce686b2d",
+      "width": 0,
+      "mapped_to": "gb-crt-s-008",
+      "duplicate_of": null
+    },
+    {
+      "n": 9,
+      "filename": "9020a2ce-ba31-46f3-9999-abd006e8f249.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "98815f3b883add621495888dae2e77d218cbce444e0a4c7867ffaa9069c0b74d",
+      "width": 0,
+      "mapped_to": "gb-crt-s-009",
+      "duplicate_of": null
+    },
+    {
+      "n": 10,
+      "filename": "ab57e7f4-a28f-4754-9f7e-c5ab8f8ff739.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "f7c39d1de144cb78bf2058f6b79097447cf681b040bb4f2cb5e7f85131eb319d",
+      "width": 0,
+      "mapped_to": "gb-crt-007",
+      "duplicate_of": null
+    },
+    {
+      "n": 11,
+      "filename": "Camiseta Nike Neon sobre Piso de Madeira.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "c825f57381c48a2a672ed9f07ee9e131dacd6a1c32cc11b5c976d3e5c565c0f1",
+      "width": 0,
+      "mapped_to": "gb-crt-005",
+      "duplicate_of": null
+    },
+    {
+      "n": 12,
+      "filename": "Conjunto Nike Preto com Detalhes Arco-╓ris.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "e021dd7511a488f9d81701ef405b4f0bd6e0dc06a1aafb87eb3cc1de25b00215",
+      "width": 0,
+      "mapped_to": "gb-crt-005",
+      "duplicate_of": null
+    },
+    {
+      "n": 13,
+      "filename": "e21ed456-b7ad-466a-84dc-0360078c0b0b.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "5cc6623bccd44f160bce89c37cef277ffb10b7336961cd0c45a57cf3ccaf13a7",
+      "width": 0,
+      "mapped_to": "gb-crt-s-013",
+      "duplicate_of": null
+    },
+    {
+      "n": 14,
+      "filename": "e4a52b68-a248-4abb-9c9b-287cea2004e1.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "4062f5a36a922270d3cfa5f99ee97fce3d85ec026622c12c36d1a242906e45e8",
+      "width": 0,
+      "mapped_to": "gb-crt-s-014",
+      "duplicate_of": null
+    },
+    {
+      "n": 15,
+      "filename": "fae62e96-b432-4f6e-9544-4d0aacceb1d9.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "df428f882c0b87cadfd46eb126e705d8bd9cb9104b86a63305c52c7f1b475424",
+      "width": 0,
+      "mapped_to": "gb-crt-009",
+      "duplicate_of": null
+    },
+    {
+      "n": 16,
+      "filename": "fc2bbf50-da8c-44a6-9be6-1ceee27b38c5.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "e80bd63af30d229e5dc8e0a14325d834936e1cb6449d20ed37d8e8dada8a808e",
+      "width": 0,
+      "mapped_to": "gb-crt-s-016",
+      "duplicate_of": null
+    },
+    {
+      "n": 17,
+      "filename": "gb_calca_branca_transparente.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "1fa94c31fda1142a1deef950b4ffdb84ffa7cd03a62054b3be592bb6724632db",
+      "width": 0,
+      "mapped_to": "gb-crt-006",
+      "duplicate_of": null
+    },
+    {
+      "n": 18,
+      "filename": "gb_conjunto_branco_transparente.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "7d5f70a2de30434f9f3e5d1e4efdde24cf7d72feab5f0e50c7146a3d0e7ba3df",
+      "width": 0,
+      "mapped_to": "gb-crt-006",
+      "duplicate_of": null
+    },
+    {
+      "n": 19,
+      "filename": "GB_faltante_01_camiseta_preta_just_do_it.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "55b3f210b481def32e314c6de44229434cdde3d772ec720d3fb5446a028a8844",
+      "width": 0,
+      "mapped_to": "gb-crt-s-019",
+      "duplicate_of": null
+    },
+    {
+      "n": 20,
+      "filename": "GB_faltante_02_camiseta_preta_air_basketball.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "42d06f89cddc5dce74c5603925e5bbffcaf3a185183b48463c8ed45587672b11",
+      "width": 0,
+      "mapped_to": "gb-crt-s-020",
+      "duplicate_of": null
+    },
+    {
+      "n": 21,
+      "filename": "GB_faltante_03_camiseta_branca_just_do_it.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "8b6bb7e11b9680dcaed3d6009d139245e21227c2050f1e4fa692083c6c96744b",
+      "width": 0,
+      "mapped_to": "gb-crt-s-021",
+      "duplicate_of": null
+    },
+    {
+      "n": 22,
+      "filename": "GB_faltante_04_polo_branca.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "1ff56f4f75a211ca870457134a65e48a30133d80d7774f6c82451c2dc6383fe2",
+      "width": 0,
+      "mapped_to": "gb-crt-s-022",
+      "duplicate_of": null
+    },
+    {
+      "n": 23,
+      "filename": "GB_faltante_05_polo_preta_canelada.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "a9ba169ff53ccec247d5370842783b3ab3f6f3391fd51d5dbfffd17b047085df",
+      "width": 0,
+      "mapped_to": "gb-crt-s-023",
+      "duplicate_of": null
+    },
+    {
+      "n": 24,
+      "filename": "gb_imports_bone_lv_azul_monograma_aba_couro_transparente_4k.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "b2cce55fed39ec8c46e741d9077713fdd6955ed59be6240e134298acf9c71b33",
+      "width": 0,
+      "mapped_to": "gb-crt-s-024",
+      "duplicate_of": null
+    },
+    {
+      "n": 25,
+      "filename": "gb_imports_bone_lv_preto_couro_relevo_transparente_4k.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "d615c15a896ca15cfa406bed697ca82b2e5a3f3a6a9c295fa99dff9386df5e35",
+      "width": 0,
+      "mapped_to": "gb-crt-s-025",
+      "duplicate_of": null
+    },
+    {
+      "n": 26,
+      "filename": "gb_jaqueta_north_face_branca_transparente.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "2ef4b69e77c417df70d8380ebfbc33dfa976196e6c88631facdb08da649e1bd8",
+      "width": 0,
+      "mapped_to": "gb-crt-s-026",
+      "duplicate_of": null
+    },
+    {
+      "n": 27,
+      "filename": "gb_jaqueta_north_face_preta_transparente.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "768684cbb88ba661e81f19e2b2fd5bf1530c455c93b4c1a38f426fac315c50f1",
+      "width": 0,
+      "mapped_to": "gb-crt-s-027",
+      "duplicate_of": null
+    },
+    {
+      "n": 28,
+      "filename": "gb_moletom_branco_transparente.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "77e00f7e76dd164d12b472e6c0157ac57c25dbd858f13513dec3e528adfc6c32",
+      "width": 0,
+      "mapped_to": "gb-crt-006",
+      "duplicate_of": null
+    },
+    {
+      "n": 29,
+      "filename": "gb_moletom_nike_cinza_transparente.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "33181f060b8c01e8e5de9e0dbf63241a9c4a507a8040cd74b4a59381c7dee080",
+      "width": 0,
+      "mapped_to": "gb-crt-s-029",
+      "duplicate_of": null
+    },
+    {
+      "n": 30,
+      "filename": "image-gen-1(5) (1).png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "6a749f6e58eee7bc0d83ed686c31e4cce1a8e8bcce6d0f062ae7d9c5acfb9ffe",
+      "width": 0,
+      "mapped_to": "gb-crt-001",
+      "duplicate_of": null
+    },
+    {
+      "n": 31,
+      "filename": "image-gen-1(5).png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "6a749f6e58eee7bc0d83ed686c31e4cce1a8e8bcce6d0f062ae7d9c5acfb9ffe",
+      "width": 0,
+      "mapped_to": "gb-crt-001",
+      "duplicate_of": 30
+    },
+    {
+      "n": 32,
+      "filename": "image-gen-10(4) (1).png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "3166eb4bb439d321210c17e81337e3f0c002a31a93f38596b338cd4d50f2911b",
+      "width": 0,
+      "mapped_to": "gb-crt-002",
+      "duplicate_of": null
+    },
+    {
+      "n": 33,
+      "filename": "image-gen-10(4).png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "3166eb4bb439d321210c17e81337e3f0c002a31a93f38596b338cd4d50f2911b",
+      "width": 0,
+      "mapped_to": "gb-crt-002",
+      "duplicate_of": 32
+    },
+    {
+      "n": 34,
+      "filename": "image-gen-2(5) (1).png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "f409d4c8a6927563340da25b6c9f4611aee294749b21b99f55aa8cb814114dc9",
+      "width": 0,
+      "mapped_to": "gb-crt-001",
+      "duplicate_of": null
+    },
+    {
+      "n": 35,
+      "filename": "image-gen-2(5).png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "f409d4c8a6927563340da25b6c9f4611aee294749b21b99f55aa8cb814114dc9",
+      "width": 0,
+      "mapped_to": "gb-crt-001",
+      "duplicate_of": 34
+    },
+    {
+      "n": 36,
+      "filename": "image-gen-3(5) (1).png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "2036caa652ab413d2bd92610b3277ecb4eb29b3fd8f8617bed9e668a2a404988",
+      "width": 0,
+      "mapped_to": "gb-crt-001",
+      "duplicate_of": null
+    },
+    {
+      "n": 37,
+      "filename": "image-gen-3(5).png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "2036caa652ab413d2bd92610b3277ecb4eb29b3fd8f8617bed9e668a2a404988",
+      "width": 0,
+      "mapped_to": "gb-crt-001",
+      "duplicate_of": 36
+    },
+    {
+      "n": 38,
+      "filename": "image-gen-4(5).png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "57353c6cec9acc5c963f575374f17b9d07b170ff95604afb9cfb82853fbd8951",
+      "width": 0,
+      "mapped_to": "gb-crt-003",
+      "duplicate_of": null
+    },
+    {
+      "n": 39,
+      "filename": "image-gen-5(5).png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "610da0bfa511026efea74a5da5a8ae01f82e463fcd49dc20a15a29e9637e9cfc",
+      "width": 0,
+      "mapped_to": "gb-crt-003",
+      "duplicate_of": null
+    },
+    {
+      "n": 40,
+      "filename": "image-gen-6(5).png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "39cd9a489aff02755b067e8952d380686d60314809f46a18d34296cb17927a7d",
+      "width": 0,
+      "mapped_to": "gb-crt-003",
+      "duplicate_of": null
+    },
+    {
+      "n": 41,
+      "filename": "image-gen-7(5).png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "9fc4b0a5043b847c6f122d1dbe92a548d89a16f931c28a5d2701a7508f4c9cfa",
+      "width": 0,
+      "mapped_to": "gb-crt-004",
+      "duplicate_of": null
+    },
+    {
+      "n": 42,
+      "filename": "image-gen-8(5) (1).png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "e10012e7aac94ae6eb454ed91358a8664b61bab9db33c65f64231ce4f5a959a6",
+      "width": 0,
+      "mapped_to": "gb-crt-004",
+      "duplicate_of": null
+    },
+    {
+      "n": 43,
+      "filename": "image-gen-8(5).png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "e10012e7aac94ae6eb454ed91358a8664b61bab9db33c65f64231ce4f5a959a6",
+      "width": 0,
+      "mapped_to": "gb-crt-004",
+      "duplicate_of": 42
+    },
+    {
+      "n": 44,
+      "filename": "image-gen-9(4).png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "22695a4bad6428b7ba13846c08e214163f91e5f6581a2da0e2597775ff3c94b1",
+      "width": 0,
+      "mapped_to": "gb-crt-004",
+      "duplicate_of": null
+    },
+    {
+      "n": 45,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_03_24-1.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "9893c413a1bf6d2a4c1c4da23946f0630f0f9c06bebf44b83bbb4705c1762fd6",
+      "width": 0,
+      "mapped_to": "gb-crt-s-045",
+      "duplicate_of": null
+    },
+    {
+      "n": 46,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_03_26-2.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "003c004d46507542894177fcd7634739b6d7133ac3e95f7dd269b8b2f09849ae",
+      "width": 0,
+      "mapped_to": "gb-crt-s-046",
+      "duplicate_of": null
+    },
+    {
+      "n": 47,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_03_33.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "ff34b2d03bddb4e3b3a8938446518606bf11cae19bf5674edcf2cf2e191edcd3",
+      "width": 0,
+      "mapped_to": "gb-crt-s-047",
+      "duplicate_of": null
+    },
+    {
+      "n": 48,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_03_38.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "7d0c2688736bc169f69b1142426c79bf5e4835a34e2fb3a1ef2225221024fdc7",
+      "width": 0,
+      "mapped_to": "gb-crt-s-048",
+      "duplicate_of": null
+    },
+    {
+      "n": 49,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_04_17.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "817cb965045c4d4f64621f9215376aec05ae199f83bd349e9946e2497c01cee4",
+      "width": 0,
+      "mapped_to": "gb-crt-s-049",
+      "duplicate_of": null
+    },
+    {
+      "n": 50,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_04_25.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "b49766d6222742e10a3b3ab06a6d0053b5f73c465303cb994063fdf14d27e4b5",
+      "width": 0,
+      "mapped_to": "gb-crt-s-050",
+      "duplicate_of": null
+    },
+    {
+      "n": 51,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_04_48-1.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "1db1bae7bbf86e006bec592da3687b2d50e5a356d2e296481c864f035cf48f95",
+      "width": 0,
+      "mapped_to": "gb-crt-s-051",
+      "duplicate_of": null
+    },
+    {
+      "n": 52,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_04_49-2.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "bd628f3599332f39c2401d2c52d1d90c16a50d44323e17d7d9032a20bf74ae63",
+      "width": 0,
+      "mapped_to": "gb-crt-s-052",
+      "duplicate_of": null
+    },
+    {
+      "n": 53,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_04_50-3.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "d2c62066a439025b5ab18dbb3df85687e52aed5f9ae488c300ac0df937c4eed5",
+      "width": 0,
+      "mapped_to": "gb-crt-s-053",
+      "duplicate_of": null
+    },
+    {
+      "n": 54,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_04_51-4.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "d5103388840f41889df720d091b97102b972741488fff07939fb6357d843c458",
+      "width": 0,
+      "mapped_to": "gb-crt-s-054",
+      "duplicate_of": null
+    },
+    {
+      "n": 55,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_04_51-5.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "36fd25cf11682ff71d6518718ec99646808f917def11242da58746f39911a91d",
+      "width": 0,
+      "mapped_to": "gb-crt-s-055",
+      "duplicate_of": null
+    },
+    {
+      "n": 56,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_04_52-6.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "bc4dd573274b331a4e4748727c405fed5f3aa89ff8cd57f32ee1c0e492668c4a",
+      "width": 0,
+      "mapped_to": "gb-crt-s-056",
+      "duplicate_of": null
+    },
+    {
+      "n": 57,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_04_53-7.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "1587e84001f390c74b8a486f2eb9f2f01bd8b978bd2fc59decbf3c373cd8a7cc",
+      "width": 0,
+      "mapped_to": "gb-crt-s-057",
+      "duplicate_of": null
+    },
+    {
+      "n": 58,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_04_54-8.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "71df2a5a59c7c52461cc0c925d9884caa3002e0b3cc81ec2e5497f331ea35bc5",
+      "width": 0,
+      "mapped_to": "gb-crt-s-058",
+      "duplicate_of": null
+    },
+    {
+      "n": 59,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_04_54-9.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "0418bbdc716a7139215ca7b8e25c563bb0a73e735d1daa8fafae699f9c1da548",
+      "width": 0,
+      "mapped_to": "gb-crt-s-059",
+      "duplicate_of": null
+    },
+    {
+      "n": 60,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_04_55-10.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "78c64acfa944607c2ddb2250512c38cd2419ce9ef69464a225ffbb62eedc6540",
+      "width": 0,
+      "mapped_to": "gb-crt-s-060",
+      "duplicate_of": null
+    },
+    {
+      "n": 61,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_30_59.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "6c4db92aef65531b67a011a18c9671b9340c5e23daa13ca4883e8f3d2e4ece68",
+      "width": 0,
+      "mapped_to": "gb-crt-s-061",
+      "duplicate_of": null
+    },
+    {
+      "n": 62,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_36_08-1.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "f410b5c0dcab2e2158cd0535d95d4b8d693accb8f923e0378979ba58bb2abdfb",
+      "width": 0,
+      "mapped_to": "gb-crt-s-062",
+      "duplicate_of": null
+    },
+    {
+      "n": 63,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_36_09-2.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "e43198e0456f899b4d78a9858543982be6ab5fbc306413ba1805464a29a0c72e",
+      "width": 0,
+      "mapped_to": "gb-crt-s-063",
+      "duplicate_of": null
+    },
+    {
+      "n": 64,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_36_10-3.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "9297f8939631d1d454f6153959e05c384adf4eb57c4d2f0c0244a930406ac517",
+      "width": 0,
+      "mapped_to": "gb-crt-s-064",
+      "duplicate_of": null
+    },
+    {
+      "n": 65,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_36_11-4.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "b3aca70f97170060b12e10f1d56673598aba43a7c96be2ed7761bc73ba5f7a5c",
+      "width": 0,
+      "mapped_to": "gb-crt-s-065",
+      "duplicate_of": null
+    },
+    {
+      "n": 66,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_36_12-5.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "e5009911aa530ad8ac5b8a4ca7df51dd36a19a90cca0a5fa1228d6b065beb806",
+      "width": 0,
+      "mapped_to": "gb-crt-s-066",
+      "duplicate_of": null
+    },
+    {
+      "n": 67,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_36_13-6.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "2e251042a21742d39e69baedb40a726378d6dbb611ef6d4d3c4869a3c48ec455",
+      "width": 0,
+      "mapped_to": "gb-crt-s-067",
+      "duplicate_of": null
+    },
+    {
+      "n": 68,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_36_14-7.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "c4c8a03f9cce8f908c7ec0953b459821fe0abe31026ad4f247f46c64296d3a93",
+      "width": 0,
+      "mapped_to": "gb-crt-s-068",
+      "duplicate_of": null
+    },
+    {
+      "n": 69,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_36_14-8.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "b1c3ddd76f3f013751a7001d681a483db7197bc52f1e475f74e05b914f0c3404",
+      "width": 0,
+      "mapped_to": "gb-crt-s-069",
+      "duplicate_of": null
+    },
+    {
+      "n": 70,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_36_15-9.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "631c462f75e5e09f4fd1bdcb6e2d708d0f0490678e11911035b1136c764a57e0",
+      "width": 0,
+      "mapped_to": "gb-crt-s-070",
+      "duplicate_of": null
+    },
+    {
+      "n": 71,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_36_16-10.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "5048671df549b3e36015c46712b62b72a7623c09eb7609ce1129be0bdcf4666f",
+      "width": 0,
+      "mapped_to": "gb-crt-s-071",
+      "duplicate_of": null
+    },
+    {
+      "n": 72,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_36_26-1.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "c6c66c4f869599126cfbfce373f3e254f8f9f7611faadc3f694e9635664aa824",
+      "width": 0,
+      "mapped_to": "gb-crt-s-072",
+      "duplicate_of": null
+    },
+    {
+      "n": 73,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 11_36_27-2.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "618d0ff853982b589e54cf651e50d7b42188386e0680c0fb4cbea98271bfa149",
+      "width": 0,
+      "mapped_to": "gb-crt-s-073",
+      "duplicate_of": null
+    },
+    {
+      "n": 74,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 12_20_49-1.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "9d4c955419e8bb8b33f11a29b86854790ce3f418b05d25a0b55557fe783d7226",
+      "width": 0,
+      "mapped_to": "gb-crt-s-074",
+      "duplicate_of": null
+    },
+    {
+      "n": 75,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 12_20_50-2.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "e0821e6a701dc88fc3d1c730253ce89f2c8ba2e6aecd3f6f59c5815463796e57",
+      "width": 0,
+      "mapped_to": "gb-crt-s-075",
+      "duplicate_of": null
+    },
+    {
+      "n": 76,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 12_20_51-3.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "4d82c07406f59d037ec7038ec4b70cf6a097caf32947b6efb03e0cc4af0c921d",
+      "width": 0,
+      "mapped_to": "gb-crt-s-076",
+      "duplicate_of": null
+    },
+    {
+      "n": 77,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 12_20_52-4.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "88f884a294fa2380d61c6c169f7253616a4c3eecc4cf601bde5ff6b0dbffc65e",
+      "width": 0,
+      "mapped_to": "gb-crt-s-077",
+      "duplicate_of": null
+    },
+    {
+      "n": 78,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 12_20_53-5.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "f4354f1b741c257aef74981faa33845dfeaa805ff1236d7266afeb49ca60624e",
+      "width": 0,
+      "mapped_to": "gb-crt-s-078",
+      "duplicate_of": null
+    },
+    {
+      "n": 79,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 12_41_40-1.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "22d2890ee720beb14ea95297ba4e8301f9a88fa1b862d6d5282950a919a1cbec",
+      "width": 0,
+      "mapped_to": "gb-crt-s-079",
+      "duplicate_of": null
+    },
+    {
+      "n": 80,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 12_41_41-2.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "095462dab8d273ab9076253ccc8d5783d8e6acfe6d8ab845ed9ff0736d2fcca4",
+      "width": 0,
+      "mapped_to": "gb-crt-s-080",
+      "duplicate_of": null
+    },
+    {
+      "n": 81,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 12_41_42-3.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "4887a2a188d32ab3993f741ad640ae14c37c77c4e27e21f122b89c80507ab9fb",
+      "width": 0,
+      "mapped_to": "gb-crt-s-081",
+      "duplicate_of": null
+    },
+    {
+      "n": 82,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 12_41_43-4.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "efa565e7b2373e5d385ded0247dbf28b483cf8618b1ae1e227fdcf10c6dc2dcb",
+      "width": 0,
+      "mapped_to": "gb-crt-s-082",
+      "duplicate_of": null
+    },
+    {
+      "n": 83,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 12_41_45-5.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "a77142b3b2ec0e0db30cb5dd91c456f82dc390d6833931852595109b6b6b08f6",
+      "width": 0,
+      "mapped_to": "gb-crt-s-083",
+      "duplicate_of": null
+    },
+    {
+      "n": 84,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 12_41_47-6.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "a40dd9d1c5c41280e9c0373c5e8aa800110974d8a3fc2bc9139eab8682b4b347",
+      "width": 0,
+      "mapped_to": "gb-crt-s-084",
+      "duplicate_of": null
+    },
+    {
+      "n": 85,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 12_41_49-7.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "729a43b5a35ed5ad6931d440a602e5ff25bc940250a65a517e1d0f79e7c4f586",
+      "width": 0,
+      "mapped_to": "gb-crt-s-085",
+      "duplicate_of": null
+    },
+    {
+      "n": 86,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 12_41_50-8.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "200c12c50a4b6dd9422f228b2007908feb374644148a6bd44073711ff0e2ecb3",
+      "width": 0,
+      "mapped_to": "gb-crt-s-086",
+      "duplicate_of": null
+    },
+    {
+      "n": 87,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 12_41_52-9.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "e64b414cbd0efaa80aa5d3dabd1253da4a9739ac671414d99acba981c270b763",
+      "width": 0,
+      "mapped_to": "gb-crt-s-087",
+      "duplicate_of": null
+    },
+    {
+      "n": 88,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 12_41_53-10.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "48c6b352afc887b795be41e0d5929cdb1df01a66144cc3d8fba9cee312f9ecc3",
+      "width": 0,
+      "mapped_to": "gb-crt-s-088",
+      "duplicate_of": null
+    },
+    {
+      "n": 89,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 13_21_19-1.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "22bb93c4ab8bcf17e66ba93685b6f47957fe5dbf96632b807c5fe710789f869d",
+      "width": 0,
+      "mapped_to": "gb-crt-s-089",
+      "duplicate_of": null
+    },
+    {
+      "n": 90,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 13_21_20-2.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "f579075cb53f86832b27e6a62239bde424eb396426583eae65478d18128fce15",
+      "width": 0,
+      "mapped_to": "gb-crt-010",
+      "duplicate_of": null
+    },
+    {
+      "n": 91,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 13_21_21-3.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "9c7e59650acce75e44e370d4ecb620528af5587caa76a0e252c1edd80431c7af",
+      "width": 0,
+      "mapped_to": "gb-crt-015",
+      "duplicate_of": null
+    },
+    {
+      "n": 92,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 13_21_22-4.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "6e801be474326069bb9d127109b46ba9adb70b5e93fbb54aa273ae4993cb803b",
+      "width": 0,
+      "mapped_to": "gb-crt-011",
+      "duplicate_of": null
+    },
+    {
+      "n": 93,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 13_21_23-5.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "094778436e47a94da34758368ccee478d33700159fb1493cf0c0ed250a4b60bf",
+      "width": 0,
+      "mapped_to": "gb-crt-012",
+      "duplicate_of": null
+    },
+    {
+      "n": 94,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 13_21_24-6.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "b7dd3b2f6b9227abb867e774988f7b1903388d59b2c54ac985aa078f9727b097",
+      "width": 0,
+      "mapped_to": "gb-crt-013",
+      "duplicate_of": null
+    },
+    {
+      "n": 95,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 13_21_26-7.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "797798717b8377f740c187f3f36fe04cb11703d655d5285ee5f0ffbe90de753d",
+      "width": 0,
+      "mapped_to": "gb-crt-s-095",
+      "duplicate_of": null
+    },
+    {
+      "n": 96,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 13_21_27-8.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "78c688eb1c539069b399c4e1ec8b70740814d7ded9694091f59c9437eff1da4f",
+      "width": 0,
+      "mapped_to": "gb-crt-s-096",
+      "duplicate_of": null
+    },
+    {
+      "n": 97,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 13_21_28-9.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "dcd1287735e238a4e59f87afa26705c1aaf67a5c82d44b075a1fb3b1fd8d944d",
+      "width": 0,
+      "mapped_to": "gb-crt-014",
+      "duplicate_of": null
+    },
+    {
+      "n": 98,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 13_21_30-10.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "d36779958a5e51bfec66836a9cf43d711a63b9923fa27182e2e27f52ebf973f2",
+      "width": 0,
+      "mapped_to": "gb-crt-s-098",
+      "duplicate_of": null
+    },
+    {
+      "n": 99,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_08_26-1.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "041d705660212ce9d4e821b44ad88b121e55b3f39fe9048256478dea0ba5bbcb",
+      "width": 0,
+      "mapped_to": "gb-crt-s-099",
+      "duplicate_of": null
+    },
+    {
+      "n": 100,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_08_27-2.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "9c5b22869571e3986ebea9d77a7835a5c43980cbf8e30e16afa55cf4624a171d",
+      "width": 0,
+      "mapped_to": "gb-crt-s-100",
+      "duplicate_of": null
+    },
+    {
+      "n": 101,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_08_29-3.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "c8b0516b1407834d19fd4d42f0017847b832306a4870555578f6324ddf85c60b",
+      "width": 0,
+      "mapped_to": "gb-crt-s-101",
+      "duplicate_of": null
+    },
+    {
+      "n": 102,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_08_30-4.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "55138f5172be35d7555a96d0cc7965e5a29443cbde2b02204edd23cb6dee89a4",
+      "width": 0,
+      "mapped_to": "gb-crt-s-102",
+      "duplicate_of": null
+    },
+    {
+      "n": 103,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_08_32-5.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "b9b216f73c7a53035e700ece480dc2f0efc540b046e780f28d9ecfd4c42524f5",
+      "width": 0,
+      "mapped_to": "gb-crt-s-103",
+      "duplicate_of": null
+    },
+    {
+      "n": 104,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_08_33-6.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "6d6affcdcdadff20e02f18641a6282cbc3defc6516d695d16d2a94c8ec8077da",
+      "width": 0,
+      "mapped_to": "gb-crt-007",
+      "duplicate_of": null
+    },
+    {
+      "n": 105,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_08_34-7.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "807b0340fa57f90db3b369b91cccf6ff748b3167631495f76cf34845000af4ec",
+      "width": 0,
+      "mapped_to": "gb-crt-s-105",
+      "duplicate_of": null
+    },
+    {
+      "n": 106,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_08_36-8.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "2fb45eaf66f91e2ef8824bd016e197b51c6b3a8a18ac13af9c4da8c2f4a01924",
+      "width": 0,
+      "mapped_to": "gb-crt-s-106",
+      "duplicate_of": null
+    },
+    {
+      "n": 107,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_08_37-9.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "0adcc69fe6964b9d5f3a4b4d56ac05ca97d859c89e9a8d3b8f878426e4f771e3",
+      "width": 0,
+      "mapped_to": "gb-crt-s-107",
+      "duplicate_of": null
+    },
+    {
+      "n": 108,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_08_39-10.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "00ec40c17e70a58f3f03a544388ce6d27985b899aff6206922a28b25436851ee",
+      "width": 0,
+      "mapped_to": "gb-crt-s-108",
+      "duplicate_of": null
+    },
+    {
+      "n": 109,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_46_50-1.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "8a598f051545191f4f7bb6e41bd7a4884859f156be863e3764d46050eb74b755",
+      "width": 0,
+      "mapped_to": "gb-crt-s-109",
+      "duplicate_of": null
+    },
+    {
+      "n": 110,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_46_52-2.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "16daacd03728cad96aa7ae3864ff4aa0c2a2e2287308b5d2f674f344125022e3",
+      "width": 0,
+      "mapped_to": "gb-crt-s-110",
+      "duplicate_of": null
+    },
+    {
+      "n": 111,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_46_53-3.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "224bd69c964a35156bf219c96fdadc81f2ab0e45fbdb1f8aeb34b8bf8e36fa16",
+      "width": 0,
+      "mapped_to": "gb-crt-s-111",
+      "duplicate_of": null
+    },
+    {
+      "n": 112,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_46_54-4.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "f643bc6d48e84edded5502731eb531b598bdf90097e886530508f46135f58b3d",
+      "width": 0,
+      "mapped_to": "gb-crt-s-112",
+      "duplicate_of": null
+    },
+    {
+      "n": 113,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_46_56-5.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "0656444f5eb4acbd13d35c93984c85a4ff60ccdb2d18bd2aefc083180322676d",
+      "width": 0,
+      "mapped_to": "gb-crt-s-113",
+      "duplicate_of": null
+    },
+    {
+      "n": 114,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_46_57-6.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "827faa0d4d33cd9bc8712bb62678ad6b3363626c2247e66a8c213d42d9ec717f",
+      "width": 0,
+      "mapped_to": "gb-crt-s-114",
+      "duplicate_of": null
+    },
+    {
+      "n": 115,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_46_59-7.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "c9441dda83ffaf388d0b91885702cb4bf877a58ed5cb60295313923f25bd378b",
+      "width": 0,
+      "mapped_to": "gb-crt-s-115",
+      "duplicate_of": null
+    },
+    {
+      "n": 116,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_47_00-8.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "a6739d9703b1867b2aba156474bfd817a09351855a0cba99f71b617920ad47de",
+      "width": 0,
+      "mapped_to": "gb-crt-s-116",
+      "duplicate_of": null
+    },
+    {
+      "n": 117,
+      "filename": "Imagem do ChatGPT 22 de out. de 2026, 14_47_02-9.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "3ad0eed98c5db1a9396c70d09aa71fc836bc53916b6635393922cb4ef8288397",
+      "width": 0,
+      "mapped_to": "gb-crt-s-117",
+      "duplicate_of": null
+    },
+    {
+      "n": 118,
+      "filename": "Moletom Nike Preto Isolado.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "27010a5fe8f1c077c79e8d61e2bbc46afd33289d539d17d554186508989307a2",
+      "width": 0,
+      "mapped_to": "gb-crt-013",
+      "duplicate_of": null
+    },
+    {
+      "n": 119,
+      "filename": "Shorts Nike pretos com logo neon arco-íris.png",
+      "from": "PRODUCTS.CRT.zip",
+      "sha256": "0ea18294616ee7ce8aac2176df92d0fc8c94a28d95f88a4c5ba5476f9077a64f",
+      "width": 0,
+      "mapped_to": "gb-crt-005",
+      "duplicate_of": null
+    },
+    {
+      "n": 120,
+      "filename": "01_nike_preta_faixa_branca_swoosh.png",
+      "from": "GB_Imports_Bermudas_Complemento_PNG.zip",
+      "sha256": "7a958f21648fb97930818e82f53fef240e00662527def86b9cbb67d3f97a4177",
+      "width": 0,
+      "mapped_to": "gb-crt-s-120",
+      "duplicate_of": null
+    },
+    {
+      "n": 121,
+      "filename": "02_nike_preta_letras_grandes.png",
+      "from": "GB_Imports_Bermudas_Complemento_PNG.zip",
+      "sha256": "0a30a0315011dde9d6e1bda4bcda90400c4611e5699202f2dc185c276c27d924",
+      "width": 0,
+      "mapped_to": "gb-crt-s-121",
+      "duplicate_of": null
+    },
+    {
+      "n": 122,
+      "filename": "03_nike_cargo_cinza.png",
+      "from": "GB_Imports_Bermudas_Complemento_PNG.zip",
+      "sha256": "1a393d5b8e10e2b2b439f9631313ebb78988595d32775af6bc391c54f2043d0a",
+      "width": 0,
+      "mapped_to": "gb-crt-s-122",
+      "duplicate_of": null
+    },
+    {
+      "n": 123,
+      "filename": "04_nike_preta_swoosh_gigante_TM.png",
+      "from": "GB_Imports_Bermudas_Complemento_PNG.zip",
+      "sha256": "300c6798987d90f415ab4c14897eeffba59ffce19c212feeb26cd497e017a6c2",
+      "width": 0,
+      "mapped_to": "gb-crt-s-123",
+      "duplicate_of": null
+    },
+    {
+      "n": 124,
+      "filename": "05_nike_world_branca.png",
+      "from": "GB_Imports_Bermudas_Complemento_PNG.zip",
+      "sha256": "e7dd29d135456304d50baddc5ba65fd28e5292ae0cdf0eb8993ffb15ec618f7f",
+      "width": 0,
+      "mapped_to": "gb-crt-s-124",
+      "duplicate_of": null
+    },
+    {
+      "n": 125,
+      "filename": "06_nike_world_preta.png",
+      "from": "GB_Imports_Bermudas_Complemento_PNG.zip",
+      "sha256": "715623ecc68a59fab4607678841e593dea6d9fb2737aa7791d5e404553f53848",
+      "width": 0,
+      "mapped_to": "gb-crt-s-125",
+      "duplicate_of": null
+    },
+    {
+      "n": 126,
+      "filename": "07_jordan_basquete_preta.png",
+      "from": "GB_Imports_Bermudas_Complemento_PNG.zip",
+      "sha256": "8e08abbe70eb1e438a63f2b3d80bef5644a9137d18666f310bc1b133e565ac79",
+      "width": 0,
+      "mapped_to": "gb-crt-s-126",
+      "duplicate_of": null
+    },
+    {
+      "n": 127,
+      "filename": "08_nike_cinza_logo_grande.png",
+      "from": "GB_Imports_Bermudas_Complemento_PNG.zip",
+      "sha256": "56b28abc08f6a5c212d3b7b7bd2d1244feae42552fc80f37b9cec735ae8dbc2b",
+      "width": 0,
+      "mapped_to": "gb-crt-s-127",
+      "duplicate_of": null
+    },
+    {
+      "n": 128,
+      "filename": "09_bermuda_jeans_azul_xo.png",
+      "from": "GB_Imports_Bermudas_Complemento_PNG.zip",
+      "sha256": "f1ffcdec4f1eb46ba2f7cde7518a450bc7b4f21edd22ce6e396a55d4a6f4731b",
+      "width": 0,
+      "mapped_to": "gb-crt-s-128",
+      "duplicate_of": null
+    },
+    {
+      "n": 129,
+      "filename": "10_bermuda_jeans_preta_rasgada.png",
+      "from": "GB_Imports_Bermudas_Complemento_PNG.zip",
+      "sha256": "15c56bf303fdf255e10fa699fb810c2a3858b8775e72ba0769a8fb159ec2fc52",
+      "width": 0,
+      "mapped_to": "gb-crt-s-129",
+      "duplicate_of": null
+    },
+    {
+      "n": 130,
+      "filename": "11_bermuda_jeans_cargo_azul_claro.png",
+      "from": "GB_Imports_Bermudas_Complemento_PNG.zip",
+      "sha256": "35df3bef47d43161138f30999d3b947249f5e4791570ac447c470ed8d7601525",
+      "width": 0,
+      "mapped_to": "gb-crt-s-130",
+      "duplicate_of": null
+    },
+    {
+      "n": 131,
+      "filename": "12_nike_preta_cargo_bege.png",
+      "from": "GB_Imports_Bermudas_Complemento_PNG.zip",
+      "sha256": "bdf413ab44ef1ebb2fa17f663563231840c1bef4b4efc2fcbb443dcbc7ac8bc2",
+      "width": 0,
+      "mapped_to": "gb-crt-s-131",
+      "duplicate_of": null
+    }
+  ]
+}
