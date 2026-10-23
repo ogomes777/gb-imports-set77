@@ -22,7 +22,7 @@ const PRODUCTS = [
   {id:'gb-sh-07',name:'Kit 07 / A catalogar',category:'short',label:SHORT_GROUP,tag:'ESTUDO 13',top:'#385d4e',bottom:'#16221c',accent:'#a4cead',stripe:'#b6c5b0',model:'shirt'},
   {id:'gb-sh-08',name:'Kit 08 / A catalogar',category:'short',label:SHORT_GROUP,tag:'ESTUDO 14',top:'#4f455d',bottom:'#1b1a25',accent:'#c8b0d7',stripe:'#a392c1',model:'shirt'},
 ]
-// Peças complementares do acervo: só entram na vitrine quando a foto real existir em assets-map.js.
+// Peças complementares do acervo: só entram na vitrine quando a imagem do acervo existir em assets-map.js.
 const EXTRA_PRODUCTS = [
   {id:'gb-ex-01',name:'Conjunto branco athleisure',category:'extra',label:'Conjunto',tag:'ACERVO 01',single:true},
   {id:'gb-ex-02',name:'Jaqueta preta / referência TNF',category:'extra',label:'Jaqueta',tag:'ACERVO 02',single:true},
@@ -30,6 +30,7 @@ const EXTRA_PRODUCTS = [
   {id:'gb-ex-04',name:'Moletom cinza / referência Nike',category:'extra',label:'Moletom',tag:'ACERVO 04',single:true},
 ]
 EXTRA_PRODUCTS.forEach(p=>{if(window.GB_ASSETS?.[p.id]?.combo)PRODUCTS.push(p)})
+(window.GB_IMPORTED_PRODUCTS||[]).forEach(p=>{if(!PRODUCTS.some(x=>x.id===p.id))PRODUCTS.push(p)})
 const heroSlides = [
   {eyebrow:'THE GB EDIT / CAPÍTULO 001',title:'O ESTILO<br>É <span class="emphasis">SEU.</span><br><span class="hero-title-outline">O MUNDO</span><br> TAMBÉM<span class="yellow-dot">.</span>',sub:'Peças, combinações e liberdade para construir o visual sem seguir o roteiro de ninguém.',product:PRODUCTS[1]},
   {eyebrow:'GB / A CURADORIA · 002',title:'LOOK<br>NÃO É<br><span class="emphasis">UNIFORME.</span><br>É ATITUDE<span class="yellow-dot">.</span>',sub:'Da rua para o seu dia. Escolha o que veste, não o que te define.',product:PRODUCTS[7]},
@@ -121,7 +122,7 @@ function garmentSVG(p,mode='combo',extraClass='garment-svg'){
 }
 const VIEW_LABEL={combo:'conjunto completo',top:'parte superior',bottom:'parte inferior'}
 const hasPhoto=(p)=>!!window.GB_ASSETS?.[p.id]&&Object.keys(window.GB_ASSETS[p.id]).length>0
-// Vistas exibíveis: com foto real, somente vistas fotografadas; sem foto, as três vistas do estudo.
+// Vistas exibíveis: com imagem do acervo, somente vistas fotografadas; sem foto, as três vistas do estudo.
 function availableViews(p){
  if(hasPhoto(p))return ['combo','top','bottom'].filter(v=>window.GB_ASSETS[p.id][v])
  return p.single?['combo']:['combo','top','bottom']
@@ -145,6 +146,7 @@ function matchesQuery(p,q){
 }
 function catalogList(){
  let list=PRODUCTS.filter(p=>currentFilter==='all'||(currentFilter==='saved'?favorites.includes(p.id):p.category===currentFilter)).filter(p=>matchesQuery(p,searchQuery))
+ if(sortMode==='curadoria'&&window.GB_IMPORTED_PRODUCTS?.length)list=[...list].sort((a,b)=>Number(!!window.GB_ASSETS?.[b.id]?.combo)-Number(!!window.GB_ASSETS?.[a.id]?.combo))
  if(sortMode==='az')list=[...list].sort((a,b)=>a.name.localeCompare(b.name,'pt-BR'))
  else if(sortMode==='za')list=[...list].sort((a,b)=>b.name.localeCompare(a.name,'pt-BR'))
  return list
@@ -152,7 +154,7 @@ function catalogList(){
 function makeCard(p,i){
  const n=PRODUCTS.indexOf(p)+1,fav=favorites.includes(p.id)
  const second=availableViews(p).includes('top')?`<span class="card-media card-media-b" aria-hidden="true" data-lazy-view="top"></span>`:''
- return `<article class="product-card" style="--i:${i}"><div class="product-frame"><button class="product-visual" data-product="${p.id}" aria-label="Ver detalhes de ${escaped(p.name)}"><span class="card-media card-media-a">${productMedia(p)}</span>${second}</button><span class="product-index" aria-hidden="true">GB / ${pad2(n)}</span><span class="product-badge" aria-hidden="true">${hasPhoto(p)?'FOTO REAL / CADASTRO EM REVISÃO':'ESTUDO / CADASTRO EM REVISÃO'}</span><button class="favorite-toggle ${fav?'is-fav':''}" data-fav="${p.id}" aria-label="${fav?'Remover dos favoritos':'Salvar nos favoritos'}: ${escaped(p.name)}" aria-pressed="${fav}">${heartSVG}</button></div><div class="product-meta"><div><div class="product-overline">${escaped(p.label.toUpperCase())} / ${hasPhoto(p)?'FOTO':'ESTUDO'}</div><div class="product-name">${escaped(p.name)}</div><div class="product-sub">Preço e tamanhos: a validar</div></div><span class="product-arrow" aria-hidden="true">↗</span></div></article>`
+ return `<article class="product-card" style="--i:${i}"><div class="product-frame"><button class="product-visual" data-product="${p.id}" aria-label="Ver detalhes de ${escaped(p.name)}"><span class="card-media card-media-a">${productMedia(p)}</span>${second}</button><span class="product-index" aria-hidden="true">GB / ${pad2(n)}</span><span class="product-badge" aria-hidden="true">${hasPhoto(p)?'IMAGEM DO ACERVO / A VALIDAR':'ESTUDO / CADASTRO EM REVISÃO'}</span><button class="favorite-toggle ${fav?'is-fav':''}" data-fav="${p.id}" aria-label="${fav?'Remover dos favoritos':'Salvar nos favoritos'}: ${escaped(p.name)}" aria-pressed="${fav}">${heartSVG}</button></div><div class="product-meta"><div><div class="product-overline">${escaped(p.label.toUpperCase())} / ${hasPhoto(p)?'FOTO':'ESTUDO'}</div><div class="product-name">${escaped(p.name)}</div><div class="product-sub">Preço e tamanhos: a validar</div></div><span class="product-arrow" aria-hidden="true">↗</span></div></article>`
 }
 function renderProducts(){
  const products=catalogList(),grid=$('#productGrid')
@@ -254,10 +256,10 @@ function renderProductModal(){
  const rel=related.length?related.slice((PRODUCTS.indexOf(p))%Math.max(1,related.length-3)).slice(0,4):[]
  const sizeGroup=(part,label,current)=>`<div class="size-label"><span>${label}</span><small>PREFERÊNCIA / NÃO CONFIRMA ESTOQUE</small></div><div class="size-buttons" role="group" aria-label="Selecionar ${label.toLowerCase()}">${['P','M','G','GG'].map(s=>`<button type="button" data-size="${part}" data-value="${s}" class="${current===s?'active':''}" aria-pressed="${current===s}">${s}</button>`).join('')}</div>`
  $('#productModal').innerHTML=`<button class="modal-close" data-close aria-label="Fechar detalhes">✕</button>
- <div class="product-gallery"><div class="gallery-topline"><span>GB / ${photo?'FOTO REAL':'ESTUDO DE PRODUTO'} / ${escaped(p.id)}</span><span>${views.length>1?`${pad2(views.indexOf(modalView)+1)} / ${pad2(views.length)}`:''}</span></div>
+ <div class="product-gallery"><div class="gallery-topline"><span>GB / ${photo?'IMAGEM DO ACERVO':'ESTUDO DE PRODUTO'} / ${escaped(p.id)}</span><span>${views.length>1?`${pad2(views.indexOf(modalView)+1)} / ${pad2(views.length)}`:''}</span></div>
  <div class="gallery-hero" id="galleryHero" data-view="${modalView}">${productMedia(p,modalView)}${views.length>1?`<button type="button" class="gallery-step gallery-prev" data-gallery-step="-1" aria-label="Vista anterior">←</button><button type="button" class="gallery-step gallery-next" data-gallery-step="1" aria-label="Próxima vista">→</button>`:''}</div>
  ${views.length>1?`<div class="gallery-thumbs" role="group" aria-label="Vistas da peça">${views.map(view=>`<button type="button" data-gallery="${view}" aria-label="Ver ${VIEW_LABEL[view]}" aria-pressed="${modalView===view}" class="${modalView===view?'active':''}">${productMedia(p,view)}<small>${labels[view]}</small></button>`).join('')}</div>`:''}
- ${photo?'':`<p class="gallery-note">Ilustração de estudo. A foto real desta peça entra assim que o recorte oficial for importado.</p>`}</div>
+ ${photo?'':`<p class="gallery-note">Ilustração de estudo. A imagem do acervo desta peça entra assim que o recorte oficial for importado.</p>`}</div>
  <div class="product-detail"><div class="detail-nav"><button type="button" data-step-product="-1" aria-label="Peça anterior">← ANTERIOR</button><span>${pad2(pos+1)} / ${pad2(list.length)}</span><button type="button" data-step-product="1" aria-label="Próxima peça">PRÓXIMA →</button></div>
  <span class="detail-heading">GB / ${escaped(p.label.toUpperCase())} / ${escaped(p.tag)}</span><h2>${escaped(p.name).toUpperCase()}</h2>
  <p>${p.single?'Peça do acervo GB.':`Conjunto ${p.category==='track'?'agasalho + calça':'camisa + short'} com vistas do kit completo e das partes.`} Nome de trabalho para organização do catálogo — não confirma marca, licença ou procedência.</p>
@@ -353,7 +355,7 @@ function init(){
  $('#searchInput').addEventListener('input',e=>renderSearch(e.target.value))
  $('#bagContact').addEventListener('click',()=>{if(!bag.length){toast('Sua seleção está vazia.');return}consult(bag.map(i=>({p:productById(i.id),top:i.top,bottom:i.bottom})))})
  $('#bagCopy')?.addEventListener('click',()=>{if(!bag.length)return;copyText(interestMessage(bag.map(i=>({p:productById(i.id),top:i.top,bottom:i.bottom})))).then(ok=>toast(ok?'Lista copiada para enviar à GB.':'Não foi possível copiar automaticamente.'))})
- // Foto real quebrada volta ao estudo, sem caixa vazia.
+ // Imagem do acervo quebrada volta ao estudo, sem caixa vazia.
  document.addEventListener('error',e=>{const img=e.target;if(img?.classList?.contains('actual-photo')){const p=productById(img.dataset.pid);if(p){const w=document.createElement('div');w.innerHTML=garmentSVG(p,img.dataset.mode||'combo');img.replaceWith(w.firstElementChild)}}},true)
  window.addEventListener('popstate',()=>{const id=new URL(location.href).searchParams.get('peca');productPushed=false;if(id&&productById(id)){activeModal=productById(id);modalView=availableViews(activeModal)[0];renderProductModal();if($('#productModal').hidden)openDialog('productModal')}else if(!$('#productModal').hidden){closeProductVisual(hideAll);lastFocus?.focus?.({preventScroll:true})}})
  const initial=new URL(location.href).searchParams.get('peca');if(initial&&productById(initial))detailModal(productById(initial),{replace:true})
