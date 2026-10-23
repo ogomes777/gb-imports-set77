@@ -1,5 +1,13 @@
 # GB Flagship / Changelog
 
+## V09 — 23/10/2026 · "GB FIT STUDIO"
+- Look Studio vira provador editorial: um manequim GB de corpo inteiro e persistente veste superior e inferior; nada flutua.
+- Roupas geradas pelas âncoras anatômicas do rig: jaqueta, camisa, calça e short, com oclusão e sombra de contato.
+- Troca do superior anima só tronco e mangas; a do inferior, só quadril e pernas. MISTURAR troca as duas com defasagem; trocas rápidas convergem para a última.
+- A/B com segundo manequim na mesma escala e divisor arrastável/teclado; evento público `gb:look-change`; looks salvos com `presentationVersion`.
+- Palco sticky no desktop (corpo inteiro cabe na tela ao lado dos seletores); mobile com setas fora do corpo.
+- Aviso fixo de simulação editorial; movimento reduzido troca sem animar. Detalhes em `docs/FIT_STUDIO_V09.md`.
+
 ## V07 — 22/10/2026 · "GB / IN MOTION"
 - `motion-core.js` (GBMotion): tokens, preferências, relógio rAF único, molas interrompíveis, gesto, FLIP, MediaSlot.
 - Hero vira palco de câmera: trio em profundidade dirigido por uma fase contínua; seleção, arrasto, teclado; título por lâmina amarela.

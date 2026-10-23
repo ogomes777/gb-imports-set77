@@ -32,7 +32,23 @@ let selectedBottom=lookPool.some(p=>p.id===savedLook?.bottom)?savedLook.bottom:P
 const reducedLook=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function readOutfits(){let saved=[];try{saved=JSON.parse(localStorage.getItem('gb-v03-outfits'))||[];if(!Array.isArray(saved))saved=[];}catch{}return saved.filter(o=>getItem(o.top)&&getItem(o.bottom))}
 function writeOutfits(list){try{localStorage.setItem('gb-v03-outfits',JSON.stringify(list.slice(0,10)));}catch{}}
+// V09 / GB FIT STUDIO: toda origem (clique, setas, swipe, arraste, misturar, restaurar) passa por aqui.
+// Com o provador montado, a peça VESTE o manequim persistente; sem ele, cai no comportamento V07.
+let lookSource='init',lookFrom=null,lookParts=new Set(),lookEmitQueued=false;
+function withSource(src,from,fn){lookSource=src;lookFrom=from||null;try{fn()}finally{lookSource='init';lookFrom=null}}
+const centerOf=el=>{const r=el?.getBoundingClientRect();return r?{x:r.left+r.width/2,y:r.top+r.height/2}:null};
+function emitLookChange(part,source){
+ lookParts.add(part);if(lookEmitQueued)return;lookEmitQueued=true;
+ queueMicrotask(()=>{lookEmitQueued=false;const parts=[...lookParts];lookParts.clear();
+  document.dispatchEvent(new CustomEvent('gb:look-change',{bubbles:true,detail:{topId:selectedTop,bottomId:selectedBottom,changedPart:parts.length>1?'both':parts[0],source}}))});
+}
 function paintPiece(mode,dir=0,snap=false){
+ if(window.GBFitting?.state.topId){
+  GBFitting.set({topId:selectedTop,bottomId:selectedBottom},{changedPart:mode,source:lookSource,from:lookFrom,dir:lookSource==='cycle'||lookSource==='swipe'?dir:0});
+  emitLookChange(mode,lookSource);
+  if(snap&&!reducedLook)snapIn(mode);
+  return;
+ }
  const el=one(mode==='top'?'#lookPreviewTop':'#lookPreviewBottom'),p=getItem(mode==='top'?selectedTop:selectedBottom);
  el.innerHTML=productMedia(p,mode);
  if(reducedLook)return;
@@ -63,12 +79,13 @@ function renderSaved(){
  box.hidden=!list.length;
  box.innerHTML=list.length?`<span class="look-saved-title">LOOKS SALVOS / ${String(list.length).padStart(2,'0')}</span><div class="look-saved-list">${list.map((o,i)=>`<div class="look-saved-item"><button type="button" class="look-saved-thumb" data-look-restore="${i}" aria-label="Restaurar look: ${escaped(getItem(o.top).name)} com ${escaped(getItem(o.bottom).name)}"><span>${productMedia(getItem(o.top),'top')}</span><span>${productMedia(getItem(o.bottom),'bottom')}</span></button><button type="button" class="look-saved-remove" data-look-remove="${i}" aria-label="Remover look salvo">×</button></div>`).join('')}</div>`:'';
 }
-function renderStudio(){paintPiece('top');paintPiece('bottom');renderOptions();renderSummary();renderSaved()}
+function renderStudio(){window.GBFitting?.mount(one('.look-stage'),{topId:selectedTop,bottomId:selectedBottom});paintPiece('top');paintPiece('bottom');renderOptions();renderSummary();renderSaved()}
 // Comparação A/B: look atual × look salvo, lado a lado no mesmo palco e na mesma escala.
 let comparing=false,compareIndex=0;
 function renderCompare(){
  const box=one('#lookCompare'),list=readOutfits();if(!box)return;
  const o=list[compareIndex]||list[0];
+ if(window.GBFitting?.state.topId){box.hidden=true;one('.look-stage')?.classList.toggle('is-compare',!!(comparing&&o));GBFitting.compare(!!(comparing&&o),o);return}
  if(!comparing||!o){box.hidden=true;one('.look-stage')?.classList.remove('is-compare');return}
  box.hidden=false;one('.look-stage')?.classList.add('is-compare');
  box.innerHTML=`<span class="look-compare-tag">B / SALVO</span><div class="look-compare-top">${productMedia(getItem(o.top),'top')}</div><div class="look-compare-bottom">${productMedia(getItem(o.bottom),'bottom')}</div><span class="look-compare-name">${escaped(getItem(o.top).name)} + ${escaped(getItem(o.bottom).name)}</span>`;
@@ -83,28 +100,29 @@ function choose(mode,id,dir,snap=false){
  if(mode==='top'){if(id===selectedTop)return;selectedTop=id}else{if(id===selectedBottom)return;selectedBottom=id}
  paintPiece(mode,dir,snap);renderOptions();renderSummary();if(comparing)renderCompare();
 }
-function cycle(mode,d){const cur=mode==='top'?selectedTop:selectedBottom;const i=lookPool.findIndex(p=>p.id===cur);choose(mode,lookPool[(i+d+lookPool.length)%lookPool.length].id,d)}
+function cycle(mode,d,src='cycle'){const cur=mode==='top'?selectedTop:selectedBottom;const i=lookPool.findIndex(p=>p.id===cur);withSource(src,null,()=>choose(mode,lookPool[(i+d+lookPool.length)%lookPool.length].id,d))}
 // monta o estúdio só quando ele se aproxima da tela (menos trabalho no carregamento)
 if(window.GBMotion){const off=GBMotion.onVisible(one('#lookstudio'),v=>{if(v){off();renderStudio()}},{margin:'900px 0px'})}else renderStudio();
 for(const id of ['lookTops','lookBottoms'])one('#'+id)?.addEventListener('click',e=>{
  const btn=e.target.closest('[data-look-id]'); if(!btn)return;
  const mode=btn.dataset.lookMode,cur=mode==='top'?selectedTop:selectedBottom;
  const dir=lookPool.findIndex(p=>p.id===btn.dataset.lookId)>lookPool.findIndex(p=>p.id===cur)?1:-1;
- choose(mode,btn.dataset.lookId,dir,true);
+ withSource('click',centerOf(btn),()=>choose(mode,btn.dataset.lookId,dir,true));
 });
 one('.look-studio')?.addEventListener('click',e=>{
  const c=e.target.closest('[data-look-cycle]');if(c){const [mode,d]=c.dataset.lookCycle.split(':');cycle(mode,+d)}
- if(e.target.closest('#lookShuffle')){const pick=()=>lookPool[Math.floor(Math.random()*lookPool.length)].id;let t=pick(),b=pick();if(t===selectedTop&&b===selectedBottom)b=lookPool[(lookPool.findIndex(p=>p.id===b)+1)%lookPool.length].id;selectedTop=t;selectedBottom=b;paintPiece('top',1);paintPiece('bottom',-1);renderOptions();renderSummary()}
+ if(e.target.closest('#lookShuffle')){const pick=not=>{const pool=lookPool.filter(p=>p.id!==not);return pool[Math.floor(Math.random()*pool.length)].id};const t=pick(selectedTop),b=pick(selectedBottom);/* misturar troca as duas peças, sempre */selectedTop=t;selectedBottom=b;withSource('shuffle',null,()=>{paintPiece('top',1);paintPiece('bottom',-1)});renderOptions();renderSummary();if(comparing)renderCompare()}
  const open=e.target.closest('[data-look-open]');if(open)detailModal(getItem(open.dataset.lookOpen));
  if(e.target.closest('#lookCompareBtn'))toggleCompare();
  const rest=e.target.closest('[data-look-restore]');if(rest&&comparing){compareIndex=+rest.dataset.lookRestore;renderCompare();return}
- if(rest){const o=readOutfits()[+rest.dataset.lookRestore];if(o){selectedTop=o.top;selectedBottom=o.bottom;paintPiece('top',1);paintPiece('bottom',1);renderOptions();renderSummary();toast('Look restaurado.')}}
+ if(rest){const o=readOutfits()[+rest.dataset.lookRestore];if(o){selectedTop=o.top;selectedBottom=o.bottom;withSource('restore',null,()=>{paintPiece('top',1);paintPiece('bottom',1)});renderOptions();renderSummary();toast('Look restaurado.')}}
  const rem=e.target.closest('[data-look-remove]');if(rem){const list=readOutfits();list.splice(+rem.dataset.lookRemove,1);writeOutfits(list);renderSaved();if(comparing){if(!list.length){comparing=false;const b=one('#lookCompareBtn');if(b){b.setAttribute('aria-pressed','false');b.textContent='COMPARAR A / B'}}compareIndex=0;renderCompare()}toast('Look removido.')}
 });
 // Swipe no palco: metade de cima troca a parte superior, metade de baixo a inferior.
 const lookStage=one('.look-stage');let lsx=0,lsy=0,lsHalf='top';
 lookStage?.addEventListener('touchstart',e=>{const r=lookStage.getBoundingClientRect();lsx=e.touches[0].clientX;lsy=e.touches[0].clientY;lsHalf=(lsy-r.top)<r.height*.5?'top':'bottom'},{passive:true});
-lookStage?.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-lsx,dy=e.changedTouches[0].clientY-lsy;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.3)cycle(lsHalf,dx<0?1:-1)},{passive:true});
+lookStage?.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-lsx,dy=e.changedTouches[0].clientY-lsy;if(comparing)return; // no A/B o gesto horizontal move o divisor
+ if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.3)cycle(lsHalf,dx<0?1:-1,'swipe')},{passive:true});
 // Arrastar da lista para o palco (mouse): a peça segue o cursor e encaixa na área correspondente.
 if(window.GBMotion&&GBMotion.Prefs.fine&&!reducedLook){
  let dragItem=null;
@@ -112,9 +130,9 @@ if(window.GBMotion&&GBMotion.Prefs.fine&&!reducedLook){
  const end=(e,cancel)=>{if(!dragItem)return;const {ghost,mode,id,moved}=dragItem;dragItem=null;stageEl.classList.remove('is-dropping');
    const r=stageEl.getBoundingClientRect(),inside=!cancel&&e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
    if(!moved){ghost.remove();return}
-   if(inside){const target=one(mode==='top'?'#lookPreviewTop':'#lookPreviewBottom').getBoundingClientRect(),g=ghost.getBoundingClientRect();
+   if(inside){const target=(one(`.fit-figure .look-dock[data-dock="${mode}"]`)||one(mode==='top'?'#lookPreviewTop':'#lookPreviewBottom')).getBoundingClientRect(),g=ghost.getBoundingClientRect();
      ghost.animate([{transform:ghost.style.transform},{transform:`translate(${target.left+target.width/2-g.width/2}px,${target.top+target.height/2-g.height/2}px) scale(1.6)`,opacity:0}],{duration:260,easing:'cubic-bezier(.2,.8,.2,1)'}).finished.then(()=>ghost.remove());
-     const cur=mode==='top'?selectedTop:selectedBottom;if(id!==cur)choose(mode,id,1,true);else snapIn(mode)}
+     const cur=mode==='top'?selectedTop:selectedBottom;if(id!==cur)withSource('drag',{x:e.clientX,y:e.clientY},()=>choose(mode,id,1,true));else snapIn(mode)}
    else ghost.animate([{opacity:1},{opacity:0}],{duration:180}).finished.then(()=>ghost.remove());
  };
  for(const box of ['#lookTops','#lookBottoms'].map(s=>one(s))){
@@ -131,7 +149,7 @@ if(window.GBMotion&&GBMotion.Prefs.fine&&!reducedLook){
 one('#lookSave')?.addEventListener('click',()=>{
  const list=readOutfits();
  if(list.some(o=>o.top===selectedTop&&o.bottom===selectedBottom)){toast('Esse look já está salvo.');return}
- list.unshift({top:selectedTop,bottom:selectedBottom,createdAt:new Date().toISOString()});writeOutfits(list);renderSaved();
+ list.unshift({top:selectedTop,bottom:selectedBottom,createdAt:new Date().toISOString(),presentationVersion:'fit-v09'});writeOutfits(list);renderSaved();
  toast('Referência de look salva neste navegador.');
 });
 

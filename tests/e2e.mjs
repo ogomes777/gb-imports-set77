@@ -43,6 +43,14 @@ async function run(w,h,reduced=false){
   check(vp,'favorito incrementa contador',(await page.locator('#wishCount').textContent())==='1');
   // Detalhe
   await page.locator('#productGrid .product-visual').first().click();await page.waitForTimeout(700);
+  check(vp,'V08: card abre o Object View',await page.locator('#railViewer').isVisible());
+  check(vp,'V08: Object View mostra a peça do card',(await page.locator('#railViewerName').textContent()).includes('ARGENTINA'));
+  await page.locator('#gbTabColors').click();await page.waitForTimeout(300);
+  check(vp,'V08: estudo de cor dentro da peça',await page.locator('#gbColorPanel').isVisible()&&(await page.locator('#gbColorPanel').textContent()).includes('NÃO É VARIANTE'));
+  const lab0=await page.locator('#gbLabColorName').textContent();await page.locator('[data-gb-color="2"]').click();
+  check(vp,'V08: troca de cor de estudo',(await page.locator('#gbLabColorName').textContent())!==lab0);
+  await page.locator('#gbTabObject').click();
+  await page.locator('#railViewerProduct').click();await page.waitForTimeout(700);
   check(vp,'detalhe abre',await page.locator('#productModal').isVisible());
   check(vp,'URL da peça (?peca=)',page.url().includes('peca=gb-tr-01'));
   await page.locator('[data-gallery="top"]').click();
@@ -110,7 +118,7 @@ async function run(w,h,reduced=false){
   const frontIdx=await page.locator('#heroTrio .trio-obj.is-front').getAttribute('data-trio');
   check(vp,'hero: protagonista = capítulo ativo',Number(frontIdx)===Number(await page.locator('#heroNum').textContent())-1);
   await page.locator('#heroTrio .trio-obj.is-front').click({force:true});await page.waitForTimeout(900);
-  check(vp,'hero: protagonista abre a peça',await page.locator('#productModal').isVisible()&&page.url().includes('peca='));
+  check(vp,'hero: protagonista abre a peça',await page.locator('#railViewer').isVisible()&&(await page.locator('#railViewerName').textContent()).length>3);
   await page.keyboard.press('Escape');await page.waitForTimeout(700);
   if(!mobile){const art=await page.locator('#heroArt').boundingBox();const n1=await page.locator('#heroNum').textContent();
     await page.mouse.move(art.x+art.width*.7,art.y+art.height*.45);await page.mouse.down();for(let i=1;i<=12;i++)await page.mouse.move(art.x+art.width*.7-i*24,art.y+art.height*.45);await page.mouse.up();await page.waitForTimeout(1300);
@@ -118,11 +126,12 @@ async function run(w,h,reduced=false){
   // Produto: abrir/fechar 10 vezes, foco volta ao card, URL limpa, voltar do navegador fecha
   await page.locator('#colecao .product-grid').scrollIntoViewIfNeeded();
   let okLoop=true;
-  for(let i=0;i<10;i++){await page.locator('#productGrid .product-visual').nth(i%4).click();await page.waitForTimeout(250);if(!(await page.locator('#productModal').isVisible()))okLoop=false;await page.keyboard.press('Escape');await page.waitForTimeout(450);if(await page.locator('#productModal').isVisible())okLoop=false}
+  for(let i=0;i<10;i++){await page.locator('#productGrid .product-visual').nth(i%4).click();await page.waitForTimeout(250);if(!(await page.locator('#railViewer').isVisible()))okLoop=false;await page.keyboard.press('Escape');await page.waitForTimeout(450);if(await page.locator('#railViewer').isVisible())okLoop=false}
   check(vp,'produto: abrir/fechar 10x',okLoop);
   check(vp,'produto: URL limpa após 10x',!page.url().includes('peca='));
   check(vp,'produto: foco volta ao card',await page.evaluate(()=>!!document.activeElement?.closest('#productGrid')));
   await page.locator('#productGrid .product-visual').first().click();await page.waitForTimeout(500);
+  await page.locator('#railViewerProduct').click();await page.waitForTimeout(500);
   await page.goBack();await page.waitForTimeout(800);
   check(vp,'produto: voltar do navegador fecha',!(await page.locator('#productModal').isVisible()));
   // Arara: arrasto 1:1 (deslocamento da peça acompanha o ponteiro)
@@ -132,20 +141,105 @@ async function run(w,h,reduced=false){
     const x1=(await card.boundingBox()).x;await page.mouse.up();await page.waitForTimeout(900);
     check(vp,'arara: arrasto 1:1',Math.abs((x0-x1)-80)<14,`${Math.round(x0-x1)}px`)}
   check(vp,'arara: barra em curva',await page.locator('#railBar path').count()===3);
-  // Chromatic: molde idêntico entre estados
-  await page.locator('#colorlab').scrollIntoViewIfNeeded();await page.waitForTimeout(300);
-  const g0=await page.locator('.cl-layer.is-on .garment-svg').boundingBox();
-  await page.locator('[data-color-index="2"]').click();await page.waitForTimeout(900);
-  const g1=await page.locator('.cl-layer.is-on .garment-svg').boundingBox();
+  // Chromatic (V08, dentro da peça): mesma silhueta entre estados de cor
+  await page.locator('#productGrid .product-visual').first().click();await page.waitForTimeout(500);await page.locator('#gbTabColors').click();await page.waitForTimeout(500);
+  const g0=await page.locator('#gbLabMedia svg').boundingBox();await page.locator('[data-gb-color="3"]').click();await page.waitForTimeout(700);
+  const g1=await page.locator('#gbLabMedia svg').boundingBox();
   check(vp,'chromatic: troca sem mover o molde',g0&&g1&&Math.abs(g0.x-g1.x)<1&&Math.abs(g0.width-g1.width)<1);
-  check(vp,'chromatic: rótulo de estudo',(await page.locator('.colorlab-legal').textContent()).includes('NÃO É VARIANTE'));
-  // Look Studio: encaixe e comparação A/B
+  await page.keyboard.press('Escape');await page.waitForTimeout(300);
+  // V09 / GB Fit Studio: um manequim persistente veste superior e inferior
   await page.locator('#lookstudio').scrollIntoViewIfNeeded();
-  await page.locator('#lookTops .look-option').nth(4).click();
+  await page.evaluate(()=>document.querySelector('#lookstudio .look-stage').scrollIntoView({block:'center'}));await page.waitForTimeout(1300);
+  const fit=()=>page.evaluate(()=>{const st=document.querySelector('#lookstudio .look-stage'),f=document.querySelector('#gbFitFigure');
+    const live=part=>[...(f?.querySelectorAll(`.fit-layer-${part} .fit-garment`)||[])];
+    return{figs:document.querySelectorAll('#lookstudio .fit-figure:not(.fit-figure-b)').length,top:live('top').map(g=>g.dataset.product),bottom:live('bottom').map(g=>g.dataset.product),
+      sel:{top:document.querySelector('#lookTops [aria-pressed="true"]')?.dataset.lookId,bottom:document.querySelector('#lookBottoms [aria-pressed="true"]')?.dataset.lookId},
+      state:window.GBFitting?.state,phase:st.dataset.phase,label:f?.querySelector('.fit-svg')?.getAttribute('aria-label'),anims:f?f.getAnimations({subtree:true}).filter(a=>a.playState==='running'&&a.animationName!=='fitBreath').length:-1}});
+  const settled=async()=>{await page.waitForTimeout(reduced?120:1250);return fit()};
+  const one1=s=>s.figs===1&&s.top.length===1&&s.bottom.length===1;
+  const events=[];await page.exposeFunction('__gbLook',d=>events.push(d)).catch(()=>{});
+  await page.evaluate(()=>addEventListener('gb:look-change',e=>window.__gbLook(e.detail)));
+  let f0=await fit();
+  check(vp,'fit: um único manequim vestindo superior e inferior',one1(f0)&&f0.top[0]===f0.state.topId&&f0.bottom[0]===f0.state.bottomId,JSON.stringify(f0));
+  check(vp,'fit: aviso de simulação editorial visível',/SIMULAÇÃO EDITORIAL DE COMPOSIÇÃO/.test(await page.locator('#lookstudio .fit-legal').innerText()));
+  const fb=await page.evaluate(()=>{const st=document.querySelector('#lookstudio .look-stage').getBoundingClientRect(),f=document.querySelector('#gbFitFigure').getBoundingClientRect(),
+    nav=[...document.querySelectorAll('.mobile-nav,.bottom-nav,nav')].map(n=>n.getBoundingClientRect()).filter(r=>r.height&&r.top>innerHeight*.6&&r.bottom>=innerHeight-2&&r.width>innerWidth*.8)[0];
+    const ctr=[...document.querySelectorAll('#lookstudio .look-cycle button,#lookShuffle')].filter(b=>b.offsetParent).map(b=>b.getBoundingClientRect());
+    return{ratio:f.height/st.height,inside:f.top>=st.top-1&&f.bottom<=st.bottom+1&&f.left>=st.left-1&&f.right<=st.right+1,
+      covered:nav?ctr.filter(r=>r.bottom>nav.top+1&&r.top<nav.bottom).length:0,small:ctr.filter(r=>r.width<43.5||r.height<43.5).length}});
+  check(vp,'fit: corpo inteiro ≥78% do palco e dentro dele',fb.ratio>=.78&&fb.inside,JSON.stringify(fb));
+  check(vp,'fit: controles com 44px e fora da nav fixa',fb.covered===0&&fb.small===0,JSON.stringify(fb));
+  // 3 trocas rápidas do superior: converge para a última, inferior intacto
+  const b0=f0.bottom[0];events.length=0;
+  for(let i=0;i<3;i++)await page.locator('[data-look-cycle="top:1"]').click({delay:0});
+  if(!reduced){const mid=await fit();check(vp,'fit: troca rápida não empilha fantasmas',mid.top.length<=2,JSON.stringify(mid.top))}
+  let f1=await settled();
+  check(vp,'fit: 3 trocas de superior convergem para a última',one1(f1)&&f1.top[0]===f1.sel.top&&f1.state.topId===f1.sel.top&&f1.top[0]!==f0.top[0],JSON.stringify(f1));
+  check(vp,'fit: troca de superior não mexe no inferior',f1.bottom[0]===b0);
+  check(vp,'fit: nenhuma animação ativa após assentar',f1.anims===0,String(f1.anims));
+  await page.waitForTimeout(50);
+  const ev=events.at(-1)||{};
+  check(vp,'fit: evento gb:look-change {topId,bottomId,changedPart,source}',events.length>=3&&ev.topId===f1.sel.top&&ev.bottomId===f1.sel.bottom&&ev.changedPart==='top'&&ev.source==='cycle',JSON.stringify(ev));
+  check(vp,'fit: rótulo acessível descreve o look',(f1.label||'').includes('vestindo'),f1.label);
+  // 3 trocas do inferior
+  for(let i=0;i<3;i++)await page.locator('[data-look-cycle="bottom:1"]').click();
+  let f2=await settled();
+  check(vp,'fit: 3 trocas de inferior convergem e preservam o superior',one1(f2)&&f2.bottom[0]===f2.sel.bottom&&f2.top[0]===f1.top[0]&&f2.bottom[0]!==b0,JSON.stringify(f2));
+  // MISTURAR: troca coordenada das duas peças
+  await page.locator('#lookShuffle').click();
+  if(!reduced){await page.waitForTimeout(60);check(vp,'fit: misturar entra em switching-both',(await fit()).phase==='switching-both')}
+  let f3=await settled();
+  check(vp,'fit: misturar veste o par sorteado',one1(f3)&&f3.top[0]===f3.sel.top&&f3.bottom[0]===f3.sel.bottom&&f3.top[0]!==f2.top[0]&&f3.bottom[0]!==f2.bottom[0],JSON.stringify(f3));
+  check(vp,'fit: estado de cena volta a idle',['idle','reduced-motion'].includes(f3.phase),f3.phase);
+  // Mesma escolha por origens diferentes = mesmo estado final
+  const pickIdx=await page.evaluate(()=>{const o=[...document.querySelectorAll('#lookTops .look-option')];for(let i=4;i<4+o.length;i++)if(o[i%o.length].getAttribute('aria-pressed')!=='true')return i%o.length});
+  const target=await page.locator('#lookTops .look-option').nth(pickIdx).getAttribute('data-look-id');
+  await page.locator('#lookTops .look-option').nth(pickIdx).click();
   if(!reduced)check(vp,'look: encaixe sinaliza a área',await page.locator('.look-dock[data-dock="top"].is-snap').count()===1);
-  await page.locator('#lookSave').click();await page.locator('#lookCompareBtn').click();
-  check(vp,'look: comparação A/B abre',await page.locator('#lookCompare').isVisible());
-  await page.locator('#lookCompareBtn').click();
+  const byClick=await settled();
+  check(vp,'fit: clique no seletor veste a peça escolhida',byClick.top[0]===target&&one1(byClick));
+  for(let i=0;i<8&&(await fit()).top[0]!==target;i++){await page.locator('[data-look-cycle="top:1"]').click()}
+  await page.locator('[data-look-cycle="top:1"]').click();await page.locator('[data-look-cycle="top:-1"]').click();
+  const byArrows=await settled();
+  check(vp,'fit: setas chegam ao mesmo estado do clique',byArrows.top[0]===target&&byArrows.bottom[0]===byClick.bottom[0]&&one1(byArrows),JSON.stringify(byArrows.top));
+  if(mobile){ // swipe na metade de cima do palco: avança e volta ao mesmo estado
+    const sb=await page.locator('#lookstudio .look-stage').boundingBox();
+    const swipe=async dx=>{const y=sb.y+sb.height*.3,x=sb.x+sb.width/2;await page.evaluate(([x,y,dx])=>{const st=document.querySelector('#lookstudio .look-stage');const T=(cx)=>[new Touch({identifier:1,target:st,clientX:cx,clientY:y})];
+      st.dispatchEvent(new TouchEvent('touchstart',{touches:T(x),changedTouches:T(x),bubbles:true}));st.dispatchEvent(new TouchEvent('touchend',{touches:[],changedTouches:T(x+dx),bubbles:true}))},[x,y,dx])};
+    await swipe(-120);const sw1=await settled();
+    check(vp,'fit: swipe troca só o superior',sw1.top[0]!==target&&sw1.bottom[0]===byClick.bottom[0]&&sw1.top[0]===sw1.sel.top&&one1(sw1),JSON.stringify(sw1.top));
+    await swipe(120);const sw2=await settled();
+    check(vp,'fit: swipe de volta = mesmo estado do clique',sw2.top[0]===target&&one1(sw2));
+  }else if(!reduced){ // arrastar da lista até o corpo
+    const opt=page.locator('#lookBottoms .look-option').nth(2),bid=await opt.getAttribute('data-look-id');await opt.scrollIntoViewIfNeeded();await page.waitForTimeout(300);
+    const ob=await opt.boundingBox(),db0=await page.locator('#gbFitFigure .look-dock[data-dock="bottom"]').boundingBox(),db={x:db0.x,width:db0.width,y:db0.y,height:Math.min(db0.height,h-db0.y-20)};
+    await page.mouse.move(ob.x+ob.width/2,ob.y+ob.height/2);await page.mouse.down();await page.mouse.move(ob.x+ob.width/2+30,ob.y+ob.height/2,{steps:3});
+    await page.mouse.move(db.x+db.width/2,db.y+db.height/2,{steps:8});await page.mouse.up();
+    const dr=await settled();
+    check(vp,'fit: arrastar até o corpo veste a peça',dr.bottom[0]===bid&&dr.sel.bottom===bid&&dr.top[0]===target&&one1(dr),JSON.stringify(dr));
+  }
+  // Salvar / restaurar / A-B: mesmo corpo, mesma escala
+  const saved=await fit();
+  await page.locator('#lookSave').click();
+  await page.locator('[data-look-cycle="top:1"]').click();await page.locator('[data-look-cycle="bottom:1"]').click();await settled();
+  const sv=await page.evaluate(()=>JSON.parse(localStorage.getItem('gb-v03-outfits')||'[]')[0]||{});
+  check(vp,'fit: look salvo guarda IDs reais + presentationVersion',sv.top===saved.top[0]&&sv.bottom===saved.bottom[0]&&sv.presentationVersion==='fit-v09',JSON.stringify(sv));
+  await page.locator('#lookCompareBtn').click();await page.waitForTimeout(400);
+  const ab=await page.evaluate(()=>{const a=document.querySelector('#gbFitFigure'),b=document.querySelector('#lookstudio .fit-figure-b');const ra=a.getBoundingClientRect(),rb=b?.getBoundingClientRect();
+    return{b:!!b,phase:document.querySelector('#lookstudio .look-stage').dataset.phase,bt:b?.querySelector('.fit-top')?.dataset.product,bb:b?.querySelector('.fit-bottom')?.dataset.product,
+      same:!!rb&&Math.abs(ra.x-rb.x)<1&&Math.abs(ra.width-rb.width)<1&&Math.abs(ra.height-rb.height)<1,ui:!document.querySelector('#lookstudio .fit-compare').hidden}});
+  check(vp,'look: comparação A/B abre',ab.b&&ab.ui&&ab.phase==='comparing',JSON.stringify(ab));
+  check(vp,'fit: A/B mostra o look salvo no mesmo corpo e escala',ab.bt===saved.top[0]&&ab.bb===saved.bottom[0]&&ab.same,JSON.stringify(ab));
+  await page.locator('#lookstudio .fit-split input').fill('70');
+  check(vp,'fit: divisor A/B ajustável',await page.evaluate(()=>document.querySelector('#lookstudio .look-stage').style.getPropertyValue('--split'))==='70');
+  await page.locator('#lookCompareBtn').click();await page.waitForTimeout(200);
+  check(vp,'fit: fechar A/B remove a figura B',await page.locator('#lookstudio .fit-figure-b').count()===0);
+  await page.locator('[data-look-restore="0"]').click();const rs=await settled();
+  check(vp,'fit: restaurar veste o look salvo',rs.top[0]===saved.top[0]&&rs.bottom[0]===saved.bottom[0]&&one1(rs),JSON.stringify(rs));
+  // teclado: setas são botões focáveis e acionáveis
+  await page.locator('[data-look-cycle="bottom:1"]').focus();await page.keyboard.press('Enter');const kb=await settled();
+  check(vp,'fit: troca pelo teclado',kb.bottom[0]!==rs.bottom[0]&&kb.bottom[0]===kb.sel.bottom);
+  if(reduced)check(vp,'fit: movimento reduzido troca sem animar',kb.anims===0&&(await page.evaluate(()=>document.querySelector('#gbFitFigure .fit-rig').getAnimations().length))===0);
   // Campanha: slot pronto para mídia autorizada
   check(vp,'campanha: slot de mídia presente',await page.locator('[data-media-slot="campaign-hero"] .slot-frame').count()===1);
   // Overflow após rolar a página inteira

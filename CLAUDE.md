@@ -4,7 +4,7 @@
 Flagship de demonstração, navegável, sem dados comerciais confirmados. Não é loja operacional.
 
 ## Arquitetura
-- Fonte modular em camadas: `motion-core.js` (GBMotion: tokens, molas, rAF único, gesto, FLIP, mídia) → `styles.css`/`main.js` (núcleo comercial) → `v03` → `v04` → `v05` → `v06` → `v07` (palco de câmera, campanha). Evoluir as camadas existentes; não reconstruir.
+- Fonte modular em camadas: `motion-core.js` (GBMotion: tokens, molas, rAF único, gesto, FLIP, mídia) → `styles.css`/`main.js` (núcleo comercial) → `v03` → `v04` → `v05` → `v06` → `v07` (palco de câmera, campanha) → `v08` (viewer de peça, cores na peça) → `look-fitting` (V09: manequim que veste o look; ver `docs/FIT_STUDIO_V09.md`). Evoluir as camadas existentes; não reconstruir.
 - Todo movimento novo usa `GBMotion` (nada de rAF próprio em loop, nada de recriar DOM a cada troca). Ver `docs/DIRECAO_V07.md`.
 - `node scripts/build.mjs` gera `dist/` (o que a Vercel publica) e `dist/gb-standalone.html`.
 - `node tests/e2e.mjs <url>` deve passar 100% antes de qualquer push.

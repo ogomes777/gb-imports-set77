@@ -1,0 +1,93 @@
+/* GB IMPORTS / V09 — GB FIT STUDIO. Palco editorial: um manequim, luz dirigida, roupa como protagonista. */
+
+/* ---------- Palco ---------- */
+.look-stage.has-fit{background:#0d0e10;isolation:isolate}
+.look-stage.has-fit .look-preview-top,.look-stage.has-fit .look-preview-bottom,.look-stage.has-fit .look-stage-outline,.look-stage.has-fit .look-stage-bg,.look-stage.has-fit>.look-compare{display:none!important}
+.fit-scene{position:absolute;inset:0;z-index:1;overflow:hidden;touch-action:pan-y}
+.fit-backdrop{position:absolute;inset:-4%;pointer-events:none;translate:calc(var(--fx,0)*-10px) calc(var(--fy,0)*-6px)}
+.fit-backdrop i{position:absolute;display:block}
+.fit-key{left:50%;top:-12%;width:92%;height:86%;translate:-50% 0;background:radial-gradient(ellipse at 50% 34%,#fff1cf2e 0%,#fff1cf12 34%,#0000 64%);opacity:0;transition:opacity 1.1s ease}
+.fit-rim{right:-6%;top:12%;width:46%;height:74%;background:radial-gradient(ellipse at 28% 50%,#ffd44714,#0000 62%);opacity:0;transition:opacity 1.4s ease .2s}
+.fit-horizon{left:0;right:0;top:80%;bottom:0;background:linear-gradient(#ffffff08,#0000 1px),linear-gradient(180deg,#16171a,#0a0b0c);border-top:1px solid #ffffff0f}
+.look-stage.is-awake .fit-key,.look-stage.is-awake .fit-rim{opacity:1}
+
+/* ---------- Figura (mesma geometria para A, B e divisor) ---------- */
+.fit-figure,.fit-geom{position:absolute;left:50%;bottom:7%;height:85%;aspect-ratio:420/1000;translate:-50% 0;z-index:2}
+.fit-figure{opacity:0;transform:translateY(18px) scale(.985);transition:opacity .9s ease,transform 1.1s cubic-bezier(.2,.8,.2,1)}
+.look-stage.is-awake .fit-figure{opacity:1;transform:none}
+.fit-figure .fit-svg{width:100%;height:100%;display:block;overflow:visible;translate:calc(var(--fx,0)*5px) 0}
+.fit-scene{--fx:0;--fy:0}
+.fit-scene .fit-figure .fit-svg{translate:calc(var(--fx,0)*6px) 0}
+.fit-rig,.fit-garment,.fit-panel,.fit-sleeve{transform-box:view-box}
+.fit-rig{transform-origin:210px 948px}
+.look-stage.is-awake:not([data-phase^="switching"]) .fit-figure:not(.fit-figure-b) .fit-rig{animation:fitBreath 5.6s ease-in-out infinite alternate}
+@keyframes fitBreath{to{transform:translateY(-1.4px) scale(1,1.004)}}
+
+/* ---------- Áreas de encaixe: marcas de canto sobre o corpo ---------- */
+.fit-figure .look-dock{left:auto!important;right:auto!important;border:0!important;border-radius:0!important;background:
+ linear-gradient(#ffd447,#ffd447) 0 0/16px 2px no-repeat,linear-gradient(#ffd447,#ffd447) 0 0/2px 16px no-repeat,
+ linear-gradient(#ffd447,#ffd447) 100% 0/16px 2px no-repeat,linear-gradient(#ffd447,#ffd447) 100% 0/2px 16px no-repeat,
+ linear-gradient(#ffd447,#ffd447) 0 100%/16px 2px no-repeat,linear-gradient(#ffd447,#ffd447) 0 100%/2px 16px no-repeat,
+ linear-gradient(#ffd447,#ffd447) 100% 100%/16px 2px no-repeat,linear-gradient(#ffd447,#ffd447) 100% 100%/2px 16px no-repeat!important;
+ opacity:0;transition:opacity .3s ease;z-index:3;animation:none}
+.fit-figure .look-dock span{left:auto!important;right:-2px;top:-18px!important;color:#ffd447!important;transform:translateX(100%)}
+.fit-figure .look-dock[data-dock="top"]{left:24.8%!important;top:14%!important;width:50.5%!important;height:42%!important}
+.fit-figure .look-dock[data-dock="bottom"]{left:29.5%!important;top:47.6%!important;width:41%!important;height:43%!important}
+.look-stage.is-dropping .fit-figure .look-dock{opacity:.35}
+.look-stage.is-dropping[data-drop="top"] .fit-figure .look-dock[data-dock="top"],.look-stage.is-dropping[data-drop="bottom"] .fit-figure .look-dock[data-dock="bottom"]{opacity:1}
+.fit-figure .look-dock.is-snap{animation:fitDockSnap .9s ease!important}
+@keyframes fitDockSnap{0%,60%{opacity:1}100%{opacity:0}}
+
+/* ---------- Microfeedback da troca ---------- */
+.fit-tag{position:absolute;z-index:4;left:24px;top:54px;margin:0;display:flex;flex-direction:column;gap:5px;max-width:42%;opacity:0;translate:0 6px;transition:opacity .3s ease,translate .4s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.fit-tag b{font:800 9px var(--font);letter-spacing:1.8px;color:#ffd447}
+.fit-tag span{font:700 13px/1.35 var(--font);color:#f4f1e8}
+.fit-tag.is-on{opacity:1;translate:0 0}
+.fit-legal{position:absolute;z-index:4;left:50%;bottom:20px;translate:-50% 0;width:min(340px,calc(100% - 380px));margin:0;font:700 8.5px/1.55 var(--font);letter-spacing:1.3px;color:#bcb8ad;text-align:center}
+
+/* ---------- Controles sobre o palco ---------- */
+.look-stage.has-fit .look-cycle{z-index:6}
+.look-stage.has-fit .look-shuffle{z-index:6;min-height:44px}
+.look-stage.has-fit .look-stage-title,.look-stage.has-fit .look-stage-foot{z-index:5}
+
+/* ---------- A / B: mesmo corpo, mesma escala, divisor ---------- */
+.look-stage.is-fit-compare .fit-tag{opacity:0!important}
+.fit-figure-b{opacity:1!important;transform:none!important;clip-path:inset(0 0 0 calc(var(--split,50)*1%));z-index:3}
+.fit-compare{position:absolute;inset:0;z-index:5;pointer-events:none}
+.fit-compare>div{position:absolute;top:56px;display:flex;flex-direction:column;gap:6px;max-width:30%}
+.fit-cmp-a{left:24px}.fit-cmp-b{right:24px;text-align:right;align-items:flex-end}
+.fit-compare b{font:800 9px var(--font);letter-spacing:1.8px;color:#ffd447}
+.fit-compare div span{font:700 12px/1.4 var(--font);color:#f4f1e8}
+.fit-split-line{position:absolute;left:50%;bottom:7%;height:85%;aspect-ratio:420/1000;translate:-50% 0;pointer-events:none}
+.fit-split-line::before{content:'';position:absolute;top:2%;bottom:0;left:calc(var(--split,50)*1%);width:2px;margin-left:-1px;background:linear-gradient(#ffd44700,#ffd447 12%,#ffd447 88%,#ffd44700)}
+.fit-split-line i{position:absolute;top:46%;left:calc(var(--split,50)*1%);translate:-50% 0;font:800 9px var(--font);letter-spacing:1px;font-style:normal;background:#ffd447;color:#111214;padding:6px 8px;white-space:nowrap}
+.fit-split{position:absolute;left:24px;right:24px;bottom:84px;pointer-events:auto;display:block}
+.fit-split input{width:100%;accent-color:#ffd447;height:44px;cursor:ew-resize}
+.look-stage.is-fit-compare .look-cycle{opacity:0;pointer-events:none}
+
+/* ---------- Desktop: o palco acompanha os seletores e o corpo inteiro cabe na tela ---------- */
+@media(min-width:781px){
+  .look-stage.has-fit{position:sticky;top:88px;align-self:start;min-height:0!important;height:clamp(600px,calc(100svh - 104px),880px)}
+}
+
+/* ---------- Mobile: palco primeiro, corpo inteiro, controles fora do corpo ---------- */
+@media(max-width:780px){
+  .look-stage.has-fit{min-height:0!important;height:clamp(540px,78svh,660px)}
+  .fit-figure,.fit-geom,.fit-split-line{height:80%;bottom:9%}
+  .look-stage.has-fit .look-cycle{flex-direction:column;gap:8px}
+  .look-stage.has-fit .look-cycle-top{left:10px!important;top:28%!important;bottom:auto!important}
+  .look-stage.has-fit .look-cycle-bottom{right:10px!important;left:auto!important;top:58%!important;bottom:auto!important}
+  .fit-tag{top:50px;left:14px;max-width:56%}
+  .fit-tag span{font-size:12px}
+  .fit-legal{bottom:46px;width:calc(100% - 28px);font-size:8px}
+  .fit-split{bottom:70px;left:14px;right:14px}
+  .fit-compare>div{top:50px;max-width:42%}
+}
+
+/* ---------- Movimento reduzido / aparelho modesto: estado final estático ---------- */
+@media(prefers-reduced-motion:reduce){
+  .fit-figure,.fit-key,.fit-rim,.fit-tag{transition:none!important}
+  .fit-rig{animation:none!important}
+  .fit-backdrop,.fit-figure .fit-svg{translate:none!important}
+}
+.gb-lite .fit-rig{animation:none!important}
