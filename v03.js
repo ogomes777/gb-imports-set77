@@ -25,7 +25,8 @@ one('#mobileBag')?.addEventListener('click',()=>one('#bagOpen').click());
 
 // The digital styling studio does not represent a real purchasable kit.
 // Só entram peças com vista superior e inferior coerentes (todas as de estudo, ou fotos com as duas vistas).
-const lookPool=PRODUCTS.filter(p=>!p.single&&(!hasPhoto(p)||(GB_ASSETS[p.id].top&&GB_ASSETS[p.id].bottom)));
+// Os recortes CRT flat-lay não são malhas vestíveis e exigem mapeamento anatômico antes do Fit Studio.
+const lookPool=PRODUCTS.filter(p=>!p.id.startsWith('gb-crt-')&&!p.single&&(!hasPhoto(p)||(GB_ASSETS[p.id].top&&GB_ASSETS[p.id].bottom)));
 const savedLook=(()=>{try{return JSON.parse(localStorage.getItem('gb-v06-look'))}catch{return null}})();
 let selectedTop=lookPool.some(p=>p.id===savedLook?.top)?savedLook.top:PRODUCTS[1].id;
 let selectedBottom=lookPool.some(p=>p.id===savedLook?.bottom)?savedLook.bottom:PRODUCTS[7].id;

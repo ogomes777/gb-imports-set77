@@ -20,28 +20,32 @@ async function run(w,h,reduced=false){
   const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
   page.on('requestfailed',r=>{if(!r.url().includes('fonts.g'))errors.push('requestfailed '+r.url())});
   await page.goto(BASE,{waitUntil:'networkidle'});await page.waitForTimeout(400);
+  if(errors.length){console.error('GB BOOT ERRORS',errors.slice(0,15));throw Error('Page JavaScript failed to initialize: '+errors.slice(0,5).join(' | '))}
   // Mede contra a largura pedida: em modo mobile o Chrome alarga o viewport de layout se algo vaza.
   const overflow=async()=>page.evaluate(w=>Math.max(document.documentElement.scrollWidth,innerWidth)-w,w);
   check(vp,"sem overflow horizontal (topo)",await overflow()<=0,String(await overflow()));
   const cards=()=>page.locator('#productGrid .product-card').count();
   check(vp,'grade inicial com 8 cards',await cards()===8,String(await cards()));
   // Filtros
-  await page.locator('.filter[data-filter="track"]').click();check(vp,'filtro agasalhos = 6',await cards()===6);
-  await page.locator('.filter[data-filter="short"]').click();check(vp,'filtro camisa+short = 8',await cards()===8);
+  await page.locator('.filter[data-filter="track"]').click();check(vp,'filtro agasalhos exibe 8 de 10',await cards()===8);check(vp,'contador de agasalhos atualizado',(await page.locator('#catalogCount').textContent()).includes('10'));
+  await page.locator('.filter[data-filter="short"]').click();check(vp,'filtro camisa+short exibe 8 de 10',await cards()===8);
   await page.locator('.filter[data-filter="saved"]').click();check(vp,'salvos vazio mostra estado vazio',await page.locator('.catalog-empty').count()===1);
   await page.locator('.filter[data-filter="all"]').click();
   // Busca inline (sem acento) e URL
   await page.fill('#catalogSearch','madri');await page.waitForTimeout(250);
-  check(vp,'busca "madri" = 2 resultados',await cards()===2,String(await cards()));
+  check(vp,'busca "madri" inclui peças do catálogo ampliado',await cards()>=2,String(await cards()));
   check(vp,'busca refletida na URL',page.url().includes('q=madri'));
   await page.fill('#catalogSearch','');await page.waitForTimeout(250);
-  await page.selectOption('#sortSelect','az');const first=await page.locator('#productGrid .product-name').first().textContent();
-  check(vp,'ordenação A–Z',first.trim()==='Conjunto Alemanha',first);
+  await page.selectOption('#sortSelect','az');const sortedNames=await page.locator('#productGrid .product-name').allTextContents();
+  check(vp,'ordenação A–Z',sortedNames.every((name,i)=>i===0||sortedNames[i-1].localeCompare(name,'pt-BR')<=0),sortedNames[0]);
   await page.selectOption('#sortSelect','curadoria');
   // Favorito
   await page.locator('#productGrid .favorite-toggle').first().click();
   check(vp,'favorito incrementa contador',(await page.locator('#wishCount').textContent())==='1');
-  // Detalhe
+  // A vitrine inicial prioriza recortes reais do acervo, com os 14 estudos preservados.
+  check(vp,'CRT: primeiros cards incluem imagem do acervo',await page.locator('#productGrid .product-visual img.actual-photo').count()>=4);
+  // Detalhe: usar conjunto já catalogado com as 3 vistas e 2 seletores de tamanho.
+  await page.fill('#catalogSearch','Argentina');await page.waitForTimeout(260);
   await page.locator('#productGrid .product-visual').first().click();await page.waitForTimeout(700);
   check(vp,'V08: card abre o Object View',await page.locator('#railViewer').isVisible());
   check(vp,'V08: Object View mostra a peça do card',(await page.locator('#railViewerName').textContent()).includes('ARGENTINA'));
@@ -66,9 +70,10 @@ async function run(w,h,reduced=false){
   check(vp,'URL limpa após fechar detalhe',!page.url().includes('peca='));
   await page.keyboard.press('Escape');await page.waitForTimeout(150);
   check(vp,'Escape fecha gaveta',!(await page.locator('#bagDrawer').isVisible()));
+  await page.fill('#catalogSearch','');await page.waitForTimeout(120);
   // Busca na gaveta
   await page.locator('#searchOpen').click();await page.fill('#searchInput','kit');
-  check(vp,'busca da gaveta "kit" = 8',await page.locator('#searchResults .search-result').count()===8);
+  check(vp,'busca da gaveta inclui os oito kits iniciais',await page.locator('#searchResults .search-result').count()>=8);
   await page.keyboard.press('Escape');
   // Rail: botões, arrasto e visualizador
   await page.locator('#rail').scrollIntoViewIfNeeded();
@@ -80,7 +85,7 @@ async function run(w,h,reduced=false){
   if(!mobile){await page.mouse.move(box.x+box.width*.7,box.y+box.height*.5);await page.mouse.down();for(let i=1;i<=10;i++)await page.mouse.move(box.x+box.width*.7-i*28,box.y+box.height*.5);await page.mouse.up();await page.waitForTimeout(900);
     const c2=await page.locator('#railCounter').textContent();check(vp,'rail responde ao arrasto',c2!==c1,`${c1} → ${c2}`)}
   await page.locator('.rail-chips [data-rail-filter="track"]').click();
-  check(vp,'filtro da arara (agasalhos = 6)',await page.locator('.rail-card').count()===6);
+  check(vp,'filtro da arara (agasalhos = 10)',await page.locator('.rail-card').count()===10);
   await page.locator('#railExplore').click();await page.waitForTimeout(200);
   check(vp,'visualizador abre',await page.locator('#railViewer').isVisible());
   await page.locator('#railViewerNext').click();await page.keyboard.press('Escape');

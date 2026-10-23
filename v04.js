@@ -26,7 +26,8 @@ document.addEventListener('gb:hero',updateGhosts);
 
 /* ---------- GB RAIL: barra em catenária, mola de posição + mola do cabide, gesto 1:1 ---------- */
 const railViewport=q('#railViewport'), railTrack=q('#railItems');
-const railSource={all:items.filter(p=>!p.single),track:items.filter(p=>p.category==='track'),short:items.filter(p=>p.category==='short')};
+const prioritized=list=>list.sort((a,b)=>Number(!!window.GB_ASSETS?.[b.id]?.combo)-Number(!!window.GB_ASSETS?.[a.id]?.combo));
+const railSource={all:prioritized(items.filter(p=>!p.single)),track:prioritized(items.filter(p=>p.category==='track')),short:prioritized(items.filter(p=>p.category==='short'))};
 let railItems=railSource.all, cards=[];
 const pos=new M.Spring(2,M.Tokens.spring.object), swing=new M.Spring(0,M.Tokens.spring.hanger);
 let target=2, running=false, dragging=false, dragStart=0, wheelTimer=0, vw=railViewport.clientWidth;
@@ -109,8 +110,8 @@ function drawViewer(dir=0){
   const media=q('#railViewerMedia');media.innerHTML=productMedia(p,viewerMode);
   if(dir&&!reduced){media.classList.remove('viewer-in');void media.offsetWidth;media.style.setProperty('--dir',dir);media.classList.add('viewer-in')}
   q('#railViewerName').textContent=p.name.toUpperCase();const itemIndex=focusOverride?items.findIndex(x=>x.id===p.id):target;q('#railViewerIndex').textContent=`${fmt(Math.max(0,itemIndex))} / ${fmt((focusOverride?items:railItems).length-1)}`;
-  q('#railViewerDescription').textContent=`${p.label}. ${hasPhoto(p)?'Foto real do acervo; dados comerciais em validação.':'Ilustração de estudo até a entrada das fotos oficiais da GB.'}`;
-  q('.rail-viewer-art-label').textContent=hasPhoto(p)?'FOTO REAL / CADASTRO EM REVISÃO':'ARQUIVO DE ESTUDO / CATÁLOGO EM CONSTRUÇÃO';
+  q('#railViewerDescription').textContent=`${p.label}. ${hasPhoto(p)?'Imagem do acervo visual; dados comerciais em validação.':'Ilustração de estudo até a entrada das fotos oficiais da GB.'}`;
+  q('.rail-viewer-art-label').textContent=hasPhoto(p)?'IMAGEM DO ACERVO / A VALIDAR':'ARQUIVO DE ESTUDO / CATÁLOGO EM CONSTRUÇÃO';
   qa('[data-rail-view]').forEach(b=>{b.hidden=!views.includes(b.dataset.railView);b.classList.toggle('selected',b.dataset.railView===viewerMode);b.setAttribute('aria-pressed',String(b.dataset.railView===viewerMode))});
   viewer.dataset.productId=p.id;document.dispatchEvent(new CustomEvent('gb:object-product',{detail:{product:p}}));
 }
@@ -148,7 +149,8 @@ document.addEventListener('keydown',e=>{
 },true);
 
 /* ---------- NIGHT SHOWROOM: palco duplo em perspectiva, luz amortecida, prévia por intenção ---------- */
-let showPos=0,showView='top',layerFlip=false;const six=[items[4],items[1],items[7],items[3],items[8],items[0]];
+let showPos=0,showView='top',layerFlip=false;const stageSelection=['gb-crt-004','gb-crt-003','gb-crt-005','gb-crt-001','gb-crt-006','gb-crt-002'];
+const six=stageSelection.map((id,i)=>items.find(p=>p.id===id)||[items[4],items[1],items[7],items[3],items[8],items[0]][i]);
 const featureMedia=q('#showroomFeatureMedia');featureMedia.innerHTML='<div class="sf-layer"></div><div class="sf-layer"></div>';
 const layers=qa('.sf-layer',featureMedia);
 function selectShowroom(i,focus=false,force=false){
