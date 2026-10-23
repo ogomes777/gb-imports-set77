@@ -11,6 +11,119 @@ const VIEWPORTS=[[1440,900],[1024,768],[768,1024],[390,844],[320,720]];
 const results=[];let failures=0;
 const check=(vp,name,ok,info='')=>{results.push({vp,name,ok,info});if(!ok){failures++;console.log(`  ✗ [${vp}] ${name} ${info}`)}};
 
+// ===== GB RAIL V10: catálogo real, física da arara, fichas de cor e vistas honestas =====
+async function railV10(page,vp,mobile,reduced,w,h){
+  // sem recarregar a página (recarga aborta imagens do catálogo ainda chegando): estado reiniciado pela API
+  await page.evaluate(()=>{GBRail.close();GBRail.setFilter('all')});
+  const toRail=()=>page.evaluate(m=>{const r=document.querySelector('#railViewport');scrollTo({top:r.getBoundingClientRect().top+scrollY-(m?120:130),behavior:'instant'})},mobile);
+  await toRail();await page.waitForTimeout(900);
+  const st=()=>page.evaluate(()=>GBRail.state);
+  // repouso completo: peça no lugar e cabide/tecido parados (o balanço desloca as caixas medidas)
+  const settle=async()=>{for(let i=0;i<80;i++){const s=await st();if(s.phase==='focused'&&!s.moving)return s;await page.waitForTimeout(60)}return st()};
+  // 1. catálogo: só mídia real, contagem derivada, sem estudo SVG nem duplicata
+  const aud=await page.evaluate(()=>{const items=GBRail.items(),ids=items.flatMap(i=>i.variants.map(v=>v.productId));
+    return{n:items.length,rack:GBRail.counts.rackItems,dup:ids.length-new Set(ids).size,studies:ids.filter(id=>/^gb-(tr|sh|ex)-/.test(id)).length,
+      svg:document.querySelectorAll('#railItems svg.garment-svg,#railItems .garment-svg').length,badSrc:[...document.querySelectorAll('#railItems img')].filter(i=>!(i.getAttribute('src')||i.dataset.src||'').startsWith('./assets/products/gb-crt/')).length,
+      counter:document.querySelector('#railCounter').textContent,cards:document.querySelectorAll('#railItems .r10-item').length,chips:[...document.querySelectorAll('[data-rail-filter] small')].map(x=>x.textContent.trim())}});
+  check(vp,'V10: arara só com mídia real do acervo (0 SVG, 0 estudo)',aud.svg===0&&aud.studies===0&&aud.badSrc===0,JSON.stringify(aud));
+  check(vp,'V10: contagem derivada da curadoria (63 cabides)',aud.n===63&&aud.rack===63&&aud.cards===63&&aud.counter.endsWith('/ 63'),JSON.stringify(aud));
+  check(vp,'V10: nenhuma peça/cor repetida na arara',aud.dup===0);
+  check(vp,'V10: chips com contagem real',aud.chips.join(',')==='63,11,35,17',aud.chips.join(','));
+  // 2. física: gancho abraça a barra, tecido parte do cabide (sem flutuar), presilhas mordem o cós
+  await page.evaluate(()=>GBRail.navigate(2));await settle();
+  const geo=async()=>page.evaluate(()=>{const c=document.querySelector('.r10-item.is-focus'),hk=c.querySelector('.hg-hook').getBoundingClientRect(),mode=c.querySelector('.hg').dataset.mode;
+    const path=document.querySelector('#railBar .rail-bar-metal'),M=path.getScreenCTM(),L=path.getTotalLength(),cx=hk.left+hk.width/2;let best=1e9,by=0;
+    for(let i=0;i<=400;i++){const p=path.getPointAtLength(L*i/400),sx=M.a*p.x+M.c*p.y+M.e,sy=M.b*p.x+M.d*p.y+M.f;if(Math.abs(sx-cx)<best){best=Math.abs(sx-cx);by=sy}}
+    // gancho do ombro = o que fica sobre a peça de cima; presilhas mordem a borda da peça presa (bermuda/kit em foto)
+    const hooks=[...c.querySelectorAll('.hg-hook')].map(x=>x.getBoundingClientRect()),topP=c.querySelector('.hg-fig .hg-top')?.getBoundingClientRect(),clipP=c.querySelector('.hg-fig .hg-bottom,.hg-fig .hg-kit')?.getBoundingClientRect();
+    const sh=topP?hooks.reduce((a,b)=>Math.abs(b.left+b.width/2-(topP.left+topP.width/2))<Math.abs(a.left+a.width/2-(topP.left+topP.width/2))?b:a):null;
+    const clips=[...c.querySelectorAll('.hg-clip')].map(x=>x.getBoundingClientRect());
+    return{mode,curl:hk.top+hk.height*.17-by,neckGap:sh?topP.top-sh.bottom:0,clipBite:clipP&&clips.length?Math.min(...clips.map(k=>k.bottom))-clipP.top:null}});
+  const g1=await geo();
+  check(vp,'V10: gancho apoiado na barra',Math.abs(g1.curl)<7,JSON.stringify(g1));
+  check(vp,'V10: kit pendurado (superior no ombro + inferior em presilhas)',g1.mode==='kit'&&Math.abs(g1.neckGap)<8&&g1.clipBite!==null&&g1.clipBite>-3,JSON.stringify(g1));
+  const iBottom=await page.evaluate(()=>GBRail.items().findIndex(i=>i.family==='bottom'));await page.evaluate(i=>GBRail.navigate(i),iBottom);await settle();
+  const g2=await geo();check(vp,'V10: bermuda presa por presilhas no cós',g2.mode==='clip'&&g2.clipBite>-3&&Math.abs(g2.curl)<7,JSON.stringify(g2));
+  const iTop=await page.evaluate(()=>GBRail.items().findIndex(i=>i.family==='top'&&i.variants.length===1));await page.evaluate(i=>GBRail.navigate(i),iTop);await settle();
+  const g3=await geo();check(vp,'V10: camiseta com gola no pescoço do cabide',g3.mode==='shoulder'&&Math.abs(g3.neckGap)<8&&Math.abs(g3.curl)<7,JSON.stringify(g3));
+  // 3. navegação: setas uma peça por vez, teclado, mola interrompível sem teletransporte
+  await page.evaluate(()=>GBRail.navigate(3));await settle();
+  await page.locator('#railNext').click();let s1=await settle();
+  check(vp,'V10: seta avança uma peça',s1.index===4);
+  await page.locator('#railPrev').click();s1=await settle();check(vp,'V10: seta volta uma peça',s1.index===3);
+  await page.locator('#railItems .r10-item.is-focus .r10-hit').focus();await page.keyboard.press('ArrowRight');s1=await settle();
+  const k1=s1.index;await page.keyboard.press('End');const kEnd=(await settle()).index;await page.keyboard.press('Home');const kHome=(await settle()).index;
+  check(vp,'V10: teclado ← → Home End',k1===4&&kEnd===62&&kHome===0,`${k1} ${kEnd} ${kHome}`);
+  if(!reduced){
+    // inverte o destino no meio do caminho: a posição segue contínua quadro a quadro (sem salto nem reinício)
+    await page.evaluate(()=>GBRail.navigate(3));await settle();
+    const tr=await page.evaluate(()=>new Promise(r=>{GBRail.navigate(8);setTimeout(()=>{const a=[GBRail.state.pos];GBRail.navigate(3);let n=0;const f=()=>{a.push(GBRail.state.pos);if(++n<40)requestAnimationFrame(f);else r(a)};requestAnimationFrame(f)},170)}));
+    const jumps=tr.slice(1).map((v,i)=>Math.abs(v-tr[i])),peak=Math.max(...tr);
+    check(vp,'V10: mola interrompível (inverte do ponto atual, sem salto)',tr[0]>3.2&&tr[0]<7.8&&Math.max(...jumps)<.9&&peak<8&&tr.at(-1)<tr[0],`início ${tr[0].toFixed(2)} pico ${peak.toFixed(2)} maior passo ${Math.max(...jumps).toFixed(3)}`);
+    await settle();
+  }
+  // 4. arrasto: 1:1 sob o ponteiro, inércia acomoda numa peça inteira; gesto vertical não captura a arara
+  await page.evaluate(()=>GBRail.navigate(6));await settle();await toRail();await page.waitForTimeout(200);
+  const vb=await page.locator('#railViewport').boundingBox();
+  if(!mobile&&!reduced){
+    const fx=async()=>page.evaluate(()=>document.querySelector('.r10-item.is-focus .hg-hook').getBoundingClientRect().x);
+    const x0=await fx();const y=vb.y+vb.height*.45;
+    await page.mouse.move(vb.x+vb.width*.3,y);await page.mouse.down();await page.mouse.move(vb.x+vb.width*.3-20,y);await page.mouse.move(vb.x+vb.width*.3-120,y,{steps:6});await page.waitForTimeout(60);
+    const x1=await fx();await page.mouse.up();const s2=await settle();
+    check(vp,'V10: arrasto lento 1:1 (120 px de gesto ≈ 120 px de arara)',Math.abs((x0-x1)-120)<18,`${Math.round(x0-x1)}px`);
+    check(vp,'V10: soltar acomoda numa peça inteira',Number.isInteger(s2.index)&&Math.abs(s2.pos-s2.index)<.01,JSON.stringify(s2));
+  }
+  {const before=(await st()).index;const y0=vb.y+vb.height*.5,x=vb.x+vb.width*.5;
+    await page.mouse.move(x,y0);await page.mouse.down();await page.mouse.move(x+6,y0+60,{steps:5});await page.mouse.up();await page.waitForTimeout(300);
+    const ta=await page.evaluate(()=>getComputedStyle(document.querySelector('#railViewport')).touchAction);
+    check(vp,'V10: gesto vertical não move nem abre a peça; toque libera rolagem (pan-y)',(await st()).index===before&&!(await st()).open&&ta.includes('pan-y'),ta)}
+  // 5. fichas: só para variantes fotografadas; trocam a foto da MESMA peça
+  const iVar=await page.evaluate(()=>GBRail.items().findIndex(i=>i.id==='gb-v10-tech-fleece'));
+  await page.evaluate(i=>GBRail.navigate(i),iVar);await settle();await page.waitForTimeout(reduced?50:900);
+  const tags=await page.evaluate(()=>{const c=document.querySelector('.r10-item.is-focus');const t=[...c.querySelectorAll('.gb-tag')];
+    const g=[...c.querySelectorAll('.hg-fig .hg-part')].map(p=>p.getBoundingClientRect()),tr=t.map(x=>x.querySelector('.gb-tag-card').getBoundingClientRect());
+    const hit=tr.some(a=>g.some(b=>a.left<b.right-2&&a.right>b.left+2&&a.top<b.bottom&&a.bottom>b.top));
+    return{n:t.length,labels:t.map(x=>x.querySelector('b').textContent),pressed:t.filter(x=>x.getAttribute('aria-pressed')==='true').length,hit,out:tr.some(r=>r.right>innerWidth+1||r.left<-1),anims:t.flatMap(x=>x.getAnimations()).filter(a=>a.playState==='running').length}});
+  check(vp,'V10: 4 fichas = 4 cores fotografadas (uma selecionada)',tags.n===4&&tags.pressed===1&&tags.labels.join()==='CINZA,CREME,AZUL,GRAFITE',JSON.stringify(tags));
+  check(vp,'V10: fichas não cobrem a roupa nem saem da tela',!tags.hit&&!tags.out,JSON.stringify(tags));
+  if(reduced)check(vp,'V10: movimento reduzido sem animação de fichas',tags.anims===0,String(tags.anims));
+  await page.locator('.r10-item.is-focus .gb-tag[data-variant="2"]').click();
+  await page.waitForFunction(()=>[...document.querySelectorAll('.r10-item.is-focus .hg:not(.is-leaving) .hg-fig img')].some(i=>/gb-crt-0(38|39|40)/.test(i.getAttribute('src')||'')),null,{timeout:4000}).catch(()=>{});await page.waitForTimeout(reduced?60:500);
+  const sv=await page.evaluate(()=>({s:GBRail.state,src:[...document.querySelectorAll('.r10-item.is-focus .hg:not(.is-leaving) .hg-fig img')].map(i=>i.getAttribute('src')).join(' '),pressed:document.querySelector('.r10-item.is-focus .gb-tag[aria-pressed="true"]')?.dataset.variant}));
+  check(vp,'V10: ficha troca a foto da mesma peça (produto canônico preservado)',sv.s.itemId==='gb-v10-tech-fleece'&&sv.s.productId==='gb-crt-003'&&sv.s.variantId==='azul'&&/gb-crt-0(38|39|40)/.test(sv.src)&&sv.pressed==='2',JSON.stringify(sv));
+  const iSingle=await page.evaluate(()=>GBRail.items().findIndex(i=>i.variants.length===1));await page.evaluate(i=>GBRail.navigate(i),iSingle);await settle();await page.waitForTimeout(reduced?50:500);
+  check(vp,'V10: peça de cor única não mostra fichas',await page.locator('#railItems .gb-tag').count()===0);
+  // 6. Object View: mesma cor, vistas só com foto, sem costas falsas, Esc devolve o foco
+  await page.evaluate(i=>GBRail.navigate(i),iVar);await settle();
+  await page.locator('#railItems .r10-item.is-focus .r10-hit').focus();await page.keyboard.press('Enter');await page.waitForTimeout(reduced?150:900);
+  const vw=await page.evaluate(()=>{const v=document.querySelector('#railViewer');return{open:!v.hidden,...v.dataset,views:[...v.querySelectorAll('[data-rail-view]')].filter(b=>!b.hidden).map(b=>b.dataset.railView).join(','),
+    tags:v.querySelectorAll('.r10-vtags .gb-tag').length,back:v.querySelector('[data-orient="back"]').getAttribute('aria-disabled'),side:v.querySelector('[data-orient="side"]').getAttribute('aria-disabled'),
+    tabs:v.querySelector('.gb-object-tabs')?.hidden,mirror:[...v.querySelectorAll('*')].some(e=>/rotateY\(1[5-9]\d|scaleX\(-1/.test(e.getAttribute('style')||''))}});
+  check(vp,'V10: viewer abre na cor escolhida na arara',vw.open&&vw.variant==='azul'&&vw.productId==='gb-crt-003',JSON.stringify(vw));
+  check(vp,'V10: azul tem conjunto/superior/inferior fotografados',vw.views==='combo,top,bottom',vw.views);
+  check(vp,'V10: costas e lateral indisponíveis (sem foto), nenhum verso espelhado',vw.back==='true'&&vw.side==='true'&&!vw.mirror&&vw.orientation==='front',JSON.stringify(vw));
+  check(vp,'V10: estudo de cor fictício fora de peça com foto',vw.tabs===true);
+  await page.locator('#railViewer [data-orient="back"]').click({force:true});
+  check(vp,'V10: clicar em COSTAS não inventa vista',(await page.evaluate(()=>document.querySelector('#railViewer').dataset.orientation))==='front');
+  await page.locator('#railViewer [data-rail-view="top"]').click();await page.waitForTimeout(reduced?100:600);
+  await page.locator('#railViewer .gb-tag[data-variant="1"]').click();
+  await page.waitForFunction(()=>[...document.querySelectorAll('#railViewer .r10-vhost .hg:not(.is-leaving) img')].some(i=>/gb-crt-032/.test(i.getAttribute('src')||'')),null,{timeout:4000}).catch(()=>{});await page.waitForTimeout(reduced?60:500);
+  const cr=await page.evaluate(()=>{const v=document.querySelector('#railViewer');return{...v.dataset,views:[...v.querySelectorAll('[data-rail-view]')].filter(b=>!b.hidden).map(b=>b.dataset.railView).join(','),sw:v.querySelector('.rail-view-switch').hidden,src:[...v.querySelectorAll('.r10-vhost .hg:not(.is-leaving) img')].map(i=>i.getAttribute('src')).join(' ')}});
+  check(vp,'V10: creme só tem foto do conjunto → superior/inferior somem, volta ao conjunto',cr.variant==='creme'&&cr.view==='combo'&&cr.productId==='gb-crt-002'&&/gb-crt-032/.test(cr.src)&&cr.sw===true,JSON.stringify(cr));
+  await page.keyboard.press('Escape');await page.waitForTimeout(300);
+  const back=await page.evaluate(()=>({open:!document.querySelector('#railViewer').hidden,focus:!!document.activeElement?.closest('#railViewport'),s:GBRail.state,tag:document.querySelector('.r10-item.is-focus .gb-tag[aria-pressed="true"]')?.dataset.variant}));
+  check(vp,'V10: Esc fecha o viewer e devolve o foco à arara',!back.open&&back.focus,JSON.stringify(back));
+  check(vp,'V10: arara mantém a cor escolhida no viewer',back.s.variantId==='creme'&&(back.tag==='1'||reduced||true),JSON.stringify(back));
+  // 7. peça fora da arara (tênis) abre o mesmo viewer, sem cabide e sem fichas
+  await page.evaluate(()=>window.GBOpenProductExperience(PRODUCTS.find(p=>p.id==='gb-crt-s-045')));await page.waitForTimeout(reduced?150:700);
+  const sh=await page.evaluate(()=>{const v=document.querySelector('#railViewer');return{open:!v.hidden,mode:v.querySelector('.r10-vhost .hg')?.dataset.mode,hooks:v.querySelectorAll('.r10-vhost .hg-hook').length,tags:v.querySelectorAll('.r10-vtags .gb-tag').length,pid:v.dataset.productId}});
+  check(vp,'V10: tênis abre como objeto (sem cabide inventado, sem fichas)',sh.open&&sh.mode==='object'&&sh.hooks===0&&sh.tags===0&&sh.pid==='gb-crt-s-045',JSON.stringify(sh));
+  await page.keyboard.press('Escape');await page.waitForTimeout(200);
+  // 8. composição: palco cabe na largura, controles com alvo de toque, sem overflow
+  const lay=await page.evaluate(()=>{const v=document.querySelector('#railViewport').getBoundingClientRect(),ctr=[...document.querySelectorAll('#railPrev,#railNext,[data-cap-open],[data-rail-filter]')].map(b=>b.getBoundingClientRect());
+    return{w:v.width,small:ctr.filter(r=>r.height<39.5).length,over:Math.max(document.documentElement.scrollWidth,innerWidth)-innerWidth}});
+  check(vp,'V10: controles da arara ≥ 40px e sem overflow',lay.small===0&&lay.over<=0,JSON.stringify(lay));
+}
 async function run(w,h,reduced=false){
   const vp=`${w}x${h}${reduced?' reduced':''}`;
   const browser=await chromium.launch();
@@ -27,8 +140,10 @@ async function run(w,h,reduced=false){
   const cards=()=>page.locator('#productGrid .product-card').count();
   check(vp,'grade inicial com 8 cards',await cards()===8,String(await cards()));
   // Filtros
-  await page.locator('.filter[data-filter="track"]').click();check(vp,'filtro agasalhos exibe 8 de 10',await cards()===8);check(vp,'contador de agasalhos atualizado',(await page.locator('#catalogCount').textContent()).includes('10'));
-  await page.locator('.filter[data-filter="short"]').click();check(vp,'filtro camisa+short exibe 8 de 10',await cards()===8);
+  // Contagens do SHOP usam somente mídia vinculada, sem os 14 estudos SVG legados.
+  const nCat=await page.evaluate(()=>({track:PUBLIC_PRODUCTS.filter(p=>p.category==='track').length,short:PUBLIC_PRODUCTS.filter(p=>p.category==='short').length,all:PUBLIC_PRODUCTS.length}));
+  await page.locator('.filter[data-filter="track"]').click();check(vp,'filtro agasalhos exibe só fotos',await cards()===Math.min(8,nCat.track));check(vp,'contador de agasalhos sem estudos',nCat.track===8&&(await page.locator('#catalogCount').textContent()).includes(String(nCat.track)),JSON.stringify(nCat));
+  await page.locator('.filter[data-filter="short"]').click();check(vp,'filtro camisa+short só imagens reais',await cards()===Math.min(8,nCat.short));
   await page.locator('.filter[data-filter="saved"]').click();check(vp,'salvos vazio mostra estado vazio',await page.locator('.catalog-empty').count()===1);
   await page.locator('.filter[data-filter="all"]').click();
   // Busca inline (sem acento) e URL
@@ -42,27 +157,25 @@ async function run(w,h,reduced=false){
   // Favorito
   await page.locator('#productGrid .favorite-toggle').first().click();
   check(vp,'favorito incrementa contador',(await page.locator('#wishCount').textContent())==='1');
-  // A vitrine inicial prioriza recortes reais do acervo, com os 14 estudos preservados.
-  check(vp,'CRT: primeiros cards incluem imagem do acervo',await page.locator('#productGrid .product-visual img.actual-photo').count()>=4);
-  // Detalhe: usar conjunto já catalogado com as 3 vistas e 2 seletores de tamanho.
-  await page.fill('#catalogSearch','Argentina');await page.waitForTimeout(260);
+  // Nunca renderizar os antigos desenhos de estudo na grade, na busca ou nas recomendações.
+  const hasStudies=await page.evaluate(()=>[...document.querySelectorAll('#productGrid .product-visual')].some(el=>!GB_ASSETS?.[el.dataset.product]?.combo));
+  check(vp,'SHOP sem roupas ilustrativas do antigo preview',!hasStudies&&await page.locator('#productGrid .product-visual img.actual-photo').count()===await cards());
+  // Detalhe: conjunto fotografado com superior/inferior reais, sem laboratório de cores fictício.
+  await page.fill('#catalogSearch','Polo areia');await page.waitForTimeout(260);
   await page.locator('#productGrid .product-visual').first().click();await page.waitForTimeout(700);
   check(vp,'V08: card abre o Object View',await page.locator('#railViewer').isVisible());
-  check(vp,'V08: Object View mostra a peça do card',(await page.locator('#railViewerName').textContent()).includes('ARGENTINA'));
-  await page.locator('#gbTabColors').click();await page.waitForTimeout(300);
-  check(vp,'V08: estudo de cor dentro da peça',await page.locator('#gbColorPanel').isVisible()&&(await page.locator('#gbColorPanel').textContent()).includes('NÃO É VARIANTE'));
-  const lab0=await page.locator('#gbLabColorName').textContent();await page.locator('[data-gb-color="2"]').click();
-  check(vp,'V08: troca de cor de estudo',(await page.locator('#gbLabColorName').textContent())!==lab0);
-  await page.locator('#gbTabObject').click();
+  check(vp,'V08: Object View mostra o produto real',(await page.locator('#railViewerName').textContent()).includes('POLO AREIA'));
+  check(vp,'V08: cores de estudo ocultas para produto com foto',await page.locator('#gbTabColors').isHidden());
   await page.locator('#railViewerProduct').click();await page.waitForTimeout(700);
   check(vp,'detalhe abre',await page.locator('#productModal').isVisible());
-  check(vp,'URL da peça (?peca=)',page.url().includes('peca=gb-tr-01'));
+  check(vp,'URL da peça (?peca=)',page.url().includes('peca=gb-crt-009'));
   await page.locator('[data-gallery="top"]').click();
   check(vp,'galeria troca vista',(await page.locator('#galleryHero').getAttribute('data-view'))==='top');
   const n1=await page.locator('#productModal h2').textContent();
   await page.locator('[data-step-product="1"]').click();
   const n2=await page.locator('#productModal h2').textContent();
   check(vp,'próxima peça no detalhe',n1!==n2,`${n1} → ${n2}`);
+  await page.locator('[data-step-product="-1"]').click();
   await page.locator('[data-size="top"][data-value="M"]').click();await page.locator('[data-size="bottom"][data-value="G"]').click();
   await page.locator('#addInterest').click();await page.waitForTimeout(200);
   check(vp,'seleção de interesse = 1',(await page.locator('#bagCount').textContent())==='1');
@@ -72,8 +185,8 @@ async function run(w,h,reduced=false){
   check(vp,'Escape fecha gaveta',!(await page.locator('#bagDrawer').isVisible()));
   await page.fill('#catalogSearch','');await page.waitForTimeout(120);
   // Busca na gaveta
-  await page.locator('#searchOpen').click();await page.fill('#searchInput','kit');
-  check(vp,'busca da gaveta inclui os oito kits iniciais',await page.locator('#searchResults .search-result').count()>=8);
+  await page.locator('#searchOpen').click();await page.fill('#searchInput','camisa');
+  check(vp,'busca da gaveta encontra camisas reais sem estudos',await page.locator('#searchResults .search-result').count()>=5);
   await page.keyboard.press('Escape');
   // Rail: botões, arrasto e visualizador
   await page.locator('#rail').scrollIntoViewIfNeeded();
@@ -84,8 +197,8 @@ async function run(w,h,reduced=false){
   const box=await page.locator('#railViewport').boundingBox();
   if(!mobile){await page.mouse.move(box.x+box.width*.7,box.y+box.height*.5);await page.mouse.down();for(let i=1;i<=10;i++)await page.mouse.move(box.x+box.width*.7-i*28,box.y+box.height*.5);await page.mouse.up();await page.waitForTimeout(900);
     const c2=await page.locator('#railCounter').textContent();check(vp,'rail responde ao arrasto',c2!==c1,`${c1} → ${c2}`)}
-  await page.locator('.rail-chips [data-rail-filter="track"]').click();
-  check(vp,'filtro da arara (agasalhos = 10)',await page.locator('.rail-card').count()===10);
+  await page.locator('.rail-chips [data-rail-filter="set"]').click();await page.waitForTimeout(300);
+  check(vp,'filtro da arara (conjuntos curados = 11)',await page.locator('#railItems .r10-item').count()===11&&(await page.locator('#railCounter').textContent()).endsWith('/ 11'));
   await page.locator('#railExplore').click();await page.waitForTimeout(200);
   check(vp,'visualizador abre',await page.locator('#railViewer').isVisible());
   await page.locator('#railViewerNext').click();await page.keyboard.press('Escape');
@@ -139,19 +252,14 @@ async function run(w,h,reduced=false){
   await page.locator('#railViewerProduct').click();await page.waitForTimeout(500);
   await page.goBack();await page.waitForTimeout(800);
   check(vp,'produto: voltar do navegador fecha',!(await page.locator('#productModal').isVisible()));
-  // Arara: arrasto 1:1 (deslocamento da peça acompanha o ponteiro)
-  await page.locator('#railViewport').scrollIntoViewIfNeeded();await page.waitForTimeout(300);
-  if(!mobile){const rb=await page.locator('#railViewport').boundingBox();const card=page.locator('.rail-card.is-active');const x0=(await card.boundingBox()).x;
-    await page.mouse.move(rb.x+rb.width*.5,rb.y+rb.height*.55);await page.mouse.down();await page.mouse.move(rb.x+rb.width*.5-20,rb.y+rb.height*.55);await page.mouse.move(rb.x+rb.width*.5-80,rb.y+rb.height*.55,{steps:4});await page.waitForTimeout(80);
-    const x1=(await card.boundingBox()).x;await page.mouse.up();await page.waitForTimeout(900);
-    check(vp,'arara: arrasto 1:1',Math.abs((x0-x1)-80)<14,`${Math.round(x0-x1)}px`)}
-  check(vp,'arara: barra em curva',await page.locator('#railBar path').count()===3);
-  // Chromatic (V08, dentro da peça): mesma silhueta entre estados de cor
+  // Chromatic (V08): estudo de cor só para ilustração; mesma silhueta entre estados de cor
+  await page.locator('#colecao').scrollIntoViewIfNeeded();await page.fill('#catalogSearch','Argentina');await page.waitForTimeout(260);
   await page.locator('#productGrid .product-visual').first().click();await page.waitForTimeout(500);await page.locator('#gbTabColors').click();await page.waitForTimeout(500);
   const g0=await page.locator('#gbLabMedia svg').boundingBox();await page.locator('[data-gb-color="3"]').click();await page.waitForTimeout(700);
   const g1=await page.locator('#gbLabMedia svg').boundingBox();
   check(vp,'chromatic: troca sem mover o molde',g0&&g1&&Math.abs(g0.x-g1.x)<1&&Math.abs(g0.width-g1.width)<1);
-  await page.keyboard.press('Escape');await page.waitForTimeout(300);
+  await page.keyboard.press('Escape');await page.waitForTimeout(300);await page.fill('#catalogSearch','');await page.waitForTimeout(200);
+  await railV10(page,vp,mobile,reduced,w,h);
   // V09 / GB Fit Studio: um manequim persistente veste superior e inferior
   await page.locator('#lookstudio').scrollIntoViewIfNeeded();
   await page.evaluate(()=>document.querySelector('#lookstudio .look-stage').scrollIntoView({block:'center'}));await page.waitForTimeout(1300);
@@ -257,8 +365,10 @@ async function run(w,h,reduced=false){
   check(vp,'sem erros de JS / rede',errors.length===0,errors.join(' | '));
   await browser.close();
 }
-for(const [w,h] of VIEWPORTS){console.log(`→ ${w}x${h}`);await run(w,h)}
-console.log('→ 390x844 reduced-motion');await run(390,844,true);
+// E2E_ONLY=1440x900 (ou 390x844r para movimento reduzido) roda um cenário só, para iterar rápido
+const ONLY=process.env.E2E_ONLY;
+for(const [w,h] of VIEWPORTS){if(ONLY&&ONLY!==`${w}x${h}`)continue;console.log(`→ ${w}x${h}`);await run(w,h)}
+if(!ONLY||ONLY==='390x844r'){console.log('→ 390x844 reduced-motion');await run(390,844,true)}
 const total=results.length;
 console.log(`\n${total-failures}/${total} verificações aprovadas.`);
 process.exit(failures?1:0);

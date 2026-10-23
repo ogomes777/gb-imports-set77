@@ -18,15 +18,22 @@ motion-core.js           núcleo de movimento V07 (tokens, molas, relógio rAF �
 v07.css · v07.js         palco de câmera do hero, slots de campanha, cenas V07
 v08.css · v08.js         viewer de peça (Object View) e cores dentro da peça
 look-fitting.css · .js   V09 GB Fit Studio: manequim de corpo inteiro que veste o look (docs/FIT_STUDIO_V09.md)
+gb-rail-v10.css · .js    V10 GB RAIL: arara física, fichas de cor reais, Object View (docs/GB_RAIL_V10_RESULTADOS.md)
+rail-catalog.js          catálogo curado da arara (GERADO por scripts/gerar-rail-v10.mjs)
 assets-map.js            vínculo produto → vista → foto real (gerado pelo importador)
 campaign-map.js          mídia de campanha autorizada por slot (vazio = composição de estudo)
 assets/brand/            monograma e assinaturas SVG/PNG da proposta V1 (em revisão)
 assets/products/         fotos reais em WebP (vazio até a importação)
 data/catalogo-fontes.json   14 posições de vitrine + 4 do acervo, status por item
 data/manifesto-ativos.json  flags foto_real / arte_estudo / pendente por item e vista
+data/gb-rail-curation.json  decisão visual V10 para os 114 registros (arara / variante / vista / duplicata / fora)
+data/gb-media-meta.json     medição dos recortes (caixa útil, pescoço, presilhas, hash)
+data/gb-rail-audit.csv      auditoria por registro (também em docs/GB_RAIL_V10_ASSET_AUDIT.md)
 scripts/build.mjs        build com hash + dist/gb-standalone.html (abre offline)
 scripts/importar_produtos.py importa recortes PNG → WebP e atualiza mapa/manifesto
-tests/e2e.mjs            QA automatizado (Playwright) em 5 larguras + movimento reduzido (~73 verificações por largura)
+scripts/medir_midia_rail.py  mede recortes e gera sombras da arara (Pillow)
+scripts/gerar-rail-v10.mjs   gera/valida o catálogo da arara (--check falha se algo mudou)
+tests/e2e.mjs            QA automatizado (Playwright) em 5 larguras + movimento reduzido (~100 verificações por largura)
 docs/                    arquitetura, direção V07, QA, pendências de publicação
 ```
 
@@ -48,7 +55,8 @@ node tests/e2e.mjs http://localhost:8081/   # QA (precisa do pacote playwright +
 Com foto, a mesma peça troca automaticamente no hero, card, arara, showroom, detalhe, look studio e busca; vistas sem foto deixam de aparecer na galeria (sem misturar foto e ilustração). As peças do acervo `gb-ex-*` só entram na vitrine quando têm foto.
 
 ## Limites deste protótipo
-- As ilustrações são **estudos**; nenhuma foto de produto foi integrada ainda (o pacote recebido não continha os arquivos).
+- O acervo CRT01 (114 registros, 126 imagens, algumas geradas digitalmente) está integrado como **imagem do acervo a validar**; as 14 ilustrações originais seguem como **estudos** e ficam fora da arara.
+- Todas as imagens atuais são frontais: a arara e o viewer não oferecem lateral, costas nem 360° até existirem fotos reais desses ângulos.
 - Nomes de produto são **nomes de trabalho**: não confirmam marca, licença ou procedência.
 - Preço, estoque, tamanhos, entrega e pagamento aparecem como "a confirmar". A "seleção de interesse" copia uma mensagem para o Direct da GB; não é pedido.
 - A identidade V1 (monograma, ORIGEM/TRAMA/SINAL, grafia IMPORTS/IMPORTTS) é proposta em revisão.

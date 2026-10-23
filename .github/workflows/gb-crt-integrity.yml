@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, feat/gb-imports-produtos-crt-01]
+    branches: [main, feat/gb-imports-produtos-crt-01, feat/gb-rail-v10]
 jobs:
   catalogue-and-build:
     runs-on: ubuntu-latest
@@ -15,6 +15,8 @@ jobs:
           node-version: '22'
       - name: Verify CRT files, product references and import ordering
         run: node scripts/validar-crt.mjs
+      - name: Verify GB RAIL V10 curation (114 decisions, media hashes, generated catalogue up to date)
+        run: node scripts/gerar-rail-v10.mjs --check
       - name: Build flagship website
         run: node scripts/build.mjs
       - name: Install Playwright and Chromium

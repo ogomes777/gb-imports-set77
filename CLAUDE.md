@@ -4,11 +4,12 @@
 Flagship de demonstração, navegável, sem dados comerciais confirmados. Não é loja operacional.
 
 ## Arquitetura
-- Fonte modular em camadas: `motion-core.js` (GBMotion: tokens, molas, rAF único, gesto, FLIP, mídia) → `styles.css`/`main.js` (núcleo comercial) → `v03` → `v04` → `v05` → `v06` → `v07` (palco de câmera, campanha) → `v08` (viewer de peça, cores na peça) → `look-fitting` (V09: manequim que veste o look; ver `docs/FIT_STUDIO_V09.md`). Evoluir as camadas existentes; não reconstruir.
+- Fonte modular em camadas: `motion-core.js` (GBMotion: tokens, molas, rAF único, gesto, FLIP, mídia) → `styles.css`/`main.js` (núcleo comercial) → `v03` → `v04` → `v05` → `v06` → `v07` (palco de câmera, campanha) → `v08` (viewer de peça, cores na peça) → `look-fitting` (V09: manequim que veste o look; ver `docs/FIT_STUDIO_V09.md`) → `gb-rail-v10` (V10: arara física + Object View; catálogo em `rail-catalog.js`). Evoluir as camadas existentes; não reconstruir.
 - Todo movimento novo usa `GBMotion` (nada de rAF próprio em loop, nada de recriar DOM a cada troca). Ver `docs/DIRECAO_V07.md`.
 - `node scripts/build.mjs` gera `dist/` (o que a Vercel publica) e `dist/gb-standalone.html`.
 - `node tests/e2e.mjs <url>` deve passar 100% antes de qualquer push.
 - Fotos reais só via `scripts/importar_produtos.py` → `assets-map.js`; campanha via `campaign-map.js`. A UI troca a ilustração pela foto sozinha.
+- GB RAIL V10: a arara só recebe peça com mídia real conferida. Decisões por registro em `data/gb-rail-curation.json` (olhando a imagem, nunca pelo nome); `python3 scripts/medir_midia_rail.py` mede recortes e gera sombras; `node scripts/gerar-rail-v10.mjs` gera `rail-catalog.js` + auditoria (`--check` no CI). Costas/lateral/360° e cores só com foto real daquela vista/cor: nunca espelhar a frente nem pintar variante.
 - Não incorporar neste repositório público: gravações de referência, capturas internas, manual em PDF, briefing confidencial, dados de clientes ou credenciais.
 
 ## Direção

@@ -1,5 +1,13 @@
 # GB Flagship / Changelog
 
+## V10 — 23/10/2026 · "GB RAIL"
+- Arara reconstruída como estrutura física: barra fina entre dois suportes, gancho apoiado na barra, gola no pescoço do cabide, bermudas e fotos de kit presas por presilhas, conjunto com superior e inferior em dois cabides, sombra na parede pré-calculada.
+- Catálogo verdadeiro: os 114 registros auditados olhando cada imagem; 63 cabides (71 registros), 5 grupos de cores fotografadas, 7 duplicatas ocultas, 31 itens fora por categoria, 9 conjuntos reclassificados. Os 14 estudos SVG saem da arara.
+- Movimento: arrasto 1:1, inércia e mola interrompível; vizinhos em 3/4 que viram de frente no foco e abrem espaço; balanço do cabide com atraso do tecido; tudo no GBMotion.
+- Fichas de cor suspensas no alto à direita, com cordão, queda com mola e balanço, amostra fotografada da própria peça; só para variantes reais.
+- Object View unificado: mesma cor da arara, conjunto/superior/inferior só com foto, FRENTE ativa e LATERAL/COSTAS desligadas com motivo (nenhum verso simulado); estudo de cor V08 só para ilustrações.
+- QA: 613 verificações (fonte e build) em 6 cenários; desempenho medido com CPU 4×; standalone sem duplicar imagens.
+
 ## V09 — 23/10/2026 · "GB FIT STUDIO"
 - Look Studio vira provador editorial: um manequim GB de corpo inteiro e persistente veste superior e inferior; nada flutua.
 - Roupas geradas pelas âncoras anatômicas do rig: jaqueta, camisa, calça e short, com oclusão e sombra de contato.
