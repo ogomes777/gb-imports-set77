@@ -63,7 +63,8 @@
 .fit-split-line i{position:absolute;top:46%;left:calc(var(--split,50)*1%);translate:-50% 0;font:800 9px var(--font);letter-spacing:1px;font-style:normal;background:#ffd447;color:#111214;padding:6px 8px;white-space:nowrap}
 .fit-split{position:absolute;left:24px;right:24px;bottom:84px;pointer-events:auto;display:block}
 .fit-split input{width:100%;accent-color:#ffd447;height:44px;cursor:ew-resize}
-.look-stage.is-fit-compare .look-cycle{opacity:0;pointer-events:none}
+.look-stage.is-fit-compare .look-cycle,.look-stage.is-fit-compare .look-shuffle{opacity:0;pointer-events:none}
+.look-stage.has-fit.is-compare::after{content:none}
 
 /* ---------- Desktop: o palco acompanha os seletores e o corpo inteiro cabe na tela ---------- */
 @media(min-width:781px){

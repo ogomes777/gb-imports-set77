@@ -227,8 +227,10 @@ async function run(w,h,reduced=false){
   await page.locator('#lookCompareBtn').click();await page.waitForTimeout(400);
   const ab=await page.evaluate(()=>{const a=document.querySelector('#gbFitFigure'),b=document.querySelector('#lookstudio .fit-figure-b');const ra=a.getBoundingClientRect(),rb=b?.getBoundingClientRect();
     return{b:!!b,phase:document.querySelector('#lookstudio .look-stage').dataset.phase,bt:b?.querySelector('.fit-top')?.dataset.product,bb:b?.querySelector('.fit-bottom')?.dataset.product,
-      same:!!rb&&Math.abs(ra.x-rb.x)<1&&Math.abs(ra.width-rb.width)<1&&Math.abs(ra.height-rb.height)<1,ui:!document.querySelector('#lookstudio .fit-compare').hidden}});
+      same:!!rb&&Math.abs(ra.x-rb.x)<1&&Math.abs(ra.width-rb.width)<1&&Math.abs(ra.height-rb.height)<1,ui:!document.querySelector('#lookstudio .fit-compare').hidden,
+      clean:getComputedStyle(document.querySelector('#lookstudio .look-stage'),'::after').content==='none'&&getComputedStyle(document.querySelector('#lookShuffle')).opacity==='0'}});
   check(vp,'look: comparação A/B abre',ab.b&&ab.ui&&ab.phase==='comparing',JSON.stringify(ab));
+  check(vp,'fit: A/B sem rótulo duplicado nem controle sobre os rótulos',ab.clean,JSON.stringify(ab));
   check(vp,'fit: A/B mostra o look salvo no mesmo corpo e escala',ab.bt===saved.top[0]&&ab.bb===saved.bottom[0]&&ab.same,JSON.stringify(ab));
   await page.locator('#lookstudio .fit-split input').fill('70');
   check(vp,'fit: divisor A/B ajustável',await page.evaluate(()=>document.querySelector('#lookstudio .look-stage').style.getPropertyValue('--split'))==='70');
