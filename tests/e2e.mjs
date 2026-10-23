@@ -140,10 +140,10 @@ async function run(w,h,reduced=false){
   const cards=()=>page.locator('#productGrid .product-card').count();
   check(vp,'grade inicial com 8 cards',await cards()===8,String(await cards()));
   // Filtros
-  // contagens derivadas do catálogo (V10 corrige conjuntos que estavam como avulso/extra: 8 CRT + 6 estudos em agasalhos)
-  const nCat=await page.evaluate(()=>({track:PRODUCTS.filter(p=>p.category==='track').length,short:PRODUCTS.filter(p=>p.category==='short').length}));
-  await page.locator('.filter[data-filter="track"]').click();check(vp,'filtro agasalhos exibe 8 por página',await cards()===8);check(vp,'contador de agasalhos derivado (14 com as correções V10)',nCat.track===14&&(await page.locator('#catalogCount').textContent()).includes(String(nCat.track)),JSON.stringify(nCat));
-  await page.locator('.filter[data-filter="short"]').click();check(vp,'filtro camisa+short exibe 8 por página',await cards()===8);
+  // Contagens do SHOP usam somente mídia vinculada, sem os 14 estudos SVG legados.
+  const nCat=await page.evaluate(()=>({track:PUBLIC_PRODUCTS.filter(p=>p.category==='track').length,short:PUBLIC_PRODUCTS.filter(p=>p.category==='short').length,all:PUBLIC_PRODUCTS.length}));
+  await page.locator('.filter[data-filter="track"]').click();check(vp,'filtro agasalhos exibe só fotos',await cards()===Math.min(8,nCat.track));check(vp,'contador de agasalhos sem estudos',nCat.track===8&&(await page.locator('#catalogCount').textContent()).includes(String(nCat.track)),JSON.stringify(nCat));
+  await page.locator('.filter[data-filter="short"]').click();check(vp,'filtro camisa+short só imagens reais',await cards()===Math.min(8,nCat.short));
   await page.locator('.filter[data-filter="saved"]').click();check(vp,'salvos vazio mostra estado vazio',await page.locator('.catalog-empty').count()===1);
   await page.locator('.filter[data-filter="all"]').click();
   // Busca inline (sem acento) e URL
@@ -157,27 +157,25 @@ async function run(w,h,reduced=false){
   // Favorito
   await page.locator('#productGrid .favorite-toggle').first().click();
   check(vp,'favorito incrementa contador',(await page.locator('#wishCount').textContent())==='1');
-  // A vitrine inicial prioriza recortes reais do acervo, com os 14 estudos preservados.
-  check(vp,'CRT: primeiros cards incluem imagem do acervo',await page.locator('#productGrid .product-visual img.actual-photo').count()>=4);
-  // Detalhe: usar conjunto já catalogado com as 3 vistas e 2 seletores de tamanho.
-  await page.fill('#catalogSearch','Argentina');await page.waitForTimeout(260);
+  // Nunca renderizar os antigos desenhos de estudo na grade, na busca ou nas recomendações.
+  const hasStudies=await page.evaluate(()=>[...document.querySelectorAll('#productGrid .product-visual')].some(el=>!GB_ASSETS?.[el.dataset.product]?.combo));
+  check(vp,'SHOP sem roupas ilustrativas do antigo preview',!hasStudies&&await page.locator('#productGrid .product-visual img.actual-photo').count()===await cards());
+  // Detalhe: conjunto fotografado com superior/inferior reais, sem laboratório de cores fictício.
+  await page.fill('#catalogSearch','Polo areia');await page.waitForTimeout(260);
   await page.locator('#productGrid .product-visual').first().click();await page.waitForTimeout(700);
   check(vp,'V08: card abre o Object View',await page.locator('#railViewer').isVisible());
-  check(vp,'V08: Object View mostra a peça do card',(await page.locator('#railViewerName').textContent()).includes('ARGENTINA'));
-  await page.locator('#gbTabColors').click();await page.waitForTimeout(300);
-  check(vp,'V08: estudo de cor dentro da peça',await page.locator('#gbColorPanel').isVisible()&&(await page.locator('#gbColorPanel').textContent()).includes('NÃO É VARIANTE'));
-  const lab0=await page.locator('#gbLabColorName').textContent();await page.locator('[data-gb-color="2"]').click();
-  check(vp,'V08: troca de cor de estudo',(await page.locator('#gbLabColorName').textContent())!==lab0);
-  await page.locator('#gbTabObject').click();
+  check(vp,'V08: Object View mostra o produto real',(await page.locator('#railViewerName').textContent()).includes('POLO AREIA'));
+  check(vp,'V08: cores de estudo ocultas para produto com foto',await page.locator('#gbTabColors').isHidden());
   await page.locator('#railViewerProduct').click();await page.waitForTimeout(700);
   check(vp,'detalhe abre',await page.locator('#productModal').isVisible());
-  check(vp,'URL da peça (?peca=)',page.url().includes('peca=gb-tr-01'));
+  check(vp,'URL da peça (?peca=)',page.url().includes('peca=gb-crt-009'));
   await page.locator('[data-gallery="top"]').click();
   check(vp,'galeria troca vista',(await page.locator('#galleryHero').getAttribute('data-view'))==='top');
   const n1=await page.locator('#productModal h2').textContent();
   await page.locator('[data-step-product="1"]').click();
   const n2=await page.locator('#productModal h2').textContent();
   check(vp,'próxima peça no detalhe',n1!==n2,`${n1} → ${n2}`);
+  await page.locator('[data-step-product="-1"]').click();
   await page.locator('[data-size="top"][data-value="M"]').click();await page.locator('[data-size="bottom"][data-value="G"]').click();
   await page.locator('#addInterest').click();await page.waitForTimeout(200);
   check(vp,'seleção de interesse = 1',(await page.locator('#bagCount').textContent())==='1');
@@ -187,8 +185,8 @@ async function run(w,h,reduced=false){
   check(vp,'Escape fecha gaveta',!(await page.locator('#bagDrawer').isVisible()));
   await page.fill('#catalogSearch','');await page.waitForTimeout(120);
   // Busca na gaveta
-  await page.locator('#searchOpen').click();await page.fill('#searchInput','kit');
-  check(vp,'busca da gaveta inclui os oito kits iniciais',await page.locator('#searchResults .search-result').count()>=8);
+  await page.locator('#searchOpen').click();await page.fill('#searchInput','camisa');
+  check(vp,'busca da gaveta encontra camisas reais sem estudos',await page.locator('#searchResults .search-result').count()>=5);
   await page.keyboard.press('Escape');
   // Rail: botões, arrasto e visualizador
   await page.locator('#rail').scrollIntoViewIfNeeded();
