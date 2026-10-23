@@ -29,7 +29,7 @@ const EXTRA_PRODUCTS = [
   {id:'gb-ex-03',name:'Jaqueta branca / referência TNF',category:'extra',label:'Jaqueta',tag:'ACERVO 03',single:true},
   {id:'gb-ex-04',name:'Moletom cinza / referência Nike',category:'extra',label:'Moletom',tag:'ACERVO 04',single:true},
 ]
-EXTRA_PRODUCTS.forEach(p=>{if(window.GB_ASSETS?.[p.id]?.combo)PRODUCTS.push(p)})
+EXTRA_PRODUCTS.forEach(p=>{if(window.GB_ASSETS?.[p.id]?.combo)PRODUCTS.push(p)});
 (window.GB_IMPORTED_PRODUCTS||[]).forEach(p=>{if(!PRODUCTS.some(x=>x.id===p.id))PRODUCTS.push(p)})
 const heroSlides = [
   {eyebrow:'THE GB EDIT / CAPÍTULO 001',title:'O ESTILO<br>É <span class="emphasis">SEU.</span><br><span class="hero-title-outline">O MUNDO</span><br> TAMBÉM<span class="yellow-dot">.</span>',sub:'Peças, combinações e liberdade para construir o visual sem seguir o roteiro de ninguém.',product:PRODUCTS[1]},
