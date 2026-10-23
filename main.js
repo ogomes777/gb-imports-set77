@@ -32,9 +32,9 @@ const EXTRA_PRODUCTS = [
 EXTRA_PRODUCTS.forEach(p=>{if(window.GB_ASSETS?.[p.id]?.combo)PRODUCTS.push(p)});
 (window.GB_IMPORTED_PRODUCTS||[]).forEach(p=>{if(!PRODUCTS.some(x=>x.id===p.id))PRODUCTS.push(p)})
 const heroSlides = [
-  {eyebrow:'THE GB EDIT / CAPÍTULO 001',title:'O ESTILO<br>É <span class="emphasis">SEU.</span><br><span class="hero-title-outline">O MUNDO</span><br> TAMBÉM<span class="yellow-dot">.</span>',sub:'Peças, combinações e liberdade para construir o visual sem seguir o roteiro de ninguém.',product:PRODUCTS[1]},
-  {eyebrow:'GB / A CURADORIA · 002',title:'LOOK<br>NÃO É<br><span class="emphasis">UNIFORME.</span><br>É ATITUDE<span class="yellow-dot">.</span>',sub:'Da rua para o seu dia. Escolha o que veste, não o que te define.',product:PRODUCTS[7]},
-  {eyebrow:'GB / NOVO CAPÍTULO · 003',title:'SEU CORRE.<br><span class="emphasis">SEU</span><br><span class="hero-title-outline">PRÓXIMO</span><br>CAPÍTULO<span class="yellow-dot">.</span>',sub:'Tudo começa na escolha. A GB leva o produto e a experiência mais perto de você.',product:PRODUCTS[4]},
+  {eyebrow:'THE GB EDIT / CAPÍTULO 001',title:'O ESTILO<br>É <span class="emphasis">SEU.</span><br><span class="hero-title-outline">O MUNDO</span><br> TAMBÉM<span class="yellow-dot">.</span>',sub:'Peças, combinações e liberdade para construir o visual sem seguir o roteiro de ninguém.',product:(PRODUCTS.find(p=>p.id==='gb-crt-001')||PRODUCTS[1])},
+  {eyebrow:'GB / A CURADORIA · 002',title:'LOOK<br>NÃO É<br><span class="emphasis">UNIFORME.</span><br>É ATITUDE<span class="yellow-dot">.</span>',sub:'Da rua para o seu dia. Escolha o que veste, não o que te define.',product:(PRODUCTS.find(p=>p.id==='gb-crt-003')||PRODUCTS[7])},
+  {eyebrow:'GB / NOVO CAPÍTULO · 003',title:'SEU CORRE.<br><span class="emphasis">SEU</span><br><span class="hero-title-outline">PRÓXIMO</span><br>CAPÍTULO<span class="yellow-dot">.</span>',sub:'Tudo começa na escolha. A GB leva o produto e a experiência mais perto de você.',product:(PRODUCTS.find(p=>p.id==='gb-crt-004')||PRODUCTS[4])},
 ]
 const $ = (sel,scope=document)=>scope.querySelector(sel)
 const $$ = (sel,scope=document)=>[...scope.querySelectorAll(sel)]
