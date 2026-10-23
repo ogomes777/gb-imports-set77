@@ -7,7 +7,7 @@ on:
 jobs:
   catalogue-and-build:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,7 +20,7 @@ jobs:
       - name: Install Playwright and Chromium
         run: |
           npm install --no-save playwright
-          npx playwright install --with-deps chromium
+          npx playwright install chromium
       - name: End-to-end desktop and mobile regression
         run: |
           python3 -m http.server 8080 --directory dist > /tmp/gb-http.log 2>&1 &
