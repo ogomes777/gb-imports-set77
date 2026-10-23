@@ -158,8 +158,9 @@ async function run(w,h,reduced=false){
   await page.locator('#productGrid .favorite-toggle').first().click();
   check(vp,'favorito incrementa contador',(await page.locator('#wishCount').textContent())==='1');
   // Nunca renderizar os antigos desenhos de estudo na grade, na busca ou nas recomendações.
-  const hasStudies=await page.evaluate(()=>[...document.querySelectorAll('#productGrid .product-visual')].some(el=>!GB_ASSETS?.[el.dataset.product]?.combo));
-  check(vp,'SHOP sem roupas ilustrativas do antigo preview',!hasStudies&&await page.locator('#productGrid .product-visual img.actual-photo').count()===await cards());
+  // cada card tem foto do acervo e nenhum desenho de estudo (a 2ª vista do card pode carregar sob demanda, então não contar fotos)
+  const shop=await page.evaluate(()=>{const v=[...document.querySelectorAll('#productGrid .product-visual')];return{studies:v.filter(el=>!GB_ASSETS?.[el.dataset.product]?.combo).length,noPhoto:v.filter(el=>!el.querySelector('img.actual-photo')).length,svg:document.querySelectorAll('#productGrid svg.garment-svg').length}});
+  check(vp,'SHOP sem roupas ilustrativas do antigo preview',shop.studies===0&&shop.noPhoto===0&&shop.svg===0,JSON.stringify(shop));
   // Detalhe: conjunto fotografado com superior/inferior reais, sem laboratório de cores fictício.
   await page.fill('#catalogSearch','Polo areia');await page.waitForTimeout(260);
   await page.locator('#productGrid .product-visual').first().click();await page.waitForTimeout(700);
@@ -253,8 +254,11 @@ async function run(w,h,reduced=false){
   await page.goBack();await page.waitForTimeout(800);
   check(vp,'produto: voltar do navegador fecha',!(await page.locator('#productModal').isVisible()));
   // Chromatic (V08): estudo de cor só para ilustração; mesma silhueta entre estados de cor
+  // estudos ilustrativos não aparecem mais no SHOP; o laboratório V08 segue testado abrindo o estudo direto
   await page.locator('#colecao').scrollIntoViewIfNeeded();await page.fill('#catalogSearch','Argentina');await page.waitForTimeout(260);
-  await page.locator('#productGrid .product-visual').first().click();await page.waitForTimeout(500);await page.locator('#gbTabColors').click();await page.waitForTimeout(500);
+  check(vp,'SHOP: estudo ilustrativo fora da busca',await cards()===0,String(await cards()));
+  await page.fill('#catalogSearch','');await page.waitForTimeout(200);
+  await page.evaluate(()=>window.GBOpenProductExperience(PRODUCTS.find(p=>p.id==='gb-tr-01')));await page.waitForTimeout(500);await page.locator('#gbTabColors').click();await page.waitForTimeout(500);
   const g0=await page.locator('#gbLabMedia svg').boundingBox();await page.locator('[data-gb-color="3"]').click();await page.waitForTimeout(700);
   const g1=await page.locator('#gbLabMedia svg').boundingBox();
   check(vp,'chromatic: troca sem mover o molde',g0&&g1&&Math.abs(g0.x-g1.x)<1&&Math.abs(g0.width-g1.width)<1);
