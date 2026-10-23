@@ -1,0 +1,19 @@
+name: GB Imports / CRT catalogue integrity
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, feat/gb-imports-produtos-crt-01]
+jobs:
+  catalogue-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify CRT files, product references and import ordering
+        run: node scripts/validar-crt.mjs
+      - name: Build flagship website
+        run: node scripts/build.mjs
