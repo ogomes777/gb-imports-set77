@@ -110,8 +110,8 @@ function drawViewer(dir=0){
   const media=q('#railViewerMedia');media.innerHTML=productMedia(p,viewerMode);
   if(dir&&!reduced){media.classList.remove('viewer-in');void media.offsetWidth;media.style.setProperty('--dir',dir);media.classList.add('viewer-in')}
   q('#railViewerName').textContent=p.name.toUpperCase();const itemIndex=focusOverride?items.findIndex(x=>x.id===p.id):target;q('#railViewerIndex').textContent=`${fmt(Math.max(0,itemIndex))} / ${fmt((focusOverride?items:railItems).length-1)}`;
-  q('#railViewerDescription').textContent=`${p.label}. ${hasPhoto(p)?'Foto real do acervo; dados comerciais em validação.':'Ilustração de estudo até a entrada das fotos oficiais da GB.'}`;
-  q('.rail-viewer-art-label').textContent=hasPhoto(p)?'FOTO REAL / CADASTRO EM REVISÃO':'ARQUIVO DE ESTUDO / CATÁLOGO EM CONSTRUÇÃO';
+  q('#railViewerDescription').textContent=`${p.label}. ${hasPhoto(p)?'Imagem do acervo visual; dados comerciais em validação.':'Ilustração de estudo até a entrada das fotos oficiais da GB.'}`;
+  q('.rail-viewer-art-label').textContent=hasPhoto(p)?'IMAGEM DO ACERVO / A VALIDAR':'ARQUIVO DE ESTUDO / CATÁLOGO EM CONSTRUÇÃO';
   qa('[data-rail-view]').forEach(b=>{b.hidden=!views.includes(b.dataset.railView);b.classList.toggle('selected',b.dataset.railView===viewerMode);b.setAttribute('aria-pressed',String(b.dataset.railView===viewerMode))});
   viewer.dataset.productId=p.id;document.dispatchEvent(new CustomEvent('gb:object-product',{detail:{product:p}}));
 }
