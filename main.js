@@ -246,11 +246,11 @@ function detailModal(p,opts={}){
  if(u.searchParams.get('peca')!==p.id){u.searchParams.set('peca',p.id);if(opts.replace||had)history.replaceState({peca:p.id},'',u);else{history.pushState({peca:p.id},'',u);productPushed=true}}
  rememberRecent(p.id)
 }
-function stepProduct(dir){if(!activeModal)return;const list=catalogList().length?catalogList():PRODUCTS;let i=list.findIndex(p=>p.id===activeModal.id);if(i<0)i=0;detailModal(list[(i+dir+list.length)%list.length],{replace:true})}
+function stepProduct(dir){if(!activeModal)return;const filtered=catalogList(),list=filtered.length>1?filtered:PRODUCTS;let i=list.findIndex(p=>p.id===activeModal.id);if(i<0)i=0;detailModal(list[(i+dir+list.length)%list.length],{replace:true})}
 function renderProductModal(){
  const p=activeModal;if(!p)return
  const views=availableViews(p),labels={combo:'CONJUNTO',top:'SUPERIOR',bottom:'INFERIOR'}
- const list=catalogList().length?catalogList():PRODUCTS,pos=Math.max(0,list.findIndex(x=>x.id===p.id))
+ const filtered=catalogList(),list=filtered.length>1?filtered:PRODUCTS,pos=Math.max(0,list.findIndex(x=>x.id===p.id))
  const fav=favorites.includes(p.id),photo=hasPhoto(p)
  const related=PRODUCTS.filter(x=>x.id!==p.id&&x.category===p.category).slice(0,8)
  const rel=related.length?related.slice((PRODUCTS.indexOf(p))%Math.max(1,related.length-3)).slice(0,4):[]
