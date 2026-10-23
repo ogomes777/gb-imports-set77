@@ -262,7 +262,7 @@ function renderProductModal(){
  ${photo?'':`<p class="gallery-note">Ilustração de estudo. A imagem do acervo desta peça entra assim que o recorte oficial for importado.</p>`}</div>
  <div class="product-detail"><div class="detail-nav"><button type="button" data-step-product="-1" aria-label="Peça anterior">← ANTERIOR</button><span>${pad2(pos+1)} / ${pad2(list.length)}</span><button type="button" data-step-product="1" aria-label="Próxima peça">PRÓXIMA →</button></div>
  <span class="detail-heading">GB / ${escaped(p.label.toUpperCase())} / ${escaped(p.tag)}</span><h2>${escaped(p.name).toUpperCase()}</h2>
- <p>${p.single?'Peça do acervo GB.':`Conjunto ${p.category==='track'?'agasalho + calça':'camisa + short'} com vistas do kit completo e das partes.`} Nome de trabalho para organização do catálogo — não confirma marca, licença ou procedência.</p>
+ <p>${p.single?'Peça do acervo GB.':`Conjunto${p.category==='track'?' agasalho + calça':p.category==='short'?' camisa + short':''}${views.length>1?' com vistas do kit completo e das partes':''}.`} Nome de trabalho para organização do catálogo — não confirma marca, licença ou procedência.</p>
  <dl class="detail-facts"><div><dt>PREÇO</dt><dd>A confirmar com a GB</dd></div><div><dt>ESTOQUE / TAMANHOS</dt><dd>A confirmar por variante</dd></div><div><dt>ENTREGA / RETIRADA</dt><dd>Condições em validação</dd></div></dl>
  ${p.single?sizeGroup('top','TAMANHO',topSize):sizeGroup('top','TAMANHO DA PARTE SUPERIOR',topSize)+sizeGroup('bottom','TAMANHO DA PARTE INFERIOR',bottomSize)}
  <div class="detail-add"><button type="button" class="btn btn-yellow" id="addInterest">ADICIONAR À SELEÇÃO DE INTERESSE <span>↗</span></button>

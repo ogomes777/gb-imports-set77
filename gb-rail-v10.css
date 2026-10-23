@@ -1,0 +1,128 @@
+/* GB IMPORTS / RAIL V10 — arara física. 1em = largura útil da roupa (--gw); (0,0) = gancho na barra. */
+
+/* ---------- Palco: parede de papel, barra fina entre dois suportes ---------- */
+.rail-viewport.r10{height:calc(var(--bar-top,76px) + var(--gw,260px)*1.62 + 178px);background:#efede6;cursor:grab;overflow:clip}
+.rail-viewport.r10 .rail-wall{background:radial-gradient(ellipse 70% 80% at 50% 30%,#fbfaf6 0%,#f3f1ea 46%,#e2e0d8 100%)}
+.rail-viewport.r10 .rail-wall:after{height:30%;background:linear-gradient(180deg,transparent,#d9d6cc8a)}
+.rail-viewport.r10::before,.rail-viewport.r10::after{content:'';position:absolute;z-index:9;top:calc(var(--bar-top,76px) - 34px);width:3px;height:38px;background:linear-gradient(90deg,#55565a,#a9a9a5 45%,#4b4c50);border-radius:2px;box-shadow:3px 4px 6px #0000001c}
+.rail-viewport.r10::before{left:1.5%}.rail-viewport.r10::after{right:1.5%}
+.r10 .rail-bar{left:1.5%;width:97%;top:calc(var(--bar-top,76px) - 2px);height:40px}
+.r10 .rail-bar-shadow{stroke:#0000001a;stroke-width:5px;transform:translateY(11px);filter:blur(2px)}
+.r10 .rail-bar-metal{stroke:#7c7d7f;stroke-width:3.4px}
+.r10 .rail-bar-light{stroke:#fff;stroke-width:1px;opacity:.85;transform:translateY(-.9px)}
+.r10 .rail-items{display:block;inset:0}
+.r10 .rail-side-stamp{top:auto;bottom:118px}
+.r10 .rail-pipe{display:none}
+
+/* ---------- Cabide: posição (JS) → balanço do gancho → giro 3/4 → figura ---------- */
+.r10-item{position:absolute;left:50%;top:0;width:0;height:0;font-size:var(--gw,260px);transform-origin:0 0;will-change:auto}
+.rail-items.is-moving .r10-item{will-change:transform}
+.r10-swing,.r10-turn{position:absolute;left:0;top:0;transform-origin:0 0}
+.r10-hit{position:absolute;z-index:3;left:var(--minx);top:-.05em;width:calc(var(--maxx) - var(--minx));height:calc(var(--maxy) + .05em);padding:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.r10-hit:focus-visible{outline:2px solid #111214;outline-offset:10px}
+.r10.is-dragging .r10-hit{pointer-events:none}
+
+.hg{position:absolute;left:0;top:0;width:0;height:0}
+.hg-part{position:absolute;display:block}
+.hg-part img{position:absolute;display:block;max-width:none;height:auto;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.hg-fig{position:absolute;left:0;top:0;transform-origin:0 .2em}
+/* sombra na parede: a própria silhueta, deslocada para baixo/esquerda como luz alta à direita */
+.hg-shadow{position:absolute;left:-.055em;top:.07em;transform-origin:0 .2em;opacity:.2;pointer-events:none}
+/* reserva (standalone com imagens embutidas): silhueta desfocada em CSS, mais leve no aparelho modesto */
+.hg-shadow.is-css{filter:brightness(0) blur(11px);opacity:.15}
+.gb-lite .hg-shadow.is-css{filter:brightness(0) blur(4px);opacity:.09}
+.hg-hook{position:absolute;top:-.045em;width:.12em;height:.24em;overflow:visible;z-index:2;pointer-events:none}
+.hg-hook-wire{fill:none;stroke:#1f2023;stroke-width:2.3px;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
+.hg-hook-neck{fill:#1f2023}
+.is-focus .hg-hook-neck{fill:#FFD447}
+.hg-neckshade{position:absolute;left:-.07em;top:.175em;width:.14em;height:.06em;border-radius:50%;background:radial-gradient(closest-side,#0000004d,#0000);pointer-events:none;z-index:2}
+[data-mode="kit"]>.hg-neckshade{left:-.39em}
+[data-mode="clip"]>.hg-neckshade,[data-mode="kitphoto"]>.hg-neckshade,[data-mode="bottom"]>.hg-neckshade,[data-mode="object"]>.hg-neckshade{display:none}
+/* presilhas: barra reta, haste fina e garra mordendo o cós */
+.hg-bar{position:absolute;height:.016em;margin-top:-.008em;border-radius:.01em;background:linear-gradient(180deg,#5a5b5f,#1f2023);z-index:2}
+.hg-clip{position:absolute;width:.032em;margin-left:-.016em;background:linear-gradient(90deg,transparent calc(50% - .5px),#1f2023 calc(50% - .5px),#1f2023 calc(50% + .5px),transparent calc(50% + .5px));z-index:3}
+.hg-clip::after{content:'';position:absolute;left:0;right:0;bottom:-.026em;height:.052em;border-radius:.006em;background:linear-gradient(90deg,#1b1c1f,#55565a 45%,#1b1c1f);box-shadow:0 .01em .012em #0005}
+
+/* ---------- Legenda da peça em foco (etiqueta de loja) ---------- */
+.r10-caption{position:absolute;z-index:14;left:50%;bottom:96px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;pointer-events:auto;max-width:min(560px,86vw);cursor:default}
+.r10-caption b{font:900 12px/1.2 var(--display);letter-spacing:.06em;color:#111214}
+.r10-caption [data-cap-color]{font:800 9px var(--font);letter-spacing:1.5px;color:#666864}
+.r10-cap-row{display:flex;align-items:center;gap:14px}
+.r10-pill{display:inline-flex;border:1px solid #111214;border-radius:99px;padding:2px;font:800 8.5px var(--font);letter-spacing:1.2px}
+.r10-pill i{font:inherit;font-style:normal;padding:5px 11px;border-radius:99px;color:#8a8880}
+.r10-pill i.on{background:#111214;color:#f4f1e8}
+.r10-pill i:not(.on){text-decoration:line-through;text-decoration-thickness:1px}
+.r10-cap-row button{white-space:nowrap;min-height:44px;padding:0 6px;border:0;background:none;font:900 9px var(--font);letter-spacing:1.4px;color:#111214;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.r10-cap-row button:hover{color:#000;text-decoration-color:#FFD447;text-decoration-thickness:2px}
+.r10[data-phase="drag"] .r10-caption{opacity:.35;transition:opacity .2s}
+.r10-caption{transition:opacity .35s}
+
+/* ---------- Fichas de cor: suspensas no alto à direita, presas por cordão ---------- */
+.gb-tags{position:absolute;top:-.012em;z-index:6;display:flex;align-items:flex-start;gap:0;pointer-events:auto}
+.gb-tag{position:relative;display:block;width:max(.128em,36px);padding:0;border:0;background:none;cursor:pointer;transform-origin:50% 0;-webkit-tap-highlight-color:transparent}
+.gb-tag-cord{position:absolute;left:50%;top:0;width:1px;height:calc(.15em + var(--i)*.026em);background:#2d2e31;transform-origin:50% 0;transition:transform .55s cubic-bezier(.3,1.45,.5,1)}
+.gb-tag-card{position:relative;display:flex;flex-direction:column;align-items:center;margin:calc(.15em + var(--i)*.026em) auto 0;width:max(.096em,27px);height:max(.31em,82px);padding:5px 3px 6px;background:#faf8f2;border:1px solid #c9c6bc;border-radius:2px;box-shadow:0 7px 12px -8px #0007;transition:transform .55s cubic-bezier(.3,1.45,.5,1),border-color .25s,box-shadow .25s}
+.gb-tag-eye{width:5px;height:5px;border-radius:50%;border:1px solid #2d2e31;background:#efede6;flex:none}
+.gb-tag-chip{flex:none;width:100%;aspect-ratio:1;margin-top:4px;background-size:620% auto;background-repeat:no-repeat;background-color:var(--c);border:1px solid #0000002e}
+.gb-tag-card b{flex:1;margin-top:5px;writing-mode:vertical-rl;transform:rotate(180deg);font:900 7.5px var(--font);letter-spacing:1.3px;color:#111214;white-space:nowrap}
+.gb-tag-card small{flex:none;font:900 6.5px var(--font);letter-spacing:.5px;color:#111214;border-top:1px solid #111214;padding-top:3px;width:100%;text-align:center}
+.gb-tag:hover .gb-tag-card{border-color:#111214}
+.gb-tag.is-on .gb-tag-cord{transform:scaleY(1.42)}
+.gb-tag.is-on .gb-tag-card{transform:translateY(calc((.15em + var(--i)*.026em)*.42));border-color:#111214;box-shadow:0 12px 16px -10px #0008,0 0 0 1px #111214,inset 0 -3px 0 #FFD447}
+.gb-tag:focus-visible{outline:none}
+.gb-tag:focus-visible .gb-tag-card{outline:2px solid #111214;outline-offset:3px}
+
+/* ---------- Chips: contagem derivada ---------- */
+.rail-chips button small{font-size:9px;opacity:.6;margin-left:3px}
+
+/* ---------- Object View V10 ---------- */
+.r10-viewer .rail-viewer-art{background:radial-gradient(ellipse 75% 70% at 50% 34%,#fbfaf6,#ecebe4 55%,#d9d8d0);overflow:hidden;min-height:min(78svh,720px)}
+.r10-viewer .rail-viewer-art>#railViewerMedia{position:absolute;inset:0;width:auto;height:auto;display:block;filter:none;font-size:var(--vgw,360px)}
+.r10-viewer .rail-viewer-art>.r10-vtags{width:auto;height:auto;display:block;filter:none}
+.r10-vstage .hg-hook{width:.12em;height:.24em;max-height:none}
+.r10-vtilt{position:absolute;left:calc(50% - var(--vtagsw,0px)/2);top:calc(var(--vtop,40px) + .05em);transform-origin:0 .7em}
+.r10-vhost{position:absolute;left:var(--vcx,0);top:0}
+.r10-vhost .hg{transform-origin:calc(var(--vcx,0) * -1) 0}
+.r10-vhost .hg.is-leaving{pointer-events:none}
+.r10-study{position:absolute;left:-.6em;top:.05em;width:1.2em;height:1.3em;display:grid;place-items:center}
+.r10-study svg{width:100%;height:100%}
+.r10-vtags{position:absolute;z-index:4;top:var(--vrail,120px);right:7%;font-size:clamp(250px,26vw,360px)}
+/* barra única do palco: a roupa e as fichas penduram no mesmo tubo */
+.r10-vrail{position:absolute;z-index:1;left:6%;right:5%;top:calc(var(--vrail,120px) - 3px);height:6px;border-radius:3px;background:linear-gradient(180deg,#b3b3b0,#6f7072 55%,#47484b);box-shadow:0 10px 10px -6px #0000002e;pointer-events:none}
+.r10-vrail::before,.r10-vrail::after{content:'';position:absolute;top:-30px;width:4px;height:33px;background:linear-gradient(90deg,#4b4c50,#a9a9a5 45%,#4b4c50);border-radius:2px}
+.r10-vrail::before{left:0}.r10-vrail::after{right:0}
+.r10-viewer .rail-viewer-nav button{border-color:#1112143a;color:#111214}
+.r10-vtags .gb-tags{position:relative;top:0;left:auto}
+.r10-variant-line{font:900 10px var(--font);letter-spacing:1.6px;color:#111214;margin:-14px 0 22px;display:flex;align-items:center;gap:8px}
+.r10-variant-line::before{content:'';width:18px;height:2px;background:#FFD447}
+.r10-orient{margin:0 0 22px}
+.r10-orient-label{display:block;font:900 9px var(--font);letter-spacing:1.6px;color:#666864;margin-bottom:8px}
+.r10-orient-btns{display:flex;gap:6px;flex-wrap:wrap}
+.r10-orient-btns button{min-height:44px;padding:0 16px;border:1px solid #bbb;background:transparent;font:800 10px var(--font);letter-spacing:1px;cursor:pointer;color:#111214}
+.r10-orient-btns button.selected{background:#111214;color:#f4f1e8;border-color:#111214}
+.r10-orient-btns button[aria-disabled="true"]{color:#8d8b84;border-style:dashed;cursor:not-allowed;text-decoration:line-through}
+.r10-orient-note{font-size:11.5px;line-height:1.6;color:#666864;margin:10px 0 0;max-width:380px}
+.r10-orient-note.is-flash{animation:r10Flash .9s ease}
+@keyframes r10Flash{0%,100%{background:transparent}25%{background:#FFD44766}}
+.rail-view-switch[hidden]{display:none!important}
+
+/* ---------- Mobile: um protagonista, vizinhos sugeridos, fichas fora da roupa ---------- */
+@media(max-width:599px){
+  .rail-viewport.r10{height:calc(var(--bar-top,58px) + var(--gw,210px)*1.62 + 196px)}
+  .r10-caption{bottom:84px;gap:6px}
+  .r10-caption b{font-size:11px}
+  .r10-cap-row{gap:8px}
+  .gb-tag{width:24px}
+  .gb-tag-card{width:22px;height:70px;padding:4px 2px 5px}
+  .gb-tag-card b{font-size:6.5px;letter-spacing:1px}
+  .r10 .rail-bottom .rail-hint{display:none}
+  .r10-viewer .rail-viewer-art{min-height:62svh}
+  .r10-vtags{right:14px;font-size:230px}
+  .r10-vtags .gb-tag{width:30px}
+}
+
+/* ---------- Movimento reduzido: estados finais, sem balanço ---------- */
+@media(prefers-reduced-motion:reduce){
+  .gb-tag-cord,.gb-tag-card,.r10-caption{transition:none!important}
+}
+.gb-object-tabs[hidden]{display:none!important}

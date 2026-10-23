@@ -1,0 +1,628 @@
+{
+ "_note": "Curadoria manual GB RAIL V10. Cada decisão foi tomada olhando a imagem (folhas de contato das 126 mídias), não pelo nome do arquivo. Editar aqui e rodar `node scripts/gerar-rail-v10.mjs`.",
+ "reviewedAt": "2026-10-23",
+ "reviewedBy": "SET77 LABS / auditoria visual V10 (pendente de confirmação da GB)",
+ "groups": {
+  "gb-v10-tech-fleece": {
+   "title": "Conjunto tech fleece",
+   "family": "set",
+   "evidence": "Mesmo molde nas quatro fotos: costura em chevron no peito, bolso com zíper na manga, punhos e calça jogger iguais; muda só a cor."
+  },
+  "gb-v10-gola-contraste": {
+   "title": "Camiseta gola contraste",
+   "family": "top",
+   "evidence": "Mesmo modelo fotografado em três cores: gola e barra da manga em cor oposta, etiqueta e caimento iguais."
+  },
+  "gb-v10-monograma-degrade": {
+   "title": "Camiseta monograma degradê",
+   "family": "top",
+   "evidence": "Mesma estampa de monograma que se dissolve do ombro para o peito, em base branca e base preta."
+  },
+  "gb-v10-just-do-it": {
+   "title": "Camiseta Just Do It",
+   "family": "top",
+   "evidence": "Mesma estampa e posição do lettering, em preto e em branco."
+  },
+  "gb-v10-corta-vento": {
+   "title": "Jaqueta corta-vento",
+   "family": "outer",
+   "evidence": "Mesmo anoraque nas duas cores; a foto gb-crt-015 mostra as duas versões lado a lado."
+  }
+ },
+ "catalogFixes": {
+  "gb-crt-002": {
+   "category": "track",
+   "single": false,
+   "reason": "Foto mostra jaqueta + calça (conjunto agasalho), estava como avulso/extra."
+  },
+  "gb-crt-007": {
+   "single": false,
+   "reason": "Conjunto camiseta + bermuda com as duas partes isoladas (s-124 vinculada)."
+  },
+  "gb-crt-008": {
+   "category": "short",
+   "single": false,
+   "reason": "Foto mostra camiseta + bermuda (conjunto), estava como avulso/extra."
+  },
+  "gb-crt-009": {
+   "category": "short",
+   "single": false,
+   "reason": "Polo + bermuda (conjunto) com as duas partes isoladas (s-099 e s-079)."
+  },
+  "gb-crt-010": {
+   "single": false,
+   "reason": "Moletom com zíper + bermuda (conjunto); parte superior isolada em s-029."
+  },
+  "gb-crt-011": {
+   "category": "track",
+   "single": false,
+   "reason": "Moletom + calça (conjunto agasalho), estava como avulso/extra."
+  },
+  "gb-crt-012": {
+   "category": "track",
+   "single": false,
+   "reason": "Jaqueta + calça (conjunto agasalho), estava como avulso/extra."
+  },
+  "gb-crt-013": {
+   "single": false,
+   "reason": "Moletom + bermuda jeans (conjunto)."
+  },
+  "gb-crt-014": {
+   "category": "track",
+   "single": false,
+   "reason": "Jaqueta + calça (conjunto agasalho), estava como avulso/extra."
+  }
+ },
+ "decisions": {
+  "gb-crt-001": {
+   "decision": "variant",
+   "group": "gb-v10-tech-fleece",
+   "variant": "cinza",
+   "label": "CINZA",
+   "family": "set"
+  },
+  "gb-crt-002": {
+   "decision": "variant",
+   "group": "gb-v10-tech-fleece",
+   "variant": "creme",
+   "label": "CREME",
+   "family": "set"
+  },
+  "gb-crt-003": {
+   "decision": "variant",
+   "group": "gb-v10-tech-fleece",
+   "variant": "azul",
+   "label": "AZUL",
+   "family": "set"
+  },
+  "gb-crt-004": {
+   "decision": "variant",
+   "group": "gb-v10-tech-fleece",
+   "variant": "grafite",
+   "label": "GRAFITE",
+   "family": "set"
+  },
+  "gb-crt-005": {
+   "decision": "rack",
+   "family": "set"
+  },
+  "gb-crt-006": {
+   "decision": "rack",
+   "family": "set"
+  },
+  "gb-crt-007": {
+   "decision": "rack",
+   "family": "set"
+  },
+  "gb-crt-008": {
+   "decision": "rack",
+   "family": "set"
+  },
+  "gb-crt-009": {
+   "decision": "rack",
+   "family": "set"
+  },
+  "gb-crt-010": {
+   "decision": "rack",
+   "family": "set"
+  },
+  "gb-crt-011": {
+   "decision": "rack",
+   "family": "set"
+  },
+  "gb-crt-012": {
+   "decision": "rack",
+   "family": "set"
+  },
+  "gb-crt-013": {
+   "decision": "rack",
+   "family": "set"
+  },
+  "gb-crt-014": {
+   "decision": "rack",
+   "family": "set"
+  },
+  "gb-crt-015": {
+   "decision": "view",
+   "of": "gb-v10-corta-vento",
+   "part": "gallery",
+   "reason": "Foto conjunta das variantes branca e preta do mesmo corta-vento; vira galeria do produto, não um terceiro cabide."
+  },
+  "gb-crt-s-001": {
+   "decision": "variant",
+   "group": "gb-v10-gola-contraste",
+   "variant": "branca",
+   "label": "BRANCA",
+   "family": "top"
+  },
+  "gb-crt-s-002": {
+   "decision": "variant",
+   "group": "gb-v10-gola-contraste",
+   "variant": "vermelha",
+   "label": "VERMELHA",
+   "family": "top"
+  },
+  "gb-crt-s-008": {
+   "decision": "variant",
+   "group": "gb-v10-gola-contraste",
+   "variant": "preta",
+   "label": "PRETA",
+   "family": "top"
+  },
+  "gb-crt-s-007": {
+   "decision": "variant",
+   "group": "gb-v10-monograma-degrade",
+   "variant": "branca",
+   "label": "BRANCA",
+   "family": "top"
+  },
+  "gb-crt-s-014": {
+   "decision": "variant",
+   "group": "gb-v10-monograma-degrade",
+   "variant": "preta",
+   "label": "PRETA",
+   "family": "top"
+  },
+  "gb-crt-s-019": {
+   "decision": "variant",
+   "group": "gb-v10-just-do-it",
+   "variant": "preta",
+   "label": "PRETA",
+   "family": "top"
+  },
+  "gb-crt-s-021": {
+   "decision": "variant",
+   "group": "gb-v10-just-do-it",
+   "variant": "branca",
+   "label": "BRANCA",
+   "family": "top"
+  },
+  "gb-crt-s-026": {
+   "decision": "variant",
+   "group": "gb-v10-corta-vento",
+   "variant": "branca",
+   "label": "BRANCA",
+   "family": "outer"
+  },
+  "gb-crt-s-027": {
+   "decision": "variant",
+   "group": "gb-v10-corta-vento",
+   "variant": "preta",
+   "label": "PRETA",
+   "family": "outer"
+  },
+  "gb-crt-s-003": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-004": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-005": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-009": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-016": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-022": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-023": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-061": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-062": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-063": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-064": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-065": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-066": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-067": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-068": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-069": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-070": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-071": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-072": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-073": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-100": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-101": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-102": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-105": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-106": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-107": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-108": {
+   "decision": "rack",
+   "family": "top"
+  },
+  "gb-crt-s-089": {
+   "decision": "rack",
+   "family": "outer"
+  },
+  "gb-crt-s-095": {
+   "decision": "rack",
+   "family": "outer"
+  },
+  "gb-crt-s-096": {
+   "decision": "rack",
+   "family": "outer"
+  },
+  "gb-crt-s-098": {
+   "decision": "rack",
+   "family": "outer"
+  },
+  "gb-crt-s-080": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-081": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-082": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-083": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-084": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-085": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-086": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-087": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-088": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-121": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-122": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-123": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-125": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-127": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-128": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-129": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-130": {
+   "decision": "rack",
+   "family": "bottom"
+  },
+  "gb-crt-s-029": {
+   "decision": "view",
+   "of": "gb-crt-010",
+   "part": "top",
+   "reason": "Mesmo moletom cinza com zíper do conjunto gb-crt-010 (capuz, cordões, bolso canguru e logo idênticos)."
+  },
+  "gb-crt-s-099": {
+   "decision": "view",
+   "of": "gb-crt-009",
+   "part": "top",
+   "reason": "Mesma polo areia de gola e punhos brancos do conjunto gb-crt-009 (foto real do kit)."
+  },
+  "gb-crt-s-079": {
+   "decision": "view",
+   "of": "gb-crt-009",
+   "part": "bottom",
+   "reason": "Mesma bermuda marinho com logo bordado do conjunto gb-crt-009."
+  },
+  "gb-crt-s-124": {
+   "decision": "view",
+   "of": "gb-crt-007",
+   "part": "bottom",
+   "reason": "Mesma bermuda branca Nike World com smile laranja da foto do conjunto gb-crt-007."
+  },
+  "gb-crt-s-013": {
+   "decision": "duplicate",
+   "of": "gb-crt-005",
+   "certainty": "confirmada",
+   "reason": "Outra apresentação do conjunto preto com lettering neon (gb-crt-005), já na arara."
+  },
+  "gb-crt-s-103": {
+   "decision": "duplicate",
+   "of": "gb-crt-005",
+   "certainty": "confirmada",
+   "reason": "Mesma camiseta preta Nike multicolor que já é a vista superior de gb-crt-005."
+  },
+  "gb-crt-s-020": {
+   "decision": "duplicate",
+   "of": "gb-crt-s-004",
+   "certainty": "confirmada",
+   "reason": "Render da mesma camiseta preta AIR / basketball fotografada em gb-crt-s-004."
+  },
+  "gb-crt-s-120": {
+   "decision": "duplicate",
+   "of": "gb-crt-s-080",
+   "certainty": "confirmada",
+   "reason": "Mesma bermuda preta de cós branco, frisos e swoosh grande de gb-crt-s-080 (recorte menor)."
+  },
+  "gb-crt-s-131": {
+   "decision": "duplicate",
+   "of": "gb-crt-s-081",
+   "certainty": "confirmada",
+   "reason": "Mesma bermuda preta com cós e bolso cargo areia de gb-crt-s-081."
+  },
+  "gb-crt-s-126": {
+   "decision": "duplicate",
+   "of": "gb-crt-s-088",
+   "certainty": "provável — revisar",
+   "reason": "Bermuda Jordan preta com losango e faixas brancas praticamente idêntica a gb-crt-s-088; ocultada da arara até a GB confirmar se são peças diferentes."
+  },
+  "gb-crt-s-077": {
+   "decision": "duplicate",
+   "of": "gb-crt-s-075",
+   "certainty": "confirmada",
+   "reason": "Segunda vista do mesmo boné monograma verde."
+  },
+  "gb-crt-s-024": {
+   "decision": "excluded",
+   "family": "cap",
+   "reason": "Boné não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-025": {
+   "decision": "excluded",
+   "family": "cap",
+   "reason": "Boné não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-074": {
+   "decision": "excluded",
+   "family": "cap",
+   "reason": "Boné não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-075": {
+   "decision": "excluded",
+   "family": "cap",
+   "reason": "Boné não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-076": {
+   "decision": "excluded",
+   "family": "cap",
+   "reason": "Boné não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-078": {
+   "decision": "excluded",
+   "family": "cap",
+   "reason": "Boné não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-045": {
+   "decision": "excluded",
+   "family": "shoe",
+   "reason": "Calçado não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-046": {
+   "decision": "excluded",
+   "family": "shoe",
+   "reason": "Calçado não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-047": {
+   "decision": "excluded",
+   "family": "shoe",
+   "reason": "Calçado não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-048": {
+   "decision": "excluded",
+   "family": "shoe",
+   "reason": "Calçado não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-049": {
+   "decision": "excluded",
+   "family": "shoe",
+   "reason": "Calçado não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-050": {
+   "decision": "excluded",
+   "family": "shoe",
+   "reason": "Calçado não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-051": {
+   "decision": "excluded",
+   "family": "shoe",
+   "reason": "Calçado não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-052": {
+   "decision": "excluded",
+   "family": "shoe",
+   "reason": "Calçado não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-053": {
+   "decision": "excluded",
+   "family": "shoe",
+   "reason": "Calçado não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-054": {
+   "decision": "excluded",
+   "family": "shoe",
+   "reason": "Calçado não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-055": {
+   "decision": "excluded",
+   "family": "shoe",
+   "reason": "Calçado não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-056": {
+   "decision": "excluded",
+   "family": "shoe",
+   "reason": "Calçado não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-057": {
+   "decision": "excluded",
+   "family": "shoe",
+   "reason": "Calçado não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-058": {
+   "decision": "excluded",
+   "family": "shoe",
+   "reason": "Calçado não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-059": {
+   "decision": "excluded",
+   "family": "shoe",
+   "reason": "Calçado não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-060": {
+   "decision": "excluded",
+   "family": "shoe",
+   "reason": "Calçado não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-109": {
+   "decision": "excluded",
+   "family": "slide",
+   "reason": "Chinelo não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-110": {
+   "decision": "excluded",
+   "family": "slide",
+   "reason": "Chinelo não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-111": {
+   "decision": "excluded",
+   "family": "slide",
+   "reason": "Chinelo não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-112": {
+   "decision": "excluded",
+   "family": "slide",
+   "reason": "Chinelo não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-113": {
+   "decision": "excluded",
+   "family": "slide",
+   "reason": "Chinelo não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-114": {
+   "decision": "excluded",
+   "family": "slide",
+   "reason": "Chinelo não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-115": {
+   "decision": "excluded",
+   "family": "slide",
+   "reason": "Chinelo não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-116": {
+   "decision": "excluded",
+   "family": "slide",
+   "reason": "Chinelo não é pendurado em cabide; permanece no catálogo e na busca."
+  },
+  "gb-crt-s-117": {
+   "decision": "excluded",
+   "family": "slide",
+   "reason": "Chinelo não é pendurado em cabide; permanece no catálogo e na busca."
+  }
+ }
+}

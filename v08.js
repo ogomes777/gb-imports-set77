@@ -1,6 +1,7 @@
 /* GB IMPORTS / V08 — Experiência de produto unificada.
  * O laboratório pertence à ficha imersiva, nunca à home.
- * Cores são estudos gráficos, NÃO SKUs ou variantes reais.
+ * Cores são estudos gráficos, NÃO SKUs ou variantes reais. Desde a V10 o laboratório só aparece
+ * para estudos SVG; peças com foto usam as fichas de cores fotografadas do GB RAIL.
  */
 (()=>{
 'use strict';
@@ -74,7 +75,11 @@ swatches.addEventListener('click',e=>{
 });
 document.addEventListener('gb:object-product',e=>{
  product=e.detail?.product||null;position=0;
- if(viewer.hidden||mode==='object')switchMode('object');
+ // V10: estudo de cor só para ilustrações. Peça com foto do acervo nunca recebe cor pintada por cima;
+ // as cores reais dela são as fichas fotografadas do GB RAIL.
+ const study=e.detail?.study??!window.GB_ASSETS?.[product?.id]?.combo;
+ tabs.hidden=!study;viewer.classList.toggle('gb-has-study',study);
+ if(!study||viewer.hidden||mode==='object')switchMode('object');
  else renderColor();
 });
 // Ao fechar, não conservar um laboratório anterior para outra peça.
@@ -98,7 +103,7 @@ if(typeof window.renderProductModal==='function'){
   if(detail&&!detail.querySelector('#gbReturnObject')){
    const btn=document.createElement('button');
    btn.id='gbReturnObject';btn.type='button';btn.className='gb-return-object';
-   btn.textContent='↗ EXPLORAR A PEÇA E SUAS CORES';
+   btn.textContent='↗ VOLTAR À PEÇA NO CABIDE';
    detail.querySelector('.detail-facts')?.before(btn);
   }
   return result;
