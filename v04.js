@@ -103,15 +103,16 @@ let rz=0;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{vw=r
 q('#railExplore')?.addEventListener('click',openRailViewer);
 
 // VIEWER: foco em tela cheia com vistas e navegação, depois o detalhe oficial do produto.
-const viewer=q('#railViewer');let viewerMode='combo';let previousFocus=null;
+const viewer=q('#railViewer');let viewerMode='combo';let previousFocus=null;let focusOverride=null;
 function drawViewer(dir=0){
-  const p=railItems[target],views=availableViews(p);if(!views.includes(viewerMode))viewerMode=views[0];
+  const p=focusOverride||railItems[target],views=availableViews(p);if(!views.includes(viewerMode))viewerMode=views[0];
   const media=q('#railViewerMedia');media.innerHTML=productMedia(p,viewerMode);
   if(dir&&!reduced){media.classList.remove('viewer-in');void media.offsetWidth;media.style.setProperty('--dir',dir);media.classList.add('viewer-in')}
-  q('#railViewerName').textContent=p.name.toUpperCase();q('#railViewerIndex').textContent=`${fmt(target)} / ${fmt(railItems.length-1)}`;
+  q('#railViewerName').textContent=p.name.toUpperCase();const itemIndex=focusOverride?items.findIndex(x=>x.id===p.id):target;q('#railViewerIndex').textContent=`${fmt(Math.max(0,itemIndex))} / ${fmt((focusOverride?items:railItems).length-1)}`;
   q('#railViewerDescription').textContent=`${p.label}. ${hasPhoto(p)?'Foto real do acervo; dados comerciais em validação.':'Ilustração de estudo até a entrada das fotos oficiais da GB.'}`;
   q('.rail-viewer-art-label').textContent=hasPhoto(p)?'FOTO REAL / CADASTRO EM REVISÃO':'ARQUIVO DE ESTUDO / CATÁLOGO EM CONSTRUÇÃO';
   qa('[data-rail-view]').forEach(b=>{b.hidden=!views.includes(b.dataset.railView);b.classList.toggle('selected',b.dataset.railView===viewerMode);b.setAttribute('aria-pressed',String(b.dataset.railView===viewerMode))});
+  viewer.dataset.productId=p.id;document.dispatchEvent(new CustomEvent('gb:object-product',{detail:{product:p}}));
 }
 function openRailViewer(){
   if(typeof closeAll==='function')closeAll(false);
@@ -120,12 +121,13 @@ function openRailViewer(){
   q('#railViewerClose').focus();
 }
 function closeRailViewer(){viewer.hidden=true;document.body.classList.remove('no-scroll');previousFocus?.focus?.({preventScroll:true})}
-function viewerStep(d){navigateRail(target+d);drawViewer(d)}
+function viewerStep(d){if(focusOverride){const i=items.findIndex(x=>x.id===focusOverride.id);focusOverride=items[(i+d+items.length)%items.length];}else navigateRail(target+d);drawViewer(d)}
 q('#railViewerClose')?.addEventListener('click',closeRailViewer);
 q('#railViewerPrev')?.addEventListener('click',()=>viewerStep(-1));
 q('#railViewerNext')?.addEventListener('click',()=>viewerStep(1));
 qa('[data-rail-view]').forEach(b=>b.addEventListener('click',()=>{viewerMode=b.dataset.railView;drawViewer()}));
-q('#railViewerProduct')?.addEventListener('click',()=>{const p=railItems[target];closeRailViewer();detailModal(p)});
+q('#railViewerProduct')?.addEventListener('click',()=>{const p=focusOverride||railItems[target];closeRailViewer();detailModal(p,{detailOnly:true})});
+window.GBOpenProductExperience=p=>{if(!p)return false;const found=railItems.findIndex(x=>x.id===p.id);if(found>=0){focusOverride=null;navigateRail(found)}else focusOverride=p;openRailViewer();return true};
 let vx=0,vy=0;viewer.addEventListener('touchstart',e=>{vx=e.touches[0].clientX;vy=e.touches[0].clientY},{passive:true});
 viewer.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-vx,dy=e.changedTouches[0].clientY-vy;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.3)viewerStep(dx<0?1:-1)},{passive:true});
 document.addEventListener('keydown',e=>{
@@ -183,24 +185,7 @@ if(feature&&!reduced&&M&&M.Prefs.fine&&!M.Prefs.lite){
 if(M)M.onVisible(q('#showroom'),v=>{if(v)q('#showroom').classList.add('is-lit')},{threshold:.25});else q('#showroom').classList.add('is-lit');
 
 /* ---------- CHROMATIC LAB: mesmo molde, quatro camadas de cor; nada é redesenhado na troca ---------- */
-const palettes=[{name:'CARVÃO',top:'#222428',accent:'#a3a4a0',bottom:'#222428'}, {name:'CERÂMICA',top:'#e7e1d2',accent:'#bdb6a1',bottom:'#e7e1d2'}, {name:'ELÉTRICO',top:'#3659bd',accent:'#869dec',bottom:'#3659bd'}, {name:'ARGILA',top:'#a4432c',accent:'#e99a63',bottom:'#a4432c'}];
-let colorPos=0;const colorBase={...items[0],model:'jacket'};
-const colorMedia=q('#colorlabMedia');
-function mountColorLayers(){colorMedia.innerHTML=palettes.map((p,i)=>`<div class="cl-layer" data-cl="${i}" aria-hidden="${i?'true':'false'}">${garmentSVG({...colorBase,top:p.top,accent:p.accent,bottom:p.bottom,stripe:p.accent},'top')}</div>`).join('');
-clLayers=qa('.cl-layer',colorMedia);paintColor(colorPos,true)}
-let clLayers=[];
-q('#colorlabSwatches').innerHTML=palettes.map((p,i)=>`<button type="button" data-color-index="${i}" style="--swatch:${p.top}" title="Estudo ${p.name}" aria-label="Estudo de cor ${p.name} (não é variante disponível)"><span></span></button>`).join('');
-function paintColor(i,initial=false){
-  const prev=initial?-1:colorPos;colorPos=(i+palettes.length)%palettes.length;const p=palettes[colorPos];
-  clLayers.forEach((l,k)=>{l.classList.toggle('is-on',k===colorPos);l.classList.toggle('is-ghost',k===prev&&prev!==colorPos);l.setAttribute('aria-hidden',String(k!==colorPos))});
-  q('#colorlabColorName').textContent=`${fmt(colorPos)} / ${p.name}`;q('#colorlabCounter').textContent=`${fmt(colorPos)} — 04`;q('#colorlabAura').style.setProperty('--aura',p.top);
-  qa('[data-color-index]').forEach(b=>{b.classList.toggle('active',+b.dataset.colorIndex===colorPos);b.setAttribute('aria-pressed',String(+b.dataset.colorIndex===colorPos))});
-}
-q('#colorlabSwatches').addEventListener('click',e=>{let b=e.target.closest('[data-color-index]');if(b)paintColor(+b.dataset.colorIndex)});
-q('#colorlabSwatches').addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();paintColor(colorPos+(e.key==='ArrowRight'?1:-1));q(`[data-color-index="${colorPos}"]`)?.focus()}});
-if(M)M.drag(q('.colorlab-canvas'),{axis:'x',threshold:14,onEnd(v,st){const dx=st.lx-st.x;if(Math.abs(dx)>40)paintColor(colorPos+(dx<0?1:-1))}});
-paintColor(0,true);
-if(M)M.onVisible(q('#colorlab'),v=>{if(v&&!clLayers.length)mountColorLayers()},{margin:'900px 0px'});else mountColorLayers();
+// Laboratório de cores migrou para a experiência interna de produto (v08.js).
 
 // Revelação progressiva leve, respeita movimento reduzido.
 if(!reduced&&'IntersectionObserver'in window){const obs=new IntersectionObserver(entries=>{entries.forEach(x=>{if(x.isIntersecting){x.target.classList.add('v04-in');obs.unobserve(x.target)}})},{threshold:.12});qa('.rail-title-row,.showroom-heading,.colorlab-copy,.editorial-break-hero').forEach(x=>{x.classList.add('v04-reveal');obs.observe(x)})}
