@@ -31,6 +31,9 @@ const EXTRA_PRODUCTS = [
 ]
 EXTRA_PRODUCTS.forEach(p=>{if(window.GB_ASSETS?.[p.id]?.combo)PRODUCTS.push(p)});
 (window.GB_IMPORTED_PRODUCTS||[]).forEach(p=>{if(!PRODUCTS.some(x=>x.id===p.id))PRODUCTS.push(p)})
+// Bermudas avulsas com preview minúsculo: fora da vitrine. Arquivos preservados.
+// Conjuntos que referenciam estas mídias continuam com os seus componentes intactos.
+const HIDDEN_SMALL_BERMUDA_IDS=new Set(["gb-crt-s-079","gb-crt-s-080","gb-crt-s-081","gb-crt-s-082","gb-crt-s-083","gb-crt-s-084","gb-crt-s-085","gb-crt-s-086","gb-crt-s-087","gb-crt-s-088","gb-crt-s-120","gb-crt-s-121","gb-crt-s-122","gb-crt-s-123","gb-crt-s-124","gb-crt-s-125","gb-crt-s-126","gb-crt-s-127","gb-crt-s-128","gb-crt-s-129","gb-crt-s-130","gb-crt-s-131"])
 const heroSlides = [
   {eyebrow:'THE GB EDIT / CAPÍTULO 001',title:'O ESTILO<br>É <span class="emphasis">SEU.</span><br><span class="hero-title-outline">O MUNDO</span><br> TAMBÉM<span class="yellow-dot">.</span>',sub:'Peças, combinações e liberdade para construir o visual sem seguir o roteiro de ninguém.',product:(PRODUCTS.find(p=>p.id==='gb-crt-001')||PRODUCTS[1])},
   {eyebrow:'GB / A CURADORIA · 002',title:'LOOK<br>NÃO É<br><span class="emphasis">UNIFORME.</span><br>É ATITUDE<span class="yellow-dot">.</span>',sub:'Da rua para o seu dia. Escolha o que veste, não o que te define.',product:(PRODUCTS.find(p=>p.id==='gb-crt-003')||PRODUCTS[7])},
@@ -44,9 +47,9 @@ const reducedMotion = ()=>matchMedia('(prefers-reduced-motion: reduce)').matches
 const productById = (id)=>PRODUCTS.find(p=>p.id===id)
 function lsRead(k,fallback){try {return JSON.parse(localStorage.getItem(k)) ?? fallback} catch{return fallback}}
 function lsSave(k,data){try{localStorage.setItem(k,JSON.stringify(data))}catch{}}
-let favorites=lsRead('gb-v03-favs',[]).filter(id=>PRODUCTS.some(p=>p.id===id&&Object.values(window.GB_ASSETS?.[p.id]||{}).some(Boolean)))
-let bag=lsRead('gb-v03-bag',[]).filter(p=>PRODUCTS.some(x=>x.id===p.id&&Object.values(window.GB_ASSETS?.[x.id]||{}).some(Boolean)))
-let recent=lsRead('gb-v06-recent',[]).filter(id=>PRODUCTS.some(p=>p.id===id&&Object.values(window.GB_ASSETS?.[p.id]||{}).some(Boolean)))
+let favorites=lsRead('gb-v03-favs',[]).filter(id=>PRODUCTS.some(p=>p.id===id&&Object.values(window.GB_ASSETS?.[p.id]||{}).some(Boolean)&&!HIDDEN_SMALL_BERMUDA_IDS.has(p.id)))
+let bag=lsRead('gb-v03-bag',[]).filter(p=>PRODUCTS.some(x=>x.id===p.id&&Object.values(window.GB_ASSETS?.[x.id]||{}).some(Boolean)&&!HIDDEN_SMALL_BERMUDA_IDS.has(x.id)))
+let recent=lsRead('gb-v06-recent',[]).filter(id=>PRODUCTS.some(p=>p.id===id&&Object.values(window.GB_ASSETS?.[p.id]||{}).some(Boolean)&&!HIDDEN_SMALL_BERMUDA_IDS.has(p.id)))
 let currentFilter='all',sortMode='curadoria',searchQuery='',showAll=false,heroIndex=0,activeModal=null,modalView='combo',topSize='',bottomSize='',toastTimeout=0,lastFocus=null,productPushed=false
 
 /* ---------- Arte de estudo (fallback sem foto). Sem logos, escudos ou marcas de terceiros. ---------- */
@@ -124,7 +127,7 @@ const VIEW_LABEL={combo:'conjunto completo',top:'parte superior',bottom:'parte i
 const hasPhoto=(p)=>!!p&&Object.values(window.GB_ASSETS?.[p.id]||{}).some(Boolean)
 // Catálogo público V10: só itens do acervo com mídia vinculada. Os 14 estudos legados
 // continuam isolados para o provador conceitual, mas não podem voltar ao SHOP.
-const PUBLIC_PRODUCTS=PRODUCTS.filter(hasPhoto)
+const PUBLIC_PRODUCTS=PRODUCTS.filter(p=>hasPhoto(p)&&!HIDDEN_SMALL_BERMUDA_IDS.has(p.id))
 // Vistas exibíveis: com imagem do acervo, somente vistas fotografadas; sem foto, as três vistas do estudo.
 function availableViews(p){
  if(hasPhoto(p))return ['combo','top','bottom'].filter(v=>window.GB_ASSETS[p.id][v])
@@ -155,7 +158,7 @@ function catalogList(){
  return list
 }
 function makeCard(p,i){
- const n=PRODUCTS.indexOf(p)+1,fav=favorites.includes(p.id)
+ const n=PUBLIC_PRODUCTS.indexOf(p)+1,fav=favorites.includes(p.id)
  const second=availableViews(p).includes('top')?`<span class="card-media card-media-b" aria-hidden="true" data-lazy-view="top"></span>`:''
  return `<article class="product-card" style="--i:${i}"><div class="product-frame"><button class="product-visual" data-product="${p.id}" aria-label="Ver detalhes de ${escaped(p.name)}"><span class="card-media card-media-a">${productMedia(p)}</span>${second}</button><span class="product-index" aria-hidden="true">GB / ${pad2(n)}</span><span class="product-badge" aria-hidden="true">${hasPhoto(p)?'IMAGEM DO ACERVO / A VALIDAR':'ESTUDO / CADASTRO EM REVISÃO'}</span><button class="favorite-toggle ${fav?'is-fav':''}" data-fav="${p.id}" aria-label="${fav?'Remover dos favoritos':'Salvar nos favoritos'}: ${escaped(p.name)}" aria-pressed="${fav}">${heartSVG}</button></div><div class="product-meta"><div><div class="product-overline">${escaped(p.label.toUpperCase())} / ${hasPhoto(p)?'FOTO':'ESTUDO'}</div><div class="product-name">${escaped(p.name)}</div><div class="product-sub">Preço e tamanhos: a validar</div></div><span class="product-arrow" aria-hidden="true">↗</span></div></article>`
 }
