@@ -169,6 +169,7 @@ function renderProducts(){
  syncCatalogURL()
 }
 function updateFilterCounts(){
+ const nav=$('#navCatalogCount');if(nav)nav.textContent=String(PUBLIC_PRODUCTS.length)
  const n=(f)=>PUBLIC_PRODUCTS.filter(p=>f==='all'||(f==='saved'?favorites.includes(p.id):p.category===f)).length
  $$('.filter').forEach(b=>{const sup=b.querySelector('sup');if(sup)sup.textContent=pad2(n(b.dataset.filter))})
  const extra=$('.filter[data-filter="extra"]');if(extra)extra.hidden=n('extra')===0
