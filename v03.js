@@ -10,7 +10,7 @@ const many=(s,p=document)=>Array.from(p.querySelectorAll(s));
 const getItem=(id)=>PRODUCTS.find(p=>p.id===id);
 const stage=one('#heroStage');
 const editorial=one('#editorialProduct');
-if(editorial)editorial.innerHTML=productMedia(PRODUCTS[4]);
+if(editorial)editorial.innerHTML=productMedia(PRODUCTS.find(p=>p.id==='gb-crt-004')||PUBLIC_PRODUCTS[0]);
 
 // A fast commerce entry layered over the editorial flagship (com a transição de marca GB quando disponível).
 const SHOP_LABEL={all:'A CURADORIA',track:'CONJUNTOS',short:'CAMISA + SHORT',saved:'MEUS SALVOS'};
@@ -157,9 +157,9 @@ one('#lookSave')?.addEventListener('click',()=>{
 // Cinematic sequence: three designed editorial frames. No claim of real footage.
 const film=one('#filmModal');let playing=false,filmIndex=0,frameStart=0,frameRequest=0;
 const chapters=[
-  {head:'A MARCA É<br>QUEM VESTE.',sub:'Toda escolha conta uma história. Você é quem escreve a próxima.',p:PRODUCTS[1]},
-  {head:'O VISUAL<br>É <i>SEU.</i>',sub:'Não importa o roteiro. Importa como você entra em cena.',p:PRODUCTS[7]},
-  {head:'DA RUA<br>PRO <i>MUNDO.</i>',sub:'A GB continua perto. Agora, em uma experiência pensada para cada tela.',p:PRODUCTS[4]},
+  {head:'A MARCA É<br>QUEM VESTE.',sub:'Toda escolha conta uma história. Você é quem escreve a próxima.',p:PRODUCTS.find(p=>p.id==='gb-crt-001')||PUBLIC_PRODUCTS[0]},
+  {head:'O VISUAL<br>É <i>SEU.</i>',sub:'Não importa o roteiro. Importa como você entra em cena.',p:PRODUCTS.find(p=>p.id==='gb-crt-005')||PUBLIC_PRODUCTS[0]},
+  {head:'DA RUA<br>PRO <i>MUNDO.</i>',sub:'A GB continua perto. Agora, em uma experiência pensada para cada tela.',p:PRODUCTS.find(p=>p.id==='gb-crt-006')||PUBLIC_PRODUCTS[0]},
 ];
 function drawFilm(){
  const c=chapters[filmIndex];
