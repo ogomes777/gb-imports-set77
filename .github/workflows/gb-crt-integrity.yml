@@ -17,3 +17,12 @@ jobs:
         run: node scripts/validar-crt.mjs
       - name: Build flagship website
         run: node scripts/build.mjs
+      - name: Install Playwright and Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: End-to-end desktop and mobile regression
+        run: |
+          python3 -m http.server 8080 --directory dist > /tmp/gb-http.log 2>&1 &
+          sleep 2
+          node tests/e2e.mjs http://127.0.0.1:8080/
