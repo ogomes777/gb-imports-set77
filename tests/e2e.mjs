@@ -284,17 +284,14 @@ async function run(w,h,reduced=false){
   check(vp,'editorial: peça em foco com fantasmas dos dois lados',gbc.items>=3&&gbc.c===1&&gbc.l===1&&gbc.r===1,JSON.stringify(gbc));
   await page.locator('.gbc-ui [data-gbc="1"]').click();await page.waitForTimeout(300);
   check(vp,'editorial: seta troca a peça',(await page.locator('.gbc-count').textContent())!==gbc.count);
-  // V12 — GB EDIT: grade só com peças de 2+ vistas fotografadas; cortina + página da peça trocando vistas; Esc fecha
-  await page.locator('#gbedit').scrollIntoViewIfNeeded();
-  const gbe=await page.evaluate(()=>({tiles:document.querySelectorAll('#gbeGrid .gbe-tile').length,ok:PUBLIC_PRODUCTS.filter(p=>{const s=GB_ASSETS[p.id]||{};return new Set(['combo','top','bottom'].map(k=>s[k]).filter(Boolean)).size>1}).length}));
-  check(vp,'GB EDIT: grade com peças de várias vistas reais',gbe.tiles>=4&&gbe.tiles<=8&&gbe.tiles<=gbe.ok,JSON.stringify(gbe));
-  await page.locator('#gbeGrid .gbe-tile').first().click();await page.waitForTimeout(reduced?300:1700);
-  const gbv=await page.evaluate(()=>({open:!document.getElementById('gbeView').hidden,slides:document.querySelectorAll('#gbeView .gbe-slide').length,price:document.querySelector('#gbeView .gbe-price')?.textContent||''}));
-  check(vp,'GB EDIT: abre a página da peça com vistas e preço a validar',gbv.open&&gbv.slides>=2&&gbv.price.includes('A VALIDAR'),JSON.stringify(gbv));
-  await page.locator('#gbeView .gbe-chips [data-go="1"]').click();
-  check(vp,'GB EDIT: escolher a vista',(await page.locator('#gbeView .gbe-slide.is-on').getAttribute('data-k'))===(await page.locator('#gbeView .gbe-slide').nth(1).getAttribute('data-k')));
-  await page.keyboard.press('Escape');await page.waitForTimeout(600);
-  check(vp,'GB EDIT: Esc fecha e devolve a rolagem',await page.locator('#gbeView').isHidden()&&!(await page.evaluate(()=>document.body.classList.contains('no-scroll'))));
+  // V12 — tocar a peça em foco: mosaico monta a página da peça em três colunas, trocando só vistas fotografadas
+  await page.locator('#editorial .gbc-item.is-c').click({force:true});await page.waitForTimeout(reduced?300:1800);
+  const gbp=await page.evaluate(()=>({open:!document.getElementById('gbpView').hidden,slides:document.querySelectorAll('#gbpView .gbp-slide').length,price:document.querySelector('#gbpView .gbp-price')?.textContent||''}));
+  check(vp,'peça: página em três colunas com vistas e preço a validar',gbp.open&&gbp.slides>=2&&gbp.price.includes('A VALIDAR'),JSON.stringify(gbp));
+  await page.locator('#gbpView .gbp-chips [data-go="1"]').click();
+  check(vp,'peça: escolher a vista',(await page.locator('#gbpView .gbp-slide.is-on').getAttribute('data-k'))===(await page.locator('#gbpView .gbp-slide').nth(1).getAttribute('data-k')));
+  await page.keyboard.press('Escape');await page.waitForTimeout(reduced?300:1700);
+  check(vp,'peça: Esc fecha e devolve a rolagem',await page.locator('#gbpView').isHidden()&&!(await page.evaluate(()=>document.body.classList.contains('no-scroll'))));
   // Hero
   await page.evaluate(()=>scrollTo(0,0));const h0=await page.locator('#heroNum').textContent();await page.locator('#heroNext').click();await page.waitForTimeout(450);
   check(vp,'hero avança capítulo',(await page.locator('#heroNum').textContent())!==h0);
