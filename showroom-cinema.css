@@ -111,7 +111,7 @@
 .showroom-heading h2 .sc-ch{text-shadow:0 0 38px rgba(var(--sc-target,74,168,255),.45),0 0 90px rgba(var(--sc-target,74,168,255),.22),0 1px 0 rgba(220,240,255,.35)}
 .showroom-shell{position:relative;isolation:isolate}
 .showroom-shell::before{content:'';position:absolute;z-index:0;left:0;right:0;top:0;height:min(320px,45%);pointer-events:none;
-  background:radial-gradient(ellipse 60% 100% at 62% 0%,rgba(var(--cinema-rgb,74,168,255),.16),transparent 70%),linear-gradient(180deg,rgba(150,210,255,.07),transparent);
+  background:radial-gradient(ellipse 60% 100% at 62% 0%,rgba(var(--cinema-rgb,74,168,255),.16),transparent 70%);
   -webkit-mask-image:linear-gradient(#000,transparent);mask-image:linear-gradient(#000,transparent)}
 .showroom-shell::after{content:'';position:absolute;z-index:0;inset:0 0 auto 0;height:260px;pointer-events:none;opacity:.55;
   background-image:radial-gradient(1.4px 1.4px at 12% 18%,#dff1ff 50%,transparent 51%),radial-gradient(1px 1px at 28% 62%,#cfe9ff 50%,transparent 51%),radial-gradient(1.8px 1.8px at 47% 30%,#eaf6ff 50%,transparent 51%),radial-gradient(1px 1px at 66% 74%,#cfe9ff 50%,transparent 51%),radial-gradient(1.5px 1.5px at 83% 22%,#e3f3ff 50%,transparent 51%),radial-gradient(1px 1px at 92% 58%,#d4ecff 50%,transparent 51%);
@@ -162,3 +162,9 @@
 #colecao::after{height:170px;background:linear-gradient(180deg,rgba(150,168,186,0),rgba(150,168,186,.35) 55%,#96a8ba)}
 #showroom .showroom-heading::before{height:120px;
   background:linear-gradient(180deg,#96a8ba,rgba(118,140,162,.55) 22%,rgba(60,82,108,.18) 55%,transparent)}
+
+/* V5 — sem risca entre a abertura e o Tech Fleece: o gelo desce direto para o palco */
+#showroom .showroom-shell{border-top:0}
+#showroom .showroom-feature{background:linear-gradient(180deg,#040a18,rgba(4,10,24,0) 170px),radial-gradient(ellipse at 45% 30%,#1b3352 0%,#0d1626 52%,#080c14 82%)}
+@media(min-width:721px){#showroom .showroom-small:nth-child(-n+2){background-image:linear-gradient(180deg,#040a18,rgba(4,10,24,0) 140px)}}
+#showroom .showroom-sidebar{border-image:linear-gradient(180deg,transparent,#8fd0ff17 160px) 1}
