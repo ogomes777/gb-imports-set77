@@ -207,7 +207,19 @@ async function run(w,h,reduced=false){
   check(vp,'visualizador abre',await page.locator('#railViewer').isVisible());
   await page.locator('#railViewerNext').click();await page.keyboard.press('Escape');
   check(vp,'visualizador fecha',!(await page.locator('#railViewer').isVisible()));
-  // Showroom
+  // Showroom: GSAP troca a cor da cena, THREE monta sob demanda, com fallback e movimento reduzido.
+  await page.locator('.showroom-heading').scrollIntoViewIfNeeded();
+  const cinema=await page.evaluate(()=>({
+    api:!!window.GBShowroomCinema,
+    stage:!!document.querySelector('.showroom-heading .showroom-cinema-bg'),
+    webglMount:!!document.querySelector('.showroom-cinema-webgl'),
+    status:document.querySelector('[data-spectrum-number]')?.textContent.trim(),
+    accent:getComputedStyle(document.querySelector('.showroom-heading h2')).color,
+    reduced:matchMedia('(prefers-reduced-motion: reduce)').matches,
+    hasCanvas:!!document.querySelector('.showroom-cinema-webgl canvas')
+  }));
+  check(vp,'cinema: palco Three.js, coreografia GSAP e status cromatico montados',cinema.api&&cinema.stage&&cinema.webglMount&&!!cinema.status&&/^rgb/.test(cinema.accent),JSON.stringify(cinema));
+  if(reduced)check(vp,'cinema: movimento reduzido sem WebGL',cinema.reduced&&!cinema.hasCanvas,JSON.stringify(cinema));
   await page.locator('#showroom').scrollIntoViewIfNeeded();
   await page.locator('.showroom-selector [data-show-index="2"]').click();
   check(vp,'showroom troca peça',(await page.locator('#showroomFeatureNum').textContent())==='03');
