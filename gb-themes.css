@@ -1,0 +1,44 @@
+/* GB IMPORTS / Brand theme system — one shared selector, site-wide application. */
+.gb-language-control{display:flex;align-items:center;flex:0 0 auto;margin-right:2px}
+.gb-language-control select{appearance:none;-webkit-appearance:none;width:48px;height:32px;padding:0 15px 0 8px;border:1px solid currentColor;border-radius:999px;background-color:transparent;color:inherit;font:800 9px/1 Arial,sans-serif;letter-spacing:.7px;cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 8px) 13px,calc(100% - 5px) 13px;background-size:3px 3px,3px 3px;background-repeat:no-repeat}
+.gb-language-control option{background:#f4f1e8;color:#111214}
+.gb-theme-switcher{position:relative;z-index:8;width:min(100%,470px);margin-top:22px;color:inherit}
+.gb-theme-switcher-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:8px;font:800 8px/1.4 Arial,sans-serif;letter-spacing:1.25px;opacity:.78}
+.gb-theme-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid currentColor;border-color:color-mix(in srgb,currentColor 24%,transparent);isolation:isolate}
+.gb-theme-option{position:relative;display:flex;min-width:0;min-height:68px;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:5px;padding:9px 11px;border:0;border-right:1px solid color-mix(in srgb,currentColor 22%,transparent);background:transparent;color:inherit;text-align:left;cursor:pointer;overflow:hidden;transition:background-color .35s ease,color .35s ease,transform .35s cubic-bezier(.22,1,.36,1)}
+.gb-theme-option:last-child{border-right:0}
+.gb-theme-option:before{content:"";position:absolute;inset:0;z-index:-1;background-position:center;background-size:cover;opacity:.11;transition:opacity .35s ease,transform .65s cubic-bezier(.22,1,.36,1)}
+.gb-theme-option[data-gb-identity="0"]:before{background-image:url("./assets/brand/gb-origem.png")}
+.gb-theme-option[data-gb-identity="1"]:before{background-image:url("./assets/brand/gb-trama.png")}
+.gb-theme-option[data-gb-identity="2"]:before{background-image:url("./assets/brand/gb-sinal.png")}
+.gb-theme-index{font:700 8px/1 Arial,sans-serif;letter-spacing:1px;opacity:.62}
+.gb-theme-name{font:900 11px/1 Arial,sans-serif;letter-spacing:.65px}
+.gb-theme-caption{font:700 7px/1.2 Arial,sans-serif;letter-spacing:.75px;opacity:.68}
+.gb-theme-option:hover:before{opacity:.25;transform:scale(1.05)}
+.gb-theme-option.selected{background:var(--yellow,#ffd447);color:#111214}
+.gb-theme-option.selected:before{opacity:.16;mix-blend-mode:multiply}
+.gb-theme-option:focus-visible,.gb-language-control select:focus-visible{outline:2px solid var(--yellow,#ffd447);outline-offset:3px}
+body[data-gb-theme],html[data-gb-theme]{transition:background-color .45s ease,color .45s ease}
+body[data-gb-theme="origem"]{--yellow:#ffd447;--paper:#f4f1e8;--ink:#111214;--gray:#666864;--line:#d9d7d0}
+body[data-gb-theme="trama"]{--yellow:#d6cbb5;--paper:#e9e5db;--ink:#25231f;--gray:#777267;--line:#c9c2b4}
+body[data-gb-theme="sinal"]{--yellow:#ffd447;--paper:#111214;--ink:#f4f1e8;--gray:#b7b3a8;--line:#353535;background:#111214;color:#f4f1e8}
+body[data-gb-theme="trama"] .hero-stage{background-color:#e7e2d7;background-image:radial-gradient(ellipse at 75% 40%,#ffffffb8,transparent 52%),url("./assets/brand/gb-trama.png");background-size:cover,58% auto;background-position:center,right center;background-repeat:no-repeat;background-blend-mode:normal,multiply;color:#171715}
+body[data-gb-theme="trama"] .hero-giant-mark{opacity:.12}
+body[data-gb-theme="trama"] .hero-giant-mark img{filter:brightness(.2)}
+body[data-gb-theme="trama"] .hero-art-circle{border-color:#25231f36}
+body[data-gb-theme="trama"] .btn-yellow{background:#d6cbb5;color:#171715}
+body[data-gb-theme="sinal"] .site-header,body[data-gb-theme="sinal"] .utility-bar,body[data-gb-theme="sinal"] .footer{background:#111214;color:#f4f1e8;border-color:#353535}
+body[data-gb-theme="sinal"] .hero-stage{background-color:#101011;background-image:radial-gradient(ellipse at 65% 40%,#ffd44725,transparent 48%),url("./assets/brand/gb-sinal.png");background-size:cover,58% auto;background-position:center,right center;background-repeat:no-repeat;background-blend-mode:normal,screen;color:#f4f1e8}
+body[data-gb-theme="sinal"] .hero-giant-mark{opacity:.18}
+body[data-gb-theme="sinal"] .hero-art-circle{border-color:#ffd4474a}
+body[data-gb-theme="sinal"] .hero-art-light{opacity:.3}
+body[data-gb-theme="sinal"] .category-section,body[data-gb-theme="sinal"] .manifesto,body[data-gb-theme="sinal"] .how-section,body[data-gb-theme="sinal"] .community-section,body[data-gb-theme="sinal"] .editorial-break,body[data-gb-theme="sinal"] .editorial-film{background:#111214;color:#f4f1e8;border-color:#353535}
+body[data-gb-theme="sinal"] .section-collection{background:#181818;color:#f4f1e8}
+body[data-gb-theme="sinal"] .category-intro p,body[data-gb-theme="sinal"] .manifesto-main p,body[data-gb-theme="sinal"] .how-card p,body[data-gb-theme="sinal"] .community-content p{color:#b7b3a8}
+body[data-gb-theme="sinal"] .editorial-link{color:#f4f1e8;border-color:#f4f1e8}
+body[data-gb-theme="sinal"] .hero-rail{background:#ffd447;color:#111214}
+body[data-gb-theme="sinal"] .gb-theme-option{border-color:#ffffff30}
+body[data-gb-theme="sinal"] .gb-theme-option.selected{background:#ffd447;color:#111214}
+@media(max-width:900px){.gb-theme-switcher{width:min(100%,440px);margin-top:17px}.gb-theme-option{min-height:62px;padding:8px}.gb-theme-name{font-size:10px}.gb-theme-caption{font-size:6.5px}.gb-language-control select{width:45px;height:30px}}
+@media(max-width:560px){.gb-theme-switcher{width:100%;margin-top:16px}.gb-theme-switcher-heading{font-size:7px;letter-spacing:.8px}.gb-theme-option{min-height:58px;padding:7px 6px}.gb-theme-index{font-size:7px}.gb-theme-name{font-size:9px;letter-spacing:.3px}.gb-theme-caption{font-size:6px;letter-spacing:.25px}.gb-language-control{margin-right:0}.gb-language-control select{width:42px;padding-left:6px;padding-right:13px}}
+@media(prefers-reduced-motion:reduce){.gb-theme-option,.gb-theme-option:before,body[data-gb-theme],html[data-gb-theme]{transition:none!important}}
