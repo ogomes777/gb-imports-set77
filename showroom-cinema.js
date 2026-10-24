@@ -20,7 +20,8 @@ const palette=[
 ];
 const state={r:255,g:214,b:53,br:13,bg:14,bb:19,energy:0.42};
 let active=false,initialized=false,destroyed=false,gsap=null,cycle=null,scene3d=null,visible=false;
-let stopView=()=>{},mediaChange=()=>{},visibilityChange=()=>{},stopResize=()=>{};
+let loading3d=false,webglFailed=false;
+let mediaChange=()=>{},visibilityChange=()=>{};
 const status=heading.querySelector('[data-spectrum-number]');
 const cap=(n,min,max)=>Math.max(min,Math.min(max,n));
 const rgb=(r,g,b)=>'rgb('+[r,g,b].map(x=>Math.round(cap(x,0,255))).join(',')+')';
@@ -43,6 +44,7 @@ function activate(){
   active=true;
   cycle?.resume();
   scene3d?.resume();
+  ensure3d();
   stage.classList.add('is-running');
 }
 function deactivate(){
@@ -199,6 +201,19 @@ function makeWebGL(THREE){
   tint(state.r,state.g,state.b,state.energy);
   return {resume,pause,tint,destroy};
 }
+async function ensure3d(){
+  // A fast scroll past the section must not prevent the scene loading later.
+  if(scene3d||loading3d||webglFailed||lite()||!canRun())return;
+  loading3d=true;
+  try{
+    const THREE=await import('https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js');
+    if(!canRun())return;
+    scene3d=makeWebGL(THREE);
+    if(!scene3d)webglFailed=true;
+    else if(active)scene3d.resume();
+  }catch(err){webglFailed=true;stage.classList.add('cinema-css-fallback');}
+  finally{loading3d=false;}
+}
 async function init(){
   if(initialized||destroyed||reduce.matches)return;
   initialized=true;
@@ -209,17 +224,9 @@ async function init(){
     makeCycle();
     activate(); // Color motion does not depend on WebGL or the 3D module.
   }catch(err){
+    // If GSAP is unavailable, the WebGL backdrop still works and CSS retains a fallback.
     stage.classList.add('cinema-css-fallback');
-  }
-  // 3D scene is optional; color choreography still runs if WebGL fails.
-  if(lite()||!canRun())return;
-  try{
-    const THREE=await import('https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js');
-    if(destroyed||reduce.matches)return;
-    scene3d=makeWebGL(THREE);
-    if(active)scene3d?.resume();
-  }catch(err){
-    stage.classList.add('cinema-css-fallback');
+    activate();
   }
 }
 const io=('IntersectionObserver'in window)?new IntersectionObserver(entries=>{
