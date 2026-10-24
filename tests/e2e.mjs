@@ -260,11 +260,11 @@ async function run(w,h,reduced=false){
   await page.locator('[data-gb-identity="2"]').click();
   check(vp,'tema SINAL aplicado globalmente',(await page.locator('body').getAttribute('data-gb-theme'))==='sinal');
   await page.locator('#gbLanguage').selectOption('en');
-  check(vp,'idioma inglês traduz hero e lang',(await page.locator('html').getAttribute('lang'))==='en'&&(await page.locator('#heroSub').textContent()).includes('GB has roots'));
+  check(vp,'idioma inglês traduz interface e lang',(await page.locator('html').getAttribute('lang'))==='en'&&(await page.locator('.footer-nav a').first().textContent()).trim()==='Collection');
   await page.locator('#gbLanguage').selectOption('es');
-  check(vp,'idioma espanhol traduz hero',(await page.locator('#heroSub').textContent()).includes('GB tiene origen'));
+  check(vp,'idioma espanhol traduz interface',(await page.locator('.footer-nav a').first().textContent()).trim()==='Colección');
   await page.locator('#gbLanguage').selectOption('it');
-  check(vp,'idioma italiano traduz hero',(await page.locator('#heroSub').textContent()).includes('GB ha radici'));
+  check(vp,'idioma italiano traduz interface',(await page.locator('.footer-nav a').first().textContent()).trim()==='Collezione');
   await page.locator('#gbLanguage').selectOption('pt');
   await page.locator('[data-gb-identity="0"]').click();
   check(vp,'idioma e tema retornam ao padrão',(await page.locator('html').getAttribute('lang'))==='pt-BR'&&(await page.locator('body').getAttribute('data-gb-theme'))==='origem');

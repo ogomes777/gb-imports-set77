@@ -47,8 +47,9 @@ writeFileSync(join(DIST,'index.html'),out);
 
 // Standalone: CSS/JS inline e ativos ./assets/... como data URI.
 const MIME={'.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'image/jpeg','.avif':'image/avif'};
-const inlineAssets=s=>s.replace(/\.\/assets\/[A-Za-z0-9_\-./]+\.(svg|png|webp|jpe?g|avif)/g,p=>{
-  const f=join(ROOT,p.slice(2));if(!existsSync(f))return p;
+const inlineAssets=s=>s.replace(/(?:\.\/|\/)assets\/[A-Za-z0-9_\-./]+\.(svg|png|webp|jpe?g|avif)/g,p=>{
+  const rel=p.startsWith('./')?p.slice(2):p.replace(/^\/+/, '');
+  const f=join(ROOT,rel);if(!existsSync(f))return p;
   return `data:${MIME[extname(f).toLowerCase()]};base64,${readFileSync(f).toString('base64')}`});
 const safeJs=js.replace(/<\/script/gi,'<\\/script');
 // Replacer em função: o código contém sequências como $' que String.replace interpretaria.
