@@ -1,5 +1,8 @@
 # GB Flagship / Changelog
 
+## Correção do catálogo — 23/10/2026
+- Vitrine: ocultar somente as 12 bermudas avulsas cujo objeto aparece minúsculo no arquivo (s-120 a s-131); preservar as 10 bermudas com enquadramento normal (s-079 a s-088), os kits, os arquivos de origem e a contagem sincronizada de 102 produtos.
+
 ## V10 — 23/10/2026 · "GB RAIL"
 - Arara reconstruída como estrutura física: barra fina entre dois suportes, gancho apoiado na barra, gola no pescoço do cabide, bermudas e fotos de kit presas por presilhas, conjunto com superior e inferior em dois cabides, sombra na parede pré-calculada.
 - Catálogo verdadeiro: os 114 registros auditados olhando cada imagem; 63 cabides (71 registros), 5 grupos de cores fotografadas, 7 duplicatas ocultas, 31 itens fora por categoria, 9 conjuntos reclassificados. Os 14 estudos SVG saem da arara.
