@@ -226,7 +226,7 @@ async function run(w,h,reduced=false){
     hasCanvas:!!document.querySelector('.showroom-cinema-webgl canvas')
   }));
   check(vp,'cinema: palco Three.js, coreografia GSAP e status cromatico montados',cinema.api&&cinema.stage&&cinema.webglMount&&!!cinema.status&&/^rgb/.test(cinema.accent),JSON.stringify(cinema));
-  check(vp,'cinema: ambiente inicial continua legivel sem rede 3D',cinema.accent!=='rgba(0, 0, 0, 0)'&&cinema.status==='01 / 04',JSON.stringify(cinema));
+  check(vp,'cinema: ambiente inicial continua legivel sem rede 3D',cinema.accent!=='rgba(0, 0, 0, 0)'&&cinema.status==='GB / 03',JSON.stringify(cinema));
   if(reduced)check(vp,'cinema: movimento reduzido sem WebGL',cinema.reduced&&!cinema.hasCanvas,JSON.stringify(cinema));
   await page.locator('#showroom').scrollIntoViewIfNeeded();
   await page.waitForSelector('#showroomGrid .showroom-small');

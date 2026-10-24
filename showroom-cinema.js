@@ -1,6 +1,7 @@
-/* GB IMPORTS / DARK SPECTRUM V4 · MULTIVERSO DE GELO — GSAP + THREE (lazy, section-scoped).
+/* GB IMPORTS / DARK SPECTRUM V5 · ONDA DE FRIO — GSAP + THREE (lazy, section-scoped).
  * Tema frio da coleção Tech Fleece: paisagem congelada (céu de tempestade, gelo, falésia) e floco de cristal 3D.
- * Chegada: o título entra letra a letra e troca de cor na hora; cada nova cor corre como onda pelas letras.
+ * Título em cor fixa, extrudado em 3D, flutua e pulsa; a cada 9 s uma onda de frio cruza o fundo, empurra a neve,
+ * gira o floco e acende o brilho das letras.
  * O floco é vidro de gelo que reflete e refrata o mesmo céu; neve em duas camadas; tudo reage ao ponteiro e à
  * rolagem. Só roda visível, com teto de fps e resolução adaptativa;
  * aparelho modesto/reduzido fica no fallback CSS. Nenhuma imagem ou estado do catálogo é alterado.
@@ -15,16 +16,12 @@ const motion=window.GBMotion;
 const reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
 const coarse=window.matchMedia('(pointer: coarse)');
 const lite=()=>!!(motion?.Prefs?.lite||navigator.connection?.saveData||navigator.deviceMemory<=2);
-const palette=[
- {name:'GELO',rgb:[74,168,255],bg:[4,10,24],hold:3.1},
- {name:'GLACIAL',rgb:[150,214,255],bg:[6,14,30],hold:3.0},
- {name:'ÁRTICO',rgb:[46,124,255],bg:[3,8,22],hold:3.2},
- {name:'CRISTAL',rgb:[196,234,255],bg:[7,16,32],hold:2.9}
-];
+// cor fixa (gelo): o título não troca mais de cor; vive em 3D, flutua, pulsa e recebe a onda de brilho
+const ICE={name:'GELO',rgb:[74,168,255],bg:[4,10,24]};
 const state={r:74,g:168,b:255,br:4,bg:10,bb:24,energy:.42,pulse:0};
-let active=false,initialized=false,destroyed=false,gsap=null,cycle=null,scene3d=null,visible=false,arrived=false,chapter=0;
-let loading3d=false,webglFailed=false;
-const status=heading.querySelector('[data-spectrum-number]');
+const WAVE=9; // segundos entre uma onda de frio e a próxima (o shader usa o mesmo período)
+let active=false,initialized=false,destroyed=false,gsap=null,cycle=null,scene3d=null,visible=false,arrived=false;
+let loading3d=false,webglFailed=false,tilt=null;
 const title=heading.querySelector('h2');
 const cap=(n,min,max)=>Math.max(min,Math.min(max,n));
 const rgb=(r,g,b)=>'rgb('+[r,g,b].map(x=>Math.round(cap(x,0,255))).join(',')+')';
@@ -36,23 +33,31 @@ const apply=()=>{
   heading.style.setProperty('--cinema-energy',String(state.energy));
   scene3d?.tint(state);
 };
-apply();
+apply();heading.dataset.spectrum=ICE.name;
 
-/* ---------- título em letras (leitores de tela leem o h2 inteiro pelo aria-label) ---------- */
-let chars=[];
+/* ---------- título em letras (leitores de tela leem o h2 inteiro pelo aria-label) ----------
+   .sc-ch recebe a chegada (GSAP) · .sc-fl flutua/pulsa (CSS, só transform) · .sc-gl é a camada de brilho (só opacity) */
+let chars=[],glows=[];
 function splitTitle(){
   if(!title||title.dataset.split)return;
   title.dataset.split='1';title.setAttribute('aria-label',title.innerHTML.replace(/<br\s*\/?>/gi,' ').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim());
   let i=0;
   const walk=node=>{[...node.childNodes].forEach(n=>{
-    if(n.nodeType===3){const f=document.createDocumentFragment();[...n.textContent].forEach(ch=>{if(ch.trim()===''){f.append(ch);return}const s=document.createElement('span');s.className='sc-ch';s.setAttribute('aria-hidden','true');s.style.setProperty('--i',i++);s.textContent=ch;f.append(s)});n.replaceWith(f)}
+    if(n.nodeType===3){const f=document.createDocumentFragment();[...n.textContent].forEach(ch=>{if(ch.trim()===''){f.append(ch);return}
+      const s=document.createElement('span');s.className='sc-ch';s.setAttribute('aria-hidden','true');s.style.setProperty('--i',i++);
+      const fl=document.createElement('span');fl.className='sc-fl';fl.textContent=ch;
+      const gl=document.createElement('span');gl.className='sc-gl';gl.textContent=ch;fl.append(gl);s.append(fl);f.append(s)});n.replaceWith(f)}
     else if(n.nodeType===1&&n.tagName!=='BR')walk(n);
   })};
-  walk(title);chars=[...title.querySelectorAll('.sc-ch')];
+  walk(title);chars=[...title.querySelectorAll('.sc-ch')];glows=[...title.querySelectorAll('.sc-gl')];
   heading.style.setProperty('--sc-count',chars.length);
 }
-// cor das letras muda por capítulo (CSS transiciona com atraso por letra = onda); o resto acompanha quadro a quadro
-const setTarget=p=>{heading.style.setProperty('--sc-target',p.rgb.join(','));heading.dataset.spectrum=p.name;if(status)status.textContent=String(palette.indexOf(p)+1).padStart(2,'0')+' / 04'};
+// onda de brilho: corre pelas letras da esquerda para a direita, junto com a frente fria do fundo
+function glowWave(strength=1,each=.045){
+  if(!gsap||!glows.length||reduce.matches)return;
+  gsap.killTweensOf(glows);
+  gsap.fromTo(glows,{opacity:0},{keyframes:[{opacity:.6*strength,duration:.3,ease:'power2.out'},{opacity:0,duration:1.1,ease:'sine.inOut'}],stagger:{each,from:'start'}});
+}
 
 function canRun(){return !destroyed&&visible&&!document.hidden&&!reduce.matches}
 function activate(){
@@ -65,41 +70,37 @@ function deactivate(){
 function setStatic(){
   deactivate();cycle?.kill();cycle=null;
   Object.assign(state,{r:74,g:168,b:255,br:4,bg:10,bb:24,energy:.42,pulse:0});
-  setTarget(palette[0]);if(status)status.textContent='01 / 04';
-  if(gsap&&chars.length)gsap.set(chars,{clearProps:'transform,opacity'});
+  if(gsap&&chars.length){gsap.set(chars,{clearProps:'transform,opacity'});gsap.set(glows,{clearProps:'opacity'});if(title)gsap.set(title,{clearProps:'transform'})}
   apply();
 }
-// um capítulo de cor: mergulho curto, virada de cor com pulso, letras dão um tranco e assentam
-function chapterTo(t,p,at){
-  const c=gsap.timeline();
-  c.add(()=>{setTarget(p);scene3d?.kick(.85)},0);
-  c.to(state,{energy:.16,duration:.18,ease:'power2.in',onUpdate:apply},0);
-  c.to(state,{r:p.rgb[0],g:p.rgb[1],b:p.rgb[2],br:p.bg[0],bg:p.bg[1],bb:p.bg[2],energy:.95,pulse:1,duration:.9,ease:'expo.out',onUpdate:apply},.18);
-  if(chars.length)c.to(chars,{keyframes:[{yPercent:-7,skewX:-6,duration:.16,ease:'power2.out'},{yPercent:0,skewX:0,duration:.6,ease:'elastic.out(1,.45)'}],stagger:{each:.018,from:'start'}},.14);
-  c.to(state,{energy:.48,pulse:0,duration:1.6,ease:'sine.out',onUpdate:apply},1.08);
-  t.add(c,at);
-}
+// sem WebGL (fallback CSS) a onda de brilho segue no mesmo ritmo, guiada só pelo GSAP
 function makeCycle(){
-  if(!gsap||reduce.matches||destroyed)return;
+  if(!gsap||reduce.matches||destroyed||scene3d)return;
   cycle?.kill();
-  const t=gsap.timeline({paused:true,repeat:-1});
-  palette.forEach((p,i)=>{const n=palette[(chapter+1+i)%palette.length];chapterTo(t,n,'>'+(i?palette[(chapter+i)%palette.length].hold:0).toFixed(2))});
-  t.to({},{duration:palette[chapter].hold});
-  cycle=t;
+  cycle=gsap.timeline({paused:true,repeat:-1}).add(()=>glowWave(.8),WAVE-.01).to({},{duration:.01});
 }
-// chegada: letras sobem em 3D, a primeira troca de cor acontece quase de imediato, a cena explode em luz
+// inclinação do título pelo ponteiro (desktop): o bloco gira em 3D, as letras seguem flutuando dentro dele
+function bindTilt(){
+  if(tilt||!gsap||!title||coarse.matches)return;
+  gsap.set(title,{transformPerspective:1400,transformOrigin:'40% 60%'});
+  const ry=gsap.quickTo(title,'rotationY',{duration:.9,ease:'power3.out'}),rx=gsap.quickTo(title,'rotationX',{duration:.9,ease:'power3.out'});
+  const move=e=>{const r=heading.getBoundingClientRect();ry(cap((e.clientX-r.left)/r.width-.5,-.5,.5)*12);rx(-cap((e.clientY-r.top)/r.height-.5,-.5,.5)*8)};
+  const leave=()=>{ry(0);rx(0)};
+  heading.addEventListener('pointermove',move,{passive:true});heading.addEventListener('pointerleave',leave,{passive:true});
+  tilt={off:()=>{heading.removeEventListener('pointermove',move);heading.removeEventListener('pointerleave',leave)}};
+}
+// chegada: letras sobem em 3D, a cena explode em luz e a primeira onda de brilho passa
 function arrive(){
   if(!gsap||reduce.matches||destroyed)return;
-  arrived=true;cycle?.kill();cycle=null;
-  const t=gsap.timeline({onComplete:()=>{chapter=(chapter+1)%palette.length;makeCycle();if(active)cycle?.play()}});
+  arrived=true;
+  const t=gsap.timeline({onComplete:()=>{makeCycle();if(active)cycle?.play()}});
   if(chars.length){
     gsap.set(title,{perspective:900});
     t.fromTo(chars,{yPercent:118,rotationX:-88,opacity:0,transformOrigin:'50% 100% -40px'},{yPercent:0,rotationX:0,opacity:1,duration:1.05,ease:'expo.out',stagger:{each:.032,from:'start'}},0);
   }
   t.add(()=>{scene3d?.arrive()},0);
-  const next=palette[(chapter+1)%palette.length];
-  t.add(()=>{setTarget(next)},.38);
-  t.to(state,{r:next.rgb[0],g:next.rgb[1],b:next.rgb[2],br:next.bg[0],bg:next.bg[1],bb:next.bg[2],energy:1,pulse:1,duration:1.1,ease:'expo.out',onUpdate:apply},.38);
+  t.add(()=>glowWave(1),.55);
+  t.to(state,{energy:1,pulse:1,duration:1.1,ease:'expo.out',onUpdate:apply},.38);
   t.to(state,{energy:.5,pulse:0,duration:1.8,ease:'sine.out',onUpdate:apply});
 }
 
@@ -184,6 +185,17 @@ function makeWebGL(THREE){
         col=refl*(.82+ice*.3)+vec3(.8,.9,1.)*crack*.25;
         col+=vec3(.7,.82,.92)*pow(1.-d,8.)*.35;      // brilho rasante na linha do horizonte
       }
+      // ONDA DE FRIO: a cada 9 s uma frente de vento gelado atravessa o quadro (mesma fase da neve, do floco e do título)
+      float ph=fract(t/9.),front=-.4+ph*1.9,fx=uv.x-front;
+      float band=exp(-fx*fx*14.)*smoothstep(0.,.08,ph)*smoothstep(1.,.9,ph);
+      float gust=max(band,smoothstep(.0,-.25,fx)*exp(fx*2.2)*.6);   // névoa que fica para trás da frente
+      float sd=fbm(vec2(px*1.3-t*.55-gust*.6,uv.y*4.2+t*.05));
+      col=mix(col,vec3(.66,.77,.88),smoothstep(.35,.85,sd)*(exp(-abs(uv.y-H)*4.5)*.22+gust*.42));
+      col+=vec3(.82,.92,1.)*smoothstep(.86,1.,n2(vec2((px-t*2.6)*3.,uv.y*120.)))*band*.3;   // rajadas de neve riscando
+      col+=vec3(.55,.75,1.)*band*.06;
+      // geada na borda da lente, só nos cantos, cresce quando a onda passa
+      float edge=smoothstep(.62,.95,length((uv-.5)*vec2(1.,.9))*1.3);
+      col=mix(col,vec3(.75,.85,.95),smoothstep(.55,.75,fbm(uv*vec2(asp,1.)*9.))*edge*(.10+gust*.14));
       // bruma no horizonte e tingimento frio pela cor do capítulo
       col=mix(col,vec3(.62,.72,.8),exp(-abs(uv.y-H)*16.)*.55);
       col=mix(col,col*(.6+uColor*.7),.35+uEnergy*.15);col*=.74;
@@ -244,7 +256,9 @@ function makeWebGL(THREE){
     const half=(spread/2).toFixed(1),full=spread.toFixed(1);
     const pts=new THREE.Points(g,keep(new THREE.ShaderMaterial({uniforms:U,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
       vertexShader:`uniform float uTime,uWarp;attribute vec2 aRnd;varying float vA;void main(){vec3 p=position;float sp=.3+aRnd.x*.5;p.y=mod(p.y-uTime*sp*(1.+uWarp*2.)+6.,12.)-6.;
-        p.x+=sin(uTime*(.3+aRnd.y*.5)+aRnd.x*6.28)*(.3+aRnd.y*.45)+uTime*.08;p.x=mod(p.x+${half},${full})-${half};
+        p.x+=sin(uTime*(.3+aRnd.y*.5)+aRnd.x*6.28)*(.3+aRnd.y*.45)+uTime*.08;
+        float xs=mod(p.x+${half},${full})/${full},ph=fract(uTime/9.),passed=smoothstep(.2,-.1,xs-(-.4+ph*1.9));
+        p.x+=(floor(uTime/9.)+passed)*2.4;p.x=mod(p.x+${half},${full})-${half};
         vec4 mv=modelViewMatrix*vec4(p,1.);vA=smoothstep(6.,4.5,abs(p.y))*(.4+aRnd.y*.6);gl_PointSize=(${sizeMin.toFixed(1)}+aRnd.y*${(sizeMax-sizeMin).toFixed(1)})*(12./-mv.z);gl_Position=projectionMatrix*mv;}`,
       fragmentShader:`precision highp float;varying float vA;void main(){float d=length(gl_PointCoord-.5);float a=smoothstep(.5,${blur.toFixed(2)},d)*vA*.9;gl_FragColor=vec4(vec3(.88,.95,1.)*a,a);}`})));
     pts.frustumCulled=false;world.add(pts);
@@ -262,15 +276,19 @@ function makeWebGL(THREE){
   size();
   const resize=()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(size,130)};window.addEventListener('resize',resize,{passive:true});
   const contextLost=e=>{e.preventDefault();frameStop=true;stage.classList.add('cinema-css-fallback')};canvas.addEventListener('webglcontextlost',contextLost,false);
-  let slow=0,ratio=renderer.getPixelRatio(),headTop=0,headH=1;const measure=()=>{const r=heading.getBoundingClientRect();headTop=r.top+scrollY;headH=r.height};measure();
+  let lastFront=9,slow=0,ratio=renderer.getPixelRatio(),headTop=0,headH=1;const measure=()=>{const r=heading.getBoundingClientRect();headTop=r.top+scrollY;headH=r.height};measure();
   window.addEventListener('resize',measure,{passive:true});
   const frame=(dt,t)=>{
     if(frameStop||!canRun())return false;
     if(t-last<(touch?31:15))return true;   // ~60 fps desktop, ~30 no toque
     const gap=t-last;last=t;const step=Math.min(.05,dt);progress+=step;
-    // aparelho fraco: se os quadros seguem lentos, baixa a resolução (até .5) em vez de travar
-    if(gap<250){slow=gap>(touch?50:34)?slow+1:Math.max(0,slow-1);if(slow>30&&ratio>.5){ratio=Math.max(.5,ratio*.75);renderer.setPixelRatio(ratio);size();slow=0}}
-    U.uTime.value=progress;U.uWarp.value*=Math.pow(.25,step);U.uPulse.value*=Math.pow(.5,step);
+    // aparelho fraco: se os quadros seguem lentos, baixa a resolução (até .6) em vez de travar
+    if(gap<250){slow=gap>(touch?50:34)?slow+1:Math.max(0,slow-1);if(slow>30&&ratio>.6){ratio=Math.max(.6,ratio*.75);renderer.setPixelRatio(ratio);size();slow=0}}
+    U.uTime.value=progress;
+    const front=-.4+((progress/WAVE)%1)*1.9,fxs=touch?.6:.76;   // frente fria (mesma conta do shader)
+    if(lastFront<.04&&front>=.04)glowWave(1,touch?.16:.22);
+    if(lastFront<fxs&&front>=fxs){spinV+=2.5;U.uPulse.value=Math.max(U.uPulse.value,.6)}
+    lastFront=front;U.uWarp.value*=Math.pow(.25,step);U.uPulse.value*=Math.pow(.5,step);
     U.uScroll.value=cap((scrollY+innerHeight/2-(headTop+headH/2))/Math.max(1,innerHeight),-1,1); // sem leitura de layout por quadro
     sx+=(px-sx)*.06;sy+=(py-sy)*.06;hover+=(hoverT-hover)*.06;U.uPointer.value.set(sx,sy);U.uHover.value=hover;
     camera.position.set(sx*.9,-sy*.6,11);camera.lookAt(0,0,0);
@@ -302,7 +320,7 @@ async function ensure3d(){
     if(!canRun())return;
     scene3d=makeWebGL(THREE);
     if(!scene3d){webglFailed=true;stage.classList.add('cinema-css-fallback')}
-    else{stage.classList.add('has-webgl');if(active)scene3d.resume();if(arrived)scene3d.arrive()}
+    else{stage.classList.add('has-webgl');cycle?.kill();cycle=null;if(active)scene3d.resume();if(arrived)scene3d.arrive()}
   }catch(err){webglFailed=true;stage.classList.add('cinema-css-fallback')}
   finally{loading3d=false}
 }
@@ -312,7 +330,7 @@ async function init(){
   try{
     gsap=await loadGSAP();if(destroyed||reduce.matches)return;
     if(chars.length&&!arrived)gsap.set(chars,{yPercent:118,rotationX:-88,opacity:0});
-    activate();
+    activate();bindTilt();
     if(arrivalReady&&!arrived)arrive();
   }catch(err){stage.classList.add('cinema-css-fallback');activate()}
 }
@@ -328,8 +346,7 @@ const mediaChange=()=>{if(reduce.matches)setStatic();else if(visible){if(!gsap){
 reduce.addEventListener?.('change',mediaChange);
 const visibilityChange=()=>{if(document.hidden)deactivate();else if(visible)activate()};
 document.addEventListener('visibilitychange',visibilityChange);
-const cleanup=()=>{if(destroyed)return;destroyed=true;deactivate();io?.disconnect();arrivalIO?.disconnect();reduce.removeEventListener?.('change',mediaChange);document.removeEventListener('visibilitychange',visibilityChange);cycle?.kill();scene3d?.destroy()};
+const cleanup=()=>{if(destroyed)return;destroyed=true;deactivate();io?.disconnect();arrivalIO?.disconnect();reduce.removeEventListener?.('change',mediaChange);document.removeEventListener('visibilitychange',visibilityChange);cycle?.kill();tilt?.off();scene3d?.destroy()};
 window.addEventListener('pagehide',cleanup,{once:true});
-setTarget(palette[0]);if(status)status.textContent='01 / 04';
 window.GBShowroomCinema={get active(){return active},get enabled(){return !reduce.matches},get hasWebGL(){return !!scene3d},get arrived(){return arrived},get color(){return heading.dataset.spectrum||'GELO'},pause:deactivate,resume:activate};
 })();

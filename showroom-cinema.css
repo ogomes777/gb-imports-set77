@@ -142,3 +142,23 @@
     linear-gradient(90deg,transparent 8%,rgba(170,215,255,.45) 50%,transparent 92%) top/100% 1px no-repeat}
 #colecao{position:relative}
 #colecao::after{content:'';position:absolute;left:0;right:0;bottom:0;height:140px;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(150,182,212,.26))}
+
+/* V5 · ONDA DE FRIO — título em cor fixa (gelo), extrudado em 3D, flutuando e pulsando; a camada de brilho
+   (.sc-gl) só muda opacity e é acesa pela frente fria do fundo. Tudo transform/opacity, parado fora da tela. */
+.showroom-heading h2 .sc-ch{color:#4aa8ff;transition:none;text-shadow:none}
+.showroom-heading h2 .sc-fl{display:inline-block;position:relative;color:#4aa8ff;
+  text-shadow:0 .006em 0 #3a8fe6,0 .012em 0 #2f7bd0,0 .018em 0 #2667b4,0 .024em 0 #1e5596,0 .03em 0 #17447a,
+    0 .06em .07em rgba(0,6,20,.55),0 0 .22em rgba(74,168,255,.42),0 0 .5em rgba(74,168,255,.18)}
+.showroom-heading h2 .sc-gl{position:absolute;left:0;top:0;color:#e4f5ff;opacity:0;pointer-events:none;
+  text-shadow:0 0 .03em #fff,0 0 .12em rgba(159,214,255,.7)}
+@media(max-width:720px){.showroom-heading h2 .sc-fl{text-shadow:0 .008em 0 #3a8fe6,0 .016em 0 #2b72c4,0 .024em 0 #1e5596,0 .03em 0 #17447a,0 .06em .06em rgba(0,6,20,.5),0 0 .2em rgba(74,168,255,.38)}}
+@media(prefers-reduced-motion:no-preference){
+  .showroom-cinema-bg.is-running~h2 .sc-fl{animation:scFloat 5.6s ease-in-out calc(var(--i)*-.42s) infinite;will-change:transform}
+}
+@keyframes scFloat{0%,100%{transform:translate3d(0,0,0) scale(1)}30%{transform:translate3d(0,-.035em,0) scale(1.018)}65%{transform:translate3d(0,.018em,0) scale(.994)}}
+@media(prefers-reduced-motion:reduce){.showroom-heading h2 .sc-fl{animation:none!important}.showroom-heading h2 .sc-gl{display:none}}
+
+/* V5 — emenda com a coleção: o papel esfria numa névoa de aço e entra na tempestade sem corte */
+#colecao::after{height:170px;background:linear-gradient(180deg,rgba(150,168,186,0),rgba(150,168,186,.35) 55%,#96a8ba)}
+#showroom .showroom-heading::before{height:120px;
+  background:linear-gradient(180deg,#96a8ba,rgba(118,140,162,.55) 22%,rgba(60,82,108,.18) 55%,transparent)}
