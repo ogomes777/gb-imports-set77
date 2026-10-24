@@ -130,8 +130,15 @@ async function run(w,h,reduced=false){
   const mobile=w<600;
   const ctx=await browser.newContext({viewport:{width:w,height:h},isMobile:mobile,hasTouch:mobile,reducedMotion:reduced?'reduce':'no-preference'});
   const page=await ctx.newPage();
-  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
-  page.on('requestfailed',r=>{if(!r.url().includes('fonts.g'))errors.push('requestfailed '+r.url())});
+  const optionalCDN=s=>/cdn\.jsdelivr\.net\/npm\/(?:gsap@3\.15\.0|three@0\.186\.1)/.test(s||'');
+  const errors=[],optionalFailures=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  page.on('console',m=>{if(m.type()==='error'){
+    const location=m.location()?.url||'',message=m.text();
+    if(optionalCDN(location)||optionalCDN(message))optionalFailures.push(message);
+    else errors.push(message);
+  }});
+  page.on('requestfailed',r=>{const url=r.url();if(optionalCDN(url))optionalFailures.push(url);else if(!url.includes('fonts.g'))errors.push('requestfailed '+url)});
   await page.goto(BASE,{waitUntil:'networkidle'});await page.waitForTimeout(400);
   if(errors.length){console.error('GB BOOT ERRORS',errors.slice(0,15));throw Error('Page JavaScript failed to initialize: '+errors.slice(0,5).join(' | '))}
   // Mede contra a largura pedida: em modo mobile o Chrome alarga o viewport de layout se algo vaza.
@@ -207,10 +214,38 @@ async function run(w,h,reduced=false){
   check(vp,'visualizador abre',await page.locator('#railViewer').isVisible());
   await page.locator('#railViewerNext').click();await page.keyboard.press('Escape');
   check(vp,'visualizador fecha',!(await page.locator('#railViewer').isVisible()));
-  // Showroom
+  // Showroom: GSAP troca a cor da cena, THREE monta sob demanda, com fallback e movimento reduzido.
+  await page.locator('.showroom-heading').scrollIntoViewIfNeeded();
+  const cinema=await page.evaluate(()=>({
+    api:!!window.GBShowroomCinema,
+    stage:!!document.querySelector('.showroom-heading .showroom-cinema-bg'),
+    webglMount:!!document.querySelector('.showroom-cinema-webgl'),
+    status:document.querySelector('[data-spectrum-number]')?.textContent.trim(),
+    accent:getComputedStyle(document.querySelector('.showroom-heading h2')).color,
+    reduced:matchMedia('(prefers-reduced-motion: reduce)').matches,
+    hasCanvas:!!document.querySelector('.showroom-cinema-webgl canvas')
+  }));
+  check(vp,'cinema: palco Three.js, coreografia GSAP e status cromatico montados',cinema.api&&cinema.stage&&cinema.webglMount&&!!cinema.status&&/^rgb/.test(cinema.accent),JSON.stringify(cinema));
+  check(vp,'cinema: ambiente inicial continua legivel sem rede 3D',cinema.accent!=='rgba(0, 0, 0, 0)'&&cinema.status==='01 / 04',JSON.stringify(cinema));
+  if(reduced)check(vp,'cinema: movimento reduzido sem WebGL',cinema.reduced&&!cinema.hasCanvas,JSON.stringify(cinema));
   await page.locator('#showroom').scrollIntoViewIfNeeded();
+  await page.waitForSelector('#showroomGrid .showroom-small');
+  const fleece=await page.evaluate(()=>({
+    selected:[...document.querySelectorAll('#showroomSelector [data-show-product]')].map(b=>b.dataset.showProduct),
+    thumbs:[...document.querySelectorAll('#showroomGrid [data-show-product]')].map(b=>b.dataset.showProduct),
+    allPhotos:[...document.querySelectorAll('#showroomGrid .showroom-small-media')].every(el=>!!el.querySelector('img.actual-photo')),
+    initialView:document.querySelector('[data-show-view="combo"]')?.getAttribute('aria-pressed'),
+    label:document.querySelector('.showroom-sub')?.textContent||''
+  }));
+  const fleeceIds=['gb-crt-004','gb-crt-003','gb-crt-001','gb-crt-002'];
+  check(vp,'showroom exclusivo: quatro conjuntos Tech Fleece sem camisetas ou outros moletons',JSON.stringify(fleece.selected)===JSON.stringify(fleeceIds)&&JSON.stringify(fleece.thumbs)===JSON.stringify(fleeceIds),JSON.stringify(fleece));
+  check(vp,'showroom: quatro fotos de conjunto e vista completa padrao',fleece.allPhotos&&fleece.initialView==='true'&&fleece.label.includes('QUATRO CORES'),JSON.stringify(fleece));
   await page.locator('.showroom-selector [data-show-index="2"]').click();
   check(vp,'showroom troca peça',(await page.locator('#showroomFeatureNum').textContent())==='03');
+  await page.locator('.showroom-selector [data-show-index="3"]').click();
+  check(vp,'showroom: creme sem foto superior avulsa nao exibe vista ficticia',await page.locator('[data-show-view="top"]').isDisabled()&&(await page.locator('[data-show-view="combo"]').getAttribute('aria-pressed'))==='true');
+  await page.locator('.showroom-selector [data-show-index="0"]').click();
+  check(vp,'showroom: volta a habilitar vista superior onde existe foto',await page.locator('[data-show-view="top"]').isEnabled());
   // Look Studio
   await page.locator('#lookstudio').scrollIntoViewIfNeeded();
   const s0=await page.locator('#lookSummary').textContent();
@@ -224,9 +259,11 @@ async function run(w,h,reduced=false){
   // Hero
   await page.evaluate(()=>scrollTo(0,0));const h0=await page.locator('#heroNum').textContent();await page.locator('#heroNext').click();await page.waitForTimeout(450);
   check(vp,'hero avança capítulo',(await page.locator('#heroNum').textContent())!==h0);
-  // Entrada de loja com transição GB
-  await page.locator('.shop-entry [data-v03-filter="short"]').click();await page.waitForTimeout(1100);
-  check(vp,'atalho de loja aplica filtro',(await page.locator('.filter.active').getAttribute('data-filter'))==='short');
+  // A arara conecta diretamente à curadoria, sem atalhos pretos duplicados.
+  const connected=await page.evaluate(()=>{const rail=document.querySelector('#rail'),collection=document.querySelector('#colecao');return !document.querySelector('.shop-entry')&&rail?.nextElementSibling===collection});
+  check(vp,'arara seguida pela curadoria sem a faixa Entre e Encontre',connected);
+  await page.locator('.filter[data-filter="short"]').click();
+  check(vp,'filtro camisa+short permanece funcional',(await page.locator('.filter.active').getAttribute('data-filter'))==='short');
   // Deep link + voltar
   await page.goto(BASE+'?peca=gb-sh-02',{waitUntil:'networkidle'});
   check(vp,'deep link abre peça',(await page.locator('#productModal h2').textContent()).includes('MANCHESTER CITY'));

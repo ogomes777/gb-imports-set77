@@ -12,14 +12,6 @@ const stage=one('#heroStage');
 const editorial=one('#editorialProduct');
 if(editorial)editorial.innerHTML=productMedia(PRODUCTS.find(p=>p.id==='gb-crt-004')||PUBLIC_PRODUCTS[0]);
 
-// A fast commerce entry layered over the editorial flagship (com a transição de marca GB quando disponível).
-const SHOP_LABEL={all:'A CURADORIA',track:'CONJUNTOS',short:'CAMISA + SHORT',saved:'MEUS SALVOS'};
-function goToShop(filter){
-  const go=()=>{selectFilter(filter);one('#colecao').scrollIntoView({behavior:window.gbWipe||window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});};
-  window.gbWipe?window.gbWipe(go,SHOP_LABEL[filter]||'A CURADORIA'):go();
-}
-many('[data-v03-filter]').forEach(button=>button.addEventListener('click',()=>goToShop(button.dataset.v03Filter)));
-one('#shopFavorites')?.addEventListener('click',()=>goToShop('saved'));
 one('#mobileSaved')?.addEventListener('click',()=>one('#wishlistOpen').click());
 one('#mobileBag')?.addEventListener('click',()=>one('#bagOpen').click());
 
