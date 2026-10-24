@@ -4,6 +4,8 @@
  const COPY={
  "GB IMPORTS | Seu estilo. Seu corre. Flagship":["GB IMPORTS | Tu estilo. Tu camino. Flagship","GB IMPORTS | Your style. Your move. Flagship","GB IMPORTS | Il tuo stile. La tua strada. Flagship"],
  "Pular para o catálogo":["Saltar al catálogo","Skip to catalog","Salta al catalogo"],"ESTUDO DE EXPERIÊNCIA + IDENTIDADE V1":["ESTUDIO DE EXPERIENCIA + IDENTIDAD V1","EXPERIENCE + IDENTITY STUDY V1","STUDIO DI ESPERIENZA + IDENTITÀ V1"],"COMPRA AINDA NÃO ATIVA":["COMPRA AÚN NO DISPONIBLE","PURCHASE NOT YET ACTIVE","ACQUISTO NON ANCORA ATTIVO"],"ORIGEM / RUA / MOVIMENTO":["ORIGEN / CALLE / MOVIMIENTO","ORIGIN / STREET / MOVEMENT","ORIGINE / STRADA / MOVIMENTO"],"ENTRE NO UNIVERSO GB ↗":["ENTRA EN EL UNIVERSO GB ↗","ENTER THE GB UNIVERSE ↗","ENTRA NELL'UNIVERSO GB ↗"],
+ "FECHAR ✕":["CERRAR ✕","CLOSE ✕","CHIUDI ✕"],
+ "SELEÇÃO":["SELECCIÓN","SELECTION","SELEZIONE"],
  "CATEGORIAS":["CATEGORÍAS","CATEGORIES","CATEGORIE"],"A GB / ORIGEM":["GB / ORIGEN","GB / ORIGIN","GB / ORIGINE"],"Idioma":["Idioma","Language","Lingua"],
  "Universos visuais da GB":["Universos visuales de GB","GB visual worlds","Universi visivi GB"],
  "TRÊS UNIVERSOS. UMA GB.":["TRES UNIVERSOS. UNA GB.","THREE WORLDS. ONE GB.","TRE UNIVERSI. UNA GB."],
