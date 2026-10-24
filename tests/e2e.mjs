@@ -130,8 +130,15 @@ async function run(w,h,reduced=false){
   const mobile=w<600;
   const ctx=await browser.newContext({viewport:{width:w,height:h},isMobile:mobile,hasTouch:mobile,reducedMotion:reduced?'reduce':'no-preference'});
   const page=await ctx.newPage();
-  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
-  page.on('requestfailed',r=>{if(!r.url().includes('fonts.g'))errors.push('requestfailed '+r.url())});
+  const optionalCDN=s=>/cdn\.jsdelivr\.net\/npm\/(?:gsap@3\.15\.0|three@0\.186\.1)/.test(s||'');
+  const errors=[],optionalFailures=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  page.on('console',m=>{if(m.type()==='error'){
+    const location=m.location()?.url||'',message=m.text();
+    if(optionalCDN(location)||optionalCDN(message))optionalFailures.push(message);
+    else errors.push(message);
+  }});
+  page.on('requestfailed',r=>{const url=r.url();if(optionalCDN(url))optionalFailures.push(url);else if(!url.includes('fonts.g'))errors.push('requestfailed '+url)});
   await page.goto(BASE,{waitUntil:'networkidle'});await page.waitForTimeout(400);
   if(errors.length){console.error('GB BOOT ERRORS',errors.slice(0,15));throw Error('Page JavaScript failed to initialize: '+errors.slice(0,5).join(' | '))}
   // Mede contra a largura pedida: em modo mobile o Chrome alarga o viewport de layout se algo vaza.
@@ -219,6 +226,7 @@ async function run(w,h,reduced=false){
     hasCanvas:!!document.querySelector('.showroom-cinema-webgl canvas')
   }));
   check(vp,'cinema: palco Three.js, coreografia GSAP e status cromatico montados',cinema.api&&cinema.stage&&cinema.webglMount&&!!cinema.status&&/^rgb/.test(cinema.accent),JSON.stringify(cinema));
+  check(vp,'cinema: ambiente inicial continua legivel sem rede 3D',cinema.accent!=='rgba(0, 0, 0, 0)'&&cinema.status==='01 / 04',JSON.stringify(cinema));
   if(reduced)check(vp,'cinema: movimento reduzido sem WebGL',cinema.reduced&&!cinema.hasCanvas,JSON.stringify(cinema));
   await page.locator('#showroom').scrollIntoViewIfNeeded();
   await page.locator('.showroom-selector [data-show-index="2"]').click();
