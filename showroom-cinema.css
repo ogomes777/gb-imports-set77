@@ -210,8 +210,11 @@
 
 /* V8 · CONGELAMENTO — a seção chega no papel da landing (V1) e congela ao chegar no título.
    O fundo é o shader (frente de gelo que nasce no floco); aqui só a tinta vira gelo, por opacity (sem repintura). */
-.showroom-heading h2 .sc-wm{position:absolute;left:0;top:0;color:#111214;opacity:0;pointer-events:none;text-shadow:none;transition:opacity .5s ease calc(.35s + var(--j,0)*55ms)}
-.showroom-heading h2 .sc-ice{transition:opacity .55s ease calc(.35s + var(--j,0)*55ms)}
+.showroom-heading h2 .sc-wm{position:absolute;left:0;top:0;color:#111214;opacity:0;pointer-events:none;text-shadow:none;transition:opacity .45s ease}
+.showroom-heading h2 .sc-ice{transition:opacity .45s ease}
+/* durante o congelamento cada letra segura a tinta até a frente de gelo chegar nela (.is-iced vem do JS) */
+#showroom .showroom-heading.is-thawing h2 .sc-ch:not(.is-iced) .sc-wm{opacity:1;transition:none}
+#showroom .showroom-heading.is-thawing h2 .sc-ch:not(.is-iced) .sc-ice{opacity:0;transition:none}
 #showroom .showroom-heading.is-warm{background-color:#F4F1E8!important;background-image:none!important}
 #showroom .showroom-heading.is-warm h2 .sc-wm{opacity:1;transition:none}
 #showroom .showroom-heading.is-warm h2 .sc-ice{opacity:0;transition:none}
@@ -249,3 +252,5 @@ body:has(#showroom .showroom-heading.is-warm) #colecao::after{opacity:0}
   #showroom .showroom-shell.is-cold-live .showroom-glow::after{animation-duration:5.2s}
 }
 @keyframes scSurge{0%,100%{opacity:.12}5%{opacity:1}13%{opacity:.3}19%{opacity:.85}36%{opacity:.14}}
+/* a regra antiga "h2 span:not(.sc-ch){color:inherit}" é mais específica: a tinta precisa vencer */
+#showroom .showroom-heading h2 .sc-wm{color:#111214}
