@@ -87,3 +87,11 @@
  .showroom-cinema-bg *, .showroom-cinema-bg.cinema-css-fallback ~ h2{animation:none!important}
 }
 .gb-lite .showroom-cinema-webgl{display:none!important}
+
+/* TECH FLEECE EXCLUSIVE / four photographed colorways, no stock substitutions. */
+.showroom-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.showroom-views button:disabled{opacity:.3;cursor:not-allowed;border-color:#ffffff17;background:transparent;color:#b8b8b4}
+.showroom-selector button.active{color:var(--cinema-accent,#ffd635)}
+.showroom-small.active{box-shadow:inset 0 0 0 1px var(--cinema-accent,#ffd635)}
+@media(max-width:1080px){.showroom-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:720px){.showroom-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.showroom-small{min-height:175px}.showroom-small-media .actual-photo{max-height:145px}}
