@@ -198,3 +198,12 @@ body{background:#eeece5}
 .look-stage,.look-controls,.look-options{min-width:0;max-width:100%}
 @media(min-width:781px){.hero-v03 .hero-copy{top:clamp(64px,9vh,108px);transform:none}.hero-v03 .hero-copy h1{font-size:clamp(66px,7vw,108px)}.hero-v03 .hero-copy p{margin-top:20px;margin-bottom:22px}.hero-v03 .hero-cta .btn{min-height:50px}}
 @media(max-width:780px){.look-layout{grid-template-columns:minmax(0,1fr)}}
+
+/* O texto do hero não deve bloquear o gesto sobre o palco em tablet/mobile.
+   Os CTAs e as três fichas continuam interativos; o resto deixa o toque chegar à arara. */
+@media(max-width:780px){
+  .hero-v03 .hero-copy{pointer-events:none}
+  .hero-v03 .hero-copy .hero-cta .btn,
+  .hero-v03 .hero-copy .gb-theme-option{pointer-events:auto}
+  .hero-v03 .hero-copy .gb-theme-switcher{pointer-events:none}
+}

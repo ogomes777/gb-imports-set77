@@ -261,7 +261,7 @@ async function run(w,h,reduced=false){
   check(vp,'tema SINAL aplicado globalmente',(await page.locator('body').getAttribute('data-gb-theme'))==='sinal');
   await page.locator('#gbLanguage').selectOption('en');
   check(vp,'tema: rótulos do seletor traduzidos para inglês',
-    (await page.locator('.gb-theme-switcher-heading').innerText()).includes('THREE WORLDS. ONE GB.')&&
+    (await page.locator('.gb-theme-switcher-heading').innerText()).includes('THREE UNIVERSES. ONE GB.')&&
     (await page.locator('[data-gb-identity="0"] .gb-theme-caption').innerText()).trim()==='ESSENCE');
 
   check(vp,'idioma inglês traduz interface e lang',(await page.locator('html').getAttribute('lang'))==='en'&&(await page.locator('.footer-nav a').first().textContent()).trim()==='Collection');
@@ -293,7 +293,7 @@ async function run(w,h,reduced=false){
   const frontIdx=await page.locator('#heroTrio .trio-obj.is-front').getAttribute('data-trio');
   check(vp,'hero: protagonista = capítulo ativo',Number(frontIdx)===Number(await page.locator('#heroNum').textContent())-1);
   await page.locator('#heroTrio .trio-obj.is-front').click({force:true});await page.waitForTimeout(900);
-  check(vp,'hero: protagonista abre a peça',await page.locator('#railViewer').isVisible()&&(await page.locator('#railViewerName').textContent()).length>3);
+  check(vp,'hero: protagonista abre a peça',await page.locator('#productModal').isVisible()&&(await page.locator('#productModal h2').textContent()).trim().length>3);
   await page.keyboard.press('Escape');await page.waitForTimeout(700);
   if(!mobile){const art=await page.locator('#heroArt').boundingBox();const n1=await page.locator('#heroNum').textContent();
     await page.mouse.move(art.x+art.width*.7,art.y+art.height*.45);await page.mouse.down();for(let i=1;i<=12;i++)await page.mouse.move(art.x+art.width*.7-i*24,art.y+art.height*.45);await page.mouse.up();await page.waitForTimeout(1300);
