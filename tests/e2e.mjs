@@ -281,6 +281,7 @@ async function run(w,h,reduced=false){
   await page.locator('.filter[data-filter="short"]').click();
   check(vp,'filtro camisa+short permanece funcional',(await page.locator('.filter.active').getAttribute('data-filter'))==='short');
   // o filtro começa a carregar as capas; recarregar antes da rede assentar abortaria essas imagens
+  await page.waitForFunction(()=>[...document.querySelectorAll('#productGrid img')].every(i=>i.complete),null,{timeout:8000}).catch(()=>{});
   await page.waitForLoadState('networkidle').catch(()=>{});
   // Deep link + voltar
   await page.goto(BASE+'?peca=gb-sh-02',{waitUntil:'networkidle'});
