@@ -280,6 +280,8 @@ async function run(w,h,reduced=false){
   check(vp,'arara seguida pela curadoria sem a faixa Entre e Encontre',connected);
   await page.locator('.filter[data-filter="short"]').click();
   check(vp,'filtro camisa+short permanece funcional',(await page.locator('.filter.active').getAttribute('data-filter'))==='short');
+  // o filtro começa a carregar as capas; recarregar antes da rede assentar abortaria essas imagens
+  await page.waitForLoadState('networkidle').catch(()=>{});
   // Deep link + voltar
   await page.goto(BASE+'?peca=gb-sh-02',{waitUntil:'networkidle'});
   check(vp,'deep link abre peça',(await page.locator('#productModal h2').textContent()).includes('MANCHESTER CITY'));
