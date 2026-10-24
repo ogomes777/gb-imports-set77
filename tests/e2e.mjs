@@ -278,6 +278,23 @@ async function run(w,h,reduced=false){
   await page.locator('#gbMarquee .gb-mq-chip[data-mq-term="boné"]:not([tabindex="-1"])').first().click({force:true});await page.waitForTimeout(500);
   check(vp,'faixas: clicar na categoria filtra o catálogo',(await page.locator('#catalogSearch').inputValue())==='boné'&&(await page.locator('#productGrid .product-visual').count())>0);
   await page.locator('#catalogSearch').fill('');await page.waitForTimeout(300);
+  // V12 — editorial: carrossel com fantasmas (só fotos reais), avança por seta
+  await page.locator('#editorial').scrollIntoViewIfNeeded();
+  const gbc=await page.evaluate(()=>({items:document.querySelectorAll('#editorial .gbc-item').length,c:document.querySelectorAll('#editorial .gbc-item.is-c').length,l:document.querySelectorAll('#editorial .gbc-item.is-l').length,r:document.querySelectorAll('#editorial .gbc-item.is-r').length,count:document.querySelector('.gbc-count')?.textContent}));
+  check(vp,'editorial: peça em foco com fantasmas dos dois lados',gbc.items>=3&&gbc.c===1&&gbc.l===1&&gbc.r===1,JSON.stringify(gbc));
+  await page.locator('.gbc-ui [data-gbc="1"]').click();await page.waitForTimeout(300);
+  check(vp,'editorial: seta troca a peça',(await page.locator('.gbc-count').textContent())!==gbc.count);
+  // V12 — GB EDIT: grade só com peças de 2+ vistas fotografadas; cortina + página da peça trocando vistas; Esc fecha
+  await page.locator('#gbedit').scrollIntoViewIfNeeded();
+  const gbe=await page.evaluate(()=>({tiles:document.querySelectorAll('#gbeGrid .gbe-tile').length,ok:PUBLIC_PRODUCTS.filter(p=>{const s=GB_ASSETS[p.id]||{};return new Set(['combo','top','bottom'].map(k=>s[k]).filter(Boolean)).size>1}).length}));
+  check(vp,'GB EDIT: grade com peças de várias vistas reais',gbe.tiles>=4&&gbe.tiles<=8&&gbe.tiles<=gbe.ok,JSON.stringify(gbe));
+  await page.locator('#gbeGrid .gbe-tile').first().click();await page.waitForTimeout(reduced?300:1700);
+  const gbv=await page.evaluate(()=>({open:!document.getElementById('gbeView').hidden,slides:document.querySelectorAll('#gbeView .gbe-slide').length,price:document.querySelector('#gbeView .gbe-price')?.textContent||''}));
+  check(vp,'GB EDIT: abre a página da peça com vistas e preço a validar',gbv.open&&gbv.slides>=2&&gbv.price.includes('A VALIDAR'),JSON.stringify(gbv));
+  await page.locator('#gbeView .gbe-chips [data-go="1"]').click();
+  check(vp,'GB EDIT: escolher a vista',(await page.locator('#gbeView .gbe-slide.is-on').getAttribute('data-k'))===(await page.locator('#gbeView .gbe-slide').nth(1).getAttribute('data-k')));
+  await page.keyboard.press('Escape');await page.waitForTimeout(600);
+  check(vp,'GB EDIT: Esc fecha e devolve a rolagem',await page.locator('#gbeView').isHidden()&&!(await page.evaluate(()=>document.body.classList.contains('no-scroll'))));
   // Hero
   await page.evaluate(()=>scrollTo(0,0));const h0=await page.locator('#heroNum').textContent();await page.locator('#heroNext').click();await page.waitForTimeout(450);
   check(vp,'hero avança capítulo',(await page.locator('#heroNum').textContent())!==h0);
