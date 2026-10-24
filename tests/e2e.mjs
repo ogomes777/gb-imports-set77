@@ -260,6 +260,10 @@ async function run(w,h,reduced=false){
   await page.locator('[data-gb-identity="2"]').click();
   check(vp,'tema SINAL aplicado globalmente',(await page.locator('body').getAttribute('data-gb-theme'))==='sinal');
   await page.locator('#gbLanguage').selectOption('en');
+  check(vp,'tema: rótulos do seletor traduzidos para inglês',
+    (await page.locator('.gb-theme-switcher-heading').innerText()).includes('THREE WORLDS. ONE GB.')&&
+    (await page.locator('[data-gb-identity="0"] .gb-theme-caption').innerText()).trim()==='ESSENCE');
+
   check(vp,'idioma inglês traduz interface e lang',(await page.locator('html').getAttribute('lang'))==='en'&&(await page.locator('.footer-nav a').first().textContent()).trim()==='Collection');
   await page.locator('#gbLanguage').selectOption('es');
   check(vp,'idioma espanhol traduz interface',(await page.locator('.footer-nav a').first().textContent()).trim()==='Colección');
