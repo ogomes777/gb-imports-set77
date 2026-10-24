@@ -8,9 +8,9 @@
 .gb-theme-option{position:relative;display:flex;min-width:0;min-height:68px;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:5px;padding:9px 11px;border:0;border-right:1px solid color-mix(in srgb,currentColor 22%,transparent);background:transparent;color:inherit;text-align:left;cursor:pointer;overflow:hidden;transition:background-color .35s ease,color .35s ease,transform .35s cubic-bezier(.22,1,.36,1)}
 .gb-theme-option:last-child{border-right:0}
 .gb-theme-option:before{content:"";position:absolute;inset:0;z-index:-1;background-position:center;background-size:cover;opacity:.11;transition:opacity .35s ease,transform .65s cubic-bezier(.22,1,.36,1)}
-.gb-theme-option[data-gb-identity="0"]:before{background-image:url("./assets/brand/gb-origem.png")}
-.gb-theme-option[data-gb-identity="1"]:before{background-image:url("./assets/brand/gb-trama.png")}
-.gb-theme-option[data-gb-identity="2"]:before{background-image:url("./assets/brand/gb-sinal.png")}
+.gb-theme-option[data-gb-identity="0"]:before{background-image:url("/assets/brand/gb-origem.png")}
+.gb-theme-option[data-gb-identity="1"]:before{background-image:url("/assets/brand/gb-trama.png")}
+.gb-theme-option[data-gb-identity="2"]:before{background-image:url("/assets/brand/gb-sinal.png")}
 .gb-theme-index{font:700 8px/1 Arial,sans-serif;letter-spacing:1px;opacity:.62}
 .gb-theme-name{font:900 11px/1 Arial,sans-serif;letter-spacing:.65px}
 .gb-theme-caption{font:700 7px/1.2 Arial,sans-serif;letter-spacing:.75px;opacity:.68}
@@ -22,13 +22,13 @@ body[data-gb-theme],html[data-gb-theme]{transition:background-color .45s ease,co
 body[data-gb-theme="origem"]{--yellow:#ffd447;--paper:#f4f1e8;--ink:#111214;--gray:#666864;--line:#d9d7d0}
 body[data-gb-theme="trama"]{--yellow:#d6cbb5;--paper:#e9e5db;--ink:#25231f;--gray:#777267;--line:#c9c2b4}
 body[data-gb-theme="sinal"]{--yellow:#ffd447;--paper:#111214;--ink:#f4f1e8;--gray:#b7b3a8;--line:#353535;background:#111214;color:#f4f1e8}
-body[data-gb-theme="trama"] .hero-stage{background-color:#e7e2d7;background-image:radial-gradient(ellipse at 75% 40%,#ffffffb8,transparent 52%),url("./assets/brand/gb-trama.png");background-size:cover,58% auto;background-position:center,right center;background-repeat:no-repeat;background-blend-mode:normal,multiply;color:#171715}
+body[data-gb-theme="trama"] .hero-stage{background-color:#e7e2d7;background-image:radial-gradient(ellipse at 75% 40%,#ffffffb8,transparent 52%),url("/assets/brand/gb-trama.png");background-size:cover,58% auto;background-position:center,right center;background-repeat:no-repeat;background-blend-mode:normal,multiply;color:#171715}
 body[data-gb-theme="trama"] .hero-giant-mark{opacity:.12}
 body[data-gb-theme="trama"] .hero-giant-mark img{filter:brightness(.2)}
 body[data-gb-theme="trama"] .hero-art-circle{border-color:#25231f36}
 body[data-gb-theme="trama"] .btn-yellow{background:#d6cbb5;color:#171715}
 body[data-gb-theme="sinal"] .site-header,body[data-gb-theme="sinal"] .utility-bar,body[data-gb-theme="sinal"] .footer{background:#111214;color:#f4f1e8;border-color:#353535}
-body[data-gb-theme="sinal"] .hero-stage{background-color:#101011;background-image:radial-gradient(ellipse at 65% 40%,#ffd44725,transparent 48%),url("./assets/brand/gb-sinal.png");background-size:cover,58% auto;background-position:center,right center;background-repeat:no-repeat;background-blend-mode:normal,screen;color:#f4f1e8}
+body[data-gb-theme="sinal"] .hero-stage{background-color:#101011;background-image:radial-gradient(ellipse at 65% 40%,#ffd44725,transparent 48%),url("/assets/brand/gb-sinal.png");background-size:cover,58% auto;background-position:center,right center;background-repeat:no-repeat;background-blend-mode:normal,screen;color:#f4f1e8}
 body[data-gb-theme="sinal"] .hero-giant-mark{opacity:.18}
 body[data-gb-theme="sinal"] .hero-art-circle{border-color:#ffd4474a}
 body[data-gb-theme="sinal"] .hero-art-light{opacity:.3}
