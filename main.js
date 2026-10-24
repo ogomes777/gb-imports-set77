@@ -33,7 +33,8 @@ EXTRA_PRODUCTS.forEach(p=>{if(window.GB_ASSETS?.[p.id]?.combo)PRODUCTS.push(p)})
 (window.GB_IMPORTED_PRODUCTS||[]).forEach(p=>{if(!PRODUCTS.some(x=>x.id===p.id))PRODUCTS.push(p)})
 // Bermudas avulsas com preview minúsculo: fora da vitrine. Arquivos preservados.
 // Conjuntos que referenciam estas mídias continuam com os seus componentes intactos.
-// Ocultar apenas as 12 bermudas com enquadramento minúsculo (s-120 a s-131). As s-079 a s-088 têm tamanho normal e ficam no catálogo.\nconst HIDDEN_SMALL_BERMUDA_IDS=new Set(["gb-crt-s-120","gb-crt-s-121","gb-crt-s-122","gb-crt-s-123","gb-crt-s-124","gb-crt-s-125","gb-crt-s-126","gb-crt-s-127","gb-crt-s-128","gb-crt-s-129","gb-crt-s-130","gb-crt-s-131"])
+// Ocultar apenas as 12 bermudas com enquadramento minúsculo (s-120 a s-131). As s-079 a s-088 têm tamanho normal e ficam no catálogo.
+const HIDDEN_SMALL_BERMUDA_IDS=new Set(["gb-crt-s-120","gb-crt-s-121","gb-crt-s-122","gb-crt-s-123","gb-crt-s-124","gb-crt-s-125","gb-crt-s-126","gb-crt-s-127","gb-crt-s-128","gb-crt-s-129","gb-crt-s-130","gb-crt-s-131"])
 const heroSlides = [
   {eyebrow:'THE GB EDIT / CAPÍTULO 001',title:'O ESTILO<br>É <span class="emphasis">SEU.</span><br><span class="hero-title-outline">O MUNDO</span><br> TAMBÉM<span class="yellow-dot">.</span>',sub:'Peças, combinações e liberdade para construir o visual sem seguir o roteiro de ninguém.',product:(PRODUCTS.find(p=>p.id==='gb-crt-001')||PRODUCTS[1])},
   {eyebrow:'GB / A CURADORIA · 002',title:'LOOK<br>NÃO É<br><span class="emphasis">UNIFORME.</span><br>É ATITUDE<span class="yellow-dot">.</span>',sub:'Da rua para o seu dia. Escolha o que veste, não o que te define.',product:(PRODUCTS.find(p=>p.id==='gb-crt-003')||PRODUCTS[7])},
