@@ -14,6 +14,12 @@ Camada `gb-edit-v12.css` / `gb-edit-v12.js`. A gramática de movimento vem de um
    - **Ficha:** nome, "PREÇO E TAMANHOS: A VALIDAR", escolha de vista, "ABRIR DETALHES DA PEÇA" e anterior/próxima (também em mosaico).
    - **Fechar:** Esc ou ✕ fecha pelo mesmo mosaico e devolve o foco. O foco fica preso na página enquanto ela está aberta.
 
+## A landing inteira
+
+- **Abertura.** Muro de tinta em blocos com o monograma GB (SVG) e "GB IMPORTS"; os blocos abrem o hero em ~1,5 s. Toque, roda ou tecla pulam.
+- **Capítulos.** A arara, a curadoria, o editorial, as categorias, o Look Studio e o SEU PRÓXIMO CAPÍTULO chegam cobertos por um muro de cor, amarelo V1 e tinta alternando, com uma palavra grande: EM MOVIMENTO, CURADORIA, SER., SEU JEITO, SEU LOOK e PRÓXIMO. A palavra sobe e os blocos recolhem em cascata, revelando a seção.
+- **Limites.** Acontece uma vez por carregamento e não bloqueia clique. Seção que já está na tela ao carregar não é coberta. O ABAIXO DE ZERO fica fora, porque tem o congelamento próprio.
+
 ## Regras
 
 - **Peças do carrossel.** Entram só as que têm 2 ou mais vistas fotografadas distintas em `GB_ASSETS`.

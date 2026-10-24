@@ -308,6 +308,8 @@ async function run(w,h,reduced=false){
   check(vp,'deep link abre peça',(await page.locator('#productModal h2').textContent()).includes('MANCHESTER CITY'));
   // ===== V07 =====
   await page.goto(BASE,{waitUntil:'networkidle'});await page.waitForTimeout(500);
+  // a entrada do hero (V06) e a abertura em blocos (V12) terminam antes de interagir com o anel
+  await page.waitForFunction(()=>!document.body.classList.contains('gb-intro')&&!document.querySelector('.gb-intro'),null,{timeout:6000}).catch(()=>{});
   // Hero: trio persistente, periférica vira protagonista, protagonista abre a peça
   check(vp,'hero: trio com 3 peças',await page.locator('#heroTrio .trio-obj').count()===3);
   const num0=await page.locator('#heroNum').textContent();

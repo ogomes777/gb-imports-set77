@@ -22,7 +22,7 @@ if(stage&&art){
   let mob=innerWidth<781;
   function poseAt(u){
     const th=u/N*Math.PI*2,sn=Math.sin(th),d=(Math.cos(th)+1)/2;   // d: 1 frente, 0 fundo
-    return{x:sn*(mob?.4:.36),y:(1-d)*(mob?-.09:-.07),s:.5+.5*d,r:-sn*6,yaw:-sn*24,o:.7+.3*d,l:.35+.65*d,z:Math.round(10+20*d)};
+    return{x:sn*(mob?.34:.36),y:(1-d)*(mob?-.09:-.07),s:.5+.5*d,r:-sn*6,yaw:-sn*24,o:.7+.3*d,l:.35+.65*d,z:Math.round(10+20*d)};
   }
   const trio=document.createElement('div');trio.className='hero-trio';trio.id='heroTrio';
   trio.setAttribute('role','group');trio.setAttribute('aria-label','Peças em cena — use as setas para trocar');

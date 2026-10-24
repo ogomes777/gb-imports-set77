@@ -95,3 +95,31 @@ body[data-gb-theme="sinal"] .gbp{--p-bg:#0e0f10;--p-ink:#f4f1e8;--p-muted:#a9a69
 }
 @media(prefers-reduced-motion:reduce){.gbp-col>*{opacity:1!important;transform:none!important;transition:none!important}.gbp-slide{transition:none}.gbp-mosaic{display:none}}
 @keyframes gbeTick{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* ================= C. a landing inteira na gramática da referência =================
+   abertura: muro de tinta com o monograma e "GB IMPORTS"; os blocos abrem para o hero.
+   capítulos: cada seção chega coberta por um muro de cor (amarelo V1 / tinta alternando) com uma palavra grande;
+   a palavra sobe, segura, e os blocos recolhem em cascata revelando o conteúdo. Nada bloqueia clique. */
+.gb-intro{position:fixed;inset:0;z-index:120;pointer-events:none;display:grid;place-items:center}
+.gb-intro-grid,.gb-chap-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(4,1fr)}
+.gb-intro-grid i,.gb-chap-grid i{background:var(--chap-bg,#111214);transform-origin:var(--o,50% 50%);transition:transform .58s cubic-bezier(.76,0,.24,1);transition-delay:var(--d,0ms);margin:-.5px}
+.gb-intro-mark{position:relative;z-index:2;display:grid;justify-items:center;gap:22px;transition:opacity .4s ease,transform .6s cubic-bezier(.76,0,.24,1)}
+.gb-intro-mark img{width:clamp(110px,14vw,190px);height:auto;opacity:0;transform:scale(.7) rotate(-12deg);transition:opacity .5s ease,transform .9s cubic-bezier(.22,1,.36,1);filter:drop-shadow(0 0 30px rgba(255,212,71,.35))}
+.gb-intro-word{display:flex;gap:.02em;overflow:hidden;font:900 clamp(18px,2vw,26px)/1 var(--display);letter-spacing:.32em;color:#f4f1e8}
+.gb-intro-word span{display:inline-block;transform:translateY(110%);transition:transform .7s cubic-bezier(.22,1,.36,1);transition-delay:calc(var(--i)*35ms + .25s)}
+.gb-intro.is-on .gb-intro-mark img{opacity:1;transform:none}
+.gb-intro.is-on .gb-intro-word span{transform:none}
+.gb-intro.is-out .gb-intro-mark{opacity:0;transform:scale(.92)}
+.gb-intro.is-out .gb-intro-grid i{transform:scale(0)}
+.gb-chap-host{position:relative}
+.gb-chap{position:absolute;inset:0;z-index:40;pointer-events:none;overflow:hidden;--chap-bg:#ffd447;--chap-ink:#111214}
+.gb-chap.is-ink{--chap-bg:#111214;--chap-ink:#f4f1e8}
+.gb-chap-word{position:absolute;left:0;right:0;top:clamp(120px,38vh,420px);z-index:2;display:flex;justify-content:center;overflow:hidden;padding:0 4vw;
+  font:900 clamp(56px,13vw,220px)/.84 var(--display);letter-spacing:-.06em;color:var(--chap-ink);text-align:center;white-space:nowrap}
+.gb-chap-word span{display:inline-block;transform:translateY(105%);transition:transform .7s cubic-bezier(.22,1,.36,1),opacity .35s ease}
+.gb-chap-word em{font:italic 400 .86em Georgia,serif;letter-spacing:-.05em}
+.gb-chap.is-on .gb-chap-word span{transform:none}
+.gb-chap.is-out .gb-chap-word span{transform:translateY(-30%);opacity:0}
+.gb-chap.is-out .gb-chap-grid i{transform:scale(0)}
+@media(max-width:780px){.gb-chap-word{top:clamp(110px,30vh,300px);font-size:clamp(46px,15vw,90px)}}
+@media(prefers-reduced-motion:reduce){.gb-intro,.gb-chap{display:none!important}}

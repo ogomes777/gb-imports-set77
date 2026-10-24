@@ -346,3 +346,5 @@ body[data-gb-theme="sinal"] .how-section.gb-how{--how-bg:#0e0f10;--how-ink:#f4f1
 .how-section.gb-how .how-num{-webkit-text-stroke:1px color-mix(in srgb,var(--how-ink) 13%,transparent)}
 .how-section.gb-how .how-num{color:color-mix(in srgb,var(--how-ink) 9%,transparent);-webkit-text-stroke:0}
 @media(max-width:780px){.editorial-break .slot-campaign{margin-bottom:290px}}
+/* anel no celular: peça um pouco mais estreita para a da frente não cobrir o centro das laterais (toque certo) */
+@media(max-width:780px){.trio-obj{left:24%!important;width:52%!important}}

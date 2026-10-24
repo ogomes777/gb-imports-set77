@@ -12,6 +12,11 @@ A gravação de referência fica FORA do repositório (regra do CLAUDE.md). O qu
 3. **Troca**: a peça da direita desliza para o centro deixando um **rastro** (2 cópias atrás, opacidade decrescente, deslocadas no sentido do movimento) que some em ~450 ms; a do centro vai para a esquerda e esmaece. Curva `cubic-bezier(.76,0,.24,1)`, 800–900 ms. Avança sozinha (~3,2 s) e por arrasto/setas.
 4. **Página da peça**: tocar a peça em foco faz o mosaico cobrir a tela (blocos crescem em cascata), a página entra por trás e os blocos recolhem. Três colunas: texto grande à esquerda, peça no centro (vistas trocando sozinhas por crossfade), ficha à direita.
 
+5. **A landing inteira na mesma gramática**:
+   - **Abertura:** muro de tinta em blocos com o monograma GB (SVG) e "GB IMPORTS" subindo letra a letra; os blocos abrem o hero (~1,5 s; toque, roda ou tecla pulam).
+   - **Capítulos:** cada seção (arara, curadoria, editorial, categorias, Look Studio, SEU PRÓXIMO CAPÍTULO) chega coberta por um muro de cor (amarelo V1 / tinta alternando) com uma palavra grande. A palavra sobe, segura ~0,7 s e os blocos recolhem em cascata. Uma vez por carregamento, sem bloquear clique; seção já na tela ao carregar não é coberta.
+   - **ABAIXO DE ZERO:** fica fora (tem o congelamento próprio).
+
 ## Tradução GB (obrigatória)
 - Acentos amarelo V1 `#FFD447`, mosaico em tinta `#111214`. Monograma só em SVG.
 - **Só fotos reais**: a troca automática percorre apenas vistas fotografadas (`GB_ASSETS[id].combo/top/bottom` distintas). Peça com uma vista só não entra no carrossel. Nunca compor roupa em modelo, nunca espelhar, nunca pintar cor.
@@ -20,5 +25,5 @@ A gravação de referência fica FORA do repositório (regra do CLAUDE.md). O qu
 - Acessibilidade: página da peça é `role=dialog`, foco preso, Esc fecha e devolve o foco ao card.
 
 ## Onde está
-- `gb-edit-v12.js` / `gb-edit-v12.css` (carrossel do editorial + página da peça).
+- `gb-edit-v12.js` / `gb-edit-v12.css` (carrossel do editorial, página da peça, abertura e capítulos da landing).
 - Testes em `tests/e2e.mjs` (blocos "editorial:" e "peça:").
