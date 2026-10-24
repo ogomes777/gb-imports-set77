@@ -57,6 +57,15 @@
 @keyframes gbSpectralBreathe{from{transform:translate3d(-3%,-1%,0) rotate(-12deg) scale(.95)}to{transform:translate3d(6%,3%,0) rotate(-19deg) scale(1.12)}}
 @keyframes gbSpectralSweep{from{transform:rotate(-24deg) translateX(-7%)}to{transform:rotate(-22deg) translateX(8%)}}
 .showroom-cinema-bg.cinema-css-fallback .showroom-cinema-aurora{animation:gbSpectralFallback 24s ease-in-out infinite alternate}
+/* If external JS libraries are unavailable, the title still changes color automatically. */
+.showroom-cinema-bg.cinema-css-fallback ~ h2{animation:gbSpectralTitleFallback 25s ease-in-out infinite}
+.showroom-cinema-bg.cinema-css-fallback ~ h2 span{color:inherit}
+@keyframes gbSpectralTitleFallback{
+  0%,100%{color:#ffd635}
+  24%{color:#6abfff}
+  50%{color:#ff6c72}
+  76%{color:#b9f16f}
+}
 @keyframes gbSpectralFallback{0%,100%{filter:hue-rotate(0deg)}34%{filter:hue-rotate(90deg)}66%{filter:hue-rotate(210deg)}}
 @media(max-width:720px){
   .showroom-heading{min-height:490px;padding-bottom:58px}
@@ -75,6 +84,6 @@
 @media(prefers-reduced-motion:reduce){
  .showroom-heading,.showroom-heading h2,.showroom-heading h2 span{transition:none!important}
  .showroom-cinema-webgl{display:none!important}
- .showroom-cinema-bg *{animation:none!important}
+ .showroom-cinema-bg *, .showroom-cinema-bg.cinema-css-fallback ~ h2{animation:none!important}
 }
 .gb-lite .showroom-cinema-webgl{display:none!important}
