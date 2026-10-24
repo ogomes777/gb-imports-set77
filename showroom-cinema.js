@@ -137,8 +137,8 @@ function makeWebGL(THREE){
   let renderer;
   const touch=coarse.matches;
   try{renderer=new THREE.WebGLRenderer({canvas,antialias:!touch,alpha:false,powerPreference:'high-performance'})}catch(err){canvas.remove();return null}
-  // leve de propósito: 1x no desktop, 0,8x no toque (a paisagem é suave, o floco tem AA no desktop)
-  renderer.setPixelRatio(touch?Math.min(.8,window.devicePixelRatio||1):1);
+  // 1x no desktop, até 1,25x no toque para o cristal ficar nítido em tela retina (a paisagem vai em meia resolução)
+  renderer.setPixelRatio(touch?Math.min(1.25,window.devicePixelRatio||1):1);
   const world=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(36,1,.1,60);camera.position.set(0,0,11);
   const U={uTime:{value:0},uColor:{value:new THREE.Color(.29,.66,1)},uEnergy:{value:.42},uPulse:{value:0},uPointer:{value:new THREE.Vector2(0,0)},uRes:{value:new THREE.Vector2(1,1)},uScroll:{value:0},uWarp:{value:0},uHover:{value:0}};
@@ -304,7 +304,7 @@ function makeWebGL(THREE){
   const up=e=>{if(!drag||(e&&e.pointerId!==drag.id))return;if(performance.now()-drag.t>90){vy=0;vx=0}vy=cap(vy,-14,14);drag=null;heading.classList.remove('is-grabbing')};
   heading.addEventListener('pointermove',move,{passive:true});heading.addEventListener('pointerleave',resetPointer,{passive:true});heading.addEventListener('pointerdown',down,{passive:true});
   heading.addEventListener('pointerup',up,{passive:true});heading.addEventListener('pointercancel',up,{passive:true});
-  const size=()=>{const rect=mount.getBoundingClientRect(),w=Math.max(1,Math.floor(rect.width)),h=Math.max(1,Math.floor(rect.height));renderer.setSize(w,h,false);const pr=renderer.getPixelRatio();rt.setSize(Math.max(2,Math.ceil(w*pr*.5)),Math.max(2,Math.ceil(h*pr*.5)));camera.aspect=w/h;camera.updateProjectionMatrix();U.uRes.value.set(w,h);layout(w)};
+  const size=()=>{const rect=mount.getBoundingClientRect(),w=Math.max(1,Math.floor(rect.width)),h=Math.max(1,Math.floor(rect.height));renderer.setSize(w,h,false);const pr=renderer.getPixelRatio();const bs=.5;rt.setSize(Math.max(2,Math.ceil(w*pr*bs)),Math.max(2,Math.ceil(h*pr*bs)));camera.aspect=w/h;camera.updateProjectionMatrix();U.uRes.value.set(w,h);layout(w)};
   size();
   const resize=()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(size,130)};window.addEventListener('resize',resize,{passive:true});
   const contextLost=e=>{e.preventDefault();frameStop=true;stage.classList.add('cinema-css-fallback')};canvas.addEventListener('webglcontextlost',contextLost,false);
