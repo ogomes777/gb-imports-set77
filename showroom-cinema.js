@@ -25,7 +25,7 @@ const state={r:74,g:168,b:255,br:4,bg:10,bb:24,energy:.42,pulse:0};
 const WAVE=9; // segundos entre uma onda de frio e a próxima (o shader usa o mesmo período)
 let active=false,initialized=false,destroyed=false,gsap=null,cycle=null,scene3d=null,visible=false,arrived=false;
 let loading3d=false,webglFailed=false,tilt=null,warm=false,freezeTw=null;
-const endThaw=()=>{freezeTw?.kill();freezeTw=null;heading.classList.remove('is-thawing');chars.forEach(c=>c.classList.remove('is-iced'))};
+const endThaw=()=>{freezeTw?.kill();freezeTw=null;heading.classList.remove('is-thawing');title?.querySelectorAll('.is-iced').forEach(c=>c.classList.remove('is-iced'))};
 // estado "landing": a seção chega no papel V1 e só congela ao chegar no título
 const setWarm=v=>{warm=!!v;heading.classList.toggle('is-warm',warm)};
 const canWarm=()=>!reduce.matches&&!lite()&&!webglFailed&&!destroyed;
@@ -116,13 +116,14 @@ function bindTilt(){
 // exatamente quando o raio da frente alcança a posição dela (sincronizado mesmo se a GPU perder quadros)
 function freezeSequence(){
   const r=heading.getBoundingClientRect(),asp=r.width/Math.max(1,r.height),o=scene3d?.origin()||{x:.78,y:.5};
-  const th=chars.map(c=>{const b=c.getBoundingClientRect(),x=(b.left+b.width/2-r.left)/r.width,y=1-(b.top+b.height/2-r.top)/r.height;return Math.hypot((x-o.x)*asp,y-o.y)/2.1});
+  const list=chars.slice();   // o idioma pode refazer as letras no meio: a sequência usa a sua própria lista
+  const th=list.map(c=>{const b=c.getBoundingClientRect(),x=(b.left+b.width/2-r.left)/r.width,y=1-(b.top+b.height/2-r.top)/r.height;return Math.hypot((x-o.x)*asp,y-o.y)/2.1});
   heading.classList.add('is-thawing');setWarm(false);
-  const ice=i=>{const c=chars[i];if(c.classList.contains('is-iced'))return;c.classList.add('is-iced');
+  const ice=i=>{const c=list[i];if(!c||!c.isConnected||c.classList.contains('is-iced'))return;c.classList.add('is-iced');
     gsap.fromTo(c,{yPercent:-6,skewX:-6},{yPercent:0,skewX:0,duration:.75,ease:'elastic.out(1,.4)',overwrite:'auto'})};
   const fz={v:0};freezeTw?.kill();
-  freezeTw=gsap.to(fz,{v:1,duration:1.9,ease:'sine.inOut',onUpdate:()=>{scene3d?.setFreeze(fz.v);th.forEach((t,i)=>{if(fz.v>=t)ice(i)})},
-    onComplete:()=>{scene3d?.setFreeze(1);chars.forEach((c,i)=>ice(i));gsap.delayedCall(.6,()=>{heading.classList.remove('is-thawing');chars.forEach(c=>c.classList.remove('is-iced'))})}});
+  const tw=freezeTw=gsap.to(fz,{v:1,duration:1.9,ease:'sine.inOut',onUpdate:()=>{scene3d?.setFreeze(fz.v);th.forEach((t,i)=>{if(fz.v>=t)ice(i)})},
+    onComplete:()=>{scene3d?.setFreeze(1);list.forEach((c,i)=>ice(i));gsap.delayedCall(.6,()=>{if(freezeTw===tw)endThaw()})}});
 }
 // chegada: letras sobem em 3D, a cena explode em luz e a primeira onda de brilho passa
 function arrive(){
