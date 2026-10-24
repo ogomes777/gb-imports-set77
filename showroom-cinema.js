@@ -26,12 +26,12 @@ let loading3d=false,webglFailed=false,tilt=null;
 const title=heading.querySelector('h2');
 const cap=(n,min,max)=>Math.max(min,Math.min(max,n));
 const rgb=(r,g,b)=>'rgb('+[r,g,b].map(x=>Math.round(cap(x,0,255))).join(',')+')';
+// variáveis CSS só são escritas quando mudam (as tweens chamam isto a cada quadro; evita recálculo de estilo à toa)
+const vars={};const setVar=(k,v)=>{if(vars[k]!==v){vars[k]=v;heading.style.setProperty(k,v)}};
 const apply=()=>{
   const c=[state.r,state.g,state.b].map(x=>Math.round(cap(x,0,255)));
-  heading.style.setProperty('--cinema-accent',rgb(...c));
-  heading.style.setProperty('--cinema-rgb',c.join(','));
-  heading.style.setProperty('--cinema-bg',rgb(state.br,state.bg,state.bb));
-  heading.style.setProperty('--cinema-energy',String(state.energy));
+  setVar('--cinema-accent',rgb(...c));setVar('--cinema-rgb',c.join(','));setVar('--cinema-bg',rgb(state.br,state.bg,state.bb));
+  if(!scene3d)setVar('--cinema-energy',state.energy.toFixed(2));   // só o fallback CSS usa a energia
   scene3d?.tint(state);
 };
 apply();heading.dataset.spectrum=ICE.name;
@@ -53,6 +53,18 @@ function splitTitle(){
   walk(title);chars=[...title.querySelectorAll('.sc-ch')];glows=[...title.querySelectorAll('.sc-gl')];
   heading.style.setProperty('--sc-count',chars.length);
 }
+// o seletor de idioma reescreve o h2: refaz as letras (e esconde de novo se a chegada ainda não aconteceu)
+const titleMO=('MutationObserver'in window)&&title?new MutationObserver(()=>{if(title.querySelector('.sc-ch'))return;delete title.dataset.split;splitTitle();
+  if(gsap&&!arrived&&!reduce.matches&&chars.length)gsap.set(chars,{yPercent:118,rotationX:-88,opacity:0})}):null;
+titleMO?.observe(title,{childList:true});
+
+/* ---------- câmara fria do Tech Fleece: anel neon de gelo + duas camadas de neve atrás da peça (só CSS transform/opacity) ---------- */
+const shell=section.querySelector('.showroom-shell'),feature=section.querySelector('.showroom-feature');
+if(feature&&!feature.querySelector('.sc-snow'))['far','near'].forEach(k=>{const d=document.createElement('span');d.className='sc-snow sc-snow-'+k;d.setAttribute('aria-hidden','true');feature.append(d)});
+// a neve e o neon só animam com o palco na tela
+const coldIO=('IntersectionObserver'in window)&&shell?new IntersectionObserver(es=>es.forEach(e=>shell.classList.toggle('is-cold-live',e.isIntersecting)),{rootMargin:'120px 0px'}):null;
+coldIO?.observe(shell);
+
 // onda de brilho: corre pelas letras da esquerda para a direita, junto com a frente fria do fundo
 function glowWave(strength=1,each=.045){
   if(!gsap||!glows.length||reduce.matches)return;
@@ -155,7 +167,7 @@ function makeWebGL(THREE){
     float h1(float x){return fract(sin(x*127.1)*43758.5453);}float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
     float n1(float x){float i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(h1(i),h1(i+1.),f);}
     float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
-    float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<${touch?4:5};i++){v+=a*n2(p);p=p*2.07+vec2(1.7,9.2);a*=.5;}return v;}
+    float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<${touch?3:4};i++){v+=a*n2(p);p=p*2.07+vec2(1.7,9.2);a*=.5;}return v;}
     float ridge(float x){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*(1.-abs(n1(x)*2.-1.));x*=2.1;a*=.5;}return v;}
     void main(){vec2 uv=vUv;float asp=uRes.x/uRes.y;float t=uTime;
       float H=.36+uScroll*.04-uPointer.y*.015;          // horizonte (paralaxe leve com rolagem/ponteiro)
@@ -288,7 +300,7 @@ function makeWebGL(THREE){
   snow(touch?14:30,16,[5,8.5],5,10,.38,7319);
 
   const layout=w=>{const m=w<720;flake.userData.x=m?.6:3.2;flake.userData.y=m?1.7:.05;flake.userData.base=m?.36:.86};
-  let px=0,py=0,sx=0,sy=0,frameStop=false,last=0,progress=0,resizeTimer=0,birth=1,hover=0,hoverT=0;
+  let tick=0,bgDirty=true,px=0,py=0,sx=0,sy=0,frameStop=false,last=0,progress=0,resizeTimer=0,birth=1,hover=0,hoverT=0;
   const IDLE=.62;let ry=0,vy=IDLE,rx=0,vx=0,drag=null,headW=1000;   // giro 360 contínuo (rad/s) + arrasto com inércia
   const pointer=e=>{if(e.pointerType!=='mouse')return;px=cap(e.clientX/Math.max(1,headW)-.5,-.5,.5);py=cap((e.clientY+scrollY-headTop)/Math.max(1,headH)-.5,-.5,.5);hoverT=1};   // sem leitura de layout
   const resetPointer=()=>{px=0;py=0;hoverT=0};
@@ -304,7 +316,7 @@ function makeWebGL(THREE){
   const up=e=>{if(!drag||(e&&e.pointerId!==drag.id))return;if(performance.now()-drag.t>90){vy=0;vx=0}vy=cap(vy,-14,14);drag=null;heading.classList.remove('is-grabbing')};
   heading.addEventListener('pointermove',move,{passive:true});heading.addEventListener('pointerleave',resetPointer,{passive:true});heading.addEventListener('pointerdown',down,{passive:true});
   heading.addEventListener('pointerup',up,{passive:true});heading.addEventListener('pointercancel',up,{passive:true});
-  const size=()=>{const rect=mount.getBoundingClientRect(),w=Math.max(1,Math.floor(rect.width)),h=Math.max(1,Math.floor(rect.height));renderer.setSize(w,h,false);const pr=renderer.getPixelRatio();const bs=.5;rt.setSize(Math.max(2,Math.ceil(w*pr*bs)),Math.max(2,Math.ceil(h*pr*bs)));camera.aspect=w/h;camera.updateProjectionMatrix();U.uRes.value.set(w,h);layout(w)};
+  const size=()=>{const rect=mount.getBoundingClientRect(),w=Math.max(1,Math.floor(rect.width)),h=Math.max(1,Math.floor(rect.height));renderer.setSize(w,h,false);bgDirty=true;const pr=renderer.getPixelRatio();const bs=.5;rt.setSize(Math.max(2,Math.ceil(w*pr*bs)),Math.max(2,Math.ceil(h*pr*bs)));camera.aspect=w/h;camera.updateProjectionMatrix();U.uRes.value.set(w,h);layout(w)};
   size();
   const resize=()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(size,130)};window.addEventListener('resize',resize,{passive:true});
   const contextLost=e=>{e.preventDefault();frameStop=true;stage.classList.add('cinema-css-fallback')};canvas.addEventListener('webglcontextlost',contextLost,false);
@@ -312,8 +324,8 @@ function makeWebGL(THREE){
   window.addEventListener('resize',measure,{passive:true});
   const frame=(dt,t)=>{
     if(frameStop||!canRun())return false;
-    if(t-last<minGap)return true;   // ~60 fps; aparelho fraco cai para ~30 antes de baixar resolução
-    const gap=t-last;last=t;const step=Math.min(.05,dt);progress+=step;
+    if(t-last<minGap-3)return true;   // ~60 fps; aparelho fraco cai para ~30 antes de baixar resolução
+    const gap=t-last;last=t;const step=Math.min(.05,gap/1000||dt);progress+=step;   // tempo real entre quadros desenhados: mesma velocidade em 60/90/120 Hz
     // aparelho fraco: se os quadros seguem lentos, baixa a resolução (até .6) em vez de travar
     if(gap<250){slow=gap>minGap+22?slow+1:Math.max(0,slow-1);if(slow>30){slow=0;if(minGap<31)minGap=31;else if(ratio>.6){ratio=Math.max(.6,ratio*.75);renderer.setPixelRatio(ratio);size()}}}
     U.uTime.value=progress;
@@ -328,7 +340,7 @@ function makeWebGL(THREE){
     flakeMesh.rotation.set(rx+Math.sin(progress*.5)*.2-sy*.35,ry+sx*.35,Math.sin(progress*.31)*.07);
     flake.scale.setScalar((flake.userData.base||1)*birth*(1+Math.sin(progress*2)*.015));
     flake.position.set(flake.userData.x||0,(flake.userData.y||0)+Math.sin(progress*.8)*.14,0);
-    renderer.setRenderTarget(rt);renderer.render(bgScene,bgCam);renderer.setRenderTarget(null);
+    if(!touch||(++tick&1)||bgDirty){bgDirty=false;renderer.setRenderTarget(rt);renderer.render(bgScene,bgCam);renderer.setRenderTarget(null)}   // no toque o céu (lento) vai a 30 fps; floco e neve a 60
     renderer.render(world,camera);return true;
   };
   let running=false,generation=0;
@@ -379,7 +391,7 @@ const mediaChange=()=>{if(reduce.matches)setStatic();else if(visible){if(!gsap){
 reduce.addEventListener?.('change',mediaChange);
 const visibilityChange=()=>{if(document.hidden)deactivate();else if(visible)activate()};
 document.addEventListener('visibilitychange',visibilityChange);
-const cleanup=()=>{if(destroyed)return;destroyed=true;deactivate();io?.disconnect();arrivalIO?.disconnect();reduce.removeEventListener?.('change',mediaChange);document.removeEventListener('visibilitychange',visibilityChange);cycle?.kill();tilt?.off();scene3d?.destroy()};
+const cleanup=()=>{if(destroyed)return;destroyed=true;deactivate();io?.disconnect();arrivalIO?.disconnect();titleMO?.disconnect();coldIO?.disconnect();reduce.removeEventListener?.('change',mediaChange);document.removeEventListener('visibilitychange',visibilityChange);cycle?.kill();tilt?.off();scene3d?.destroy()};
 window.addEventListener('pagehide',cleanup,{once:true});
 window.GBShowroomCinema={get active(){return active},get enabled(){return !reduce.matches},get hasWebGL(){return !!scene3d},get arrived(){return arrived},get color(){return heading.dataset.spectrum||'GELO'},pause:deactivate,resume:activate};
 })();

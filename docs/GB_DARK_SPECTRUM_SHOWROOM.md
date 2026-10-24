@@ -64,3 +64,11 @@ A Vercel estava recusando novos deploys por limite diário (`402 api-deployments
 ## Dependências externas
 
 GSAP `https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js` e Three.js `https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js` são recursos progressivos, opcionais e carregados sob demanda; o arquivo standalone conserva a experiência visual estática sem conexão. Caso seja obrigatório funcionar sem CDN, uma próxima etapa deve baixar, versionar e empacotar ambas as bibliotecas localmente, evitando carregar Three no primeiro paint.
+
+## V7 · ABAIXO DE ZERO (estado atual, substitui as descrições acima onde divergirem)
+
+- **Nome:** “ABAIXO DE ZERO.” (sobretítulo “03 / GB COLD ROOM”): a câmara fria traduzida para moda. ES “BAJO CERO.”, EN “SUB ZERO.”, IT “SOTTO ZERO.”; o seletor de idioma reescreve o h2 e o módulo refaz as letras sozinho.
+- **Abertura:** paisagem congelada em noite azul profunda (shader em meia resolução), onda de frio a cada 9 s, título azul gelo fixo em 3D que flutua/pulsa, floco de cristal que gira 360° e responde a arrasto de mouse/dedo com inércia (rolagem vertical continua livre).
+- **Palco Tech Fleece:** anel neon de gelo atrás da peça, luz que respira, arco de luz girando e duas camadas de neve caindo; tudo `transform`/`opacity`, só anima com o palco na tela; desligado em movimento reduzido.
+- **Desempenho:** tempo real entre quadros (mesma velocidade em 60/90/120 Hz), teto de 60 fps com queda adaptativa (30 fps, depois resolução), céu a 30 fps no toque, variáveis CSS escritas só quando mudam, camadas CSS de reserva paradas com o WebGL no ar, neve sem repintura.
+- **Validação:** `node tests/e2e.mjs` 710/710 em 1440/1024/768/390/320 px e movimento reduzido. Não testado em aparelho físico nem Safari/iOS real.
