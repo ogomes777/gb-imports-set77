@@ -149,6 +149,11 @@ function makeWebGL(THREE){
   const dust=new THREE.Points(dustGeo,dustMat);world.add(dust);
   geometry.push(dustGeo);materials.push(dustMat);
   let frameStop=false,last=0,progress=0,resizeTimer=0;
+  let px=0,py=0,sx=0,sy=0;
+  const pointer=e=>{if(coarse.matches)return;const r=heading.getBoundingClientRect();px=cap((e.clientX-r.left)/Math.max(1,r.width)-.5,-.5,.5);py=cap((e.clientY-r.top)/Math.max(1,r.height)-.5,-.5,.5)};
+  const resetPointer=()=>{px=0;py=0};
+  heading.addEventListener('pointermove',pointer,{passive:true});
+  heading.addEventListener('pointerleave',resetPointer,{passive:true});
   const size=()=>{
     const rect=mount.getBoundingClientRect();
     const w=Math.max(1,Math.floor(rect.width)),h=Math.max(1,Math.floor(rect.height));
@@ -170,22 +175,25 @@ function makeWebGL(THREE){
     orbit.rotation.z=Math.sin(progress*.08)*.034;
     dust.rotation.y=progress*.009;
     planes.rotation.z=Math.sin(progress*.18)*.014;
+    sx+=(px-sx)*.036;sy+=(py-sy)*.036;
+    camera.position.x=sx*.56;camera.position.y=-sy*.35;
+    camera.lookAt(0,0,0);
     renderer.render(world,camera);
     return true;
   };
-  let running=false;
+  let running=false,generation=0;
   const resume=()=>{
     if(frameStop||running||!canRun())return;
-    running=true;
-    // Ticker handles scheduling with the site's other animated sections.
-    if(motion?.Ticker?.add)motion.Ticker.add((dt,t)=>{const keep=frame(dt,t);if(!keep)running=false;return keep;});
+    running=true;const token=++generation;
+    // Every restarted ticker receives a unique token to prevent duplicate RAF loops.
+    if(motion?.Ticker?.add)motion.Ticker.add((dt,t)=>{if(!running||token!==generation)return false;const keep=frame(dt,t);if(!keep)running=false;return keep;});
     else {
-      let raf=0,old=0;
-      const loop=t=>{if(!running||!canRun()){running=false;return}frame(Math.min(.04,(t-old)/1000||.016),t);old=t;raf=requestAnimationFrame(loop)};
-      raf=requestAnimationFrame(loop);
+      let old=0;
+      const loop=t=>{if(!running||token!==generation||!canRun()){if(token===generation)running=false;return}frame(Math.min(.04,(t-old)/1000||.016),t);old=t;requestAnimationFrame(loop)};
+      requestAnimationFrame(loop);
     }
   };
-  const pause=()=>{running=false};
+  const pause=()=>{running=false;generation++};
   const tint=(r,g,b,energy)=>{
     accent.setRGB(r/255,g/255,b/255);
     materials.forEach((m,i)=>{m.color.copy(accent);m.opacity=i<4?(i===0?.13+energy*.18:.055+energy*.08):i<7?.04+energy*.13:.16+energy*.45;});
@@ -193,6 +201,8 @@ function makeWebGL(THREE){
   const destroy=()=>{
     pause();clearTimeout(resizeTimer);
     window.removeEventListener('resize',resize);
+    heading.removeEventListener('pointermove',pointer);
+    heading.removeEventListener('pointerleave',resetPointer);
     canvas.removeEventListener('webglcontextlost',contextLost);
     geometry.forEach(g=>g.dispose());
     materials.forEach(m=>m.dispose());
