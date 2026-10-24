@@ -135,3 +135,10 @@
 #showroom .showroom-sidebar,#showroom .showroom-small{border-color:#8fd0ff17}
 /* geada fina na emenda das duas seções */
 #showroom .showroom-heading::after{content:'';position:absolute;z-index:2;left:0;right:0;bottom:0;height:120px;pointer-events:none;background:linear-gradient(180deg,transparent,#040a18)}
+
+/* V4 — emenda com a coleção acima: névoa gelada fina descendo do papel para o gelo (sem exagero) */
+#showroom .showroom-heading::before{content:'';position:absolute;z-index:2;left:0;right:0;top:0;height:160px;pointer-events:none;
+  background:linear-gradient(180deg,rgba(206,222,236,.30),rgba(140,176,210,.10) 38%,transparent),
+    linear-gradient(90deg,transparent 8%,rgba(170,215,255,.45) 50%,transparent 92%) top/100% 1px no-repeat}
+#colecao{position:relative}
+#colecao::after{content:'';position:absolute;left:0;right:0;bottom:0;height:140px;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(150,182,212,.26))}
