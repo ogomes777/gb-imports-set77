@@ -146,12 +146,13 @@
 /* V5 · ONDA DE FRIO — título em cor fixa (gelo), extrudado em 3D, flutuando e pulsando; a camada de brilho
    (.sc-gl) só muda opacity e é acesa pela frente fria do fundo. Tudo transform/opacity, parado fora da tela. */
 .showroom-heading h2 .sc-ch{color:#4aa8ff;transition:none;text-shadow:none}
-.showroom-heading h2 .sc-fl{display:inline-block;position:relative;color:#4aa8ff;
+.showroom-heading h2 .sc-fl{display:inline-block;position:relative}
+.showroom-heading h2 .sc-ice{color:#4aa8ff;
   text-shadow:0 .006em 0 #3a8fe6,0 .012em 0 #2f7bd0,0 .018em 0 #2667b4,0 .024em 0 #1e5596,0 .03em 0 #17447a,
     0 .06em .07em rgba(0,6,20,.55),0 0 .22em rgba(74,168,255,.42),0 0 .5em rgba(74,168,255,.18)}
 .showroom-heading h2 .sc-gl{position:absolute;left:0;top:0;color:#e4f5ff;opacity:0;pointer-events:none;
   text-shadow:0 0 .03em #fff,0 0 .12em rgba(159,214,255,.7)}
-@media(max-width:720px){.showroom-heading h2 .sc-fl{text-shadow:0 .008em 0 #3a8fe6,0 .016em 0 #2b72c4,0 .024em 0 #1e5596,0 .03em 0 #17447a,0 .06em .06em rgba(0,6,20,.5),0 0 .2em rgba(74,168,255,.38)}}
+@media(max-width:720px){.showroom-heading h2 .sc-ice{text-shadow:0 .008em 0 #3a8fe6,0 .016em 0 #2b72c4,0 .024em 0 #1e5596,0 .03em 0 #17447a,0 .06em .06em rgba(0,6,20,.5),0 0 .2em rgba(74,168,255,.38)}}
 @media(prefers-reduced-motion:no-preference){
   .showroom-cinema-bg.is-running~h2 .sc-fl{animation:scFloat 5.6s ease-in-out calc(var(--i)*-.42s) infinite;will-change:transform}
 }
@@ -206,3 +207,45 @@
 /* letras em inline-block podem quebrar entre si: o título só quebra no <br> */
 .showroom-heading h2{white-space:nowrap}
 @media(max-width:720px){.showroom-heading h2{font-size:clamp(58px,18.2vw,124px)}}
+
+/* V8 · CONGELAMENTO — a seção chega no papel da landing (V1) e congela ao chegar no título.
+   O fundo é o shader (frente de gelo que nasce no floco); aqui só a tinta vira gelo, por opacity (sem repintura). */
+.showroom-heading h2 .sc-wm{position:absolute;left:0;top:0;color:#111214;opacity:0;pointer-events:none;text-shadow:none;transition:opacity .5s ease calc(.35s + var(--j,0)*55ms)}
+.showroom-heading h2 .sc-ice{transition:opacity .55s ease calc(.35s + var(--j,0)*55ms)}
+#showroom .showroom-heading.is-warm{background-color:#F4F1E8!important;background-image:none!important}
+#showroom .showroom-heading.is-warm h2 .sc-wm{opacity:1;transition:none}
+#showroom .showroom-heading.is-warm h2 .sc-ice{opacity:0;transition:none}
+#showroom .showroom-heading.is-warm .showroom-cinema-bg>:not(.showroom-cinema-webgl){opacity:0!important}
+#showroom .showroom-heading>span:first-child,#showroom .showroom-heading>p,#showroom .showroom-heading .showroom-sub span,#showroom .showroom-heading .showroom-cinema-status,#showroom .showroom-heading>.showroom-mark,#showroom .showroom-heading .showroom-mark span{transition:color .7s ease .55s}
+#showroom .showroom-heading .showroom-sub{transition:border-color .7s ease .55s}
+#showroom .showroom-heading.is-warm>span:first-child,#showroom .showroom-heading.is-warm .showroom-sub span,#showroom .showroom-heading.is-warm .showroom-cinema-status{color:#666864;transition:none}
+#showroom .showroom-heading.is-warm>p,#showroom .showroom-heading.is-warm>.showroom-mark{color:#111214;transition:none}
+#showroom .showroom-heading.is-warm .showroom-mark span{color:#FFD447;transition:none}
+#showroom .showroom-heading.is-warm .showroom-sub{border-top-color:rgba(17,18,20,.16);transition:none}
+#showroom .showroom-heading::before,#showroom .showroom-heading::after{transition:opacity .9s ease .4s}
+#showroom .showroom-heading.is-warm::before,#showroom .showroom-heading.is-warm::after{opacity:0;transition:none}
+/* no papel, a coleção acima não precisa da névoa de aço: a emenda é papel com papel */
+#colecao::after{transition:opacity .9s ease}
+body:has(#showroom .showroom-heading.is-warm) #colecao::after{opacity:0}
+@media(prefers-reduced-motion:reduce){.showroom-heading h2 .sc-wm{display:none}}
+
+/* V8 — neon do Tech Fleece mais vivo: anel de marcação (HUD) girando ao contrário, dois arcos rápidos
+   e um "batimento" de energia (pulso duplo) que acende o anel inteiro. Só transform/opacity. */
+#showroom .showroom-glow{border-color:rgba(170,222,255,.62)}
+#showroom .sc-ring{position:absolute;border-radius:50%;pointer-events:none}
+#showroom .sc-ring-ticks{inset:3.5%;opacity:.55;
+  background:repeating-conic-gradient(from 0deg,rgba(160,215,255,.9) 0 .4deg,transparent .4deg 5deg);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 9px),#000 calc(100% - 3px),transparent calc(100% - 2px));
+  mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 9px),#000 calc(100% - 3px),transparent calc(100% - 2px))}
+#showroom .sc-ring-arc{inset:7%;opacity:.95;
+  background:conic-gradient(from 0deg,rgba(214,240,255,.95) 0 6%,transparent 6% 50%,rgba(120,200,255,.8) 50% 54%,transparent 54%);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px))}
+#showroom .sc-ring-surge{inset:-2px;border:2px solid rgba(200,236,255,.95);opacity:.12;
+  box-shadow:0 0 26px rgba(74,168,255,.95),0 0 90px rgba(74,168,255,.55),inset 0 0 36px rgba(74,168,255,.55),inset 0 0 120px rgba(46,124,255,.25)}
+@media(prefers-reduced-motion:no-preference){
+  #showroom .showroom-shell.is-cold-live .sc-ring-ticks{animation:scArc 48s linear infinite reverse;will-change:transform}
+  #showroom .showroom-shell.is-cold-live .sc-ring-arc{animation:scArc 3.8s cubic-bezier(.6,.1,.3,.9) infinite reverse;will-change:transform}
+  #showroom .showroom-shell.is-cold-live .sc-ring-surge{animation:scSurge 4.6s ease-out infinite;will-change:opacity}
+  #showroom .showroom-shell.is-cold-live .showroom-glow::after{animation-duration:5.2s}
+}
+@keyframes scSurge{0%,100%{opacity:.12}5%{opacity:1}13%{opacity:.3}19%{opacity:.85}36%{opacity:.14}}

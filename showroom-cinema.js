@@ -1,10 +1,12 @@
-/* GB IMPORTS / DARK SPECTRUM V6 · ONDA DE FRIO — GSAP + THREE (lazy, section-scoped).
- * Tema frio da coleção Tech Fleece: paisagem congelada em noite azul profunda e floco de cristal 3D.
- * Título em cor fixa, extrudado em 3D, flutua e pulsa; a cada 9 s uma onda de frio cruza o fundo, empurra a neve,
- * acelera o floco e acende o brilho das letras.
- * O floco gira 360° sozinho e flutua; arrastar (mouse ou dedo) gira de verdade, com inércia, e ele volta ao giro livre.
- * Cristal: reflexo de estúdio, refração com dispersão, chanfros acesos e cintilação. Paisagem em meia resolução,
- * 60 fps com teto e queda adaptativa (30 fps, depois resolução). Só roda visível; reduzido/modesto fica no fallback CSS.
+/* GB IMPORTS / DARK SPECTRUM V8 · ABAIXO DE ZERO — GSAP + THREE (lazy, section-scoped).
+ * Tema frio da coleção Tech Fleece. A seção chega no papel da landing (V1) e CONGELA ao chegar no título:
+ * uma frente de gelo cristalina nasce no floco e transforma o papel em noite azul profunda; a tinta das letras
+ * vira gelo em onda (da direita para a esquerda). Ao sair por baixo, volta ao papel e congela de novo na volta.
+ * Título azul gelo em 3D que flutua e pulsa; onda de frio a cada 9 s; floco de cristal que gira 360° sozinho
+ * e responde a arrasto (mouse/dedo) com inércia.
+ * Desempenho: tudo (Three, geometria, shaders, quadro de aquecimento) é preparado em tempo ocioso 1–2 telas antes;
+ * um braço do floco extrudado e girado 6x; paisagem em meia resolução; 60 fps com queda adaptativa.
+ * Só roda visível; movimento reduzido/aparelho modesto fica no fallback CSS (sem papel, sem congelamento).
  * Nenhuma imagem ou estado do catálogo é alterado.
  */
 (()=>{
@@ -22,7 +24,10 @@ const ICE={name:'GELO',rgb:[74,168,255],bg:[4,10,24]};
 const state={r:74,g:168,b:255,br:4,bg:10,bb:24,energy:.42,pulse:0};
 const WAVE=9; // segundos entre uma onda de frio e a próxima (o shader usa o mesmo período)
 let active=false,initialized=false,destroyed=false,gsap=null,cycle=null,scene3d=null,visible=false,arrived=false;
-let loading3d=false,webglFailed=false,tilt=null;
+let loading3d=false,webglFailed=false,tilt=null,warm=false;
+// estado "landing": a seção chega no papel V1 e só congela ao chegar no título
+const setWarm=v=>{warm=!!v;heading.classList.toggle('is-warm',warm)};
+const canWarm=()=>!reduce.matches&&!lite()&&!webglFailed&&!destroyed;
 const title=heading.querySelector('h2');
 const cap=(n,min,max)=>Math.max(min,Math.min(max,n));
 const rgb=(r,g,b)=>'rgb('+[r,g,b].map(x=>Math.round(cap(x,0,255))).join(',')+')';
@@ -46,28 +51,32 @@ function splitTitle(){
   const walk=node=>{[...node.childNodes].forEach(n=>{
     if(n.nodeType===3){const f=document.createDocumentFragment();[...n.textContent].forEach(ch=>{if(ch.trim()===''){f.append(ch);return}
       const s=document.createElement('span');s.className='sc-ch';s.setAttribute('aria-hidden','true');s.style.setProperty('--i',i++);
-      const fl=document.createElement('span');fl.className='sc-fl';fl.textContent=ch;
-      const gl=document.createElement('span');gl.className='sc-gl';gl.textContent=ch;fl.append(gl);s.append(fl);f.append(s)});n.replaceWith(f)}
+      const fl=document.createElement('span');fl.className='sc-fl';
+      for(const k of ['sc-ice','sc-wm','sc-gl']){const e=document.createElement('span');e.className=k;e.textContent=ch;fl.append(e)}
+      s.append(fl);f.append(s)});n.replaceWith(f)}
     else if(n.nodeType===1&&n.tagName!=='BR')walk(n);
   })};
   walk(title);chars=[...title.querySelectorAll('.sc-ch')];glows=[...title.querySelectorAll('.sc-gl')];
+  chars.forEach((c,i)=>c.style.setProperty('--j',chars.length-1-i));   // o gelo vem do floco (direita): a última letra congela primeiro
   heading.style.setProperty('--sc-count',chars.length);
 }
 // o seletor de idioma reescreve o h2: refaz as letras (e esconde de novo se a chegada ainda não aconteceu)
 const titleMO=('MutationObserver'in window)&&title?new MutationObserver(()=>{if(title.querySelector('.sc-ch'))return;delete title.dataset.split;splitTitle();
-  if(gsap&&!arrived&&!reduce.matches&&chars.length)gsap.set(chars,{yPercent:118,rotationX:-88,opacity:0})}):null;
+  if(gsap&&!arrived&&!warm&&!reduce.matches&&chars.length)gsap.set(chars,{yPercent:118,rotationX:-88,opacity:0})}):null;
 titleMO?.observe(title,{childList:true});
 
 /* ---------- câmara fria do Tech Fleece: anel neon de gelo + duas camadas de neve atrás da peça (só CSS transform/opacity) ---------- */
 const shell=section.querySelector('.showroom-shell'),feature=section.querySelector('.showroom-feature');
 if(feature&&!feature.querySelector('.sc-snow'))['far','near'].forEach(k=>{const d=document.createElement('span');d.className='sc-snow sc-snow-'+k;d.setAttribute('aria-hidden','true');feature.append(d)});
+const ring=feature?.querySelector('.showroom-glow');
+if(ring&&!ring.querySelector('.sc-ring'))['ticks','arc','surge'].forEach(k=>{const d=document.createElement('span');d.className='sc-ring sc-ring-'+k;d.setAttribute('aria-hidden','true');ring.append(d)});
 // a neve e o neon só animam com o palco na tela
 const coldIO=('IntersectionObserver'in window)&&shell?new IntersectionObserver(es=>es.forEach(e=>shell.classList.toggle('is-cold-live',e.isIntersecting)),{rootMargin:'120px 0px'}):null;
 coldIO?.observe(shell);
 
 // onda de brilho: corre pelas letras da esquerda para a direita, junto com a frente fria do fundo
 function glowWave(strength=1,each=.045){
-  if(!gsap||!glows.length||reduce.matches)return;
+  if(!gsap||!glows.length||reduce.matches||warm)return;
   gsap.killTweensOf(glows);
   gsap.fromTo(glows,{opacity:0},{keyframes:[{opacity:.6*strength,duration:.3,ease:'power2.out'},{opacity:0,duration:1.1,ease:'sine.inOut'}],stagger:{each,from:'start'}});
 }
@@ -81,7 +90,7 @@ function deactivate(){
   if(!active)return;active=false;cycle?.pause();scene3d?.pause();stage.classList.remove('is-running');
 }
 function setStatic(){
-  deactivate();cycle?.kill();cycle=null;
+  deactivate();cycle?.kill();cycle=null;setWarm(false);scene3d?.setFrozen(true);
   Object.assign(state,{r:74,g:168,b:255,br:4,bg:10,bb:24,energy:.42,pulse:0});
   if(gsap&&chars.length){gsap.set(chars,{clearProps:'transform,opacity'});gsap.set(glows,{clearProps:'opacity'});if(title)gsap.set(title,{clearProps:'transform'})}
   apply();
@@ -107,6 +116,15 @@ function arrive(){
   if(!gsap||reduce.matches||destroyed)return;
   arrived=true;
   const t=gsap.timeline({onComplete:()=>{makeCycle();if(active)cycle?.play()}});
+  if(warm){
+    // CONGELA: frente de gelo no fundo, letras trocam a tinta pelo gelo (CSS, onda da direita para a esquerda) e dão um arrepio
+    t.add(()=>{scene3d?.freeze();scene3d?.arrive();setWarm(false)},0);
+    if(chars.length)t.to(chars,{keyframes:[{yPercent:-5,skewX:-5,duration:.14,ease:'power2.out'},{yPercent:0,skewX:0,duration:.7,ease:'elastic.out(1,.4)'}],stagger:{each:.045,from:'end'}},.35);
+    t.add(()=>glowWave(1,.06),1.25);
+    t.to(state,{energy:1,pulse:1,duration:1.1,ease:'expo.out',onUpdate:apply},.3);
+    t.to(state,{energy:.5,pulse:0,duration:1.8,ease:'sine.out',onUpdate:apply});
+    return;
+  }
   if(chars.length){
     gsap.set(title,{perspective:900});
     t.fromTo(chars,{yPercent:118,rotationX:-88,opacity:0,transformOrigin:'50% 100% -40px'},{yPercent:0,rotationX:0,opacity:1,duration:1.05,ease:'expo.out',stagger:{each:.032,from:'start'}},0);
@@ -117,16 +135,21 @@ function arrive(){
   t.to(state,{energy:.5,pulse:0,duration:1.8,ease:'sine.out',onUpdate:apply});
 }
 
+let gsapP=null;
 function loadGSAP(){
   if(window.gsap)return Promise.resolve(window.gsap);
-  return new Promise((resolve,reject)=>{
+  return gsapP||(gsapP=new Promise((resolve,reject)=>{
     const script=document.createElement('script');script.async=true;
     script.src='https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js';script.crossOrigin='anonymous';
     script.onload=()=>window.gsap?resolve(window.gsap):reject(new Error('GSAP did not initialize'));
     script.onerror=()=>reject(new Error('GSAP blocked'));
     document.head.appendChild(script);
-  });
+  }));
 }
+
+// fatia o trabalho pesado em momentos ociosos (nada de tarefa longa travando a rolagem)
+const idle=()=>new Promise(r=>{const ric=window.requestIdleCallback;ric?ric(()=>r(),{timeout:160}):setTimeout(r,16)});
+let threeP=null;const loadThree=()=>threeP||(threeP=import('https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js'));
 
 /* ============================== THREE: cena surreal ============================== */
 const NOISE=`
@@ -142,8 +165,8 @@ vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=
 vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
 vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);m=m*m;return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));}`;
 
-function makeWebGL(THREE){
-  if(!canRun()||lite()||destroyed)return null;
+async function makeWebGL(THREE){
+  if(lite()||destroyed||reduce.matches)return null;
   const mount=stage.querySelector('.showroom-cinema-webgl');if(!mount)return null;
   const canvas=document.createElement('canvas');canvas.setAttribute('aria-hidden','true');canvas.setAttribute('role','presentation');mount.appendChild(canvas);
   let renderer;
@@ -153,8 +176,9 @@ function makeWebGL(THREE){
   renderer.setPixelRatio(touch?Math.min(1.25,window.devicePixelRatio||1):1);
   const world=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(36,1,.1,60);camera.position.set(0,0,11);
-  const U={uTime:{value:0},uColor:{value:new THREE.Color(.29,.66,1)},uEnergy:{value:.42},uPulse:{value:0},uPointer:{value:new THREE.Vector2(0,0)},uRes:{value:new THREE.Vector2(1,1)},uScroll:{value:0},uWarp:{value:0},uHover:{value:0}};
+  const U={uTime:{value:0},uColor:{value:new THREE.Color(.29,.66,1)},uEnergy:{value:.42},uPulse:{value:0},uPointer:{value:new THREE.Vector2(0,0)},uRes:{value:new THREE.Vector2(1,1)},uScroll:{value:0},uWarp:{value:0},uHover:{value:0},uFreeze:{value:arrived?1:0},uOrigin:{value:new THREE.Vector2(.78,.5)}};
   const disposables=[];const keep=x=>{disposables.push(x);return x};
+  await idle();
   // céu frio compartilhado: a paisagem e o reflexo/refração do cristal usam a mesma luz
   const SKY=`vec3 sky(vec3 d){float y=d.y;vec3 top=vec3(.10,.17,.26),hor=vec3(.55,.66,.75);vec3 c=mix(hor,top,smoothstep(-.05,.6,y));
     c+=vec3(.9,.95,1.)*pow(max(dot(normalize(d),normalize(vec3(.35,.45,-.8))),0.),18.)*.9;c=mix(c,vec3(.3,.38,.46),smoothstep(.0,-.4,y));return c;}`;
@@ -222,10 +246,20 @@ function makeWebGL(THREE){
   // a paisagem é suave: renderiza em meia resolução num buffer e sobe para a tela com grão fino (4x menos pixels de shader)
   const bgScene=new THREE.Scene(),bgCam=new THREE.Camera();bgScene.add(land);
   const rt=keep(new THREE.WebGLRenderTarget(2,2,{depthBuffer:false,stencilBuffer:false}));
-  const comp=new THREE.Mesh(keep(new THREE.PlaneGeometry(2,2)),keep(new THREE.ShaderMaterial({uniforms:{tBg:{value:rt.texture},uRes:U.uRes,uTime:U.uTime},depthWrite:false,depthTest:false,
+  const comp=new THREE.Mesh(keep(new THREE.PlaneGeometry(2,2)),keep(new THREE.ShaderMaterial({uniforms:{tBg:{value:rt.texture},uRes:U.uRes,uTime:U.uTime,uFreeze:U.uFreeze,uOrigin:U.uOrigin},depthWrite:false,depthTest:false,
     vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,.999,1.);}`,
-    fragmentShader:`precision highp float;uniform sampler2D tBg;uniform vec2 uRes;uniform float uTime;varying vec2 vUv;
-    void main(){vec3 c=texture2D(tBg,vUv).rgb;c+=(fract(sin(dot(vUv*uRes+fract(uTime)*91.,vec2(127.1,311.7)))*43758.5453)-.5)*.025;gl_FragColor=vec4(c,1.);}`})));
+    fragmentShader:`precision highp float;uniform sampler2D tBg;uniform vec2 uRes,uOrigin;uniform float uTime,uFreeze;varying vec2 vUv;
+    float hh(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+    float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hh(i),hh(i+vec2(1,0)),f.x),mix(hh(i+vec2(0,1)),hh(i+vec2(1,1)),f.x),f.y);}
+    void main(){vec3 c=texture2D(tBg,vUv).rgb;
+      // CONGELAMENTO: a seção chega no papel da landing; uma frente de gelo cristalina nasce no floco e transforma tudo em noite fria
+      if(uFreeze<.999){float asp=uRes.x/uRes.y;vec2 a=vUv*vec2(asp,1.);
+        float n=vn(a*6.)*.55+vn(a*19.)*.3+vn(a*61.)*.15;
+        float d=length((vUv-uOrigin)*vec2(asp,1.))+(n-.5)*.42,R=uFreeze*2.1;
+        vec3 paper=vec3(.957,.945,.91);paper=mix(paper,vec3(.78,.87,.95),exp(-max(d-R,0.)*7.)*step(.001,uFreeze)*.6);
+        c=mix(paper,c,smoothstep(R+.01,R-.05,d)*step(.001,uFreeze));
+        c+=vec3(.72,.9,1.)*exp(-abs(d-R)*38.)*step(.001,uFreeze)*(.9+n*.6);}
+      c+=(fract(sin(dot(vUv*uRes+fract(uTime)*91.,vec2(127.1,311.7)))*43758.5453)-.5)*.025;gl_FragColor=vec4(c,1.);}`})));
   comp.frustumCulled=false;comp.renderOrder=-10;world.add(comp);
 
   // 2. Floco de cristal dendrítico: braços com ramos e sub-ramos finos, placas hexagonais; vidro de gelo com
@@ -235,22 +269,26 @@ function makeWebGL(THREE){
   const bar=(x1,y1,x2,y2,w1,w2=w1*.35)=>{const dx=x2-x1,dy=y2-y1,l=Math.hypot(dx,dy),ux=-dy/l,uy=dx/l;const s=new THREE.Shape();
     s.moveTo(x1+ux*w1/2,y1+uy*w1/2);s.lineTo(x2+ux*w2/2,y2+uy*w2/2);s.lineTo(x2+dx/l*w2*.9,y2+dy/l*w2*.9);s.lineTo(x2-ux*w2/2,y2-uy*w2/2);s.lineTo(x1-ux*w1/2,y1-uy*w1/2);s.closePath();return s};
   const plate=(cx,cy,r,rot)=>{const s=new THREE.Shape();for(let k=0;k<6;k++){const a=rot+k*Math.PI/3;s[k?'lineTo':'moveTo'](cx+Math.cos(a)*r,cy+Math.sin(a)*r)}s.closePath();return s};
-  const L=2.5;
-  for(let k=0;k<6;k++){
-    const a=k*Math.PI/3,ca=Math.cos(a),sa=Math.sin(a),R=(x,y)=>[x*ca-y*sa,x*sa+y*ca],B=(x1,y1,x2,y2,w1,w2)=>{const p=R(x1,y1),q=R(x2,y2);shapes.push(bar(p[0],p[1],q[0],q[1],w1,w2))};
-    B(.25,0,L,0,.16,.05);
-    const pl=R(.95,0);shapes.push(plate(pl[0],pl[1],.17,a+Math.PI/6));
-    [.42,.72,1.05,1.38,1.7,2.0].forEach((p,i)=>{
-      const len=(.95-i*.12)*(i===0?.55:1),w=.09-i*.008,ang=Math.PI/3;
-      for(const sgn of [1,-1]){
-        const ex=p+Math.cos(ang)*len,ey=sgn*Math.sin(ang)*len;B(p,0,ex,ey,w,.03);
-        // sub-ramos (dendritos) nos ramos maiores
-        if(len>.4)[.35,.62].forEach(f=>{const bx=p+(ex-p)*f,by=ey*f,l2=len*.32*(1-f*.4);B(bx,by,bx+Math.cos(0)*l2,by,.045,.018);B(bx,by,bx+Math.cos(ang*2)*l2*.9,by+sgn*Math.sin(ang*2)*l2*.9,.045,.018)});
-      }
-    });
-  }
-  shapes.push(plate(0,0,.42,0),plate(0,0,.26,Math.PI/6));
-  const fg=keep(new THREE.ExtrudeGeometry(shapes,{depth:.1,bevelEnabled:true,bevelThickness:.045,bevelSize:.028,bevelSegments:touch?1:2,curveSegments:1}));fg.center();
+  // um braço só, extrudado uma vez e girado 6x num único buffer: 1/6 do trabalho de CPU, um draw call
+  const L=2.5,armShapes=[],B=(x1,y1,x2,y2,w1,w2)=>armShapes.push(bar(x1,y1,x2,y2,w1,w2));
+  B(.25,0,L,0,.16,.05);armShapes.push(plate(.95,0,.17,Math.PI/6));
+  [.42,.72,1.05,1.38,1.7,2.0].forEach((p,i)=>{
+    const len=(.95-i*.12)*(i===0?.55:1),w=.09-i*.008,ang=Math.PI/3;
+    for(const sgn of [1,-1]){
+      const ex=p+Math.cos(ang)*len,ey=sgn*Math.sin(ang)*len;B(p,0,ex,ey,w,.03);
+      // sub-ramos (dendritos) nos ramos maiores
+      if(len>.4)[.35,.62].forEach(f=>{const bx=p+(ex-p)*f,by=ey*f,l2=len*.32*(1-f*.4);B(bx,by,bx+l2,by,.045,.018);B(bx,by,bx+Math.cos(ang*2)*l2*.9,by+sgn*Math.sin(ang*2)*l2*.9,.045,.018)});
+    }
+  });
+  const EX={depth:.1,bevelEnabled:true,bevelThickness:.045,bevelSize:.028,bevelSegments:touch?1:2,curveSegments:1};
+  const arm=new THREE.ExtrudeGeometry(armShapes,EX),core=new THREE.ExtrudeGeometry([plate(0,0,.42,0),plate(0,0,.26,Math.PI/6)],EX);
+  const ap=arm.attributes.position.array,an=arm.attributes.normal.array,cp=core.attributes.position.array,cn=core.attributes.normal.array;
+  const fpos=new Float32Array(ap.length*6+cp.length),fnor=new Float32Array(fpos.length);
+  for(let k=0;k<6;k++){const c=Math.cos(k*Math.PI/3),sn=Math.sin(k*Math.PI/3),o=k*ap.length;
+    for(let i=0;i<ap.length;i+=3){fpos[o+i]=ap[i]*c-ap[i+1]*sn;fpos[o+i+1]=ap[i]*sn+ap[i+1]*c;fpos[o+i+2]=ap[i+2];fnor[o+i]=an[i]*c-an[i+1]*sn;fnor[o+i+1]=an[i]*sn+an[i+1]*c;fnor[o+i+2]=an[i+2]}}
+  fpos.set(cp,ap.length*6);fnor.set(cn,ap.length*6);arm.dispose();core.dispose();
+  const fg=keep(new THREE.BufferGeometry());fg.setAttribute('position',new THREE.BufferAttribute(fpos,3));fg.setAttribute('normal',new THREE.BufferAttribute(fnor,3));fg.translate(0,0,-.05);
+  await idle();
   const flakeMat=keep(new THREE.ShaderMaterial({uniforms:U,transparent:true,side:THREE.DoubleSide,
     vertexShader:`varying vec3 vN;varying vec3 vP;varying vec3 vW;varying vec3 vL;void main(){vN=normalize(normalMatrix*normal);vL=normal;vec4 mv=modelViewMatrix*vec4(position,1.);vP=mv.xyz;vW=position;gl_Position=projectionMatrix*mv;}`,
     fragmentShader:`precision highp float;uniform vec3 uColor;uniform float uTime,uEnergy,uPulse,uHover;varying vec3 vN;varying vec3 vP;varying vec3 vW;varying vec3 vL;${SKY}
@@ -275,6 +313,7 @@ function makeWebGL(THREE){
       float spec=pow(max(dot(r,normalize(vec3(.4,.6,.7))),0.),140.)*2.6+pow(max(dot(r,normalize(vec3(-.5,.2,.8))),0.),60.)*.7;
       col+=vec3(1.)*spec*(1.+uHover*.4);
       gl_FragColor=vec4(col,clamp(.26+fres*.62+bev*.35+spec*.5,0.,1.));}`}));
+  await idle();
   const flakeMesh=new THREE.Mesh(fg,flakeMat);flake.add(flakeMesh);
   const halo=new THREE.Mesh(keep(new THREE.PlaneGeometry(8,8)),keep(new THREE.ShaderMaterial({uniforms:U,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
     vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
@@ -288,19 +327,19 @@ function makeWebGL(THREE){
     const g=keep(new THREE.BufferGeometry());g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('aRnd',new THREE.BufferAttribute(rnd,2));
     const half=(spread/2).toFixed(1),full=spread.toFixed(1);
     const pts=new THREE.Points(g,keep(new THREE.ShaderMaterial({uniforms:U,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
-      vertexShader:`uniform float uTime,uWarp;attribute vec2 aRnd;varying float vA;void main(){vec3 p=position;float sp=.3+aRnd.x*.5;p.y=mod(p.y-uTime*sp*(1.+uWarp*2.)+6.,12.)-6.;
+      vertexShader:`uniform float uTime,uWarp,uFreeze;attribute vec2 aRnd;varying float vA;void main(){vec3 p=position;float sp=.3+aRnd.x*.5;p.y=mod(p.y-uTime*sp*(1.+uWarp*2.)+6.,12.)-6.;
         p.x+=sin(uTime*(.3+aRnd.y*.5)+aRnd.x*6.28)*(.3+aRnd.y*.45)+uTime*.08;
         float xs=mod(p.x+${half},${full})/${full},ph=fract(uTime/9.),passed=smoothstep(.2,-.1,xs-(-.4+ph*1.9));
         p.x+=(floor(uTime/9.)+passed)*2.4;p.x=mod(p.x+${half},${full})-${half};
-        vec4 mv=modelViewMatrix*vec4(p,1.);vA=smoothstep(6.,4.5,abs(p.y))*(.4+aRnd.y*.6);gl_PointSize=(${sizeMin.toFixed(1)}+aRnd.y*${(sizeMax-sizeMin).toFixed(1)})*(12./-mv.z);gl_Position=projectionMatrix*mv;}`,
+        vec4 mv=modelViewMatrix*vec4(p,1.);vA=smoothstep(6.,4.5,abs(p.y))*(.4+aRnd.y*.6)*uFreeze;gl_PointSize=(${sizeMin.toFixed(1)}+aRnd.y*${(sizeMax-sizeMin).toFixed(1)})*(12./-mv.z);gl_Position=projectionMatrix*mv;}`,
       fragmentShader:`precision highp float;varying float vA;void main(){float d=length(gl_PointCoord-.5);float a=smoothstep(.5,${blur.toFixed(2)},d)*vA*.9;gl_FragColor=vec4(vec3(.88,.95,1.)*a,a);}`})));
     pts.frustumCulled=false;world.add(pts);
   };
   snow(touch?600:1400,22,[-9,0],1.3,3.,.0,9177);
   snow(touch?14:30,16,[5,8.5],5,10,.38,7319);
 
-  const layout=w=>{const m=w<720;flake.userData.x=m?.6:3.2;flake.userData.y=m?1.7:.05;flake.userData.base=m?.36:.86};
-  let tick=0,bgDirty=true,px=0,py=0,sx=0,sy=0,frameStop=false,last=0,progress=0,resizeTimer=0,birth=1,hover=0,hoverT=0;
+  const layout=w=>{const m=w<720;flake.userData.x=m?.6:3.2;flake.userData.y=m?1.7:.05;flake.userData.base=m?.36:.86;U.uOrigin.value.set(m?.6:.78,m?.8:.5)};   // a frente de gelo nasce no floco
+  let tick=0,bgDirty=true,px=0,py=0,sx=0,sy=0,frameStop=false,last=0,progress=0,resizeTimer=0,birth=arrived?1:0,hover=0,hoverT=0;
   const IDLE=.62;let ry=0,vy=IDLE,rx=0,vx=0,drag=null,headW=1000;   // giro 360 contínuo (rad/s) + arrasto com inércia
   const pointer=e=>{if(e.pointerType!=='mouse')return;px=cap(e.clientX/Math.max(1,headW)-.5,-.5,.5);py=cap((e.clientY+scrollY-headTop)/Math.max(1,headH)-.5,-.5,.5);hoverT=1};   // sem leitura de layout
   const resetPointer=()=>{px=0;py=0;hoverT=0};
@@ -338,9 +377,9 @@ function makeWebGL(THREE){
     camera.position.set(sx*.9,-sy*.6,11);camera.lookAt(0,0,0);
     if(!drag){const e=1-Math.pow(.4,step);vy+=(IDLE-vy)*e;vx*=Math.pow(.05,step);ry+=vy*step;rx+=vx*step;rx+=(0-rx)*(1-Math.pow(.12,step))}
     flakeMesh.rotation.set(rx+Math.sin(progress*.5)*.2-sy*.35,ry+sx*.35,Math.sin(progress*.31)*.07);
-    flake.scale.setScalar((flake.userData.base||1)*birth*(1+Math.sin(progress*2)*.015));
+    flake.visible=birth>.002;flake.scale.setScalar((flake.userData.base||1)*Math.max(.001,birth)*(1+Math.sin(progress*2)*.015));
     flake.position.set(flake.userData.x||0,(flake.userData.y||0)+Math.sin(progress*.8)*.14,0);
-    if(!touch||(++tick&1)||bgDirty){bgDirty=false;renderer.setRenderTarget(rt);renderer.render(bgScene,bgCam);renderer.setRenderTarget(null)}   // no toque o céu (lento) vai a 30 fps; floco e neve a 60
+    if(U.uFreeze.value>0&&(!touch||(++tick&1)||bgDirty)){bgDirty=false;renderer.setRenderTarget(rt);renderer.render(bgScene,bgCam);renderer.setRenderTarget(null)}   // no toque o céu (lento) vai a 30 fps; floco e neve a 60
     renderer.render(world,camera);return true;
   };
   let running=false,generation=0;
@@ -354,19 +393,27 @@ function makeWebGL(THREE){
   const arriveFx=()=>{U.uWarp.value=1.2;vy=7;if(gsap){const o={b:.05};gsap.to(o,{b:1,duration:1.6,ease:'elastic.out(1,.6)',onUpdate:()=>{birth=o.b}})}};
   const kick=v=>{U.uWarp.value=Math.max(U.uWarp.value,v*.5);if(!drag)vy+=1};
   const destroy=()=>{pause();clearTimeout(resizeTimer);window.removeEventListener('resize',resize);window.removeEventListener('resize',measure);heading.removeEventListener('pointermove',move);heading.removeEventListener('pointerleave',resetPointer);heading.removeEventListener('pointerdown',down);heading.removeEventListener('pointerup',up);heading.removeEventListener('pointercancel',up);canvas.removeEventListener('webglcontextlost',contextLost);disposables.forEach(d=>d.dispose?.());renderer.dispose();canvas.remove()};
+  // congelar: a frente de gelo varre do floco para fora; setFrozen posiciona sem animação (fora da tela)
+  const freeze=()=>{U.uPulse.value=1;if(!gsap){U.uFreeze.value=1;return}gsap.killTweensOf(U.uFreeze);gsap.to(U.uFreeze,{value:1,duration:1.9,ease:'sine.inOut'})};
+  const setFrozen=v=>{if(gsap)gsap.killTweensOf(U.uFreeze);U.uFreeze.value=v?1:0;birth=v?1:0;bgDirty=true};
   tint(state);
-  return{resume,pause,tint,destroy,arrive:arriveFx,kick};
+  // shaders compilados fora do caminho da rolagem (paralelo quando o navegador suporta); o céu compila para o buffer onde é desenhado
+  try{if(renderer.compileAsync){renderer.setRenderTarget(rt);const pb=renderer.compileAsync(bgScene,bgCam);renderer.setRenderTarget(null);await pb;await idle();await renderer.compileAsync(world,camera)}}catch(err){}
+  // um quadro de aquecimento (fora da tela, em tempo ocioso): se o navegador não compila em paralelo, a espera de link acontece aqui, e não no congelamento
+  try{await idle();if(destroyed){destroy();return null}const f0=U.uFreeze.value;U.uFreeze.value=1;renderer.setRenderTarget(rt);renderer.render(bgScene,bgCam);renderer.setRenderTarget(null);
+    await idle();if(destroyed){destroy();return null}renderer.render(world,camera);U.uFreeze.value=f0;bgDirty=true}catch(err){}
+  if(destroyed){destroy();return null}
+  return{resume,pause,tint,destroy,arrive:arriveFx,kick,freeze,setFrozen};
 }
 async function ensure3d(){
-  if(scene3d||loading3d||webglFailed||lite()||!canRun())return;
+  if(scene3d||loading3d||webglFailed||lite()||reduce.matches||destroyed)return;
   loading3d=true;
   try{
-    const THREE=await import('https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js');
-    if(!canRun())return;
-    scene3d=makeWebGL(THREE);
-    if(!scene3d){webglFailed=true;stage.classList.add('cinema-css-fallback')}
-    else{stage.classList.add('has-webgl');cycle?.kill();cycle=null;if(active)scene3d.resume();if(arrived)scene3d.arrive()}
-  }catch(err){webglFailed=true;stage.classList.add('cinema-css-fallback')}
+    const THREE=await loadThree();if(destroyed)return;
+    scene3d=await makeWebGL(THREE);
+    if(!scene3d){webglFailed=true;stage.classList.add('cinema-css-fallback');setWarm(false)}
+    else{stage.classList.add('has-webgl');cycle?.kill();cycle=null;scene3d.setFrozen(arrived||!warm);if(active)scene3d.resume();if(arrived)scene3d.arrive()}
+  }catch(err){webglFailed=true;stage.classList.add('cinema-css-fallback');setWarm(false)}
   finally{loading3d=false}
 }
 async function init(){
@@ -374,24 +421,29 @@ async function init(){
   initialized=true;stage.classList.add('is-enhancing');splitTitle();
   try{
     gsap=await loadGSAP();if(destroyed||reduce.matches)return;
-    if(chars.length&&!arrived)gsap.set(chars,{yPercent:118,rotationX:-88,opacity:0});
+    if(chars.length&&!arrived&&!warm)gsap.set(chars,{yPercent:118,rotationX:-88,opacity:0});
     activate();bindTilt();
     if(arrivalReady&&!arrived)arrive();
-  }catch(err){stage.classList.add('cinema-css-fallback');activate()}
+  }catch(err){stage.classList.add('cinema-css-fallback');setWarm(false);activate()}
 }
 // visível (pré-carrega) × chegou de fato (título em tela): a troca de cor dispara na chegada
 let arrivalReady=false;
 const io=('IntersectionObserver'in window)?new IntersectionObserver(entries=>{entries.forEach(entry=>{visible=entry.isIntersecting;if(visible){if(!initialized)init();else activate()}else deactivate()})},{threshold:0,rootMargin:'240px 0px'}):null;
 const arrivalIO=('IntersectionObserver'in window)?new IntersectionObserver(entries=>{entries.forEach(entry=>{
   if(entry.isIntersecting){arrivalReady=true;if(gsap&&!arrived)arrive()}
-  else if(entry.boundingClientRect.top>0&&arrived&&gsap&&chars.length){arrived=false;cycle?.pause();gsap.set(chars,{yPercent:118,rotationX:-88,opacity:0})} // saiu por baixo: a chegada se repete ao voltar
+  else if(entry.boundingClientRect.top>0&&arrived&&gsap){arrived=false;cycle?.pause();   // saiu por baixo: a chegada se repete ao voltar
+    if(canWarm()&&scene3d){setWarm(true);scene3d.setFrozen(false);gsap.set(glows,{opacity:0})}else if(chars.length)gsap.set(chars,{yPercent:118,rotationX:-88,opacity:0})}
 })},{threshold:.35}):null;
-if(io){io.observe(heading);arrivalIO?.observe(title||heading)}else{visible=true;arrivalReady=true;init()}
+// pré-carga 1–2 telas antes: GSAP, Three, geometria e shaders ficam prontos em momentos ociosos; a seção já chega no papel
+const preIO=('IntersectionObserver'in window)?new IntersectionObserver(entries=>{if(!entries.some(e=>e.isIntersecting))return;preIO.disconnect();
+  const r=heading.getBoundingClientRect();if(canWarm()&&!arrived&&r.top>innerHeight*.6)setWarm(true);   // se já estiver em tela, não pisca
+  idle().then(()=>{if(destroyed||reduce.matches)return;loadGSAP().catch(()=>{});ensure3d()})},{rootMargin:'1600px 0px'}):null;
+if(io){preIO?.observe(heading);io.observe(heading);arrivalIO?.observe(title||heading)}else{visible=true;arrivalReady=true;init()}
 const mediaChange=()=>{if(reduce.matches)setStatic();else if(visible){if(!gsap){initialized=false;init()}else{makeCycle();activate()}}};
 reduce.addEventListener?.('change',mediaChange);
 const visibilityChange=()=>{if(document.hidden)deactivate();else if(visible)activate()};
 document.addEventListener('visibilitychange',visibilityChange);
-const cleanup=()=>{if(destroyed)return;destroyed=true;deactivate();io?.disconnect();arrivalIO?.disconnect();titleMO?.disconnect();coldIO?.disconnect();reduce.removeEventListener?.('change',mediaChange);document.removeEventListener('visibilitychange',visibilityChange);cycle?.kill();tilt?.off();scene3d?.destroy()};
+const cleanup=()=>{if(destroyed)return;destroyed=true;deactivate();io?.disconnect();arrivalIO?.disconnect();preIO?.disconnect();titleMO?.disconnect();coldIO?.disconnect();reduce.removeEventListener?.('change',mediaChange);document.removeEventListener('visibilitychange',visibilityChange);cycle?.kill();tilt?.off();scene3d?.destroy()};
 window.addEventListener('pagehide',cleanup,{once:true});
 window.GBShowroomCinema={get active(){return active},get enabled(){return !reduce.matches},get hasWebGL(){return !!scene3d},get arrived(){return arrived},get color(){return heading.dataset.spectrum||'GELO'},pause:deactivate,resume:activate};
 })();

@@ -72,3 +72,9 @@ GSAP `https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js` e Three.js `htt
 - **Palco Tech Fleece:** anel neon de gelo atrás da peça, luz que respira, arco de luz girando e duas camadas de neve caindo; tudo `transform`/`opacity`, só anima com o palco na tela; desligado em movimento reduzido.
 - **Desempenho:** tempo real entre quadros (mesma velocidade em 60/90/120 Hz), teto de 60 fps com queda adaptativa (30 fps, depois resolução), céu a 30 fps no toque, variáveis CSS escritas só quando mudam, camadas CSS de reserva paradas com o WebGL no ar, neve sem repintura.
 - **Validação:** `node tests/e2e.mjs` 710/710 em 1440/1024/768/390/320 px e movimento reduzido. Não testado em aparelho físico nem Safari/iOS real.
+
+## V8 · CONGELAMENTO
+
+- A seção chega no papel `#F4F1E8` com o título em tinta `#111214` e o ponto amarelo no “GB”; ao chegar no título, uma frente de gelo (shader de composição) nasce no floco e congela a cena; as letras trocam tinta por gelo por `opacity`, em onda da direita para a esquerda; os textos de apoio esfriam junto. Ao sair por baixo, volta ao papel.
+- Palco Tech Fleece: anel de marcação (HUD) girando ao contrário, dois arcos rápidos e um pulso duplo de energia no anel.
+- Desempenho medido (Chromium com renderização por software, rolagem contínua até a seção): a tarefa longa de ~200 ms ao montar o floco e o travamento de 1,3–1,7 s no congelamento (compilação/link de shader) foram eliminados; a preparação roda em fatias ociosas 1–2 telas antes.
