@@ -22,7 +22,24 @@ Arquivos adicionados:
 Arquivos alterados:
 
 - `index.html`: canvas mount + medidor da paleta + referências às novas camadas.
-- `tests/e2e.mjs`: presença da cena, legibilidade e segurança para movimento reduzido; erros apenas das bibliotecas opcionais são registrados separadamente.
+- `tests/e2e.mjs`: presença da cena, legibilidade e segurança para movimento reduzido; erros apenas das bibliotecas opcionais são registrados separadamente. Testes também exigem quatro itens Tech Fleece, fotos do conjunto e desativação da vista superior inexistente no creme.
+
+## Curadoria exclusiva Tech Fleece
+
+O mesmo Night Showroom foi restringido ao grupo `gb-v10-tech-fleece` de `rail-catalog.js`, que reúne somente quatro variantes do mesmo conjunto de frio:
+
+| Ordem | Variante | Produto de origem | Mídia validada para interface |
+| --- | --- | --- | --- |
+| 01 | Grafite | `gb-crt-004` | Conjunto / superior / inferior |
+| 02 | Azul | `gb-crt-003` | Conjunto / superior / inferior |
+| 03 | Cinza | `gb-crt-001` | Conjunto / superior / inferior |
+| 04 | Creme | `gb-crt-002` | Somente conjunto completo |
+
+- Não há mistura com `gb-crt-005` (kit de camisa e short), `gb-crt-006` (outro moletom) ou peças aleatórias como fallback.
+- Palco, grade e seletor agora apresentam as quatro cores, sempre com **conjunto completo** por padrão.
+- A vista `SUPERIOR` fica desabilitada na cor creme, pois só há imagem do kit inteiro. Para outras cores com foto superior isolada, permanece funcional.
+- Essa seleção editorial **não altera o catálogo geral, estoque, valores ou disponibilidade comercial**; o acervo e a atribuição de procedência ainda exigem confirmação.
+- A grade é 2×2 no desktop e mobile, com adaptação intermediária para 4 colunas em telas médias.
 
 ## Engenharia de desempenho e acessibilidade
 
