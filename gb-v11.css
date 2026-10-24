@@ -1,0 +1,139 @@
+/* GB IMPORTS / V11 — ilha de navegação, tema no topo, hero limpo com o trio flutuando, Tech Fleece mais vivo.
+   Tudo por transform/opacity; o vidro da ilha é a única camada com backdrop-filter (pequena e fixa). */
+
+/* ---------- 1. Ilha de navegação (estilo app): flutua, encolhe ao rolar, troca de tom pela seção embaixo ---------- */
+html{scroll-padding-top:96px}
+html body .site-header.gb-island{
+  --nav-bg:rgba(17,18,20,.58);--nav-ink:#f4f1e8;--nav-line:rgba(255,255,255,.12);--nav-glow:0 10px 40px rgba(0,0,0,.28);--nav-accent:#ffd447;--nav-muted:rgba(244,241,232,.55);
+  position:fixed;top:12px;left:50%;width:min(1240px,calc(100% - 24px));height:64px;margin:0;padding:0 10px 0 20px;z-index:60;
+  border:1px solid var(--nav-line)!important;border-radius:22px;background:var(--nav-bg)!important;color:var(--nav-ink)!important;
+  box-shadow:var(--nav-glow),inset 0 1px 0 rgba(255,255,255,.08);
+  -webkit-backdrop-filter:blur(18px) saturate(1.7);backdrop-filter:blur(18px) saturate(1.7);
+  transform:translate3d(-50%,0,0);transform-origin:50% 0;
+  transition:transform .55s cubic-bezier(.22,1,.36,1),background-color .45s ease,border-color .45s ease,color .45s ease,box-shadow .45s ease}
+html body .site-header.gb-island.is-compact{transform:translate3d(-50%,-4px,0) scale(.93)}
+html body .site-header.gb-island[data-tone="light"]{--nav-bg:rgba(250,248,242,.74);--nav-ink:#111214;--nav-line:rgba(17,18,20,.1);--nav-glow:0 10px 36px rgba(17,18,20,.1);--nav-muted:rgba(17,18,20,.5)}
+html body .site-header.gb-island[data-tone="yellow"]{--nav-bg:rgba(255,212,71,.78);--nav-ink:#111214;--nav-line:rgba(17,18,20,.14);--nav-glow:0 10px 36px rgba(120,90,0,.18);--nav-accent:#111214;--nav-muted:rgba(17,18,20,.55)}
+html body .site-header.gb-island[data-tone="ice"]{--nav-bg:rgba(6,16,36,.56);--nav-ink:#e8f6ff;--nav-line:rgba(143,208,255,.3);--nav-glow:0 0 0 1px rgba(74,168,255,.08),0 10px 44px rgba(46,124,255,.28);--nav-accent:#4aa8ff;--nav-muted:rgba(214,238,255,.6)}
+html body .site-header.gb-island :is(.brand-lockup,.desktop-nav a,.action-btn,.gb-language-control select,.gb-theme-btn){color:var(--nav-ink)!important}
+html body .site-header.gb-island .desktop-nav{gap:clamp(14px,2.2vw,30px);margin:0 auto}
+html body .site-header.gb-island .desktop-nav a{position:relative;font-size:10px;letter-spacing:1.4px;padding:10px 2px;opacity:.86;transition:opacity .25s ease}
+html body .site-header.gb-island .desktop-nav a:hover{opacity:1}
+html body .site-header.gb-island .desktop-nav a::after{content:'';position:absolute;left:0;right:0;bottom:4px;height:1.5px;border-radius:2px;background:var(--nav-accent);transform:scaleX(0);transform-origin:0 50%;transition:transform .35s cubic-bezier(.22,1,.36,1)}
+html body .site-header.gb-island .desktop-nav a:hover::after,html body .site-header.gb-island .desktop-nav a:focus-visible::after{transform:scaleX(1)}
+html body .site-header.gb-island .desktop-nav span{color:var(--nav-muted)!important}
+html body .site-header.gb-island .action-btn{border-radius:14px}
+html body .site-header.gb-island .action-btn:hover{background:color-mix(in srgb,var(--nav-ink) 10%,transparent)!important}
+html body .site-header.gb-island .mobile-menu-btn span{background:var(--nav-ink)!important}
+html body .site-header.gb-island .gb-language-control select{border-color:var(--nav-line);background-color:color-mix(in srgb,var(--nav-ink) 6%,transparent)}
+html body .site-header.gb-island .action-count{box-shadow:0 0 0 2px var(--nav-bg)}
+
+/* ---------- 2. Tema da página no topo: um botão consolidado + menu de vidro (ORIGEM / TRAMA / SINAL) ---------- */
+.gb-theme-control{position:relative;display:flex;align-items:center;margin-right:4px}
+.gb-theme-btn{display:flex;align-items:center;gap:8px;height:36px;padding:0 12px 0 9px;border:1px solid var(--nav-line,rgba(255,255,255,.14));border-radius:999px;background:color-mix(in srgb,currentColor 6%,transparent);color:inherit;font:800 9px/1 Arial,sans-serif;letter-spacing:1.2px;cursor:pointer;transition:background-color .25s ease,border-color .25s ease}
+.gb-theme-btn:hover,.gb-theme-btn[aria-expanded="true"]{background:color-mix(in srgb,currentColor 13%,transparent)}
+.gb-theme-btn:focus-visible{outline:2px solid var(--nav-accent,#ffd447);outline-offset:3px}
+.gb-theme-dots{position:relative;display:flex;width:26px;height:14px}
+.gb-theme-dots i{position:absolute;top:0;width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 1.5px var(--nav-bg,#111214);transition:transform .45s cubic-bezier(.22,1,.36,1)}
+.gb-theme-dots i:nth-child(1){left:0;background:#ffd447;z-index:3}
+.gb-theme-dots i:nth-child(2){left:6px;background:#e9e5db;z-index:2}
+.gb-theme-dots i:nth-child(3){left:12px;background:#111214;z-index:1;box-shadow:0 0 0 1.5px var(--nav-bg,#111214),inset 0 0 0 1px rgba(255,255,255,.35)}
+.gb-theme-btn:hover .gb-theme-dots i:nth-child(1){transform:translateX(-2px)}
+.gb-theme-btn:hover .gb-theme-dots i:nth-child(3){transform:translateX(2px)}
+.gb-theme-menu.gb-theme-switcher{position:absolute;top:calc(100% + 14px);right:-6px;width:290px;margin:0;padding:8px;z-index:70;
+  border:1px solid var(--nav-line,rgba(255,255,255,.14));border-radius:20px;background:var(--nav-bg,rgba(17,18,20,.8));color:var(--nav-ink,#f4f1e8);
+  -webkit-backdrop-filter:blur(22px) saturate(1.7);backdrop-filter:blur(22px) saturate(1.7);box-shadow:0 24px 60px rgba(0,0,0,.32);
+  transform-origin:85% 0;animation:gbMenuIn .38s cubic-bezier(.22,1,.36,1) both}
+.gb-theme-menu[hidden]{display:none}
+@keyframes gbMenuIn{from{opacity:0;transform:translateY(-6px) scale(.96)}}
+.gb-theme-menu .gb-theme-options{display:grid;grid-template-columns:1fr;gap:4px;border:0}
+.gb-theme-menu .gb-theme-option{display:grid;grid-template-columns:34px 1fr;grid-template-rows:auto auto;align-items:center;column-gap:12px;row-gap:3px;min-height:56px;padding:9px 12px;border:0!important;border-radius:14px;background:transparent;color:inherit;text-align:left}
+.gb-theme-menu .gb-theme-option:before{display:none}
+.gb-theme-menu .gb-theme-option:hover{background:color-mix(in srgb,currentColor 9%,transparent)}
+.gb-theme-menu .gb-theme-option.selected{background:color-mix(in srgb,var(--nav-accent,#ffd447) 18%,transparent);color:inherit}
+.gb-theme-swatch{grid-row:1/3;width:34px;height:34px;border-radius:11px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.gb-theme-option[data-gb-identity="0"] .gb-theme-swatch{background:linear-gradient(135deg,#ffd447 0 48%,#111214 52%)}
+.gb-theme-option[data-gb-identity="1"] .gb-theme-swatch{background:linear-gradient(135deg,#e9e5db 0 48%,#25231f 52%)}
+.gb-theme-option[data-gb-identity="2"] .gb-theme-swatch{background:linear-gradient(135deg,#111214 0 48%,#ffd447 52%)}
+.gb-theme-menu .gb-theme-name{font:900 11px/1 Arial,sans-serif;letter-spacing:1px;align-self:end}
+.gb-theme-menu .gb-theme-caption{font:700 8px/1.2 Arial,sans-serif;letter-spacing:.8px;opacity:.6;align-self:start}
+.gb-theme-menu .gb-theme-option.selected .gb-theme-name::after{content:'';display:inline-block;width:6px;height:6px;margin-left:8px;border-radius:50%;background:var(--nav-accent,#ffd447);vertical-align:1px}
+@media(max-width:1100px){.gb-theme-current{display:none}.gb-theme-btn{padding:0 9px}}
+@media(max-width:900px){
+  html body .site-header.gb-island{top:8px;width:calc(100% - 16px);height:58px;padding:0 6px 0 14px;border-radius:19px}
+  html body .site-header.gb-island.is-compact{transform:translate3d(-50%,-3px,0) scale(.96)}
+  .gb-theme-btn{width:40px;height:40px;padding:0;justify-content:center}
+  .gb-theme-dots{width:22px;height:12px}.gb-theme-dots i{width:12px;height:12px}.gb-theme-dots i:nth-child(2){left:5px}.gb-theme-dots i:nth-child(3){left:10px}
+  .gb-theme-menu.gb-theme-switcher{position:fixed;top:74px;right:8px;left:auto;width:min(290px,calc(100vw - 16px))}
+}
+@media(max-width:380px){html body .site-header.gb-island{padding:0 4px 0 10px}html body .site-header.gb-island .brand-lockup{display:none}}
+
+/* ---------- 3. Hero limpo: sem faixas, legendas e numeração; o produto e o título mandam ---------- */
+.hero-v03 .hero-copy .eyebrow{display:none}
+.hero-v03 .hero-meta{justify-content:flex-end;gap:clamp(28px,4vw,64px);background:transparent!important;border-top:0!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+.hero-v03 .hero-meta .scroll-cue{gap:14px;opacity:.75}
+.hero-v03 .hero-pager #heroNum,.hero-v03 .hero-pager .slash,.hero-v03 .hero-pager #heroNum~span:not(.hero-progress){position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hero-v03 .hero-pager{gap:10px}
+.hero-v03 .hero-pager button{width:44px;height:44px;border-radius:50%;border:1px solid color-mix(in srgb,currentColor 22%,transparent);background:color-mix(in srgb,currentColor 5%,transparent);transition:background-color .25s ease,transform .3s cubic-bezier(.22,1,.36,1)}
+.hero-v03 .hero-pager button:hover{background:color-mix(in srgb,currentColor 14%,transparent);transform:scale(1.06)}
+.hero-v03 .hero-stage{height:clamp(640px,100svh,1000px);max-height:none}
+.hero-v03.hero{padding-top:0}
+.hero-v03 .hero-copy{padding-top:58px}
+@media(max-width:900px){.hero-v03 .hero-stage{height:auto;min-height:max(760px,100svh)}.hero-v03 .hero-copy{padding-top:72px}}
+
+/* trio: flutua, oscila em 3D (sempre de frente; nunca mostra costas inexistentes), pulsa e brilha;
+   a troca automática de capítulo faz as três peças girarem entre si no anel */
+.trio-obj{perspective:900px}
+.trio-glow{position:absolute;left:8%;right:8%;top:10%;bottom:6%;border-radius:50%;pointer-events:none;opacity:.25;transition:opacity .8s ease;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--gb-yellow,#ffd447) 42%,transparent),color-mix(in srgb,var(--gb-yellow,#ffd447) 10%,transparent) 55%,transparent 72%)}
+.trio-obj.is-front .trio-glow{opacity:.75}
+.trio-media img{filter:drop-shadow(0 26px 30px rgba(0,0,0,.45)) drop-shadow(0 0 22px color-mix(in srgb,var(--gb-yellow,#ffd447) 22%,transparent))}
+@media(prefers-reduced-motion:no-preference){
+  .gb-hero-live .trio-media{animation:gbTrioFloat 7.2s ease-in-out infinite;will-change:transform}
+  .gb-hero-live .trio-obj:nth-child(2) .trio-media{animation-delay:-2.4s}
+  .gb-hero-live .trio-obj:nth-child(3) .trio-media{animation-delay:-4.8s}
+  .gb-hero-live .trio-glow{animation:gbTrioPulse 3.6s ease-in-out infinite;will-change:transform}
+  .gb-hero-live .trio-obj:nth-child(2) .trio-glow{animation-delay:-1.2s}
+  .gb-hero-live .trio-obj:nth-child(3) .trio-glow{animation-delay:-2.4s}
+}
+@keyframes gbTrioFloat{
+  0%,100%{transform:translate3d(0,0,0) rotateY(-13deg) rotateZ(-.8deg)}
+  25%{transform:translate3d(0,-2.4%,0) rotateY(0deg) rotateZ(0deg) scale(1.012)}
+  50%{transform:translate3d(0,-3.6%,0) rotateY(13deg) rotateZ(.8deg)}
+  75%{transform:translate3d(0,-1.6%,0) rotateY(0deg) rotateZ(0deg) scale(1.012)}}
+@keyframes gbTrioPulse{0%,100%{transform:scale(.92)}50%{transform:scale(1.08)}}
+body[data-gb-theme="trama"] .trio-glow{background:radial-gradient(closest-side,rgba(255,255,255,.75),rgba(255,255,255,.2) 55%,transparent 72%)}
+
+/* ---------- 4. Tech Fleece (depois do ABAIXO DE ZERO): peça flutuando com reflexo frio, sem numeração ---------- */
+#showroom .showroom-selector button>span:first-child:empty{display:none}
+#showroom .showroom-feature-foot strong{letter-spacing:2.2px;text-shadow:0 0 18px rgba(74,168,255,.45)}
+#showroom .showroom-feature-foot>span:last-child{opacity:.55}
+#showroom .sf-floor{position:absolute;left:22%;right:22%;bottom:7%;height:9%;border-radius:50%;z-index:1;pointer-events:none;opacity:.7;
+  background:radial-gradient(closest-side,rgba(120,200,255,.55),rgba(46,124,255,.16) 55%,transparent 75%)}
+@media(prefers-reduced-motion:no-preference){
+  #showroom .showroom-shell.is-cold-live #showroomFeatureMedia .sf-layer.is-on{animation:gbFleeceFloat 6.4s ease-in-out infinite}
+  #showroom .showroom-shell.is-cold-live .sf-floor{animation:gbFloorPulse 6.4s ease-in-out infinite;will-change:transform,opacity}
+}
+@keyframes gbFleeceFloat{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 -2.2%;rotate:.4deg}}
+@keyframes gbFloorPulse{0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(.86);opacity:.45}}
+#showroom .showroom-small{transition:transform .45s cubic-bezier(.22,1,.36,1),box-shadow .45s ease}
+#showroom .showroom-small:hover{transform:translateY(-4px)}
+#showroom .showroom-small.active{box-shadow:inset 0 0 0 1px rgba(143,208,255,.7),0 0 34px rgba(74,168,255,.22)}
+#showroom .showroom-small>span:last-child{letter-spacing:1.4px}
+#showroom .showroom-selector button.active{text-shadow:0 0 14px rgba(74,168,255,.55)}
+
+@media(prefers-reduced-motion:reduce){
+  html body .site-header.gb-island,.gb-theme-menu.gb-theme-switcher{transition:none;animation:none}
+}
+
+/* TRAMA é o tema claro: o fundo do hero precisa vencer o !important antigo da V05 (texto escuro sobre papel) */
+body[data-gb-theme="trama"] .hero-v05 .hero-stage{background:radial-gradient(ellipse at 72% 44%,#fffdf8 0%,#efebe2 44%,#e0dbcf 100%)!important}
+body[data-gb-theme="trama"] .hero-v05 .hero-stage::after,body[data-gb-theme="trama"] .hero-v05 .hero-stage::before{opacity:0!important}
+body[data-gb-theme="trama"] .hero-v05 .hero-noise{opacity:.04}
+body[data-gb-theme="trama"] .hero-v03 .hero-copy .emphasis{color:#8b7a55}
+body[data-gb-theme="trama"] .hero-v03 .hero-copy p{color:#5d584d}
+body[data-gb-theme="trama"] .hero-v05 .hero-giant-mark{opacity:.08}
+body[data-gb-theme="trama"] .hero-v03 .hero-meta{color:#25231f}
+body[data-gb-theme="trama"] .trio-media img{filter:drop-shadow(0 24px 26px rgba(37,35,31,.28)) drop-shadow(0 0 18px rgba(255,255,255,.6))}
+body[data-gb-theme="trama"] .hero-v03 .hero-pager,body[data-gb-theme="trama"] .hero-v03 .hero-pager button,body[data-gb-theme="trama"] .hero-v03 .scroll-cue{color:#25231f!important}
+body[data-gb-theme="trama"] .hero-v03 .hero-progress{background:rgba(37,35,31,.18)}

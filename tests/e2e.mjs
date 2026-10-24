@@ -253,16 +253,19 @@ async function run(w,h,reduced=false){
   check(vp,'look studio troca superior',(await page.locator('#lookSummary').textContent())!==s0);
   await page.locator('#lookSave').click();
   check(vp,'look salvo aparece na lista',await page.locator('.look-saved-item').count()>=1);
-  // Temas globais de marca + idiomas
-  await page.locator('[data-gb-identity="1"]').click();
+  // Temas globais de marca + idiomas (V11: o seletor mora num menu na ilha de navegação)
+  const pickTheme=async i=>{if(await page.locator('#gbThemeMenu').isHidden())await page.locator('#gbThemeBtn').click();await page.locator(`[data-gb-identity="${i}"]`).click()};
+  await pickTheme(1);
   check(vp,'tema TRAMA aplicado globalmente',(await page.locator('body').getAttribute('data-gb-theme'))==='trama');
   check(vp,'seletor marca TRAMA como ativa',(await page.locator('[data-gb-identity="1"]').getAttribute('aria-pressed'))==='true');
-  await page.locator('[data-gb-identity="2"]').click();
+  await pickTheme(2);
+  check(vp,'tema: menu fecha após escolher',await page.locator('#gbThemeMenu').isHidden());
   check(vp,'tema SINAL aplicado globalmente',(await page.locator('body').getAttribute('data-gb-theme'))==='sinal');
   await page.locator('#gbLanguage').selectOption('en');
+  await page.locator('#gbThemeBtn').click();
   check(vp,'tema: rótulos do seletor traduzidos para inglês',
-    (await page.locator('.gb-theme-switcher-heading').innerText()).includes('THREE UNIVERSES. ONE GB.')&&
     (await page.locator('[data-gb-identity="0"] .gb-theme-caption').innerText()).trim()==='ESSENCE');
+  await page.keyboard.press('Escape');
 
   check(vp,'idioma inglês traduz interface e lang',(await page.locator('html').getAttribute('lang'))==='en'&&(await page.locator('.footer-nav a').first().textContent()).trim()==='Collection');
   await page.locator('#gbLanguage').selectOption('es');
@@ -270,7 +273,7 @@ async function run(w,h,reduced=false){
   await page.locator('#gbLanguage').selectOption('it');
   check(vp,'idioma italiano traduz interface',(await page.locator('.footer-nav a').first().textContent()).trim()==='Collezione');
   await page.locator('#gbLanguage').selectOption('pt');
-  await page.locator('[data-gb-identity="0"]').click();
+  await pickTheme(0);
   check(vp,'idioma e tema retornam ao padrão',(await page.locator('html').getAttribute('lang'))==='pt-BR'&&(await page.locator('body').getAttribute('data-gb-theme'))==='origem');
   // Hero
   await page.evaluate(()=>scrollTo(0,0));const h0=await page.locator('#heroNum').textContent();await page.locator('#heroNext').click();await page.waitForTimeout(450);

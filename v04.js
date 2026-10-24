@@ -76,8 +76,8 @@ function selectShowroom(i,focus=false,force=false){
   if(focus)q(`.showroom-selector [data-show-index="${showPos}"]`)?.focus();
 }
 // grade e palco montados ao se aproximar da tela; seletor e eventos já ficam prontos
-function mountShowroomGrid(){q('#showroomGrid').innerHTML=four.map((p,i)=>`<button type="button" data-show-product="${p.id}" data-show-index="${i}" class="showroom-small"><span class="showroom-small-media" aria-hidden="true">${productMedia(p,'combo')}</span><span>${fmt(i)} / TECH FLEECE · ${escaped(techFleece[i].variant.label)}</span></button>`).join('');selectShowroom(showPos,false,true)}
-q('#showroomSelector').innerHTML=four.map((p,i)=>`<button type="button" data-show-product="${p.id}" data-show-index="${i}"><span>${fmt(i)}</span>Tech Fleece / ${escaped(techFleece[i].variant.label)}</button>`).join('');
+function mountShowroomGrid(){q('#showroomGrid').innerHTML=four.map((p,i)=>`<button type="button" data-show-product="${p.id}" data-show-index="${i}" class="showroom-small"><span class="showroom-small-media" aria-hidden="true">${productMedia(p,'combo')}</span><span>TECH FLEECE · ${escaped(techFleece[i].variant.label)}</span></button>`).join('');selectShowroom(showPos,false,true)}
+q('#showroomSelector').innerHTML=four.map((p,i)=>`<button type="button" data-show-product="${p.id}" data-show-index="${i}">Tech Fleece / ${escaped(techFleece[i].variant.label)}</button>`).join('');
 q('#showroom').addEventListener('click',e=>{const b=e.target.closest('[data-show-index]');if(b)selectShowroom(+b.dataset.showIndex);const v=e.target.closest('[data-show-view]');if(v&&!v.disabled){showView=v.dataset.showView;selectShowroom(showPos,false,true)}});
 q('#showroomSelector').addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();selectShowroom(showPos+1,true)}if(e.key==='ArrowUp'){e.preventDefault();selectShowroom(showPos-1,true)}});
 q('#showroomOpen').addEventListener('click',()=>{if(four[showPos])detailModal(four[showPos])});
