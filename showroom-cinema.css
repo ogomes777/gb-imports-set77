@@ -24,7 +24,10 @@
 .showroom-heading .showroom-sub span{color:#b5b3aa}
 .showroom-heading>p{color:#d5d3c9}
 .showroom-heading .showroom-cinema-bg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;isolation:isolate}
-.showroom-cinema-webgl{position:absolute;inset:0;z-index:1;opacity:.78;mask-image:linear-gradient(90deg,transparent 0%,#000 16%,#000 100%)}
+.showroom-cinema-webgl{position:absolute;inset:0;z-index:1;opacity:0;transition:opacity 1.4s ease}
+.showroom-cinema-bg.has-webgl .showroom-cinema-webgl{opacity:1}
+/* com a cena 3D no ar, as camadas CSS de reserva saem de cena */
+.showroom-cinema-bg.has-webgl .showroom-cinema-aurora,.showroom-cinema-bg.has-webgl .showroom-cinema-beam,.showroom-cinema-bg.has-webgl .showroom-cinema-grid{opacity:0!important;transition:opacity 1s}
 .showroom-cinema-webgl canvas{display:block;width:100%;height:100%}
 .showroom-cinema-aurora{
   position:absolute;z-index:0;right:-13%;bottom:-84%;width:100%;aspect-ratio:1;
@@ -95,3 +98,10 @@
 .showroom-small.active{box-shadow:inset 0 0 0 1px var(--cinema-accent,#ffd635)}
 @media(max-width:1080px){.showroom-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:720px){.showroom-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.showroom-small{min-height:175px}.showroom-small-media .actual-photo{max-height:145px}}
+
+/* DARK SPECTRUM V2 — título letra a letra: cor por capítulo corre como onda (atraso por letra) */
+.showroom-heading h2 .sc-ch{display:inline-block;color:rgb(var(--sc-target,255,214,53));transition:color .55s cubic-bezier(.2,.8,.2,1) calc(var(--i)*26ms),text-shadow .55s ease calc(var(--i)*26ms);text-shadow:0 0 42px rgba(var(--sc-target,255,214,53),.38),0 0 2px rgba(0,0,0,.35);backface-visibility:hidden;will-change:transform}
+.showroom-heading h2 span:not(.sc-ch){color:inherit}
+.showroom-cinema-bg.cinema-css-fallback ~ h2 .sc-ch{color:inherit;transition:none}
+@media(max-width:720px){.showroom-heading h2 .sc-ch{text-shadow:0 0 24px rgba(var(--sc-target,255,214,53),.3)}}
+@media(prefers-reduced-motion:reduce){.showroom-heading h2 .sc-ch{transition:none!important;will-change:auto}}
