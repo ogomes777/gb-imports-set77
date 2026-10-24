@@ -1,8 +1,8 @@
 /* GB IMPORTS / DARK SPECTRUM V4 · MULTIVERSO DE GELO — GSAP + THREE (lazy, section-scoped).
- * Tema frio da coleção Tech Fleece: floco de neve 3D com bordas acesas em azul, neve real, névoa glacial e geada.
+ * Tema frio da coleção Tech Fleece: paisagem congelada (céu de tempestade, gelo, falésia) e floco de cristal 3D.
  * Chegada: o título entra letra a letra e troca de cor na hora; cada nova cor corre como onda pelas letras.
- * Fundo: nebulosa líquida em shader, escultura cromática que respira, túnel de partículas e anéis orbitais,
- * tudo tingido pela cor do capítulo, reagindo ao ponteiro e à rolagem. Só roda visível, com teto de fps;
+ * O floco é vidro de gelo que reflete e refrata o mesmo céu; neve em duas camadas; tudo reage ao ponteiro e à
+ * rolagem. Só roda visível, com teto de fps e resolução adaptativa;
  * aparelho modesto/reduzido fica no fallback CSS. Nenhuma imagem ou estado do catálogo é alterado.
  */
 (()=>{
