@@ -224,9 +224,11 @@ async function run(w,h,reduced=false){
   // Hero
   await page.evaluate(()=>scrollTo(0,0));const h0=await page.locator('#heroNum').textContent();await page.locator('#heroNext').click();await page.waitForTimeout(450);
   check(vp,'hero avança capítulo',(await page.locator('#heroNum').textContent())!==h0);
-  // Entrada de loja com transição GB
-  await page.locator('.shop-entry [data-v03-filter="short"]').click();await page.waitForTimeout(1100);
-  check(vp,'atalho de loja aplica filtro',(await page.locator('.filter.active').getAttribute('data-filter'))==='short');
+  // A arara conecta diretamente à curadoria, sem atalhos pretos duplicados.
+  const connected=await page.evaluate(()=>{const rail=document.querySelector('#rail'),collection=document.querySelector('#colecao');return !document.querySelector('.shop-entry')&&rail?.nextElementSibling===collection});
+  check(vp,'arara seguida pela curadoria sem a faixa Entre e Encontre',connected);
+  await page.locator('.filter[data-filter="short"]').click();
+  check(vp,'filtro camisa+short permanece funcional',(await page.locator('.filter.active').getAttribute('data-filter'))==='short');
   // Deep link + voltar
   await page.goto(BASE+'?peca=gb-sh-02',{waitUntil:'networkidle'});
   check(vp,'deep link abre peça',(await page.locator('#productModal h2').textContent()).includes('MANCHESTER CITY'));
