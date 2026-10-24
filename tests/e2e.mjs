@@ -229,8 +229,23 @@ async function run(w,h,reduced=false){
   check(vp,'cinema: ambiente inicial continua legivel sem rede 3D',cinema.accent!=='rgba(0, 0, 0, 0)'&&cinema.status==='01 / 04',JSON.stringify(cinema));
   if(reduced)check(vp,'cinema: movimento reduzido sem WebGL',cinema.reduced&&!cinema.hasCanvas,JSON.stringify(cinema));
   await page.locator('#showroom').scrollIntoViewIfNeeded();
+  await page.waitForSelector('#showroomGrid .showroom-small');
+  const fleece=await page.evaluate(()=>({
+    selected:[...document.querySelectorAll('#showroomSelector [data-show-product]')].map(b=>b.dataset.showProduct),
+    thumbs:[...document.querySelectorAll('#showroomGrid [data-show-product]')].map(b=>b.dataset.showProduct),
+    allPhotos:[...document.querySelectorAll('#showroomGrid .showroom-small-media')].every(el=>!!el.querySelector('img.actual-photo')),
+    initialView:document.querySelector('[data-show-view="combo"]')?.getAttribute('aria-pressed'),
+    label:document.querySelector('.showroom-sub')?.textContent||''
+  }));
+  const fleeceIds=['gb-crt-004','gb-crt-003','gb-crt-001','gb-crt-002'];
+  check(vp,'showroom exclusivo: quatro conjuntos Tech Fleece sem camisetas ou outros moletons',JSON.stringify(fleece.selected)===JSON.stringify(fleeceIds)&&JSON.stringify(fleece.thumbs)===JSON.stringify(fleeceIds),JSON.stringify(fleece));
+  check(vp,'showroom: quatro fotos de conjunto e vista completa padrao',fleece.allPhotos&&fleece.initialView==='true'&&fleece.label.includes('QUATRO CORES'),JSON.stringify(fleece));
   await page.locator('.showroom-selector [data-show-index="2"]').click();
   check(vp,'showroom troca peça',(await page.locator('#showroomFeatureNum').textContent())==='03');
+  await page.locator('.showroom-selector [data-show-index="3"]').click();
+  check(vp,'showroom: creme sem foto superior avulsa nao exibe vista ficticia',await page.locator('[data-show-view="top"]').isDisabled()&&(await page.locator('[data-show-view="combo"]').getAttribute('aria-pressed'))==='true');
+  await page.locator('.showroom-selector [data-show-index="0"]').click();
+  check(vp,'showroom: volta a habilitar vista superior onde existe foto',await page.locator('[data-show-view="top"]').isEnabled());
   // Look Studio
   await page.locator('#lookstudio').scrollIntoViewIfNeeded();
   const s0=await page.locator('#lookSummary').textContent();
