@@ -39,28 +39,49 @@ document.addEventListener('keydown',e=>{
 },true);
 
 /* ---------- NIGHT SHOWROOM: palco duplo em perspectiva, luz amortecida, prévia por intenção ---------- */
-let showPos=0,showView='top',layerFlip=false;const stageSelection=['gb-crt-004','gb-crt-003','gb-crt-005','gb-crt-001','gb-crt-006','gb-crt-002'];
-const six=stageSelection.map((id,i)=>items.find(p=>p.id===id)||[items[4],items[1],items[7],items[3],items[8],items[0]][i]);
+// Night Showroom é uma curadoria exclusiva dos quatro conjuntos Tech Fleece.
+// Fonte única: grupo e variantes fotografadas em rail-catalog.js. Nunca usar produtos genéricos como fallback.
+const techFleeceGroup=window.GB_RAIL_CATALOG?.items?.find(g=>g.id==='gb-v10-tech-fleece');
+const TECH_FLEECE_ORDER=['grafite','azul','cinza','creme'];
+const techFleece=TECH_FLEECE_ORDER.map(color=>techFleeceGroup?.variants?.find(v=>v.id===color))
+  .filter(Boolean).map(v=>({product:items.find(p=>p.id===v.sourceId),variant:v})).filter(v=>v.product);
+const four=techFleece.map(v=>v.product);
+let showPos=0,showView='combo',layerFlip=false;
+function syncShowroomViews(p){
+  // Creme possui somente a foto do conjunto completo; não alegar vista isolada do superior.
+  const hasTop=!!window.GB_ASSETS?.[p.id]?.top;
+  if(showView==='top'&&!hasTop)showView='combo';
+  qa('[data-show-view]').forEach(button=>{
+    const view=button.dataset.showView,available=view!=='top'||hasTop;
+    button.disabled=!available;
+    button.setAttribute('aria-disabled',String(!available));
+    button.title=available?'': 'Parte superior isolada ainda sem imagem validada nesta cor';
+    button.classList.toggle('active',showView===view);
+    button.setAttribute('aria-pressed',String(showView===view));
+  });
+}
 const featureMedia=q('#showroomFeatureMedia');featureMedia.innerHTML='<div class="sf-layer"></div><div class="sf-layer"></div>';
 const layers=qa('.sf-layer',featureMedia);
 function selectShowroom(i,focus=false,force=false){
-  const prev=showPos,next=(i+six.length)%six.length;if(next===prev&&!force&&layers.some(l=>l.classList.contains('is-on')))return;
-  showPos=next;const p=six[showPos],dir=showPos>=prev?1:-1;
+  if(!four.length)return;
+   const prev=showPos,next=(i+four.length)%four.length;if(next===prev&&!force&&layers.some(l=>l.classList.contains('is-on')))return;
+  showPos=next;const p=four[showPos],dir=showPos>=prev?1:-1;
+   syncShowroomViews(p);
   const inL=layers[layerFlip?0:1],outL=layers[layerFlip?1:0];layerFlip=!layerFlip;
   inL.innerHTML=productMedia(p,showView);inL.style.setProperty('--dir',dir);outL.style.setProperty('--dir',dir);
   outL.classList.remove('is-on');outL.classList.add('is-off');inL.classList.remove('is-off');
   void inL.offsetWidth;inL.classList.add('is-on');
-  q('#showroomFeatureNum').textContent=fmt(showPos);q('#showroomFeatureName').textContent=p.name.toUpperCase();
+  q('#showroomFeatureNum').textContent=fmt(showPos);q('#showroomFeatureName').textContent=`TECH FLEECE / ${techFleece[showPos]?.variant?.label||p.name}`;
   qa('[data-show-index]').forEach(b=>{const active=+b.dataset.showIndex===showPos;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
   if(focus)q(`.showroom-selector [data-show-index="${showPos}"]`)?.focus();
 }
 // grade e palco montados ao se aproximar da tela; seletor e eventos já ficam prontos
-function mountShowroomGrid(){q('#showroomGrid').innerHTML=six.map((p,i)=>`<button type="button" data-show-index="${i}" class="showroom-small"><span class="showroom-small-media" aria-hidden="true">${productMedia(p,'top')}</span><span>${fmt(i)} / ${escaped(p.name)}</span></button>`).join('');selectShowroom(showPos,false,true)}
-q('#showroomSelector').innerHTML=six.map((p,i)=>`<button type="button" data-show-index="${i}"><span>${fmt(i)}</span>${escaped(p.name)}</button>`).join('');
-q('#showroom').addEventListener('click',e=>{const b=e.target.closest('[data-show-index]');if(b)selectShowroom(+b.dataset.showIndex);const v=e.target.closest('[data-show-view]');if(v){showView=v.dataset.showView;qa('[data-show-view]').forEach(x=>{const on=x===v;x.classList.toggle('active',on);x.setAttribute('aria-pressed',String(on))});selectShowroom(showPos,false,true)}});
+function mountShowroomGrid(){q('#showroomGrid').innerHTML=four.map((p,i)=>`<button type="button" data-show-product="${p.id}" data-show-index="${i}" class="showroom-small"><span class="showroom-small-media" aria-hidden="true">${productMedia(p,'combo')}</span><span>${fmt(i)} / TECH FLEECE · ${escaped(techFleece[i].variant.label)}</span></button>`).join('');selectShowroom(showPos,false,true)}
+q('#showroomSelector').innerHTML=four.map((p,i)=>`<button type="button" data-show-product="${p.id}" data-show-index="${i}"><span>${fmt(i)}</span>Tech Fleece / ${escaped(techFleece[i].variant.label)}</button>`).join('');
+q('#showroom').addEventListener('click',e=>{const b=e.target.closest('[data-show-index]');if(b)selectShowroom(+b.dataset.showIndex);const v=e.target.closest('[data-show-view]');if(v&&!v.disabled){showView=v.dataset.showView;selectShowroom(showPos,false,true)}});
 q('#showroomSelector').addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();selectShowroom(showPos+1,true)}if(e.key==='ArrowUp'){e.preventDefault();selectShowroom(showPos-1,true)}});
-q('#showroomOpen').addEventListener('click',()=>detailModal(six[showPos]));
-q('.showroom-feature')?.addEventListener('click',e=>{const l=e.target.closest('.sf-layer.is-on');if(l)detailModal(six[showPos],{transition:l.querySelector('.garment-svg')})});
+q('#showroomOpen').addEventListener('click',()=>{if(four[showPos])detailModal(four[showPos])});
+q('.showroom-feature')?.addEventListener('click',e=>{const l=e.target.closest('.sf-layer.is-on');if(l&&four[showPos])detailModal(four[showPos],{transition:l.querySelector('.garment-svg')})});
 if(M)M.onVisible(q('#showroom'),v=>{if(v&&!q('#showroomGrid').firstChild)mountShowroomGrid()},{margin:'900px 0px'});else mountShowroomGrid();
 const feature=q('.showroom-feature');
 if(feature&&!reduced&&M&&M.Prefs.fine&&!M.Prefs.lite){
