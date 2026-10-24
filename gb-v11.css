@@ -260,3 +260,89 @@ body[data-gb-theme="sinal"] #rail :is(.r10-cap-row button,.r10-orient-btns butto
 /* filtros e chips também em pílula */
 :is(.rail-chips button,.filter-tabs .filter){border-radius:999px!important;transition:background-color .3s ease,color .3s ease,box-shadow .35s ease}
 :is(.rail-chips button,.filter-tabs .filter):is(.active,[aria-pressed="true"]){box-shadow:0 0 0 1px rgba(255,212,71,.6),0 0 18px rgba(255,212,71,.28)}
+
+/* ============ V11.3 — três passos como ponte entre o Look Studio e o SEU PRÓXIMO CAPÍTULO; GB que surge ============ */
+.how-section.gb-how{--how-bg:#f4f1e8;--how-ink:#111214;--how-muted:#666864;--how-card:rgba(255,255,255,.62);--how-line:rgba(17,18,20,.09);--how-glow:255,212,71;
+  position:relative;isolation:isolate;overflow:hidden;padding:clamp(72px,8vw,118px) 5vw clamp(80px,9vw,126px);background:var(--how-bg);color:var(--how-ink)}
+body[data-gb-theme="sinal"] .how-section.gb-how{--how-bg:#0e0f10;--how-ink:#f4f1e8;--how-muted:#a9a69c;--how-card:rgba(255,255,255,.035);--how-line:rgba(255,255,255,.1)}
+.how-section.gb-how::before{content:'';position:absolute;inset:auto -10% -40% -10%;height:80%;z-index:-1;pointer-events:none;background:radial-gradient(ellipse 50% 60% at 50% 100%,rgba(var(--how-glow),.18),transparent 70%)}
+.how-section.gb-how .how-heading{display:block;margin:0 0 clamp(36px,4vw,56px)}
+.how-section.gb-how .how-heading h2{font:900 clamp(38px,5.2vw,84px)/.92 var(--display);letter-spacing:-.06em;color:var(--how-ink)}
+.how-section.gb-how .how-heading h2 span{color:#ffd447;text-shadow:0 0 22px rgba(255,212,71,.55)}
+.how-section.gb-how .how-grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,1.6vw,24px);border:0}
+.how-section.gb-how .how-card{position:relative;isolation:isolate;min-height:0;padding:clamp(24px,2.4vw,34px);border:1px solid var(--how-line)!important;border-radius:26px;background:var(--how-card);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 18px 50px rgba(17,18,20,.07);transition:transform .55s cubic-bezier(.22,1,.36,1),box-shadow .5s ease}
+.how-section.gb-how .how-card:first-child{padding-left:clamp(24px,2.4vw,34px)}
+.how-section.gb-how .how-card::after{content:'';position:absolute;inset:-1px;border-radius:inherit;z-index:-1;pointer-events:none;opacity:0;transition:opacity .45s ease;
+  box-shadow:0 0 0 1.5px rgba(var(--how-glow),.7),0 0 30px rgba(var(--how-glow),.3)}
+.how-section.gb-how .how-card:hover{transform:translateY(-6px);box-shadow:0 26px 60px rgba(17,18,20,.12)}
+.how-section.gb-how .how-card:hover::after{opacity:1}
+.how-section.gb-how .how-num{position:absolute;top:22px;right:26px;font:900 clamp(40px,4vw,64px)/1 var(--display);letter-spacing:-.06em;color:transparent;-webkit-text-stroke:1px color-mix(in srgb,var(--how-ink) 22%,transparent)}
+.how-section.gb-how .how-icon{display:grid;place-items:center;width:58px;height:58px;margin:0 0 26px;border-radius:18px;font-size:0;color:#111214;background:#ffd447;
+  box-shadow:0 0 0 6px rgba(255,212,71,.16),0 10px 30px rgba(255,212,71,.35)}
+.how-section.gb-how .how-icon svg{width:26px;height:26px}
+.how-section.gb-how .how-card h3{font:900 clamp(20px,1.8vw,26px)/1 var(--display);letter-spacing:-.03em;margin:0 0 12px;color:var(--how-ink)}
+.how-section.gb-how .how-card p{max-width:34ch;font-size:13px;line-height:1.75;color:var(--how-muted)}
+/* trilho de luz ligando os três passos */
+.gb-how-line{position:absolute;z-index:0;left:5vw;right:5vw;height:1px;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,212,71,.55) 12%,rgba(255,212,71,.55) 88%,transparent);transform-origin:0 50%;transform:scaleX(0);transition:transform 1.4s cubic-bezier(.22,1,.36,1) .2s}
+.gb-how-line i{position:absolute;top:-3px;left:0;width:7px;height:7px;border-radius:50%;background:#ffd447;box-shadow:0 0 12px 3px rgba(255,212,71,.7);opacity:0}
+/* entrada: cartões sobem em sequência, o trilho se desenha */
+.how-section.gb-how .how-card{opacity:0;transform:translateY(28px)}
+.how-section.gb-how.is-in .how-card{opacity:1;transform:none;transition:opacity .8s ease,transform .9s cubic-bezier(.22,1,.36,1),box-shadow .5s ease}
+.how-section.gb-how.is-in .how-card:nth-child(2){transition-delay:.12s}.how-section.gb-how.is-in .how-card:nth-child(3){transition-delay:.24s}
+.how-section.gb-how.is-in .how-card:hover{transform:translateY(-6px);transition-delay:0s}
+.how-section.gb-how.is-in .gb-how-line{transform:scaleX(1)}
+@media(prefers-reduced-motion:no-preference){
+  .how-section.gb-how.is-in .gb-how-line i{animation:gbHowDot 5.5s cubic-bezier(.45,0,.2,1) 1.4s infinite}
+  .how-section.gb-how.is-in .how-icon{animation:gbHowPulse 3.2s ease-in-out infinite}
+  .how-section.gb-how.is-in .how-card:nth-child(2) .how-icon{animation-delay:-1.06s}.how-section.gb-how.is-in .how-card:nth-child(3) .how-icon{animation-delay:-2.12s}
+}
+@keyframes gbHowDot{0%{left:0;opacity:0}8%{opacity:1}92%{opacity:1}100%{left:100%;opacity:0}}
+@keyframes gbHowPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@media(max-width:900px){.how-section.gb-how .how-grid{grid-template-columns:1fr}.gb-how-line{display:none}.how-section.gb-how .how-card{padding:24px}}
+@media(prefers-reduced-motion:reduce){.how-section.gb-how .how-card{opacity:1;transform:none}.gb-how-line{transform:scaleX(1)}}
+
+/* SEU PRÓXIMO CAPÍTULO: sem faixas de produção; o monograma GB aparece inteiro, surge, flutua e brilha */
+.editorial-break{background:#111214}
+.editorial-break .editorial-break-hero{min-height:clamp(620px,62vw,820px);padding:clamp(60px,7vw,96px) 5vw}
+.editorial-break .media-slot:not(.has-media) figcaption{display:none}
+.editorial-break .slot-campaign{top:clamp(56px,6vw,90px);right:5vw;width:min(42%,600px)}
+.editorial-break .media-slot:not(.has-media) .slot-frame{aspect-ratio:3/2;overflow:visible;background:none;border:0}
+.editorial-break .media-slot:not(.has-media) .slot-study{overflow:visible;background:none}
+.editorial-break .slot-grid{display:none}
+.gb-mark-halo{position:absolute;inset:-6% 2%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,212,71,.34),rgba(255,212,71,.08) 55%,transparent 75%);opacity:0;transition:opacity 1.2s ease .3s}
+.gb-mark-ring{position:absolute;left:50%;top:50%;width:92%;aspect-ratio:1;border-radius:50%;border:1px solid rgba(255,212,71,.28);transform:translate(-50%,-50%) scale(.6);opacity:0;transition:transform 1.6s cubic-bezier(.22,1,.36,1) .15s,opacity 1s ease .15s}
+.gb-mark-float{position:absolute;inset:6% 8%;display:block}
+.editorial-break .slot-curve{position:absolute;inset:0;width:100%;height:100%;left:0;top:0;object-fit:contain;opacity:0;transform:translateY(8%) scale(.82) rotate(-10deg);
+  filter:drop-shadow(0 18px 40px rgba(0,0,0,.55)) drop-shadow(0 0 26px rgba(255,212,71,.35));transition:opacity .9s ease,transform 1.3s cubic-bezier(.22,1,.36,1)}
+.gb-mark-sheen{position:absolute;inset:0;overflow:hidden;opacity:.9;-webkit-mask:url("/assets/brand/gb-monograma-amarelo-preto.svg") center/contain no-repeat;mask:url("/assets/brand/gb-monograma-amarelo-preto.svg") center/contain no-repeat}
+.gb-mark-sheen::before{content:'';position:absolute;top:0;bottom:0;left:-40%;width:35%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);transform:translateX(0)}
+.media-slot.is-revealed .gb-mark-halo,.media-slot.is-revealed .gb-mark-ring{opacity:1}
+.media-slot.is-revealed .gb-mark-ring{transform:translate(-50%,-50%) scale(1)}
+.media-slot.is-revealed .slot-curve{opacity:1;transform:rotate(-4deg)}
+.editorial-break .slot-tiles{display:none}
+@media(prefers-reduced-motion:no-preference){
+  .media-slot.is-revealed .gb-mark-float{animation:gbMarkFloat 7s ease-in-out 1.3s infinite}
+  .media-slot.is-revealed .gb-mark-halo{animation:gbHalo 4.2s ease-in-out 1.3s infinite}
+  .media-slot.is-revealed .gb-mark-sheen::before{animation:gbMarkSheen 5.5s cubic-bezier(.45,0,.2,1) 1.6s infinite}
+}
+@keyframes gbMarkFloat{0%,100%{transform:translate3d(0,0,0) rotate(0)}50%{transform:translate3d(0,-3%,0) rotate(1.5deg)}}
+@keyframes gbMarkSheen{0%,60%{transform:translateX(0)}100%{transform:translateX(420%)}}
+@media(prefers-reduced-motion:reduce){.editorial-break .slot-curve{opacity:1;transform:rotate(-4deg);transition:none}.gb-mark-halo,.gb-mark-ring{opacity:1;transition:none}.gb-mark-ring{transform:translate(-50%,-50%)}}
+@media(max-width:780px){.editorial-break .slot-campaign{position:relative;top:auto;right:auto;width:100%;margin:0 0 200px}.editorial-break .editorial-break-hero{padding-top:70px}}
+/* o trilho mora no próprio grid, na altura dos ícones (a camada solta ficava fora de posição) */
+.gb-how-line{display:none!important}
+.how-section.gb-how .how-grid{isolation:isolate}
+.how-section.gb-how .how-grid::before{content:'';position:absolute;z-index:-1;left:4%;right:4%;top:calc(clamp(24px,2.4vw,34px) + 29px);height:1px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,212,71,.6) 10%,rgba(255,212,71,.6) 90%,transparent);transform-origin:0 50%;transform:scaleX(0);transition:transform 1.4s cubic-bezier(.22,1,.36,1) .2s}
+.how-section.gb-how .how-grid::after{content:'';position:absolute;z-index:-1;left:4%;top:calc(clamp(24px,2.4vw,34px) + 26px);width:7px;height:7px;border-radius:50%;background:#ffd447;box-shadow:0 0 12px 3px rgba(255,212,71,.7);opacity:0;pointer-events:none}
+.how-section.gb-how.is-in .how-grid::before{transform:scaleX(1)}
+@media(prefers-reduced-motion:no-preference){.how-section.gb-how.is-in .how-grid::after{animation:gbHowRun 5.5s cubic-bezier(.45,0,.2,1) 1.4s infinite}}
+@keyframes gbHowRun{0%{transform:translateX(0);opacity:0}8%,92%{opacity:1}100%{transform:translateX(calc(92vw - 10vw));opacity:0}}
+@media(max-width:900px){.how-section.gb-how .how-grid::before,.how-section.gb-how .how-grid::after{display:none}}
+/* só o ponto final fica amarelo (as linhas reveladas também são spans) */
+.how-section.gb-how .how-heading h2 span{color:inherit;text-shadow:none}
+.how-section.gb-how .how-heading h2 .hl>span>span,.how-section.gb-how .how-heading h2>span:last-child:not(.hl){color:#ffd447;text-shadow:0 0 18px rgba(255,212,71,.5)}
+.how-section.gb-how .how-num{-webkit-text-stroke:1px color-mix(in srgb,var(--how-ink) 13%,transparent)}
+.how-section.gb-how .how-num{color:color-mix(in srgb,var(--how-ink) 9%,transparent);-webkit-text-stroke:0}
+@media(max-width:780px){.editorial-break .slot-campaign{margin-bottom:290px}}

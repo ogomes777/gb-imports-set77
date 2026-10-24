@@ -90,6 +90,11 @@ if(mq&&typeof PUBLIC_PRODUCTS!=='undefined'&&typeof matchesQuery==='function'){
   if('IntersectionObserver'in window)new IntersectionObserver(es=>es.forEach(e=>mq.classList.toggle('is-live',e.isIntersecting)),{rootMargin:'100px 0px'}).observe(mq);else mq.classList.add('is-live');
 }
 
+/* ---------- 3c. três passos: entram quando chegam na tela (uma vez) ---------- */
+const how=document.querySelector('.how-section.gb-how');
+if(how){if(reduce.matches||!('IntersectionObserver'in window))how.classList.add('is-in');
+  else{const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){how.classList.add('is-in');io.disconnect()}},{threshold:.2});io.observe(how)}}
+
 /* ---------- 4. Tech Fleece: piso de luz fria sob a peça ---------- */
 const media=document.getElementById('showroomFeatureMedia');
 if(media&&!media.parentElement.querySelector('.sf-floor')){const f=document.createElement('span');f.className='sf-floor';f.setAttribute('aria-hidden','true');media.before(f)}
