@@ -253,9 +253,21 @@ async function run(w,h,reduced=false){
   check(vp,'look studio troca superior',(await page.locator('#lookSummary').textContent())!==s0);
   await page.locator('#lookSave').click();
   check(vp,'look salvo aparece na lista',await page.locator('.look-saved-item').count()>=1);
-  // Identidade
+  // Temas globais de marca + idiomas
   await page.locator('[data-gb-identity="1"]').click();
-  check(vp,'identidade troca para TRAMA',(await page.locator('#identityTitle').textContent())==='TRAMA.');
+  check(vp,'tema TRAMA aplicado globalmente',(await page.locator('body').getAttribute('data-gb-theme'))==='trama');
+  check(vp,'seletor marca TRAMA como ativa',(await page.locator('[data-gb-identity="1"]').getAttribute('aria-pressed'))==='true');
+  await page.locator('[data-gb-identity="2"]').click();
+  check(vp,'tema SINAL aplicado globalmente',(await page.locator('body').getAttribute('data-gb-theme'))==='sinal');
+  await page.locator('#gbLanguage').selectOption('en');
+  check(vp,'idioma inglês traduz hero e lang',(await page.locator('html').getAttribute('lang'))==='en'&&(await page.locator('#heroSub').textContent()).includes('GB has roots'));
+  await page.locator('#gbLanguage').selectOption('es');
+  check(vp,'idioma espanhol traduz hero',(await page.locator('#heroSub').textContent()).includes('GB tiene origen'));
+  await page.locator('#gbLanguage').selectOption('it');
+  check(vp,'idioma italiano traduz hero',(await page.locator('#heroSub').textContent()).includes('GB ha radici'));
+  await page.locator('#gbLanguage').selectOption('pt');
+  await page.locator('[data-gb-identity="0"]').click();
+  check(vp,'idioma e tema retornam ao padrão',(await page.locator('html').getAttribute('lang'))==='pt-BR'&&(await page.locator('body').getAttribute('data-gb-theme'))==='origem');
   // Hero
   await page.evaluate(()=>scrollTo(0,0));const h0=await page.locator('#heroNum').textContent();await page.locator('#heroNext').click();await page.waitForTimeout(450);
   check(vp,'hero avança capítulo',(await page.locator('#heroNum').textContent())!==h0);
