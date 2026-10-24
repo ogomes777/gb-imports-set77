@@ -1,10 +1,11 @@
-/* GB IMPORTS / DARK SPECTRUM V5 · ONDA DE FRIO — GSAP + THREE (lazy, section-scoped).
- * Tema frio da coleção Tech Fleece: paisagem congelada (céu de tempestade, gelo, falésia) e floco de cristal 3D.
+/* GB IMPORTS / DARK SPECTRUM V6 · ONDA DE FRIO — GSAP + THREE (lazy, section-scoped).
+ * Tema frio da coleção Tech Fleece: paisagem congelada em noite azul profunda e floco de cristal 3D.
  * Título em cor fixa, extrudado em 3D, flutua e pulsa; a cada 9 s uma onda de frio cruza o fundo, empurra a neve,
- * gira o floco e acende o brilho das letras.
- * O floco é vidro de gelo que reflete e refrata o mesmo céu; neve em duas camadas; tudo reage ao ponteiro e à
- * rolagem. Só roda visível, com teto de fps e resolução adaptativa;
- * aparelho modesto/reduzido fica no fallback CSS. Nenhuma imagem ou estado do catálogo é alterado.
+ * acelera o floco e acende o brilho das letras.
+ * O floco gira 360° sozinho e flutua; arrastar (mouse ou dedo) gira de verdade, com inércia, e ele volta ao giro livre.
+ * Cristal: reflexo de estúdio, refração com dispersão, chanfros acesos e cintilação. Paisagem em meia resolução,
+ * 60 fps com teto e queda adaptativa (30 fps, depois resolução). Só roda visível; reduzido/modesto fica no fallback CSS.
+ * Nenhuma imagem ou estado do catálogo é alterado.
  */
 (()=>{
 'use strict';
@@ -197,15 +198,23 @@ function makeWebGL(THREE){
       float edge=smoothstep(.62,.95,length((uv-.5)*vec2(1.,.9))*1.3);
       col=mix(col,vec3(.75,.85,.95),smoothstep(.55,.75,fbm(uv*vec2(asp,1.)*9.))*edge*(.10+gust*.14));
       // bruma no horizonte e tingimento frio pela cor do capítulo
-      col=mix(col,vec3(.62,.72,.8),exp(-abs(uv.y-H)*16.)*.55);
-      col=mix(col,col*(.6+uColor*.7),.35+uEnergy*.15);col*=.74;
+      col=mix(col,vec3(.42,.54,.68),exp(-abs(uv.y-H)*16.)*.45);
+      col=mix(col,col*(.6+uColor*.7),.35+uEnergy*.15);
+      col*=.42;col*=vec3(.74,.88,1.14);   // noite azul profunda: casa com o palco do Tech Fleece abaixo
       // título legível (esquerda/alto mais escuros), vinheta e pé fundindo com o showroom
       col*=mix(.32,1.,smoothstep(.1,.9,uv.x*.95+(1.-uv.y)*.15));
       col*=1.-.45*pow(length((uv-.5)*vec2(1.05,1.25)),2.4);
       col=mix(vec3(.016,.039,.094),col,smoothstep(.0,.18,uv.y));
-      col+=(h(uv*uRes+fract(t)*91.)-.5)*.03;
       gl_FragColor=vec4(col,1.);}`})));
-  land.frustumCulled=false;land.renderOrder=-10;world.add(land);
+  land.frustumCulled=false;
+  // a paisagem é suave: renderiza em meia resolução num buffer e sobe para a tela com grão fino (4x menos pixels de shader)
+  const bgScene=new THREE.Scene(),bgCam=new THREE.Camera();bgScene.add(land);
+  const rt=keep(new THREE.WebGLRenderTarget(2,2,{depthBuffer:false,stencilBuffer:false}));
+  const comp=new THREE.Mesh(keep(new THREE.PlaneGeometry(2,2)),keep(new THREE.ShaderMaterial({uniforms:{tBg:{value:rt.texture},uRes:U.uRes,uTime:U.uTime},depthWrite:false,depthTest:false,
+    vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,.999,1.);}`,
+    fragmentShader:`precision highp float;uniform sampler2D tBg;uniform vec2 uRes;uniform float uTime;varying vec2 vUv;
+    void main(){vec3 c=texture2D(tBg,vUv).rgb;c+=(fract(sin(dot(vUv*uRes+fract(uTime)*91.,vec2(127.1,311.7)))*43758.5453)-.5)*.025;gl_FragColor=vec4(c,1.);}`})));
+  comp.frustumCulled=false;comp.renderOrder=-10;world.add(comp);
 
   // 2. Floco de cristal dendrítico: braços com ramos e sub-ramos finos, placas hexagonais; vidro de gelo com
   //    reflexo e refração do céu, dispersão sutil nas bordas e brilhos especulares. Flutua, gira, segue o ponteiro.
@@ -231,17 +240,29 @@ function makeWebGL(THREE){
   shapes.push(plate(0,0,.42,0),plate(0,0,.26,Math.PI/6));
   const fg=keep(new THREE.ExtrudeGeometry(shapes,{depth:.1,bevelEnabled:true,bevelThickness:.045,bevelSize:.028,bevelSegments:touch?1:2,curveSegments:1}));fg.center();
   const flakeMat=keep(new THREE.ShaderMaterial({uniforms:U,transparent:true,side:THREE.DoubleSide,
-    vertexShader:`varying vec3 vN;varying vec3 vP;varying vec3 vW;void main(){vN=normalize(normalMatrix*normal);vec4 mv=modelViewMatrix*vec4(position,1.);vP=mv.xyz;vW=position;gl_Position=projectionMatrix*mv;}`,
-    fragmentShader:`precision highp float;uniform vec3 uColor;uniform float uTime,uEnergy,uPulse,uHover;varying vec3 vN;varying vec3 vP;varying vec3 vW;${SKY}
-    void main(){vec3 n=normalize(vN);if(!gl_FrontFacing)n=-n;vec3 v=normalize(-vP);float ndv=max(dot(n,v),0.);float fres=.04+.96*pow(1.-ndv,4.);
-      vec3 r=reflect(-v,n);vec3 refl=sky(r);
-      // refração com dispersão (um índice por canal): o cristal "dobra" o céu atrás dele
-      vec3 tr=vec3(sky(refract(-v,n,.76)).r,sky(refract(-v,n,.75)).g,sky(refract(-v,n,.735)).b)*vec3(.78,.88,1.);
+    vertexShader:`varying vec3 vN;varying vec3 vP;varying vec3 vW;varying vec3 vL;void main(){vN=normalize(normalMatrix*normal);vL=normal;vec4 mv=modelViewMatrix*vec4(position,1.);vP=mv.xyz;vW=position;gl_Position=projectionMatrix*mv;}`,
+    fragmentShader:`precision highp float;uniform vec3 uColor;uniform float uTime,uEnergy,uPulse,uHover;varying vec3 vN;varying vec3 vP;varying vec3 vW;varying vec3 vL;${SKY}
+    // estúdio de cristal: o céu frio + softboxes que o gelo reflete (é o reflexo nítido que faz o cristal parecer cristal)
+    vec3 env(vec3 r){vec3 c=sky(r)*.75;
+      c+=vec3(1.)*smoothstep(.94,.99,dot(r,normalize(vec3(.5,.7,.5))))*3.2;
+      c+=vec3(.72,.88,1.)*smoothstep(.965,.995,dot(r,normalize(vec3(-.6,.25,.75))))*2.2;
+      c+=vec3(.55,.78,1.)*smoothstep(.0,.05,r.y+.02)*smoothstep(.12,.05,r.y+.02)*.7;
+      return c;}
+    void main(){vec3 n=normalize(vN);if(!gl_FrontFacing)n=-n;vec3 v=normalize(-vP);float ndv=max(dot(n,v),0.);float fres=.03+.97*pow(1.-ndv,5.);
+      vec3 r=reflect(-v,n);vec3 refl=env(r);
+      // refração com dispersão (um índice por canal): o corpo é claro e tinge o fundo de azul profundo
+      vec3 tr=vec3(env(refract(-v,n,.80)).r,env(refract(-v,n,.78)).g,env(refract(-v,n,.755)).b)*vec3(.5,.68,.95);
       vec3 col=mix(tr,refl,fres);
-      float spec=pow(max(dot(r,normalize(vec3(.4,.6,.7))),0.),90.)*2.2+pow(max(dot(r,normalize(vec3(-.5,.2,.8))),0.),40.)*.5;
-      col+=vec3(1.)*spec*(1.+uHover*.5);
-      col+=mix(uColor,vec3(.85,.95,1.),.5)*pow(1.-ndv,2.)*(.35+uPulse*.6+.08*sin(uTime*2.+length(vW.xy)*3.));
-      gl_FragColor=vec4(col,.55+fres*.45);}`}));
+      // chanfros acesos: onde a normal sai do plano do floco a luz corre pela aresta, como vidro lapidado
+      float bev=1.-abs(normalize(vL).z);col+=vec3(.72,.9,1.)*pow(bev,2.5)*(.55+uPulse*.5);
+      // núcleo e espinha central com luz interna fria
+      float rr=length(vW.xy);col+=mix(uColor,vec3(.8,.93,1.),.4)*exp(-rr*1.4)*.16;
+      // cintilação: pontos isolados que piscam ao girar
+      float sd=fract(sin(dot(floor(vW*16.),vec3(12.9898,78.233,37.719)))*43758.5453);
+      col+=vec3(1.)*step(.94,sd)*pow(max(0.,sin(uTime*2.6+sd*60.+dot(n,vec3(4.,3.,2.)))),24.)*1.6;
+      float spec=pow(max(dot(r,normalize(vec3(.4,.6,.7))),0.),140.)*2.6+pow(max(dot(r,normalize(vec3(-.5,.2,.8))),0.),60.)*.7;
+      col+=vec3(1.)*spec*(1.+uHover*.4);
+      gl_FragColor=vec4(col,clamp(.26+fres*.62+bev*.35+spec*.5,0.,1.));}`}));
   const flakeMesh=new THREE.Mesh(fg,flakeMat);flake.add(flakeMesh);
   const halo=new THREE.Mesh(keep(new THREE.PlaneGeometry(8,8)),keep(new THREE.ShaderMaterial({uniforms:U,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
     vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
@@ -267,35 +288,47 @@ function makeWebGL(THREE){
   snow(touch?14:30,16,[5,8.5],5,10,.38,7319);
 
   const layout=w=>{const m=w<720;flake.userData.x=m?.6:3.2;flake.userData.y=m?1.7:.05;flake.userData.base=m?.36:.86};
-  let px=0,py=0,sx=0,sy=0,frameStop=false,last=0,progress=0,resizeTimer=0,birth=1,spin=0,spinV=0,hover=0,hoverT=0;
-  const pointer=e=>{if(touch)return;const r=heading.getBoundingClientRect();px=cap((e.clientX-r.left)/Math.max(1,r.width)-.5,-.5,.5);py=cap((e.clientY-r.top)/Math.max(1,r.height)-.5,-.5,.5);hoverT=1};
+  let px=0,py=0,sx=0,sy=0,frameStop=false,last=0,progress=0,resizeTimer=0,birth=1,hover=0,hoverT=0;
+  const IDLE=.62;let ry=0,vy=IDLE,rx=0,vx=0,drag=null,headW=1000;   // giro 360 contínuo (rad/s) + arrasto com inércia
+  const pointer=e=>{if(e.pointerType!=='mouse')return;px=cap(e.clientX/Math.max(1,headW)-.5,-.5,.5);py=cap((e.clientY+scrollY-headTop)/Math.max(1,headH)-.5,-.5,.5);hoverT=1};   // sem leitura de layout
   const resetPointer=()=>{px=0;py=0;hoverT=0};
-  const tap=e=>{if(e.target.closest('a,button'))return;spinV+=4;U.uWarp.value=Math.max(U.uWarp.value,1);U.uPulse.value=Math.max(U.uPulse.value,.7)};
-  heading.addEventListener('pointermove',pointer,{passive:true});heading.addEventListener('pointerleave',resetPointer,{passive:true});heading.addEventListener('pointerdown',tap,{passive:true});
-  const size=()=>{const rect=mount.getBoundingClientRect(),w=Math.max(1,Math.floor(rect.width)),h=Math.max(1,Math.floor(rect.height));renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();U.uRes.value.set(w,h);layout(w)};
+  // arrastar (mouse ou dedo) gira o floco de verdade: 70% da largura = uma volta; ao soltar, a inércia volta ao giro livre
+  const down=e=>{if(e.target.closest('a,button')||(e.pointerType==='mouse'&&e.button!==0))return;
+    drag={id:e.pointerId,x:e.clientX,y:e.clientY,t:performance.now()};if(e.pointerType==='mouse'){vy=0;vx=0}   // o mouse “pega” o floco; o dedo só gira ao arrastar
+    heading.classList.add('is-grabbing');
+    if(e.pointerType==='mouse')try{heading.setPointerCapture(e.pointerId)}catch(err){}
+    U.uPulse.value=Math.max(U.uPulse.value,.35)};
+  const move=e=>{pointer(e);if(!drag||e.pointerId!==drag.id)return;const now=performance.now(),dt=Math.max(8,now-drag.t)/1000,k=Math.PI*2/Math.max(300,headW*.7);
+    const dx=(e.clientX-drag.x)*k,dy=(e.pointerType==='mouse'?(e.clientY-drag.y)*k*.7:0);ry+=dx;rx=cap(rx+dy,-1.1,1.1);
+    vy=vy*.4+dx/dt*.6;vx=vx*.4+dy/dt*.6;drag.x=e.clientX;drag.y=e.clientY;drag.t=now};
+  const up=e=>{if(!drag||(e&&e.pointerId!==drag.id))return;if(performance.now()-drag.t>90){vy=0;vx=0}vy=cap(vy,-14,14);drag=null;heading.classList.remove('is-grabbing')};
+  heading.addEventListener('pointermove',move,{passive:true});heading.addEventListener('pointerleave',resetPointer,{passive:true});heading.addEventListener('pointerdown',down,{passive:true});
+  heading.addEventListener('pointerup',up,{passive:true});heading.addEventListener('pointercancel',up,{passive:true});
+  const size=()=>{const rect=mount.getBoundingClientRect(),w=Math.max(1,Math.floor(rect.width)),h=Math.max(1,Math.floor(rect.height));renderer.setSize(w,h,false);const pr=renderer.getPixelRatio();rt.setSize(Math.max(2,Math.ceil(w*pr*.5)),Math.max(2,Math.ceil(h*pr*.5)));camera.aspect=w/h;camera.updateProjectionMatrix();U.uRes.value.set(w,h);layout(w)};
   size();
   const resize=()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(size,130)};window.addEventListener('resize',resize,{passive:true});
   const contextLost=e=>{e.preventDefault();frameStop=true;stage.classList.add('cinema-css-fallback')};canvas.addEventListener('webglcontextlost',contextLost,false);
-  let lastFront=9,slow=0,ratio=renderer.getPixelRatio(),headTop=0,headH=1;const measure=()=>{const r=heading.getBoundingClientRect();headTop=r.top+scrollY;headH=r.height};measure();
+  let lastFront=9,slow=0,minGap=15,ratio=renderer.getPixelRatio(),headTop=0,headH=1;const measure=()=>{const r=heading.getBoundingClientRect();headTop=r.top+scrollY;headH=r.height;headW=r.width};measure();
   window.addEventListener('resize',measure,{passive:true});
   const frame=(dt,t)=>{
     if(frameStop||!canRun())return false;
-    if(t-last<(touch?31:15))return true;   // ~60 fps desktop, ~30 no toque
+    if(t-last<minGap)return true;   // ~60 fps; aparelho fraco cai para ~30 antes de baixar resolução
     const gap=t-last;last=t;const step=Math.min(.05,dt);progress+=step;
     // aparelho fraco: se os quadros seguem lentos, baixa a resolução (até .6) em vez de travar
-    if(gap<250){slow=gap>(touch?50:34)?slow+1:Math.max(0,slow-1);if(slow>30&&ratio>.6){ratio=Math.max(.6,ratio*.75);renderer.setPixelRatio(ratio);size();slow=0}}
+    if(gap<250){slow=gap>minGap+22?slow+1:Math.max(0,slow-1);if(slow>30){slow=0;if(minGap<31)minGap=31;else if(ratio>.6){ratio=Math.max(.6,ratio*.75);renderer.setPixelRatio(ratio);size()}}}
     U.uTime.value=progress;
     const front=-.4+((progress/WAVE)%1)*1.9,fxs=touch?.6:.76;   // frente fria (mesma conta do shader)
     if(lastFront<.04&&front>=.04)glowWave(1,touch?.16:.22);
-    if(lastFront<fxs&&front>=fxs){spinV+=2.5;U.uPulse.value=Math.max(U.uPulse.value,.6)}
+    if(lastFront<fxs&&front>=fxs){if(!drag)vy+=2.2;U.uPulse.value=Math.max(U.uPulse.value,.6)}
     lastFront=front;U.uWarp.value*=Math.pow(.25,step);U.uPulse.value*=Math.pow(.5,step);
     U.uScroll.value=cap((scrollY+innerHeight/2-(headTop+headH/2))/Math.max(1,innerHeight),-1,1); // sem leitura de layout por quadro
     sx+=(px-sx)*.06;sy+=(py-sy)*.06;hover+=(hoverT-hover)*.06;U.uPointer.value.set(sx,sy);U.uHover.value=hover;
     camera.position.set(sx*.9,-sy*.6,11);camera.lookAt(0,0,0);
-    spinV*=Math.pow(.15,step);spin+=step*(.16+hover*.2+spinV);
-    flakeMesh.rotation.set(Math.sin(progress*.45)*.25-sy*.6,Math.sin(spin)*.6+sx*.8,progress*.04);
+    if(!drag){const e=1-Math.pow(.4,step);vy+=(IDLE-vy)*e;vx*=Math.pow(.05,step);ry+=vy*step;rx+=vx*step;rx+=(0-rx)*(1-Math.pow(.12,step))}
+    flakeMesh.rotation.set(rx+Math.sin(progress*.5)*.2-sy*.35,ry+sx*.35,Math.sin(progress*.31)*.07);
     flake.scale.setScalar((flake.userData.base||1)*birth*(1+Math.sin(progress*2)*.015));
     flake.position.set(flake.userData.x||0,(flake.userData.y||0)+Math.sin(progress*.8)*.14,0);
+    renderer.setRenderTarget(rt);renderer.render(bgScene,bgCam);renderer.setRenderTarget(null);
     renderer.render(world,camera);return true;
   };
   let running=false,generation=0;
@@ -306,9 +339,9 @@ function makeWebGL(THREE){
   };
   const pause=()=>{running=false;generation++};
   const tint=s=>{U.uColor.value.setRGB(s.r/255,s.g/255,s.b/255);U.uEnergy.value=s.energy;U.uPulse.value=Math.max(s.pulse||0,U.uPulse.value)};
-  const arriveFx=()=>{U.uWarp.value=1.2;spinV=5;if(gsap){const o={b:.05};gsap.to(o,{b:1,duration:1.6,ease:'elastic.out(1,.6)',onUpdate:()=>{birth=o.b}})}};
-  const kick=v=>{U.uWarp.value=Math.max(U.uWarp.value,v*.5);spinV+=1};
-  const destroy=()=>{pause();clearTimeout(resizeTimer);window.removeEventListener('resize',resize);window.removeEventListener('resize',measure);heading.removeEventListener('pointermove',pointer);heading.removeEventListener('pointerleave',resetPointer);heading.removeEventListener('pointerdown',tap);canvas.removeEventListener('webglcontextlost',contextLost);disposables.forEach(d=>d.dispose?.());renderer.dispose();canvas.remove()};
+  const arriveFx=()=>{U.uWarp.value=1.2;vy=7;if(gsap){const o={b:.05};gsap.to(o,{b:1,duration:1.6,ease:'elastic.out(1,.6)',onUpdate:()=>{birth=o.b}})}};
+  const kick=v=>{U.uWarp.value=Math.max(U.uWarp.value,v*.5);if(!drag)vy+=1};
+  const destroy=()=>{pause();clearTimeout(resizeTimer);window.removeEventListener('resize',resize);window.removeEventListener('resize',measure);heading.removeEventListener('pointermove',move);heading.removeEventListener('pointerleave',resetPointer);heading.removeEventListener('pointerdown',down);heading.removeEventListener('pointerup',up);heading.removeEventListener('pointercancel',up);canvas.removeEventListener('webglcontextlost',contextLost);disposables.forEach(d=>d.dispose?.());renderer.dispose();canvas.remove()};
   tint(state);
   return{resume,pause,tint,destroy,arrive:arriveFx,kick};
 }
