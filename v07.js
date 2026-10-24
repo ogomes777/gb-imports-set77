@@ -17,16 +17,12 @@ if(stage&&art){
   const N=heroSlides.length;
   // Poses nomeadas do anel: 0 = protagonista, 1 = fundo direita, 2 = fundo esquerda.
   // x/y em fração da largura/altura do palco; s escala; r rotação; l luz; z ordem.
-  const POSES_DESK=[{x:0,y:.02,s:1,r:-3,l:1,o:1,z:30},{x:.33,y:-.07,s:.58,r:8,l:.5,o:.95,z:12},{x:-.31,y:-.02,s:.54,r:-10,l:.42,o:.9,z:10}];
-  const POSES_MOB=[{x:0,y:.03,s:1,r:-3,l:1,o:1,z:30},{x:.4,y:-.1,s:.5,r:9,l:.45,o:.85,z:12},{x:-.4,y:-.06,s:.46,r:-11,l:.4,o:.8,z:10}];
-  let POSES=innerWidth<781?POSES_MOB:POSES_DESK;
-  const smooth=t=>t*t*(3-2*t);
-  function poseAt(u){ // u contínuo no anel [0,N)
-    const i=Math.floor(u)%N,t=smooth(u-Math.floor(u)),a=POSES[i],b=POSES[(i+1)%N],o={};
-    for(const k of ['x','y','s','r','l','o'])o[k]=lerp(a[k],b[k],t);
-    // passagem por trás: quem cruza do fundo esquerdo para o direito passa recuado
-    o.z=lerp(a.z,b.z,t);if(i===2){o.s*=1-.12*Math.sin(Math.PI*t);o.l*=1-.25*Math.sin(Math.PI*t)}
-    return o;
+  // V11: anel elíptico de verdade (360°). u contínuo em [0,N): 0 = protagonista na frente; o anel gira sem parar
+  // (a peça vira no máximo ~24° de lado: sempre de frente, nunca mostra costas que não foram fotografadas).
+  let mob=innerWidth<781;
+  function poseAt(u){
+    const th=u/N*Math.PI*2,sn=Math.sin(th),d=(Math.cos(th)+1)/2;   // d: 1 frente, 0 fundo
+    return{x:sn*(mob?.4:.36),y:(1-d)*(mob?-.09:-.07),s:.5+.5*d,r:-sn*6,yaw:-sn*24,o:.7+.3*d,l:.35+.65*d,z:Math.round(10+20*d)};
   }
   const trio=document.createElement('div');trio.className='hero-trio';trio.id='heroTrio';
   trio.setAttribute('role','group');trio.setAttribute('aria-label','Peças em cena — use as setas para trocar');
@@ -35,28 +31,47 @@ if(stage&&art){
   const objs=qa('.trio-obj',trio),medias=objs.map(o=>q('.trio-media',o)),shadows=objs.map(o=>q('.trio-shadow',o));
   const phase=new Spring(heroIndex,M.Tokens.spring.object);
   let W=trio.clientWidth,H=trio.clientHeight,running=false;
-  const useLight=!Prefs.lite;
   function render(){
     const p=phase.x;
     objs.forEach((el,j)=>{
       const u=mod(j-p,N),o=poseAt(u);
-      el.style.transform=`translate3d(${(o.x*W).toFixed(1)}px,${(o.y*H).toFixed(1)}px,0) rotate(${o.r.toFixed(2)}deg) scale(${o.s.toFixed(3)})`;
-      el.style.zIndex=String(Math.round(o.z));el.style.opacity=o.o.toFixed(3);
-      if(useLight)medias[j].style.filter=`brightness(${(.35+.65*o.l).toFixed(3)}) saturate(${(.55+.45*o.l).toFixed(3)})`;
+      el.style.transform=`translate3d(${(o.x*W).toFixed(1)}px,${(o.y*H).toFixed(1)}px,0) perspective(1200px) rotateY(${o.yaw.toFixed(2)}deg) rotate(${o.r.toFixed(2)}deg) scale(${o.s.toFixed(3)})`;
+      el.style.zIndex=String(o.z);el.style.opacity=o.o.toFixed(3);   // profundidade por opacidade (filtro por quadro repintaria)
       shadows[j].style.opacity=(.15+.55*o.l).toFixed(3);
       const front=u<.5||u>N-.5;el.classList.toggle('is-front',front);el.setAttribute('aria-current',front?'true':'false');
     });
   }
-  function loop(dt){phase.step(dt);render();if(phase.settled&&!dragging){phase.jump(phase.target);render();running=false;objs.forEach(o=>M.animating(o,false));return false}}
-  function kick(){if(Prefs.reduced){phase.jump(phase.target);render();return}if(!running){running=true;objs.forEach(o=>M.animating(o,true));Ticker.add(loop)}}
+  // giro contínuo: o anel nunca para; interação (clique, seta, arrasto) assume e o giro volta em seguida
+  const SPEED=1/4.2;let orbitOn=false,holdUntil=0,heroVisible=true,userPaused=false,autoCall=false,lastFront=-1;
+  const canOrbit=()=>!Prefs.reduced&&heroVisible&&!document.hidden&&!userPaused&&!document.body.classList.contains('no-scroll');
+  function orbit(dt){
+    if(!orbitOn){objs.forEach(o=>M.animating(o,false));return false}
+    const now=performance.now();if(!dragging&&now>holdUntil)phase.target+=dt*SPEED;
+    phase.step(dt);render();
+    const f=mod(Math.round(phase.x),N);if(f!==lastFront){lastFront=f;if(f!==heroIndex&&!dragging&&now>holdUntil){autoCall=true;changeHero(f);autoCall=false}}
+    return true;
+  }
+  function setOrbit(){const want=canOrbit();if(want===orbitOn)return;orbitOn=want;if(want){running=false;objs.forEach(o=>M.animating(o,true));Ticker.add(orbit)}else kick()}
+  function loop(dt){if(orbitOn){running=false;return false}phase.step(dt);render();if(phase.settled&&!dragging){phase.jump(phase.target);render();running=false;objs.forEach(o=>M.animating(o,false));return false}}
+  function kick(){if(Prefs.reduced){phase.jump(phase.target);render();return}if(orbitOn)return;if(!running){running=true;objs.forEach(o=>M.animating(o,true));Ticker.add(loop)}}
   // caminho mais curto até o capítulo pedido; preparação = leve recuo antes da passagem
   function go(index){
+    if(autoCall)return;   // quem mandou foi o próprio giro: o anel já está lá
+    holdUntil=performance.now()+3200;
     const base=Math.round(phase.target);let d=mod(index-mod(base,N),N);if(d>N/2)d-=N;
-    if(!d)return;phase.set(base+d,Prefs.reduced?0:-d*.9);kick();
+    if(!d){phase.target=base;return}phase.set(base+d,Prefs.reduced?0:-d*.9);kick();
   }
   window.GBHeroStage={go,get phase(){return phase.x}};
   render();
-  addEventListener('resize',()=>{POSES=innerWidth<781?POSES_MOB:POSES_DESK;W=trio.clientWidth;H=trio.clientHeight;render()},{passive:true});
+  addEventListener('resize',()=>{mob=innerWidth<781;W=trio.clientWidth;H=trio.clientHeight;render()},{passive:true});
+  if(!Prefs.reduced){
+    stage.classList.add('is-orbit');window.GBHeroAuto?.pause('orbit');   // o anel substitui o avanço por tempo
+    onVisible(stage,v=>{heroVisible=v;setOrbit()},{threshold:.15});
+    document.addEventListener('visibilitychange',setOrbit);
+    new MutationObserver(setOrbit).observe(document.body,{attributes:true,attributeFilter:['class']});
+    const pauseBtn=q('#heroAuto');if(pauseBtn){pauseBtn.hidden=false;pauseBtn.addEventListener('click',()=>setTimeout(()=>{userPaused=pauseBtn.getAttribute('aria-pressed')==='true';setOrbit()}))}
+    setOrbit();
+  }
   if('ResizeObserver'in window)new ResizeObserver(()=>{W=trio.clientWidth;H=trio.clientHeight;render()}).observe(trio);
 
   // Seleção: protagonista abre a peça; periféricas viram protagonistas (também durante animação).
@@ -70,7 +85,7 @@ if(stage&&art){
   drag(art,{axis:'x',ignore:'.hero-scene-tag',
     onStart(){dragging=true;startP=phase.x;window.GBHeroAuto?.pause('drag');kick()},
     onMove(dx){phase.x=startP-dx/(W*.62);phase.target=phase.x;phase.v=0},
-    onEnd(v){dragging=false;const proj=phase.x-(v/(W*.62))*.18;let t=Math.round(clamp(proj,startP-1,startP+1));if(Math.abs(phase.x-startP)<.08)t=Math.round(startP);
+    onEnd(v){dragging=false;holdUntil=performance.now()+3200;const proj=phase.x-(v/(W*.62))*.18;let t=Math.round(clamp(proj,startP-1,startP+1));if(Math.abs(phase.x-startP)<.08)t=Math.round(startP);
       phase.target=t;phase.v=-(v/(W*.62))*.6;kick();const idx=mod(t,N);if(idx!==heroIndex)changeHero(idx);window.GBHeroAuto?.resume('drag');window.GBHeroAuto?.restart()}
   });
   // Teclado no palco

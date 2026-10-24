@@ -253,28 +253,31 @@ async function run(w,h,reduced=false){
   check(vp,'look studio troca superior',(await page.locator('#lookSummary').textContent())!==s0);
   await page.locator('#lookSave').click();
   check(vp,'look salvo aparece na lista',await page.locator('.look-saved-item').count()>=1);
-  // Temas globais de marca + idiomas (V11: o seletor mora num menu na ilha de navegação)
-  const pickTheme=async i=>{if(await page.locator('#gbThemeMenu').isHidden())await page.locator('#gbThemeBtn').click();await page.locator(`[data-gb-identity="${i}"]`).click()};
-  await pickTheme(1);
-  check(vp,'tema TRAMA aplicado globalmente',(await page.locator('body').getAttribute('data-gb-theme'))==='trama');
-  check(vp,'seletor marca TRAMA como ativa',(await page.locator('[data-gb-identity="1"]').getAttribute('aria-pressed'))==='true');
-  await pickTheme(2);
-  check(vp,'tema: menu fecha após escolher',await page.locator('#gbThemeMenu').isHidden());
-  check(vp,'tema SINAL aplicado globalmente',(await page.locator('body').getAttribute('data-gb-theme'))==='sinal');
+  // Tema claro/escuro (V11.2: sol/lua na ilha; claro = ORIGEM, escuro = SINAL, vale para a página inteira)
+  const toDark=async v=>{if(((await page.locator('body').getAttribute('data-gb-theme'))==='sinal')!==v){await page.locator('#gbThemeToggle').click();await page.waitForTimeout(600)}};
+  await toDark(true);
+  check(vp,'tema escuro aplicado globalmente',(await page.locator('body').getAttribute('data-gb-theme'))==='sinal'&&(await page.locator('#gbThemeToggle').getAttribute('aria-checked'))==='true');
+  const darkBg=await page.evaluate(()=>['#rail','#lookstudio'].map(s=>getComputedStyle(document.querySelector(s)).backgroundColor));
+  check(vp,'tema escuro cobre arara e Look Studio',darkBg.every(c=>{const m=c.match(/\d+/g).map(Number);return (m[0]+m[1]+m[2])/3<60}),JSON.stringify(darkBg));
+  await toDark(false);
+  check(vp,'tema claro aplicado globalmente',(await page.locator('body').getAttribute('data-gb-theme'))==='origem'&&(await page.locator('#gbThemeToggle').getAttribute('aria-checked'))==='false');
+  await toDark(true);
   await page.locator('#gbLanguage').selectOption('en');
-  await page.locator('#gbThemeBtn').click();
-  check(vp,'tema: rótulos do seletor traduzidos para inglês',
-    (await page.locator('[data-gb-identity="0"] .gb-theme-caption').innerText()).trim()==='ESSENCE');
-  await page.keyboard.press('Escape');
-
   check(vp,'idioma inglês traduz interface e lang',(await page.locator('html').getAttribute('lang'))==='en'&&(await page.locator('.footer-nav a').first().textContent()).trim()==='Collection');
   await page.locator('#gbLanguage').selectOption('es');
   check(vp,'idioma espanhol traduz interface',(await page.locator('.footer-nav a').first().textContent()).trim()==='Colección');
   await page.locator('#gbLanguage').selectOption('it');
   check(vp,'idioma italiano traduz interface',(await page.locator('.footer-nav a').first().textContent()).trim()==='Collezione');
   await page.locator('#gbLanguage').selectOption('pt');
-  await pickTheme(0);
+  await toDark(false);
   check(vp,'idioma e tema retornam ao padrão',(await page.locator('html').getAttribute('lang'))==='pt-BR'&&(await page.locator('body').getAttribute('data-gb-theme'))==='origem');
+  // Faixas de categorias entre o hero e a arara: dois sentidos, clique filtra o catálogo
+  const mqInfo=await page.evaluate(()=>({rows:document.querySelectorAll('#gbMarquee .gb-mq-row').length,chips:document.querySelectorAll('#gbMarquee .gb-mq-chip:not([tabindex="-1"])').length}));
+  check(vp,'faixas: duas linhas com categorias reais',mqInfo.rows===2&&mqInfo.chips>=10,JSON.stringify(mqInfo));
+  await page.locator('#gbMarquee').scrollIntoViewIfNeeded();
+  await page.locator('#gbMarquee .gb-mq-chip[data-mq-term="boné"]:not([tabindex="-1"])').first().click({force:true});await page.waitForTimeout(500);
+  check(vp,'faixas: clicar na categoria filtra o catálogo',(await page.locator('#catalogSearch').inputValue())==='boné'&&(await page.locator('#productGrid .product-visual').count())>0);
+  await page.locator('#catalogSearch').fill('');await page.waitForTimeout(300);
   // Hero
   await page.evaluate(()=>scrollTo(0,0));const h0=await page.locator('#heroNum').textContent();await page.locator('#heroNext').click();await page.waitForTimeout(450);
   check(vp,'hero avança capítulo',(await page.locator('#heroNum').textContent())!==h0);

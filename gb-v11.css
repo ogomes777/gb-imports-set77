@@ -137,3 +137,126 @@ body[data-gb-theme="trama"] .hero-v03 .hero-meta{color:#25231f}
 body[data-gb-theme="trama"] .trio-media img{filter:drop-shadow(0 24px 26px rgba(37,35,31,.28)) drop-shadow(0 0 18px rgba(255,255,255,.6))}
 body[data-gb-theme="trama"] .hero-v03 .hero-pager,body[data-gb-theme="trama"] .hero-v03 .hero-pager button,body[data-gb-theme="trama"] .hero-v03 .scroll-cue{color:#25231f!important}
 body[data-gb-theme="trama"] .hero-v03 .hero-progress{background:rgba(37,35,31,.18)}
+
+/* V11.1 — o anel gira sem parar: a barra de tempo por capítulo sai (o giro é o relógio) */
+.hero-v03 .hero-stage.is-orbit .hero-progress{display:none}
+
+/* ============ V11.2 — claro/escuro, palco de luz, botões neon, ilha mais tecnológica, faixas de categorias ============ */
+
+/* --- 1. botão sol/lua: um só toque troca o site inteiro (claro = ORIGEM, escuro = SINAL) --- */
+.gb-mode-toggle{display:grid;place-items:center;width:64px;height:44px;margin-right:4px;padding:0;border:0;background:none;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.gb-mode-track{position:relative;display:block;width:58px;height:30px;border-radius:999px;border:1px solid var(--nav-line,rgba(255,255,255,.16));background:color-mix(in srgb,currentColor 7%,transparent);box-shadow:inset 0 1px 3px rgba(0,0,0,.18)}
+.gb-mode-track svg{position:absolute;top:50%;width:14px;height:14px;margin-top:-7px;z-index:2;transition:opacity .35s ease,transform .5s cubic-bezier(.22,1,.36,1)}
+.gb-mode-sun{left:8px;color:#111214}.gb-mode-moon{right:8px;opacity:.55}
+.gb-mode-knob{position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#ffd447;box-shadow:0 0 14px rgba(255,212,71,.65),0 2px 6px rgba(0,0,0,.25);transition:transform .55s cubic-bezier(.22,1,.36,1),background-color .4s ease,box-shadow .4s ease}
+.gb-mode-toggle[aria-checked="true"] .gb-mode-knob{transform:translateX(28px);background:#e8eefc;box-shadow:0 0 16px rgba(190,210,255,.7),0 2px 6px rgba(0,0,0,.35)}
+.gb-mode-toggle[aria-checked="true"] .gb-mode-sun{opacity:.5;color:currentColor;transform:rotate(-90deg) scale(.85)}
+.gb-mode-toggle[aria-checked="true"] .gb-mode-moon{opacity:1;color:#111214;transform:rotate(-12deg)}
+.gb-mode-toggle:focus-visible .gb-mode-track{outline:2px solid var(--nav-accent,#ffd447);outline-offset:3px}
+@media(max-width:900px){.gb-mode-toggle{width:56px}.gb-mode-track{width:50px;height:28px}.gb-mode-knob{width:22px;height:22px}.gb-mode-toggle[aria-checked="true"] .gb-mode-knob{transform:translateX(22px)}.gb-mode-sun{left:6px}.gb-mode-moon{right:6px}}
+@media(max-width:380px){.gb-mode-toggle{width:50px}}
+
+/* --- 2. palco de apresentação: canhões de luz varrendo devagar, halo atrás da peça da frente e piso que pulsa --- */
+.gb-stage-lights{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;--stage:255,212,71}
+.gb-beam{position:absolute;top:-14%;width:30%;height:120%;transform-origin:50% 0;opacity:.5;
+  background:linear-gradient(180deg,rgba(var(--stage),.26),rgba(var(--stage),.07) 55%,transparent 88%);clip-path:polygon(45% 0,55% 0,100% 100%,0 100%)}
+.gb-beam.b1{left:44%;transform:rotate(16deg)}.gb-beam.b2{left:58%;transform:rotate(0deg);opacity:.62}.gb-beam.b3{left:72%;transform:rotate(-16deg)}
+.gb-stage-halo{position:absolute;left:52%;top:12%;width:40%;aspect-ratio:1;border-radius:50%;background:radial-gradient(closest-side,rgba(var(--stage),.22),rgba(var(--stage),.06) 55%,transparent 75%)}
+.gb-stage-floor{position:absolute;left:44%;right:2%;bottom:8%;height:15%;border-radius:50%;background:radial-gradient(closest-side,rgba(var(--stage),.34),rgba(var(--stage),.08) 62%,transparent 82%)}
+@media(prefers-reduced-motion:no-preference){
+  .gb-hero-live .gb-beam.b1{animation:gbBeamA 9s ease-in-out infinite alternate}
+  .gb-hero-live .gb-beam.b2{animation:gbBeamB 7s ease-in-out infinite alternate}
+  .gb-hero-live .gb-beam.b3{animation:gbBeamC 10s ease-in-out infinite alternate}
+  .gb-hero-live .gb-stage-halo{animation:gbHalo 4.2s ease-in-out infinite;will-change:transform,opacity}
+  .gb-hero-live .gb-stage-floor{animation:gbHalo 4.2s ease-in-out infinite reverse;will-change:transform,opacity}
+}
+@keyframes gbBeamA{from{transform:rotate(20deg);opacity:.35}to{transform:rotate(9deg);opacity:.6}}
+@keyframes gbBeamB{from{transform:rotate(-5deg);opacity:.7}to{transform:rotate(5deg);opacity:.45}}
+@keyframes gbBeamC{from{transform:rotate(-9deg);opacity:.6}to{transform:rotate(-20deg);opacity:.35}}
+@keyframes gbHalo{0%,100%{transform:scale(.94);opacity:.75}50%{transform:scale(1.06);opacity:1}}
+@media(max-width:780px){.gb-beam{width:46%}.gb-beam.b1{left:6%}.gb-beam.b2{left:27%}.gb-beam.b3{left:48%}.gb-stage-halo{left:18%;top:4%;width:64%}.gb-stage-floor{left:8%;right:8%;top:40%;bottom:auto;height:9%}}
+
+/* --- 3. tema claro (ORIGEM): o palco vira papel com luz quente; o escuro (SINAL) mantém o palco preto --- */
+body[data-gb-theme="origem"] .hero-v05 .hero-stage{background:radial-gradient(ellipse at 70% 46%,#fffdf6 0%,#f4f1e8 46%,#e6e1d4 100%)!important}
+body[data-gb-theme="origem"] .hero-v05 .hero-stage::after,body[data-gb-theme="origem"] .hero-v05 .hero-stage::before{opacity:0!important}
+body[data-gb-theme="origem"] .hero-v05 .hero-noise{opacity:.035}
+body[data-gb-theme="origem"] .hero-v05 .hero-giant-mark{opacity:.07}
+body[data-gb-theme="origem"] .hero-v05 .hero-giant-mark img{filter:brightness(.15)}
+body[data-gb-theme="origem"] .hero-v03 .hero-copy,body[data-gb-theme="origem"] .hero-v03 .hero-copy h1{color:#111214}
+body[data-gb-theme="origem"] .hero-v03 .hero-copy .emphasis{color:#666864}
+body[data-gb-theme="origem"] .hero-v03 .hero-copy p{color:#4f504c}
+body[data-gb-theme="origem"] .hero-v03 .hero-title-outline{-webkit-text-stroke:1.2px #111214b8;color:transparent}
+body[data-gb-theme="origem"] .hero-v03 .hero-pager,body[data-gb-theme="origem"] .hero-v03 .hero-pager button,body[data-gb-theme="origem"] .hero-v03 .scroll-cue{color:#111214!important}
+body[data-gb-theme="origem"] .hero-v03 .hero-art-circle{border-color:#11121424}
+body[data-gb-theme="origem"] .trio-media img{filter:drop-shadow(0 26px 26px rgba(17,18,20,.26)) drop-shadow(0 0 20px rgba(255,212,71,.35))}
+body[data-gb-theme="origem"] .trio-floor{border-top-color:#11121426}
+body[data-gb-theme="origem"] .gb-stage-lights{--stage:255,200,60}
+body[data-gb-theme="origem"] .gb-beam{opacity:.32}
+
+/* --- 4. botões: pílula com neon pulsando em loop (opacidade de uma camada; nada repinta) --- */
+:is(.btn,.showroom-link,.rail-viewer-cta,.look-compare-btn,#showMore,.showroom-views button){border-radius:999px!important;position:relative;isolation:isolate;--neon:255,212,71;transition:transform .35s cubic-bezier(.22,1,.36,1),background-color .3s ease,color .3s ease}
+:is(.btn,.showroom-link,.rail-viewer-cta,.look-compare-btn,#showMore)::after{content:'';position:absolute;inset:-4px;border-radius:inherit;pointer-events:none;z-index:-1;opacity:.35;
+  box-shadow:0 0 0 1.5px rgba(var(--neon),.75),0 0 16px rgba(var(--neon),.5),0 0 38px rgba(var(--neon),.22)}
+:is(.btn,.showroom-link,.rail-viewer-cta,.look-compare-btn,#showMore):hover{transform:translateY(-2px)}
+:is(.btn,.showroom-link,.rail-viewer-cta,.look-compare-btn,#showMore):active{transform:translateY(0) scale(.98)}
+#showroom :is(.showroom-link,.showroom-views button,.btn){--neon:74,168,255}
+#showMore{padding:14px 26px;border:1px solid currentColor}
+@media(prefers-reduced-motion:no-preference){:is(.btn,.showroom-link,.rail-viewer-cta,.look-compare-btn,#showMore)::after{animation:gbNeon 2.8s ease-in-out infinite;will-change:opacity}}
+@keyframes gbNeon{0%,100%{opacity:.28}50%{opacity:1}}
+
+/* --- 5. ilha mais tecnológica: régua de progresso da página, link da seção atual e um brilho que corre pela borda --- */
+.gb-island-fx{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:0}
+.gb-island-progress{position:absolute;left:20px;right:20px;bottom:0;height:1.5px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--nav-accent,#ffd447) 20%,var(--nav-accent,#ffd447) 80%,transparent);transform:scaleX(0);transform-origin:0 50%;opacity:.9}
+.gb-island-sheen{position:absolute;top:0;bottom:0;left:-30%;width:30%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),transparent)}
+@media(prefers-reduced-motion:no-preference){.gb-island-sheen{animation:gbSheen 7s cubic-bezier(.4,0,.2,1) infinite;will-change:transform}}
+@keyframes gbSheen{0%,70%{transform:translateX(0)}100%{transform:translateX(460%)}}
+html body .site-header.gb-island>*:not(.gb-island-fx){position:relative;z-index:1}
+html body .site-header.gb-island .desktop-nav a{padding:10px 12px;border-radius:999px}
+html body .site-header.gb-island .desktop-nav a.is-here{opacity:1;background:color-mix(in srgb,var(--nav-ink) 9%,transparent)}
+html body .site-header.gb-island .desktop-nav a.is-here::after{left:50%;right:auto;width:4px;height:4px;bottom:2px;border-radius:50%;transform:translateX(-50%) scale(1);box-shadow:0 0 8px var(--nav-accent)}
+html body .site-header.gb-island .desktop-nav a::after{left:12px;right:12px}
+/* o progresso da ilha substitui a barra amarela solta no topo */
+.scroll-progress,.v04-progress,.gb-progress{display:none!important}
+
+/* --- 6. duas faixas entre o hero e a arara: categorias reais do catálogo, uma para cada lado, sem fim --- */
+.gb-marquee{position:relative;z-index:3;display:grid;gap:0;background:#111214;overflow:hidden}
+.gb-mq-row{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.gb-mq-a{background:#ffd447;color:#111214}.gb-mq-b{background:#111214;color:#f4f1e8;border-top:1px solid #ffffff14}
+.gb-mq-track{display:flex;width:max-content;align-items:center}
+.gb-mq-chip{display:inline-flex;align-items:center;gap:10px;min-height:54px;padding:0 22px;color:inherit;text-decoration:none;font:900 clamp(15px,1.6vw,22px)/1 var(--display,Archivo Black,Arial Black,sans-serif);letter-spacing:.02em;white-space:nowrap;transition:opacity .25s ease}
+.gb-mq-chip sup{font:800 9px/1 Arial,sans-serif;letter-spacing:1px;opacity:.55;transform:translateY(-6px)}
+.gb-mq-chip i{font-style:normal;font-size:.7em;opacity:.6;margin-left:12px}
+.gb-mq-row:hover .gb-mq-chip{opacity:.45}.gb-mq-row .gb-mq-chip:hover,.gb-mq-row .gb-mq-chip:focus-visible{opacity:1}
+.gb-mq-chip:focus-visible{outline:2px solid currentColor;outline-offset:-6px;border-radius:999px}
+@media(prefers-reduced-motion:no-preference){
+  .gb-marquee.is-live .gb-mq-a .gb-mq-track{animation:gbMqL 46s linear infinite}
+  .gb-marquee.is-live .gb-mq-b .gb-mq-track{animation:gbMqR 52s linear infinite}
+  .gb-marquee .gb-mq-row:hover .gb-mq-track,.gb-marquee .gb-mq-row:focus-within .gb-mq-track{animation-play-state:paused}
+}
+@media(prefers-reduced-motion:reduce){.gb-mq-row{overflow-x:auto}}
+@keyframes gbMqL{to{transform:translate3d(-50%,0,0)}}
+@keyframes gbMqR{from{transform:translate3d(-50%,0,0)}to{transform:translate3d(0,0,0)}}
+@media(max-width:780px){.gb-mq-chip{min-height:46px;padding:0 16px}}
+
+/* --- 7. escuro completo: as áreas que ficavam em papel com texto claro (arara, Look Studio) --- */
+body[data-gb-theme="sinal"] #rail{background:#0d0e0f!important;color:#f4f1e8}
+body[data-gb-theme="sinal"] #railViewport{background:radial-gradient(ellipse at 50% 30%,#1d1e20,#121314 70%)!important}
+body[data-gb-theme="sinal"] #lookstudio{background:#0f1011!important;color:#f4f1e8}
+body[data-gb-theme="sinal"] #lookstudio .look-controls{background:#18191b!important;color:#f4f1e8}
+body[data-gb-theme="sinal"] .gb-mq-b{background:#0a0a0b}
+body[data-gb-theme="sinal"] #colecao::after{background:linear-gradient(180deg,rgba(10,16,30,0),rgba(10,16,30,.6) 55%,#0b1220)}
+body[data-gb-theme="sinal"] #showroom .showroom-heading::before{background:linear-gradient(180deg,#0b1220,rgba(11,18,32,.5) 30%,transparent)}
+/* ABAIXO DE ZERO no escuro: chega em noite de tinta (não em papel) e congela igual */
+body[data-gb-theme="sinal"] #showroom .showroom-heading.is-warm{background-color:#111214!important}
+body[data-gb-theme="sinal"] #showroom .showroom-heading h2 .sc-wm{color:#f4f1e8}
+body[data-gb-theme="sinal"] #showroom .showroom-heading.is-warm>p,body[data-gb-theme="sinal"] #showroom .showroom-heading.is-warm>.showroom-mark{color:#f4f1e8}
+body[data-gb-theme="sinal"] #showroom .showroom-heading.is-warm>span:first-child,body[data-gb-theme="sinal"] #showroom .showroom-heading.is-warm .showroom-sub span,body[data-gb-theme="sinal"] #showroom .showroom-heading.is-warm .showroom-cinema-status{color:#a9a69c}
+body[data-gb-theme="sinal"] #showroom .showroom-heading.is-warm .showroom-sub{border-top-color:rgba(244,241,232,.16)}
+/* arara no escuro: parede de galeria escura com luz de cima; as peças e os cabides continuam com a sua luz */
+body[data-gb-theme="sinal"] .r10{background:#141517}
+body[data-gb-theme="sinal"] .r10 .rail-wall{background:radial-gradient(ellipse 70% 80% at 50% 26%,#323337 0%,#1c1d20 48%,#0f1011 100%)}
+body[data-gb-theme="sinal"] .r10 .rail-wall:after{background:linear-gradient(180deg,transparent,#0000008a)}
+body[data-gb-theme="sinal"] #rail :is(.r10-cap-row button,.r10-orient-btns button){color:#f4f1e8;border-color:#ffffff40}
+/* filtros e chips também em pílula */
+:is(.rail-chips button,.filter-tabs .filter){border-radius:999px!important;transition:background-color .3s ease,color .3s ease,box-shadow .35s ease}
+:is(.rail-chips button,.filter-tabs .filter):is(.active,[aria-pressed="true"]){box-shadow:0 0 0 1px rgba(255,212,71,.6),0 0 18px rgba(255,212,71,.28)}

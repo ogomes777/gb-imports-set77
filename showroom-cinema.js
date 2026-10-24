@@ -162,6 +162,9 @@ function loadGSAP(){
 
 // fatia o trabalho pesado em momentos ociosos (nada de tarefa longa travando a rolagem)
 const idle=()=>new Promise(r=>{const ric=window.requestIdleCallback;ric?ric(()=>r(),{timeout:160}):setTimeout(r,16)});
+// cor de chegada da seção: papel V1 no tema claro, tinta no escuro
+const paperRGB=()=>document.body?.dataset.gbTheme==='sinal'?[.067,.071,.078]:[.957,.945,.91];
+addEventListener('gb:themechange',()=>scene3d?.setPaper());
 let threeP=null;const loadThree=()=>threeP||(threeP=import('https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js'));
 
 /* ============================== THREE: cena surreal ============================== */
@@ -189,7 +192,7 @@ async function makeWebGL(THREE){
   renderer.setPixelRatio(touch?Math.min(1.25,window.devicePixelRatio||1):1);
   const world=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(36,1,.1,60);camera.position.set(0,0,11);
-  const U={uTime:{value:0},uColor:{value:new THREE.Color(.29,.66,1)},uEnergy:{value:.42},uPulse:{value:0},uPointer:{value:new THREE.Vector2(0,0)},uRes:{value:new THREE.Vector2(1,1)},uScroll:{value:0},uWarp:{value:0},uHover:{value:0},uFreeze:{value:arrived?1:0},uOrigin:{value:new THREE.Vector2(.78,.5)}};
+  const U={uTime:{value:0},uColor:{value:new THREE.Color(.29,.66,1)},uEnergy:{value:.42},uPulse:{value:0},uPointer:{value:new THREE.Vector2(0,0)},uRes:{value:new THREE.Vector2(1,1)},uScroll:{value:0},uWarp:{value:0},uHover:{value:0},uFreeze:{value:arrived?1:0},uOrigin:{value:new THREE.Vector2(.78,.5)},uPaper:{value:new THREE.Vector3(...paperRGB())}};
   const disposables=[];const keep=x=>{disposables.push(x);return x};
   await idle();
   // céu frio compartilhado: a paisagem e o reflexo/refração do cristal usam a mesma luz
@@ -259,9 +262,9 @@ async function makeWebGL(THREE){
   // a paisagem é suave: renderiza em meia resolução num buffer e sobe para a tela com grão fino (4x menos pixels de shader)
   const bgScene=new THREE.Scene(),bgCam=new THREE.Camera();bgScene.add(land);
   const rt=keep(new THREE.WebGLRenderTarget(2,2,{depthBuffer:false,stencilBuffer:false}));
-  const comp=new THREE.Mesh(keep(new THREE.PlaneGeometry(2,2)),keep(new THREE.ShaderMaterial({uniforms:{tBg:{value:rt.texture},uRes:U.uRes,uTime:U.uTime,uFreeze:U.uFreeze,uOrigin:U.uOrigin},depthWrite:false,depthTest:false,
+  const comp=new THREE.Mesh(keep(new THREE.PlaneGeometry(2,2)),keep(new THREE.ShaderMaterial({uniforms:{tBg:{value:rt.texture},uRes:U.uRes,uTime:U.uTime,uFreeze:U.uFreeze,uOrigin:U.uOrigin,uPaper:U.uPaper},depthWrite:false,depthTest:false,
     vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,.999,1.);}`,
-    fragmentShader:`precision highp float;uniform sampler2D tBg;uniform vec2 uRes,uOrigin;uniform float uTime,uFreeze;varying vec2 vUv;
+    fragmentShader:`precision highp float;uniform sampler2D tBg;uniform vec2 uRes,uOrigin;uniform vec3 uPaper;uniform float uTime,uFreeze;varying vec2 vUv;
     float hh(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
     float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hh(i),hh(i+vec2(1,0)),f.x),mix(hh(i+vec2(0,1)),hh(i+vec2(1,1)),f.x),f.y);}
     void main(){vec3 c=texture2D(tBg,vUv).rgb;
@@ -269,7 +272,7 @@ async function makeWebGL(THREE){
       if(uFreeze<.999){float asp=uRes.x/uRes.y;vec2 a=vUv*vec2(asp,1.);
         float n=vn(a*6.)*.55+vn(a*19.)*.3+vn(a*61.)*.15;
         float d=length((vUv-uOrigin)*vec2(asp,1.))+(n-.5)*.42,R=uFreeze*2.1;
-        vec3 paper=vec3(.957,.945,.91);paper=mix(paper,vec3(.78,.87,.95),exp(-max(d-R,0.)*7.)*step(.001,uFreeze)*.6);
+        vec3 paper=uPaper;paper=mix(paper,vec3(.78,.87,.95),exp(-max(d-R,0.)*7.)*step(.001,uFreeze)*.6);
         c=mix(paper,c,smoothstep(R+.01,R-.05,d)*step(.001,uFreeze));
         c+=vec3(.72,.9,1.)*exp(-abs(d-R)*38.)*step(.001,uFreeze)*(.9+n*.6);}
       c+=(fract(sin(dot(vUv*uRes+fract(uTime)*91.,vec2(127.1,311.7)))*43758.5453)-.5)*.025;gl_FragColor=vec4(c,1.);}`})));
@@ -407,7 +410,7 @@ async function makeWebGL(THREE){
   const kick=v=>{U.uWarp.value=Math.max(U.uWarp.value,v*.5);if(!drag)vy+=1};
   const destroy=()=>{pause();clearTimeout(resizeTimer);window.removeEventListener('resize',resize);window.removeEventListener('resize',measure);heading.removeEventListener('pointermove',move);heading.removeEventListener('pointerleave',resetPointer);heading.removeEventListener('pointerdown',down);heading.removeEventListener('pointerup',up);heading.removeEventListener('pointercancel',up);canvas.removeEventListener('webglcontextlost',contextLost);disposables.forEach(d=>d.dispose?.());renderer.dispose();canvas.remove()};
   // congelar: a frente de gelo varre do floco para fora; setFrozen posiciona sem animação (fora da tela)
-  const setFreeze=v=>{U.uFreeze.value=v};const origin=()=>U.uOrigin.value;
+  const setFreeze=v=>{U.uFreeze.value=v};const setPaper=()=>{U.uPaper.value.set(...paperRGB())};const origin=()=>U.uOrigin.value;
   const setFrozen=v=>{if(gsap)gsap.killTweensOf(U.uFreeze);U.uFreeze.value=v?1:0;birth=v?1:0;bgDirty=true};
   tint(state);
   // shaders compilados fora do caminho da rolagem (paralelo quando o navegador suporta); o céu compila para o buffer onde é desenhado
@@ -416,7 +419,7 @@ async function makeWebGL(THREE){
   try{await idle();if(destroyed){destroy();return null}const f0=U.uFreeze.value;U.uFreeze.value=1;renderer.setRenderTarget(rt);renderer.render(bgScene,bgCam);renderer.setRenderTarget(null);
     await idle();if(destroyed){destroy();return null}renderer.render(world,camera);U.uFreeze.value=f0;bgDirty=true}catch(err){}
   if(destroyed){destroy();return null}
-  return{resume,pause,tint,destroy,arrive:arriveFx,kick,setFreeze,setFrozen,origin};
+  return{resume,pause,tint,destroy,arrive:arriveFx,kick,setFreeze,setFrozen,origin,setPaper};
 }
 async function ensure3d(){
   if(scene3d||loading3d||webglFailed||lite()||reduce.matches||destroyed)return;
