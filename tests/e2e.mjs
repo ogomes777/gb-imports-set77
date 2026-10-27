@@ -312,6 +312,12 @@ async function run(w,h,reduced=false){
   }
   await page.keyboard.press('Escape');await page.waitForTimeout(reduced?300:1700);
   check(vp,'peça: Esc fecha e devolve a rolagem',await page.locator('#gbpView').isHidden()&&!(await page.evaluate(()=>document.body.classList.contains('no-scroll'))));
+  // V14 — filme: letreiros por linha (luz que varre a linha) que esperam o muro do capítulo; cartela final com o monograma SVG
+  const film=await page.evaluate(()=>({split:['.rail-title-row h2','.category-intro h2','.editorial-break-hero h2'].map(s=>!!document.querySelector(s)?.classList.contains('split-ready')),end:!!document.querySelector('.footer .gbf-end img[src*="gb-monograma"]'),txt:document.querySelector('.editorial-break-hero h2')?.textContent.replace(/\s+/g,'')}));
+  check(vp,'filme: letreiros nos títulos e cartela final com monograma',film.end&&film.txt==='SEUPRÓXIMOCAPÍTULO.'&&film.split.every(x=>x===!reduced),JSON.stringify(film));
+  if(!reduced){await page.locator('#categorias .category-intro h2').scrollIntoViewIfNeeded();await page.waitForTimeout(3200);
+    const fh=await page.evaluate(()=>{const h=document.querySelector('#categorias .category-intro h2');return{inn:h.classList.contains('lines-in'),hold:h.classList.contains('gbf-hold')}});
+    check(vp,'filme: letreiro roda e não fica preso atrás do muro',fh.inn&&!fh.hold,JSON.stringify(fh))}
   // Hero
   await page.evaluate(()=>scrollTo(0,0));const h0=await page.locator('#heroNum').textContent();await page.locator('#heroNext').click();await page.waitForTimeout(450);
   check(vp,'hero avança capítulo',(await page.locator('#heroNum').textContent())!==h0);
