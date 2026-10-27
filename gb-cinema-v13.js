@@ -35,7 +35,7 @@ if(tg&&document.startViewTransition&&window.GBSetTheme){
 }
 
 /* ---------- 4a. botões magnéticos (sem loop: só a propriedade translate com transição) ---------- */
-const MAG='.btn,.showroom-link,#showMore,.gbc-ui button,.hero-pager button,.gb-mode-toggle,.action-btn,.gbp-close,.gbp-nav button';
+const MAG='.btn,.showroom-link,#showMore,.gbe-replay,.hero-pager button,.gb-mode-toggle,.action-btn';
 if(fine){
   document.addEventListener('pointermove',e=>{
     const el=e.target.closest?.(MAG);
@@ -74,7 +74,7 @@ if(!fine)return;
 const loupe=document.createElement('div');loupe.className='gb-loupe';loupe.setAttribute('aria-hidden','true');loupe.innerHTML='<img alt="" decoding="async"/>';
 document.body.append(loupe);
 const limg=loupe.querySelector('img');
-const LOUPE='#railViewer .hg-fig img,#gbpView .gbp-slide.is-on img';
+const LOUPE='#railViewer .hg-fig';   // a foto fica sob uma camada (.hg-part): o alvo é a moldura, a lupa usa a foto dela
 const Z=2.2,R=110;
 let tx=-100,ty=-100,zoomEl=null;
 function zoom(img,x,y){
@@ -87,11 +87,11 @@ function unzoom(){if(zoomEl){zoomEl=null;loupe.classList.remove('is-on')}}
 addEventListener('pointermove',e=>{
   if(e.pointerType!=='mouse')return;
   tx=e.clientX;ty=e.clientY;
-  const z=e.target.closest?.(LOUPE);
+  const z=e.target.closest?.(LOUPE)?.querySelector('img');
   z?zoom(z,tx,ty):unzoom();
 },{passive:true});
 document.documentElement.addEventListener('mouseleave',unzoom);
 addEventListener('blur',unzoom);
 // rolar com a lupa aberta: recalcula sob o ponteiro parado
-addEventListener('scroll',()=>{if(zoomEl){const el=document.elementFromPoint(tx,ty)?.closest?.(LOUPE);el?zoom(el,tx,ty):unzoom()}},{passive:true});
+addEventListener('scroll',()=>{if(zoomEl){const el=document.elementFromPoint(tx,ty)?.closest?.(LOUPE)?.querySelector('img');el?zoom(el,tx,ty):unzoom()}},{passive:true});
 })();

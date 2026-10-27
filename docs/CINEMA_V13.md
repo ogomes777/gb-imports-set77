@@ -7,7 +7,7 @@ Camada `gb-cinema-v13.css` / `gb-cinema-v13.js`, carregada depois da `gb-edit-v1
 1. **Tema em círculo.** O sol/lua troca o tema com uma onda circular que nasce do próprio botão (View Transitions).
    - Se o aparelho demorar mais de 220 ms para fotografar a tela, a troca é direta, sem círculo.
    - A camada da transição não segura cliques.
-2. **Lupa.** Sobre a foto do viewer da arara e da página da peça, uma lente de 220 px amplia 2,2× a **própria foto**. Nada é recriado ou pintado.
+2. **Lupa.** Sobre a foto do viewer da arara, uma lente de 220 px amplia 2,2× a **própria foto**. Nada é recriado ou pintado.
 3. **Física.**
    - Botões magnéticos seguem o ponteiro alguns pixels.
    - Cards do catálogo inclinam em 3D com reflexo.
