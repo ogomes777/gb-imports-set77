@@ -166,6 +166,7 @@ async function run(w,h,reduced=false){
   await page.selectOption('#sortSelect','curadoria');
   // Favorito
   await page.locator('#productGrid .favorite-toggle').first().click();
+  await page.waitForFunction(()=>document.querySelector('#wishCount')?.textContent==='1',null,{timeout:3000}).catch(()=>{});   // espera o efeito, não um tempo fixo
   check(vp,'favorito incrementa contador',(await page.locator('#wishCount').textContent())==='1');
   // Nunca renderizar os antigos desenhos de estudo na grade, na busca ou nas recomendações.
   // cada card tem foto do acervo e nenhum desenho de estudo (a 2ª vista do card pode carregar sob demanda, então não contar fotos)
@@ -290,7 +291,7 @@ async function run(w,h,reduced=false){
   const enc=await page.evaluate(()=>{const R=s=>{const r=document.querySelector(s).getBoundingClientRect();return{l:r.left,t:r.top,r:r.right,b:r.bottom}};
     const imgs=[...document.querySelectorAll('.gbe img')],g=R('.gbe-char.is-gui .gbe-base'),v=R('.gbe-char.is-vitin .gbe-base'),S=R('#editorial');
     const txt=['.editorial-copy h2','.editorial-copy p','.editorial-link'].map(R),hit=(a,b)=>a.l<b.r-1&&a.r>b.l+1&&a.t<b.b-1&&a.b>b.t+1;
-    return{n:imgs.length,loaded:imgs.every(i=>i.complete&&i.naturalWidth>0),taller:(g.b-g.t)>(v.b-v.t)*1.04,over:txt.some(t=>hit(t,g)||hit(t,v)),inside:[g,v].every(x=>x.l>=S.l-1&&x.r<=S.r+1&&x.t>=S.t-1&&x.b<=S.b+1),
+    return{n:document.querySelectorAll('.gbe-body img').length,loaded:imgs.every(i=>i.complete&&i.naturalWidth>0),taller:(g.b-g.t)>(v.b-v.t)*1.04,over:txt.some(t=>hit(t,g)||hit(t,v)),inside:[g,v].every(x=>x.l>=S.l-1&&x.r<=S.r+1&&x.t>=S.t-1&&x.b<=S.b+1),
       carousel:!!document.querySelector('.gbc,#gbpView,[data-gbe]'),photo:getComputedStyle(document.getElementById('editorialProduct')).visibility,
       tag:document.querySelector('.gbe-tag')?.textContent.includes('GUI × VITIN')}});
   check(vp,'encontro: só Gui e Vitin no palco, Gui mais alto, sem cobrir texto nem cortar',enc.n===4&&enc.loaded&&enc.taller&&!enc.over&&enc.inside&&enc.tag&&!enc.carousel&&enc.photo==='hidden',JSON.stringify(enc));
@@ -298,7 +299,7 @@ async function run(w,h,reduced=false){
   if(!reduced){
     // o cumprimento é articulado: a mão do Gui gira no pulso e a cabeça do Vitin acena; o resto do desenho não deforma
     const gr=await page.evaluate(()=>{const k=s=>document.querySelector(s).getAnimations().flatMap(a=>a.effect.getKeyframes().map(f=>f.transform||''));
-      return{playing:document.querySelector('.gbe').classList.contains('is-playing'),hand:k('.gbe-hand').some(t=>/rotate\((1[5-9]|2\d)/.test(t)),head:k('.gbe-head').some(t=>/rotate\([3-6]/.test(t)),
+      return{playing:document.querySelector('.gbe').classList.contains('is-playing'),hand:k('.gbe-hand').some(t=>/rotate\((2\d|3\d)/.test(t)),head:k('.gbe-head').some(t=>/rotate\([4-6]/.test(t)),
         pivots:[...document.querySelectorAll('.gbe-part')].map(i=>i.style.transformOrigin)}});
     check(vp,'encontro: REVER roda o cumprimento (mão do Gui no pulso, aceno do Vitin)',gr.playing&&gr.hand&&gr.head&&gr.pivots.every(Boolean),JSON.stringify(gr));
   }
@@ -326,7 +327,8 @@ async function run(w,h,reduced=false){
     const fh=await page.evaluate(()=>{const h=document.querySelector('#categorias .category-intro h2');return{inn:h.classList.contains('lines-in'),hold:h.classList.contains('gbf-hold')}});
     check(vp,'filme: letreiro roda e não fica preso atrás do muro',fh.inn&&!fh.hold,JSON.stringify(fh))}
   // Hero
-  await page.evaluate(()=>scrollTo(0,0));const h0=await page.locator('#heroNum').textContent();await page.locator('#heroNext').click();await page.waitForTimeout(450);
+  await page.evaluate(()=>scrollTo(0,0));const h0=await page.locator('#heroNum').textContent();await page.locator('#heroNext').click();
+  await page.waitForFunction(h=>document.querySelector('#heroNum')?.textContent!==h,h0,{timeout:3000}).catch(()=>{});   // espera o efeito, não um tempo fixo
   check(vp,'hero avança capítulo',(await page.locator('#heroNum').textContent())!==h0);
   // A arara conecta diretamente à curadoria, sem atalhos pretos duplicados.
   const connected=await page.evaluate(()=>{const rail=document.querySelector('#rail'),collection=document.querySelector('#colecao');return !document.querySelector('.shop-entry')&&rail?.nextElementSibling===collection});

@@ -19,13 +19,13 @@ Camada `gb-encounter-v15.css` / `gb-encounter-v15.js`, carregada depois da `gb-f
 | Tempo (desktop) | Plano | O que acontece |
 |---|---|---|
 | 0–0,9 s | Chegada | O palco acende: luz amarela atrás e no chão. O título faz o letreiro da V14. |
-| 0,3–1,9 s | Entrada | Gui entra pela direita (3 passos longos) e Vitin pela esquerda (4 curtos). A passada tem desaceleração, sobe e desce, troca de peso, escala de 0,92 a 1 e parada com ultrapassagem ≤2%. |
-| ~2,0–3,5 s | **Cumprimento** | Os corpos se inclinam um para o outro. **Gui manda o salve:** a mão do gesto sobe 26° no pulso na direção do Vitin, chacoalha duas vezes e volta à pose dele. **Vitin responde com o queixo:** a cabeça sobe e inclina 4,5° para o Gui e volta. |
-| ~2,6 s | Impacto | Um único pulso amarelo (anel e quadradinho GB) no vão entre as cabeças. O "SER." do título responde. |
-| ~3,0–4,5 s | Quadro final | Aproximação discreta da câmera (3,5%). Aparece "GB IMPORTS / GUI × VITIN · ILUSTRAÇÃO". Depois, nada se move. |
+| 0,26–1,6 s | Entrada | Gui entra pela direita (3 passos longos) e Vitin pela esquerda (4 curtos e rápidos). A passada tem desaceleração, sobe e desce, troca de peso, escala de 0,92 a 1 e parada com ultrapassagem ≤2%. **Rastro:** dois ecos do próprio desenho ficam para trás e se recolhem no corpo enquanto ele freia. **Pouso:** uma onda amarela no chão, nos pés, no instante em que cada um para. **Soco de câmera** curto no segundo pouso. |
+| ~1,6–2,9 s | **Cumprimento** | Os corpos se inclinam um para o outro. **Gui manda o salve forte:** a mão do gesto sobe 34° no pulso na direção do Vitin, chacoalha três vezes rápido (~1 s), passa um pouco do ponto e volta à pose dele. **Vitin responde com o queixo:** a cabeça sobe e inclina 5,5° para o Gui e volta. |
+| ~2,1 s | Impacto | Um único pulso amarelo (anel e quadradinho GB) no vão entre as cabeças. O "SER." do título responde. |
+| ~2,5–4,2 s | Quadro final | Aproximação discreta da câmera (3,5%). Aparece "GB IMPORTS / GUI × VITIN · ILUSTRAÇÃO". Depois, nada se move: a cena termina quando todas as animações terminam (`finished`), não por timer. |
 
 - **Gatilho.** Metade do palco visível, depois que o muro do capítulo (V12) abre. Só recomeça se a seção sair inteira da tela. "↻ REVER" repete a cena.
-- **Modo leve.** Até 4 núcleos ou economia de dados: menos passos, um salve só, sem aproximação de câmera.
+- **Modo leve.** Até 4 núcleos ou economia de dados: menos passos, sem rastro, duas chacoalhadas, sem aproximação de câmera.
 
 ### O que ainda não dá (e por quê)
 **Aperto de mão ou soquinho** precisa de mão do Vitin. No desenho aprovado as duas estão no bolso, então ela teria de ser desenhada do zero (braço e mão novos).

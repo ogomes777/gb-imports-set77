@@ -16,7 +16,11 @@
 .gbe-char.is-gui{right:0;width:55.9%;height:100%;z-index:2}
 .gbe-lean,.gbe-body{position:absolute;inset:0;transform-origin:50% 100%}
 .gbe-body img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:50% 100%;user-select:none;-webkit-user-drag:none}
-.gbe-part{z-index:1;will-change:transform}   /* mão do Gui / cabeça do Vitin: mesma moldura da base, pivô no style */
+.gbe-part{z-index:1;will-change:transform}
+.gbe-lean{z-index:1}
+.gbe-ghost{position:absolute;inset:0;z-index:0;opacity:0;pointer-events:none;will-change:transform,opacity}
+.gbe-ghost img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:50% 100%}
+.gbe-land{position:absolute;left:4%;right:4%;bottom:-2.6%;height:6.5%;border:1.5px solid #ffd447;border-radius:50%;opacity:0;box-shadow:0 0 18px rgba(255,212,71,.35)}   /* mão do Gui / cabeça do Vitin: mesma moldura da base, pivô no style */
 .gbe-shadow{position:absolute;left:8%;right:8%;bottom:-1.6%;height:4.2%;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.72),rgba(0,0,0,.25) 60%,transparent);transform-origin:50% 50%}
 .gbe-pulse{position:absolute;left:47%;top:15%;z-index:4;width:0;height:0}
 .gbe-pulse i{position:absolute;width:calc(var(--gbe-hpx,600px)*.24);height:calc(var(--gbe-hpx,600px)*.24);margin:calc(var(--gbe-hpx,600px)*-.12);border:1.5px solid #ffd447;border-radius:50%;opacity:0}

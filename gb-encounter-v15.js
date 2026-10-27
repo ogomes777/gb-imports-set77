@@ -23,10 +23,12 @@ const CAM=.66;   // largura da dupla em relação à altura (4% de sobreposiçã
 /* ---------- palco ---------- */
 const stage=document.createElement('div');stage.className='gbe is-pre';stage.setAttribute('role','img');
 stage.setAttribute('aria-label','A galera da GB: Gui e Vitin, em ilustração, se cumprimentando');
-const fig=k=>`<figure class="gbe-char is-${k}"><span class="gbe-shadow" aria-hidden="true"></span><span class="gbe-lean"><span class="gbe-body">`+
-  `<img class="gbe-base" alt="" decoding="async" draggable="false" data-k="${k}" data-l="base"/>`+
-  `<img class="gbe-part gbe-${CH[k].part}" alt="" decoding="async" draggable="false" data-k="${k}" data-l="${CH[k].part}" style="transform-origin:${CH[k].piv}"/>`+
-  `</span></span></figure>`;
+const layers=(k,cls='')=>`<img class="gbe-base" alt="" decoding="async" draggable="false" data-k="${k}" data-l="base"/>`+
+  `<img class="gbe-part ${cls}" alt="" decoding="async" draggable="false" data-k="${k}" data-l="${CH[k].part}" style="transform-origin:${CH[k].piv}"/>`;
+// rastro da chegada: dois ecos do próprio desenho (mesmos arquivos, já decodificados) que ficam para trás e somem
+const fig=k=>`<figure class="gbe-char is-${k}"><span class="gbe-shadow" aria-hidden="true"></span><span class="gbe-land" aria-hidden="true"></span>`+
+  `<span class="gbe-ghost" aria-hidden="true">${layers(k)}</span><span class="gbe-ghost" aria-hidden="true">${layers(k)}</span>`+
+  `<span class="gbe-lean"><span class="gbe-body">${layers(k,'gbe-'+CH[k].part)}</span></span></figure>`;
 stage.innerHTML=`<div class="gbe-light" aria-hidden="true"></div><div class="gbe-cam" aria-hidden="true"><div class="gbe-floor"></div>`+fig('gui')+fig('vitin')+
   `<span class="gbe-pulse"><i></i><b></b></span></div>`+
   `<p class="gbe-tag"><b>GB IMPORTS</b><span class="gbe-sep">/</span><span data-no-translate>GUI × VITIN</span><em>ILUSTRAÇÃO</em></p>`;
@@ -36,7 +38,7 @@ const $=s=>stage.querySelector(s);
 const cam=$('.gbe-cam'),light=$('.gbe-light'),pulse=$('.gbe-pulse'),tag=$('.gbe-tag');
 const chars={gui:$('.gbe-char.is-gui'),vitin:$('.gbe-char.is-vitin')};
 const ser=sec.querySelector('.editorial-copy h2 mark');
-let ready=false,played=false,anims=[],endTimer=0,waitingWall=false;
+let ready=false,played=false,anims=[],playId=0,waitingWall=false;
 
 /* ---------- mídia: só perto da seção; o palco só liga com as quatro camadas decodificadas ---------- */
 function load(){
@@ -83,7 +85,7 @@ function layout(){
 
 /* ---------- cena ---------- */
 const A=(el,kf,o)=>{const a=el.animate(kf,{fill:'both',...o});anims.push(a);return a};
-function reset(){anims.forEach(a=>a.cancel());anims=[];clearTimeout(endTimer)}
+function reset(){playId++;anims.forEach(a=>a.cancel());anims=[]}
 function done(){stage.classList.remove('is-pre','is-playing');stage.classList.add('is-done');model.classList.add('gbe-done')}
 function final(){reset();played=true;done()}
 
@@ -100,6 +102,11 @@ function walk(k,dir,{D,steps,dur,delay,bob,sway,over}){
   A(ch,X,{duration:dur,delay,easing:'linear'});
   A(body,B,{duration:dur,delay,easing:'ease-in-out'});
   A(ch.querySelector('.gbe-shadow'),[{opacity:0,transform:'scaleX(.6)'},{opacity:1,transform:'scaleX(1)',offset:.3},{opacity:1,transform:'scaleX(1)'}],{duration:dur,delay});
+  // rastro: os ecos ficam para trás no sentido do movimento e se recolhem no corpo enquanto ele freia
+  if(!lite)ch.querySelectorAll('.gbe-ghost').forEach((g,j)=>A(g,[{opacity:0,transform:`translateX(${dir*D*.05*(j+1)}px)`},{opacity:.34/(j+1),transform:`translateX(${dir*D*.06*(j+1)}px)`,offset:.12},{opacity:.2/(j+1),transform:`translateX(${dir*D*.035*(j+1)}px)`,offset:.5},{opacity:0,transform:'translateX(0)',offset:.86},{opacity:0,transform:'translateX(0)'}],{duration:dur,delay,easing:'linear'}));
+  // pouso: uma onda amarela no chão, nos pés, no instante em que ele para
+  A(ch.querySelector('.gbe-land'),[{opacity:0,transform:'scale(.25)'},{opacity:.95,transform:'scale(.6)',offset:.18},{opacity:0,transform:'scale(1.6)'}],{duration:700,delay:delay+dur*.86,easing:'cubic-bezier(.16,1,.3,1)'});
+  return delay+dur*.86;
 }
 function play(){
   if(!ready)return;
@@ -112,34 +119,38 @@ function play(){
   A(light,[{opacity:0,transform:'scale(.82)'},{opacity:1,transform:'none'}],{duration:900,easing:ease});
   A(cam.querySelector('.gbe-floor'),[{opacity:0,transform:'scaleX(.5)'},{opacity:1,transform:'none'}],{duration:900,delay:120,easing:ease});
   // 02 · entrada: Gui pela direita (passada longa, mais alto), Vitin pela esquerda (passada curta e mais rápida), tempos diferentes
-  const lt=lite?.6:1,tG=280,dG=(mob?1250:1650)*lt,tV=430,dV=(mob?1150:1500)*lt;
-  walk('gui',1,{D,steps:lite?2:3,dur:dG,delay:tG,bob:H*.012,sway:1.1,over:W*.012});
-  walk('vitin',-1,{D,steps:lite?2:4,dur:dV,delay:tV,bob:H*.009,sway:1.4,over:W*.014});
+  const lt=lite?.7:1,tG=260,dG=(mob?1000:1250)*lt,tV=400,dV=(mob?950:1150)*lt;
+  const landG=walk('gui',1,{D,steps:lite?2:3,dur:dG,delay:tG,bob:H*.016,sway:1.6,over:W*.016});
+  const landV=walk('vitin',-1,{D,steps:lite?2:4,dur:dV,delay:tV,bob:H*.012,sway:1.9,over:W*.018});
+  // a câmera sente o segundo pouso: um soco curto de enquadramento
+  A(cam,[{transform:'none'},{transform:'scale(1.022) translateY(-.5%)',offset:.35},{transform:'none'}],{duration:340,delay:Math.max(landG,landV),easing:'cubic-bezier(.2,.9,.3,1)'});
   // 03 · o cumprimento. Os corpos se aproximam (inclinação a partir dos pés) e:
-  //  Gui levanta a mão do gesto na direção do Vitin e manda o salve (gira no pulso, chacoalha duas vezes, volta à pose dele);
+  //  Gui levanta a mão do gesto na direção do Vitin e manda o salve forte (gira no pulso, chacoalha três vezes rápido, volta à pose dele);
   //  Vitin responde com o queixo: a cabeça sobe, inclina para o Gui e volta. O rosto nunca deforma: só gira/desloca inteiro.
-  const tC=Math.max(tG+dG,tV+dV)+40,dL=1500;
+  const tC=Math.max(tG+dG,tV+dV)+20,dL=1300;
   const lean=(k,dir,deg,px)=>A(chars[k].querySelector('.gbe-lean'),[{transform:'none'},{transform:`translateX(${dir*px}px) rotate(${dir*deg}deg)`,offset:.3},{transform:`translateX(${dir*px*1.05}px) rotate(${dir*deg*1.05}deg)`,offset:.7},{transform:`translateX(${-dir*px*.1}px) rotate(${-dir*deg*.08}deg)`,offset:.88},{transform:'none'}],{duration:dL,delay:tC,easing:'cubic-bezier(.45,0,.2,1)'});
-  lean('vitin',1,1.8,W*.01);lean('gui',-1,1.2,W*.007);
-  const tH=tC+120,dH=lite?900:1150;
+  lean('vitin',1,2.6,W*.014);lean('gui',-1,1.7,W*.01);
+  const tH=tC+80,dH=lite?760:1000;
+  const snap='cubic-bezier(.3,0,.2,1)',H_=(d,o)=>({transform:`rotate(${d}deg)`,offset:o,easing:snap});
   A($('.gbe-hand'),lite
-    ?[{transform:'none'},{transform:'rotate(24deg)',offset:.35},{transform:'rotate(24deg)',offset:.6},{transform:'none'}]
-    :[{transform:'none'},{transform:'rotate(26deg)',offset:.26},{transform:'rotate(16deg)',offset:.4},{transform:'rotate(24deg)',offset:.53},{transform:'rotate(15deg)',offset:.66},{transform:'rotate(-2deg)',offset:.88},{transform:'none'}],
-    {duration:dH,delay:tH,easing:'cubic-bezier(.45,0,.25,1)'});
-  const tN=tH+260,dN=900;
-  A($('.gbe-head'),[{transform:'none'},{transform:'translateY(-.65%) rotate(4.5deg)',offset:.3},{transform:'translateY(-.5%) rotate(3.6deg)',offset:.55},{transform:'translateY(.12%) rotate(-.5deg)',offset:.82},{transform:'none'}],
+    ?[{transform:'none',easing:snap},H_(30,.24),H_(12,.42),H_(28,.6),H_(-4,.84),{transform:'none'}]
+    :[{transform:'none',easing:snap},H_(34,.16),H_(12,.28),H_(32,.4),H_(10,.52),H_(30,.64),H_(-6,.84),{transform:'none'}],
+    {duration:dH,delay:tH,easing:'linear'});
+  const tN=tH+220,dN=900;
+  A($('.gbe-head'),[{transform:'none'},{transform:'translateY(-.85%) rotate(5.5deg)',offset:.28},{transform:'translateY(-.6%) rotate(4.4deg)',offset:.55},{transform:'translateY(.12%) rotate(-.5deg)',offset:.82},{transform:'none'}],
     {duration:dN,delay:tN,easing:'cubic-bezier(.3,0,.2,1)'});
   // 04 · impacto: um único pulso amarelo entre a mão do Gui e o Vitin, no pico do salve; o "SER." responde
   const hit=tN+dN*.3;
-  A(pulse.querySelector('i'),[{opacity:0,transform:'scale(.15)'},{opacity:1,transform:'scale(.7)',offset:.25},{opacity:0,transform:'scale(1.55)'}],{duration:760,delay:hit,easing:'cubic-bezier(.16,1,.3,1)'});
+  A(pulse.querySelector('i'),[{opacity:0,transform:'scale(.15)'},{opacity:1,transform:'scale(.7)',offset:.25},{opacity:0,transform:'scale(1.9)'}],{duration:820,delay:hit,easing:'cubic-bezier(.16,1,.3,1)'});
   A(pulse.querySelector('b'),[{opacity:0,transform:'rotate(45deg) scale(0)'},{opacity:1,transform:'rotate(45deg) scale(1)',offset:.3},{opacity:0,transform:'rotate(45deg) scale(.4)'}],{duration:520,delay:hit,easing:ease});
   if(ser)A(ser,[{transform:'none'},{transform:'translateY(-.04em) scale(1.045)',offset:.32},{transform:'none'}],{duration:640,delay:hit,easing:ease,fill:'none'});
   // 05 · quadro final: aproximação discreta da câmera, assinatura, e acabou
   const tEnd=Math.max(tH+dH,tN+dN,tC+dL);
-  if(!lite)A(cam,[{transform:'none'},{transform:'scale(1.035)'}],{duration:1700,delay:tEnd-500,easing:ease});
+  if(!lite)A(cam,[{transform:'none'},{transform:'scale(1.035)'}],{duration:1700,delay:tEnd-500,easing:ease,fill:'forwards'});
   A(tag,[{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:700,delay:tEnd-300,easing:ease});
-  // a cena só termina quando a última animação termina (a câmera é a mais longa)
-  endTimer=setTimeout(done,Math.max(...anims.map(a=>a.effect.getComputedTiming().endTime))+60);
+  // a cena só termina quando TODAS as animações terminam de fato (relógio das próprias animações, não do setTimeout)
+  const token=++playId;
+  Promise.all(anims.map(a=>a.finished)).then(()=>{if(token===playId)done()},()=>{});
 }
 
 /* ---------- gatilho: palco bem visível, uma vez por entrada (só reinicia depois de sair inteiro da tela) ---------- */

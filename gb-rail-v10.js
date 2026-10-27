@@ -356,7 +356,11 @@ q('#railPrev')?.addEventListener('click',()=>navigate(target-1,{input:'mouse'}))
 q('#railNext')?.addEventListener('click',()=>navigate(target+1,{input:'mouse'}));
 qa('[data-rail-filter]').forEach(b=>b.addEventListener('click',()=>setFilter(b.dataset.railFilter)));
 q('#railExplore')?.addEventListener('click',()=>openViewer(S.list[target],{from:cards[target]}));
-let rz=0;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{const was=G.m;measure();computeGaps();if(was!==G.m)lastWin=-99;hydrate(true);layout();if(S.open)fitViewer()},90)},{passive:true});
+let rz=0;const remeasure=()=>{clearTimeout(rz);rz=setTimeout(()=>{const was=G.m;measure();computeGaps();if(was!==G.m)lastWin=-99;hydrate(true);layout();if(S.open)fitViewer()},90)};
+addEventListener('resize',remeasure,{passive:true});
+// a largura da arara também muda sem 'resize' (viewport do celular aplicado depois da 1ª medida, barra de rolagem):
+// sem isso o cabide fica com o tamanho de uma tela mais larga e as fichas saem da tela no celular
+if('ResizeObserver'in window)new ResizeObserver(()=>{if(viewport.clientWidth!==G.vw)remeasure()}).observe(viewport);
 
 /* ============================== OBJECT VIEW (viewer unificado) ============================== */
 const vMedia=q('#railViewerMedia'),vArt=q('.rail-viewer-art'),vDetail=q('.rail-viewer-detail');
