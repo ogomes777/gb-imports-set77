@@ -38,15 +38,22 @@ if(model&&host&&picks.length>2){
     if(bar){bar.style.animation='none';void bar.offsetWidth;bar.style.animation=''}
   }
   const go=(d,user)=>{c=mod(c+d);layout(d);if(user)holdUntil=performance.now()+6000};
-  const tick=()=>{if(performance.now()>holdUntil)go(1)};
+  let hover=false,swiped=false;
+  const tick=()=>{if(!hover&&performance.now()>holdUntil)go(1)};
   const setAuto=()=>{clearInterval(timer);timer=0;const on=visible&&!document.hidden&&!reduce.matches&&!document.body.classList.contains('no-scroll');wrap.classList.toggle('is-auto',on);if(on)timer=setInterval(tick,DW)};
   layout(0);
   ui.addEventListener('click',e=>{const b=e.target.closest('[data-gbc]');if(b){go(+b.dataset.gbc,true);setAuto()}});
-  wrap.addEventListener('click',e=>{if(e.target.closest('.gbc-item.is-c'))window.GBPiece?.open(c,e.target.closest('.gbc-item'))});
+  // o clique vale pela posição (a peça pode estar no meio da troca): centro abre, fantasma vai até ela; arrasto não abre
+  wrap.addEventListener('click',e=>{if(swiped){swiped=false;return}
+    const r=wrap.getBoundingClientRect(),dx=(e.clientX-r.left)/r.width-.5;
+    if(Math.abs(dx)<.24)window.GBPiece?.open(c,items[c]);else{go(dx<0?-1:1,true);setAuto()}});
+  wrap.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')hover=true},{passive:true});
+  wrap.addEventListener('pointerleave',()=>{hover=false},{passive:true});
+  wrap.addEventListener('dragstart',e=>e.preventDefault());   // arrastar a foto com mouse não pode virar arrasto nativo de imagem
   // arrasto horizontal troca a peça (a rolagem vertical segue livre)
   let sx=0,sy=0,dragging=false;
   model.addEventListener('pointerdown',e=>{if(e.target.closest('button,a'))return;sx=e.clientX;sy=e.clientY;dragging=true},{passive:true});
-  model.addEventListener('pointerup',e=>{if(!dragging)return;dragging=false;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.2){go(dx<0?1:-1,true);setAuto()}},{passive:true});
+  model.addEventListener('pointerup',e=>{if(!dragging)return;dragging=false;const dx=e.clientX-sx,dy=e.clientY-sy;swiped=false;if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.2){swiped=true;setTimeout(()=>{swiped=false},0);go(dx<0?1:-1,true);setAuto()}},{passive:true});
   model.addEventListener('pointercancel',()=>{dragging=false},{passive:true});
   if('IntersectionObserver'in window)new IntersectionObserver(es=>es.forEach(e=>{visible=e.isIntersecting;setAuto()}),{threshold:.25}).observe(model);else{visible=true;setAuto()}
   document.addEventListener('visibilitychange',setAuto);

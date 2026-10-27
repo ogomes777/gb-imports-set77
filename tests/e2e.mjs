@@ -291,7 +291,11 @@ async function run(w,h,reduced=false){
   await page.locator('.gbc-ui [data-gbc="1"]').click();await page.waitForTimeout(300);
   check(vp,'editorial: seta troca a peça',(await page.locator('.gbc-count').textContent())!==gbc.count);
   // V12 — tocar a peça em foco: mosaico monta a página da peça em três colunas, trocando só vistas fotografadas
-  await page.locator('#editorial .gbc-item.is-c').click({force:true});await page.waitForTimeout(reduced?300:1800);
+  if(!mobile){const gb=await page.locator('#editorial .gbc').boundingBox(),gy=gb.y+gb.height/2,n0=await page.locator('.gbc-count').textContent();
+    await page.mouse.move(gb.x+gb.width*.62,gy);await page.mouse.down();for(let i=1;i<=8;i++)await page.mouse.move(gb.x+gb.width*.62-i*20,gy);await page.mouse.up();await page.waitForTimeout(400);
+    check(vp,'editorial: arrastar com mouse troca a peça sem abrir',(await page.locator('.gbc-count').textContent())!==n0&&await page.locator('#gbpView').isHidden())}
+  // clique real (com teste de alvo) no centro do carrossel, mesmo no meio de uma troca
+  await page.locator('#editorial .gbc').click();await page.waitForTimeout(reduced?300:1800);
   const gbp=await page.evaluate(()=>({open:!document.getElementById('gbpView').hidden,slides:document.querySelectorAll('#gbpView .gbp-slide').length,price:document.querySelector('#gbpView .gbp-price')?.textContent||''}));
   check(vp,'peça: página em três colunas com vistas e preço a validar',gbp.open&&gbp.slides>=2&&gbp.price.includes('A VALIDAR'),JSON.stringify(gbp));
   await page.locator('#gbpView .gbp-chips [data-go="1"]').click();
