@@ -40,7 +40,7 @@ if(model&&host&&picks.length>2){
   const go=(d,user)=>{c=mod(c+d);layout(d);if(user)holdUntil=performance.now()+6000};
   let hover=false,swiped=false;
   const tick=()=>{if(!hover&&performance.now()>holdUntil)go(1)};
-  const setAuto=()=>{clearInterval(timer);timer=0;const on=visible&&!document.hidden&&!reduce.matches&&!document.body.classList.contains('no-scroll');wrap.classList.toggle('is-auto',on);if(on)timer=setInterval(tick,DW)};
+  const setAuto=()=>{clearInterval(timer);timer=0;const on=visible&&!document.hidden&&!reduce.matches&&!document.body.classList.contains('no-scroll')&&!model.classList.contains('is-galera');wrap.classList.toggle('is-auto',on);if(on)timer=setInterval(tick,DW)};
   layout(0);
   ui.addEventListener('click',e=>{const b=e.target.closest('[data-gbc]');if(b){go(+b.dataset.gbc,true);setAuto()}});
   // o clique vale pela posição (a peça pode estar no meio da troca): centro abre, fantasma vai até ela; arrasto não abre
@@ -53,10 +53,12 @@ if(model&&host&&picks.length>2){
   // arrasto horizontal troca a peça (a rolagem vertical segue livre)
   let sx=0,sy=0,dragging=false;
   model.addEventListener('pointerdown',e=>{if(e.target.closest('button,a'))return;sx=e.clientX;sy=e.clientY;dragging=true},{passive:true});
-  model.addEventListener('pointerup',e=>{if(!dragging)return;dragging=false;const dx=e.clientX-sx,dy=e.clientY-sy;swiped=false;if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.2){swiped=true;setTimeout(()=>{swiped=false},0);go(dx<0?1:-1,true);setAuto()}},{passive:true});
+  model.addEventListener('pointerup',e=>{if(!dragging)return;dragging=false;if(model.classList.contains('is-galera'))return;   // V15: palco com a galera, o arrasto não mexe no carrossel escondido
+    const dx=e.clientX-sx,dy=e.clientY-sy;swiped=false;if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.2){swiped=true;setTimeout(()=>{swiped=false},0);go(dx<0?1:-1,true);setAuto()}},{passive:true});
   model.addEventListener('pointercancel',()=>{dragging=false},{passive:true});
   if('IntersectionObserver'in window)new IntersectionObserver(es=>es.forEach(e=>{visible=e.isIntersecting;setAuto()}),{threshold:.25}).observe(model);else{visible=true;setAuto()}
   document.addEventListener('visibilitychange',setAuto);
+  window.GBEditCarousel={refresh:setAuto};   // V15 avisa quando troca A GALERA / AS PEÇAS
   new MutationObserver(setAuto).observe(document.body,{attributes:true,attributeFilter:['class']});
   // entrada em mosaico (uma vez)
   if(!reduce.matches){const m=mosaic();m.style.setProperty('--mosaic','#101013');model.append(m);onceVisible(model,()=>requestAnimationFrame(()=>m.classList.add('is-open')),.3);setTimeout(()=>m.remove(),9000)}

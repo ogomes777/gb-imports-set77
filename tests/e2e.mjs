@@ -284,6 +284,23 @@ async function run(w,h,reduced=false){
   const mqRes={q:await page.locator('#catalogSearch').inputValue(),n:await page.locator('#productGrid .product-visual').count(),hit:!!mqHit};
   check(vp,'faixas: clicar na categoria filtra o catálogo',mqRes.q==='boné'&&mqRes.n>0,JSON.stringify(mqRes));
   await page.locator('#catalogSearch').fill('');await page.waitForTimeout(300);
+  // V15 — THE ENCOUNTER: a galera (Gui e Vitin) entra primeiro no palco do editorial; AS PEÇAS devolve o carrossel V12
+  await page.evaluate(()=>{const e=document.querySelector('#editorial'),r=e.getBoundingClientRect();scrollTo({top:r.top+scrollY+(innerWidth<900?Math.max(0,r.height-innerHeight):0),behavior:'instant'})});
+  await page.waitForFunction(()=>document.querySelector('.editorial-model')?.classList.contains('gbe-done'),null,{timeout:20000});
+  const enc=await page.evaluate(()=>{const R=s=>{const r=document.querySelector(s).getBoundingClientRect();return{l:r.left,t:r.top,r:r.right,b:r.bottom}};
+    const imgs=[...document.querySelectorAll('.gbe img')],g=R('.gbe-char.is-gui img'),v=R('.gbe-char.is-vitin img'),S=R('#editorial');
+    const txt=['.editorial-copy h2','.editorial-copy p','.editorial-link'].map(R),hit=(a,b)=>a.l<b.r-1&&a.r>b.l+1&&a.t<b.b-1&&a.b>b.t+1;
+    return{n:imgs.length,loaded:imgs.every(i=>i.complete&&i.naturalWidth>0),taller:(g.b-g.t)>(v.b-v.t)*1.04,over:txt.some(t=>hit(t,g)||hit(t,v)),inside:[g,v].every(x=>x.l>=S.l-1&&x.r<=S.r+1&&x.t>=S.t-1&&x.b<=S.b+1),
+      galera:document.querySelector('[data-gbe="galera"]').getAttribute('aria-pressed')==='true',inert:document.getElementById('editorialProduct').inert,auto:document.querySelector('.gbc')?.classList.contains('is-auto'),
+      tag:document.querySelector('.gbe-tag')?.textContent.includes('GUI × VITIN')}});
+  check(vp,'encontro: Gui e Vitin no palco, Gui mais alto, sem cobrir texto nem cortar',enc.n===2&&enc.loaded&&enc.taller&&!enc.over&&enc.inside&&enc.tag,JSON.stringify(enc));
+  check(vp,'encontro: com a galera em cena o carrossel pausa e fica inerte',enc.galera&&enc.inert&&!enc.auto,JSON.stringify(enc));
+  await page.locator('.gbe-replay').click();
+  if(!reduced)check(vp,'encontro: REVER roda a cena de novo',await page.evaluate(()=>document.querySelector('.gbe').classList.contains('is-playing')));
+  await page.waitForFunction(()=>document.querySelector('.editorial-model').classList.contains('gbe-done'),null,{timeout:12000});
+  await page.locator('[data-gbe="galera"]').focus();await page.keyboard.press('ArrowRight');await page.waitForTimeout(reduced?150:800);
+  const pec=await page.evaluate(()=>({pressed:document.querySelector('[data-gbe="pecas"]').getAttribute('aria-pressed'),focus:document.activeElement?.dataset.gbe,inert:document.getElementById('editorialProduct').inert,ui:getComputedStyle(document.querySelector('.gbc-ui')).visibility,stage:getComputedStyle(document.querySelector('.gbe')).visibility}));
+  check(vp,'encontro: AS PEÇAS (teclado) devolve o carrossel',pec.pressed==='true'&&pec.focus==='pecas'&&!pec.inert&&pec.ui==='visible'&&pec.stage==='hidden',JSON.stringify(pec));
   // V12 — editorial: carrossel com fantasmas (só fotos reais), avança por seta
   await page.locator('#editorial').scrollIntoViewIfNeeded();
   const gbc=await page.evaluate(()=>({items:document.querySelectorAll('#editorial .gbc-item').length,c:document.querySelectorAll('#editorial .gbc-item.is-c').length,l:document.querySelectorAll('#editorial .gbc-item.is-l').length,r:document.querySelectorAll('#editorial .gbc-item.is-r').length,count:document.querySelector('.gbc-count')?.textContent}));
@@ -291,9 +308,12 @@ async function run(w,h,reduced=false){
   await page.locator('.gbc-ui [data-gbc="1"]').click();await page.waitForTimeout(300);
   check(vp,'editorial: seta troca a peça',(await page.locator('.gbc-count').textContent())!==gbc.count);
   // V12 — tocar a peça em foco: mosaico monta a página da peça em três colunas, trocando só vistas fotografadas
-  if(!mobile){const gb=await page.locator('#editorial .gbc').boundingBox(),gy=gb.y+gb.height/2,n0=await page.locator('.gbc-count').textContent();
+  if(!mobile){await page.evaluate(()=>{const r=document.querySelector('#editorial .gbc').getBoundingClientRect();scrollBy({top:r.top+r.height/2-innerHeight/2,behavior:'instant'})});await page.waitForTimeout(150);   // centro do carrossel fora da ilha fixa
+    const gb=await page.locator('#editorial .gbc').boundingBox(),gy=gb.y+gb.height/2,n0=await page.locator('.gbc-count').textContent();
+    const under=await page.evaluate(([x,y])=>{const e=document.elementFromPoint(x,y);return e?(e.className||e.tagName)+'<'+(e.parentElement?.className||''):'none'},[gb.x+gb.width*.62,gy]);
     await page.mouse.move(gb.x+gb.width*.62,gy);await page.mouse.down();for(let i=1;i<=8;i++)await page.mouse.move(gb.x+gb.width*.62-i*20,gy);await page.mouse.up();await page.waitForTimeout(400);
-    check(vp,'editorial: arrastar com mouse troca a peça sem abrir',(await page.locator('.gbc-count').textContent())!==n0&&await page.locator('#gbpView').isHidden())}
+    const dr={n0,n1:await page.locator('.gbc-count').textContent(),open:!(await page.locator('#gbpView').isHidden()),under,model:await page.locator('.editorial-model').getAttribute('class')};
+    check(vp,'editorial: arrastar com mouse troca a peça sem abrir',dr.n1!==dr.n0&&!dr.open,JSON.stringify(dr))}
   // clique real (com teste de alvo) no centro do carrossel, mesmo no meio de uma troca
   await page.locator('#editorial .gbc').click();await page.waitForTimeout(reduced?300:1800);
   const gbp=await page.evaluate(()=>({open:!document.getElementById('gbpView').hidden,slides:document.querySelectorAll('#gbpView .gbp-slide').length,price:document.querySelector('#gbpView .gbp-price')?.textContent||''}));
