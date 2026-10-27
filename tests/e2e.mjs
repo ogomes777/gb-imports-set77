@@ -348,8 +348,17 @@ async function run(w,h,reduced=false){
   // Hero: trio persistente, periférica vira protagonista, protagonista abre a peça
   check(vp,'hero: trio com 3 peças',await page.locator('#heroTrio .trio-obj').count()===3);
   const num0=await page.locator('#heroNum').textContent();
-  await page.locator('#heroTrio .trio-obj:not(.is-front)').first().click({force:true});await page.waitForTimeout(1300);
-  check(vp,'hero: periférica assume o capítulo',(await page.locator('#heroNum').textContent())!==num0);
+  // o trio gira sem parar e, no celular, a peça da frente cobre parte das laterais: toca onde a lateral está à vista (como uma pessoa faria)
+  const side=await page.evaluate(()=>{for(const o of document.querySelectorAll('#heroTrio .trio-obj:not(.is-front)')){const r=o.getBoundingClientRect();
+    for(const fy of [.4,.3,.5,.6,.25,.7])for(const fx of [.5,.3,.7,.2,.8]){const x=r.left+r.width*fx,y=r.top+r.height*fy;if(x<2||x>innerWidth-2||y<2||y>innerHeight-2)continue;
+      if(document.elementFromPoint(x,y)?.closest('.trio-obj')===o)return{x,y,id:+o.dataset.trio}}}return null});
+  if(side)await page.mouse.click(side.x,side.y);else await page.locator('#heroTrio .trio-obj:not(.is-front)').first().click({force:true});
+  // o anel também troca de capítulo sozinho: o que vale é a peça TOCADA virar a protagonista (não só "o número mudou")
+  const want=side?String(side.id+1).padStart(2,'0'):null;
+  // espera o número E o anel assentarem na peça tocada (a classe is-front segue a mola do giro)
+  if(want)await page.waitForFunction(w=>document.querySelector('#heroNum')?.textContent===w&&document.querySelector('#heroTrio .trio-obj.is-front')?.dataset.trio===String(+w-1),want,{timeout:3000}).catch(()=>{});else await page.waitForTimeout(1300);
+  const numNow=await page.locator('#heroNum').textContent();
+  check(vp,'hero: periférica assume o capítulo',want?numNow===want:numNow!==num0,JSON.stringify({num0,want,numNow}));
   const frontIdx=await page.locator('#heroTrio .trio-obj.is-front').getAttribute('data-trio');
   check(vp,'hero: protagonista = capítulo ativo',Number(frontIdx)===Number(await page.locator('#heroNum').textContent())-1);
   await page.locator('#heroTrio .trio-obj.is-front').click({force:true});await page.waitForTimeout(900);
