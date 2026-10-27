@@ -1,5 +1,5 @@
 /* GB IMPORTS / V13 — direção de cinema (ver gb-cinema-v13.css).
-   Loops só durante interação: o anel do cursor e a dobra da grade usam o Ticker do GBMotion e param ao assentar. */
+   Loop só durante interação: a dobra da grade usa o Ticker do GBMotion e para ao assentar. */
 (()=>{
 'use strict';
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -69,22 +69,14 @@ if(fine){
       target=clamp(v*1.6,-2.4,2.4);if(!on){on=true;M.Ticker.add(loop)}},{passive:true});
   }}
 
-/* ---------- 2 + 3. cursor de cinema e lupa ---------- */
-if(!fine||!M?.Ticker)return;
-const dot=document.createElement('div');dot.className='gb-cur-dot';dot.setAttribute('aria-hidden','true');
-const ring=document.createElement('div');ring.className='gb-cur-ring';ring.setAttribute('aria-hidden','true');ring.innerHTML='<b><i></i></b>';
+/* ---------- 3. lupa da própria foto (só com mouse; o cursor continua o do sistema) ---------- */
+if(!fine)return;
 const loupe=document.createElement('div');loupe.className='gb-loupe';loupe.setAttribute('aria-hidden','true');loupe.innerHTML='<img alt="" decoding="async"/>';
-document.body.append(loupe,ring,dot);root.classList.add('gb-cursor-on');
-const label=ring.querySelector('i'),limg=loupe.querySelector('img');
-const VIEW='.product-visual,.gbc-item.is-c,.trio-obj,.category-tile,.showroom-feature,.showroom-small';
-const DRAG='#railViewport,.editorial-model,#heroArt';
+document.body.append(loupe);
+const limg=loupe.querySelector('img');
 const LOUPE='#railViewer .hg-fig img,#gbpView .gbp-slide.is-on img';
-const LINK='a,button,[role="button"],select,label,summary';
 const Z=2.2,R=110;
-let tx=-100,ty=-100,rx=-100,ry=-100,running=false,mode='',zoomEl=null;
-const loop=()=>{const k=.22;rx+=(tx-rx)*k;ry+=(ty-ry)*k;ring.style.transform=`translate3d(${rx.toFixed(1)}px,${ry.toFixed(1)}px,0)`;
-  if(Math.abs(tx-rx)<.15&&Math.abs(ty-ry)<.15){running=false;return false}};
-function setMode(m,text){if(m===mode&&label.textContent===text)return;mode=m;ring.classList.toggle('is-link',m==='link');ring.classList.toggle('is-label',m==='label');ring.classList.toggle('is-zoom',m==='zoom');label.textContent=text||''}
+let tx=-100,ty=-100,zoomEl=null;
 function zoom(img,x,y){
   const r=img.getBoundingClientRect();
   if(zoomEl!==img){zoomEl=img;limg.src=img.currentSrc||img.src;limg.style.objectFit=getComputedStyle(img).objectFit||'fill';limg.style.width=r.width*Z+'px';limg.style.height=r.height*Z+'px';loupe.classList.add('is-on')}
@@ -94,22 +86,12 @@ function zoom(img,x,y){
 function unzoom(){if(zoomEl){zoomEl=null;loupe.classList.remove('is-on')}}
 addEventListener('pointermove',e=>{
   if(e.pointerType!=='mouse')return;
-  tx=e.clientX;ty=e.clientY;dot.style.transform=`translate3d(${tx}px,${ty}px,0)`;root.classList.add('gb-cursor-in');
-  const t=e.target;
-  const z=t.closest?.(LOUPE);
-  if(z){setMode('zoom');zoom(z,tx,ty)}
-  else{unzoom();
-    if(t.closest?.('input,textarea,select,[contenteditable]'))setMode('hide');
-    else if(t.closest?.(VIEW))setMode('label','VER');
-    else if(t.closest?.(DRAG))setMode('label','ARRASTE');
-    else if(t.closest?.(LINK))setMode('link');
-    else setMode('')}
-  if(!running){running=true;M.Ticker.add(loop)}
+  tx=e.clientX;ty=e.clientY;
+  const z=e.target.closest?.(LOUPE);
+  z?zoom(z,tx,ty):unzoom();
 },{passive:true});
-document.addEventListener('pointerdown',()=>ring.classList.add('is-down'),{passive:true});
-document.addEventListener('pointerup',()=>ring.classList.remove('is-down'),{passive:true});
-document.documentElement.addEventListener('mouseleave',()=>{root.classList.remove('gb-cursor-in');unzoom()});
-addEventListener('blur',()=>{root.classList.remove('gb-cursor-in');unzoom()});
+document.documentElement.addEventListener('mouseleave',unzoom);
+addEventListener('blur',unzoom);
 // rolar com a lupa aberta: recalcula sob o ponteiro parado
 addEventListener('scroll',()=>{if(zoomEl){const el=document.elementFromPoint(tx,ty)?.closest?.(LOUPE);el?zoom(el,tx,ty):unzoom()}},{passive:true});
 })();

@@ -300,9 +300,9 @@ async function run(w,h,reduced=false){
   check(vp,'peça: página em três colunas com vistas e preço a validar',gbp.open&&gbp.slides>=2&&gbp.price.includes('A VALIDAR'),JSON.stringify(gbp));
   await page.locator('#gbpView .gbp-chips [data-go="1"]').click();
   check(vp,'peça: escolher a vista',(await page.locator('#gbpView .gbp-slide.is-on').getAttribute('data-k'))===(await page.locator('#gbpView .gbp-slide').nth(1).getAttribute('data-k')));
-  // V13 — cursor de cinema e lupa só com mouse; toque e movimento reduzido ficam com o cursor do sistema
-  const cine=await page.evaluate(()=>({grain:!!document.querySelector('.gb-grain'),ring:!!document.querySelector('.gb-cur-ring'),loupe:!!document.querySelector('.gb-loupe')}));
-  check(vp,'cinema: grão presente e cursor só com mouse',cine.grain&&cine.ring===(!mobile&&!reduced)&&cine.loupe===(!mobile&&!reduced),JSON.stringify(cine));
+  // V13 — cursor sempre o do sistema; lupa só com mouse (toque e movimento reduzido ficam sem)
+  const cine=await page.evaluate(()=>({grain:!!document.querySelector('.gb-grain'),custom:!!document.querySelector('.gb-cur-ring,.gb-cur-dot')||getComputedStyle(document.body).cursor==='none',loupe:!!document.querySelector('.gb-loupe')}));
+  check(vp,'cinema: grão presente, cursor do sistema, lupa só com mouse',cine.grain&&!cine.custom&&cine.loupe===(!mobile&&!reduced),JSON.stringify(cine));
   if(!mobile&&!reduced){
     await page.waitForTimeout(900);
     const sb=await page.locator('#gbpView .gbp-slide.is-on img').boundingBox();
