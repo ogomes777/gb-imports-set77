@@ -274,9 +274,15 @@ async function run(w,h,reduced=false){
   // Faixas de categorias entre o hero e a arara: dois sentidos, clique filtra o catálogo
   const mqInfo=await page.evaluate(()=>({rows:document.querySelectorAll('#gbMarquee .gb-mq-row').length,chips:document.querySelectorAll('#gbMarquee .gb-mq-chip:not([tabindex="-1"])').length}));
   check(vp,'faixas: duas linhas com categorias reais',mqInfo.rows===2&&mqInfo.chips>=10,JSON.stringify(mqInfo));
-  await page.locator('#gbMarquee').scrollIntoViewIfNeeded();
-  await page.locator('#gbMarquee .gb-mq-chip[data-mq-term="boné"]:not([tabindex="-1"])').first().click({force:true});await page.waitForTimeout(500);
-  check(vp,'faixas: clicar na categoria filtra o catálogo',(await page.locator('#catalogSearch').inputValue())==='boné'&&(await page.locator('#productGrid .product-visual').count())>0);
+  await page.evaluate(()=>{const m=document.getElementById('gbMarquee');scrollTo({top:m.getBoundingClientRect().top+scrollY-innerHeight/2+m.offsetHeight/2,behavior:'instant'})});await page.waitForTimeout(200);
+  // a faixa anda: pausa sob o ponteiro e clica numa cópia de "boné" que esteja na tela (sem ela, dispara no próprio chip)
+  const mqRow=await page.locator('#gbMarquee .gb-mq-chip[data-mq-term="boné"]').first().evaluate(a=>{const r=a.closest('.gb-mq-row').getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2}});
+  if(!mobile){await page.mouse.move(mqRow.x,mqRow.y);await page.waitForTimeout(250)}
+  const mqHit=await page.evaluate(()=>{for(const a of document.querySelectorAll('#gbMarquee .gb-mq-chip[data-mq-term="boné"]')){const r=a.getBoundingClientRect();if(r.left>=8&&r.right<=innerWidth-8&&r.top>=110&&r.bottom<=innerHeight-8&&document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)?.closest('.gb-mq-chip')===a)return{x:r.x+r.width/2,y:r.y+r.height/2}}return null});
+  if(mqHit&&!mobile)await page.mouse.click(mqHit.x,mqHit.y);else await page.locator('#gbMarquee .gb-mq-chip[data-mq-term="boné"]').first().dispatchEvent('click');
+  await page.waitForTimeout(500);
+  const mqRes={q:await page.locator('#catalogSearch').inputValue(),n:await page.locator('#productGrid .product-visual').count(),hit:!!mqHit};
+  check(vp,'faixas: clicar na categoria filtra o catálogo',mqRes.q==='boné'&&mqRes.n>0,JSON.stringify(mqRes));
   await page.locator('#catalogSearch').fill('');await page.waitForTimeout(300);
   // V12 — editorial: carrossel com fantasmas (só fotos reais), avança por seta
   await page.locator('#editorial').scrollIntoViewIfNeeded();
@@ -290,6 +296,16 @@ async function run(w,h,reduced=false){
   check(vp,'peça: página em três colunas com vistas e preço a validar',gbp.open&&gbp.slides>=2&&gbp.price.includes('A VALIDAR'),JSON.stringify(gbp));
   await page.locator('#gbpView .gbp-chips [data-go="1"]').click();
   check(vp,'peça: escolher a vista',(await page.locator('#gbpView .gbp-slide.is-on').getAttribute('data-k'))===(await page.locator('#gbpView .gbp-slide').nth(1).getAttribute('data-k')));
+  // V13 — cursor de cinema e lupa só com mouse; toque e movimento reduzido ficam com o cursor do sistema
+  const cine=await page.evaluate(()=>({grain:!!document.querySelector('.gb-grain'),ring:!!document.querySelector('.gb-cur-ring'),loupe:!!document.querySelector('.gb-loupe')}));
+  check(vp,'cinema: grão presente e cursor só com mouse',cine.grain&&cine.ring===(!mobile&&!reduced)&&cine.loupe===(!mobile&&!reduced),JSON.stringify(cine));
+  if(!mobile&&!reduced){
+    await page.waitForTimeout(900);
+    const sb=await page.locator('#gbpView .gbp-slide.is-on img').boundingBox();
+    await page.mouse.move(sb.x+sb.width/2,sb.y+sb.height/2,{steps:4});await page.waitForTimeout(250);
+    const lp=await page.evaluate(()=>{const l=document.querySelector('.gb-loupe'),i=l.querySelector('img'),s=document.querySelector('#gbpView .gbp-slide.is-on img');return{on:l.classList.contains('is-on'),same:!!s&&i.src===(s.currentSrc||s.src)}});
+    check(vp,'cinema: lupa amplia a própria foto da peça',lp.on&&lp.same,JSON.stringify(lp));
+  }
   await page.keyboard.press('Escape');await page.waitForTimeout(reduced?300:1700);
   check(vp,'peça: Esc fecha e devolve a rolagem',await page.locator('#gbpView').isHidden()&&!(await page.evaluate(()=>document.body.classList.contains('no-scroll'))));
   // Hero
