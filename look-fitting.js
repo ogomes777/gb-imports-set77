@@ -132,7 +132,7 @@ function bone(k,sw,sl,j,kids='',cls=''){
   const e=SK[k],R=90-angOf(e.b[0]-e.a[0],e.b[1]-e.a[1]),L=e.len*sl;
   // Paz e amor: mão direita com dois dedos abertos em V, articulada no punho.
   // A luva original é ocultada apenas durante o SALVE.
-  const peace=j==='wrR'? `<g class="fit-peace-sign" aria-hidden="true" transform="rotate(-90) scale(.48) translate(0 -85)">
+  const peace=j==='wrR'? `<g class="fit-peace-sign" aria-hidden="true" transform="rotate(120) scale(.48) translate(0 -85)">
     <path d="M-16 88Q-26 78-25 60L-38 34Q-44 21-35 17Q-27 13-21 25L-13 41-18-37Q-19-53-9-55Q1-55 3-40L7 22 18-40Q21-56 31-53Q40-50 35-36L24 25 34 19Q44 10 49 20Q52 27 44 40L33 62Q32 79 20 89Z" fill="#11141a" stroke="#c39b1e" stroke-width="4" stroke-linejoin="round"/>
     <path d="M-8 36L2 64 17 38M-12 71Q8 81 23 69" stroke="#ffd447" stroke-width="3.2" stroke-linecap="round" fill="none"/>
     <path d="M-9-36L-5 12M29-36L18 14" stroke="#fff1a8" stroke-width="3" stroke-linecap="round"/>
@@ -605,34 +605,36 @@ function setSplit(v){stage?.style.setProperty('--split',String(v))}
 let spin=()=>{},turnStart=null,emoteAnims=[],emoteName=null,spinAnim=null;
 // Cancelar um emote também limpa suas juntas e impede que uma animação antiga
 // termine por cima de uma nova roupa ou outro gesto.
+function setGestureState(name){stage?.querySelectorAll('[data-fit-emote]').forEach(b=>{const on=b.dataset.fitEmote===name;b.classList.toggle('is-playing',on);b.setAttribute('aria-pressed',String(on))})}
 function stopEmote(){
-  emoteAnims.forEach(a=>a.cancel());emoteAnims=[];
+  emoteAnims.forEach(a=>a.cancel());emoteAnims=[];setGestureState(null);
+  if(fig)delete fig.dataset.salveMode;
   spinAnim?.cancel();spinAnim=null;
   emoteName=null;
   if(fig)delete fig.dataset.emote;
   stage?.classList.remove('is-fit-orbiting');
 }
-function emote(name,{bpm=112,beats=8}={}){
+function emote(name,{bpm=138,beats=8}={}){
   if(!fig||reduced()||!fig.animate)return false;
   stopEmote();
   bpm=Math.max(60,Math.min(240,Number(bpm)||112));
   beats=Math.max(2,Math.min(16,Math.round(Number(beats)||8)));
   const q=j=>[...fig.querySelectorAll(`.fit-figure:not(.fit-figure-b) [data-j="${j}"], #gbFitFigure [data-j="${j}"]`)].filter((v,i,a)=>a.indexOf(v)===i);
-  const run=(els,kf,o)=>els.forEach(el=>emoteAnims.push(el.animate(kf,{easing:'ease-in-out',...o})));
+  const run=(els,kf,o)=>els.filter(Boolean).forEach(el=>emoteAnims.push(el.animate(kf,{easing:'cubic-bezier(.35,0,.2,1)',...o})));
   const body=[fig.querySelector('.fit-emote')],floor=[fig.querySelector('.fit-floor')],beat=60000/bpm;
-  if(name==='spin'){spin();document.dispatchEvent(new CustomEvent('gb:emote',{detail:{name,editorial:true}}));return true}
+  if(name==='spin'){spin();setGestureState(name);document.dispatchEvent(new CustomEvent('gb:emote',{detail:{name,editorial:true}}));return true}
   if(name==='dance'){
     // Jamal: duas passadas laterais, 3 marcações, quadril oposto ao pé que pisa.
     // Braços relaxados e elásticos no ritmo, sem reprodução de áudio comercial.
-    const T=Math.max(3000,beat*10);
+    const T=Math.max(2180,Math.min(3100,beat*5.7));
     const steps=[0,-1,-1,0,1,1,0,-1,0,1,0],n=steps.length-1;
     const frames=fn=>steps.map((v,i)=>({offset:i/n,...fn(v,i)}));
-    run(body,frames((v,i)=>({transform:`translateX(${v*7}px) translateY(${i%2?3:0}px) rotate(${-v*1.7}deg)`})),{duration:T});
-    run(q('head'),frames((v,i)=>({transform:`rotate(${-v*5+(i%3===0?2:0)}deg)`})),{duration:T});
+    run(body,frames((v,i)=>({transform:`translateX(${v*12}px) translateY(${i%2?3.5:0}px) rotate(${-v*2.2}deg)`})),{duration:T});
+    run(q('head'),frames((v,i)=>({transform:`rotate(${-v*6+(i%3===0?1.5:0)}deg)`})),{duration:T});
     for(const side of[-1,1]){const k=side<0?'L':'R';
-      run(q('sh'+k),frames((v,i)=>({transform:`rotate(${side*(v*14+(i%2?17:-7))}deg)`})),{duration:T});
-      run(q('el'+k),frames((v,i)=>({transform:`rotate(${side*(i%2?-24:11)+v*7}deg)`})),{duration:T});
-      run(q('wr'+k),frames((v,i)=>({transform:`rotate(${side*(i%2?9:-8)}deg)`})),{duration:T});
+      run(q('sh'+k),frames((v,i)=>({transform:`rotate(${side*(v*19+(i%2?12:-6))}deg)`})),{duration:T});
+      run(q('el'+k),frames((v,i)=>({transform:`rotate(${side*(i%2?-19:10)+v*7}deg)`})),{duration:T});
+      run(q('wr'+k),frames((v,i)=>({transform:`rotate(${side*(i%2?12:-7)}deg)`})),{duration:T});
       // A canela e o tênis movem juntos; não separa a sola da articulação.
       const move=frames((v,i)=>({transform:`translate(${v*3}px,${CAT.bottom[state.bottomId]?.kind==='shorts'&&i%2&&((i%4===1&&side<0)||(i%4===3&&side>0))?-7:0}px)`}));
       run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${side}"]`)],move,{duration:T});
@@ -641,16 +643,18 @@ function emote(name,{bpm=112,beats=8}={}){
     run(floor,frames((v,i)=>({transform:`translateX(${v*3}px) scale(${i%2?.955:1},1)`})),{duration:T});
   }else if(name==='wave'){
     // Tchau real: erguer braço, três oscilações no antebraço/punho, retornar.
-    const T=2350;
+    const T=1840;
     run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-79deg)',offset:.16},{transform:'rotate(-86deg)',offset:.80},{transform:'rotate(0deg)'}],{duration:T});
     run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(-41deg)',offset:.17},{transform:'rotate(-19deg)',offset:.30},{transform:'rotate(-48deg)',offset:.43},{transform:'rotate(-16deg)',offset:.56},{transform:'rotate(-44deg)',offset:.69},{transform:'rotate(0deg)'}],{duration:T});
     run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-27deg)',offset:.18},{transform:'rotate(25deg)',offset:.31},{transform:'rotate(-28deg)',offset:.44},{transform:'rotate(24deg)',offset:.57},{transform:'rotate(-26deg)',offset:.70},{transform:'rotate(0deg)'}],{duration:T});
     run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-6deg)',offset:.30},{transform:'rotate(-4deg)',offset:.73},{transform:'rotate(0deg)'}],{duration:T});
   }else if(name==='salute'){
     // Salve curto: braço direito na altura da cabeça, a mão saúda e volta.
-    const T=1550;
-    run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-155deg)',offset:.24},{transform:'rotate(-155deg)',offset:.75},{transform:'rotate(0deg)'}],{duration:T});
-    run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(-110deg)',offset:.25},{transform:'rotate(-110deg)',offset:.73},{transform:'rotate(0deg)'}],{duration:T});
+    const T=1470,isShort=['tee','polo','jersey'].includes(CAT.top[state.topId]?.kind);
+    fig.dataset.salveMode=isShort?'full':'soft';
+    run(body,[{transform:'none'},{transform:'rotate(-.6deg)',offset:.25},{transform:'rotate(-.6deg)',offset:.7},{transform:'none'}],{duration:T});
+    if(isShort)run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(86deg)',offset:.15},{transform:'rotate(120deg)',offset:.25},{transform:'rotate(120deg)',offset:.74},{transform:'rotate(0deg)'}],{duration:T});
+    if(isShort)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(105deg)',offset:.17},{transform:'rotate(165deg)',offset:.27},{transform:'rotate(165deg)',offset:.72},{transform:'rotate(0deg)'}],{duration:T});
     run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-7deg)',offset:.36},{transform:'rotate(5deg)',offset:.55},{transform:'rotate(0deg)'}],{duration:T});
     run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-9deg)',offset:.42},{transform:'rotate(0deg)'}],{duration:T});
   }else if(name==='jump'){
@@ -659,8 +663,8 @@ function emote(name,{bpm=112,beats=8}={}){
     run(floor,[{transform:'none',opacity:1},{transform:'scale(1.05,1)',offset:.18},{transform:'scale(.62,.7)',opacity:.45,offset:.46},{transform:'scale(1.08,1)',opacity:1,offset:.72},{transform:'none',opacity:1}],{duration:T});
     for(const s of[-1,1]){const k=s<0?'L':'R';run(q('sh'+k),[{transform:'rotate(0deg)'},{transform:`rotate(${s*12}deg)`,offset:.18},{transform:`rotate(${-s*70}deg)`,offset:.46},{transform:'rotate(0deg)',offset:.75},{transform:'rotate(0deg)'}],{duration:T})}
   }else return false;
-  emoteName=name;fig.dataset.emote=name;
-  Promise.all(emoteAnims.map(a=>a.finished)).then(()=>{if(emoteName===name){delete fig.dataset.emote;emoteName=null;emoteAnims=[]}}).catch(()=>{});
+  emoteName=name;fig.dataset.emote=name;setGestureState(name);
+  Promise.all(emoteAnims.map(a=>a.finished)).then(()=>{if(emoteName===name){delete fig.dataset.emote;delete fig.dataset.salveMode;emoteName=null;emoteAnims=[];setGestureState(null)}}).catch(()=>{});
   document.dispatchEvent(new CustomEvent('gb:emote',{detail:{name,bpm}}));
   return true;
 }
@@ -687,11 +691,11 @@ function mount(el,initial){
    <span class="fit-orbit-note" aria-hidden="true">GIRO EDITORIAL · COSTAS NÃO FOTOGRAFADAS</span>
     <div class="fit-emotes" role="group" aria-label="Emotes do GB UNIT">
       <span class="fit-emotes-title" aria-hidden="true">GB / GESTOS</span>
-      <button type="button" data-fit-emote="dance" aria-label="Passinho do Jamal"><i aria-hidden="true">${icon('dance')}</i><b>PASSINHO</b></button>
-      <button type="button" data-fit-emote="wave" aria-label="Acenar tchau"><i aria-hidden="true">${icon('wave')}</i><b>TCHAU</b></button>
-      <button type="button" data-fit-emote="salute" aria-label="Salve com paz e amor"><i aria-hidden="true">${icon('salute')}</i><b>SALVE</b></button>
-      <button type="button" data-fit-emote="spin" aria-label="Girar 360 graus"><i aria-hidden="true">${icon('spin')}</i><b>360°</b></button>
-      <button type="button" data-fit-emote="jump" aria-label="Pular"><i aria-hidden="true">${icon('jump')}</i><b>PULAR</b></button>
+      <button type="button" data-fit-emote="dance" aria-label="Passinho do Jamal" aria-pressed="false"><i aria-hidden="true">${icon('dance')}</i><b>PASSINHO</b></button>
+      <button type="button" data-fit-emote="wave" aria-label="Acenar tchau" aria-pressed="false"><i aria-hidden="true">${icon('wave')}</i><b>TCHAU</b></button>
+      <button type="button" data-fit-emote="salute" aria-label="Salve com paz e amor" aria-pressed="false"><i aria-hidden="true">${icon('salute')}</i><b>SALVE</b></button>
+      <button type="button" data-fit-emote="spin" aria-label="Girar 360 graus" aria-pressed="false"><i aria-hidden="true">${icon('spin')}</i><b>360°</b></button>
+      <button type="button" data-fit-emote="jump" aria-label="Pular" aria-pressed="false"><i aria-hidden="true">${icon('jump')}</i><b>PULAR</b></button>
     </div>
     <div class="fit-turnbar" role="group" aria-label="Girar o GB UNIT">
       <span class="fit-turn-title" aria-hidden="true">GB / ORBIT CONTROL</span>
@@ -764,7 +768,7 @@ function mount(el,initial){
       {offset:1,transform:'perspective(960px) rotateY(360deg)'}
     ],{duration:2400,easing:'cubic-bezier(.42,0,.58,1)'});
     spinAnim=anim;emoteName='spin';fig.dataset.emote='spin';
-    anim.finished.then(()=>{if(spinAnim===anim){spinAnim=null;emoteName=null;delete fig.dataset.emote;stage.classList.remove('is-fit-orbiting');sync(0)}}).catch(()=>{});
+    anim.finished.then(()=>{if(spinAnim===anim){spinAnim=null;emoteName=null;delete fig.dataset.emote;stage.classList.remove('is-fit-orbiting');setGestureState(null);sync(0)}}).catch(()=>{});
   };
   scene.querySelectorAll('[data-fit-emote]').forEach(b=>b.addEventListener('click',()=>emote(b.dataset.fitEmote)));
   sync(0);
