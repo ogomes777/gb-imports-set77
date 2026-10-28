@@ -725,7 +725,7 @@ function emote(name,{bpm=176,beats=8}={}){
     // flexão profunda do joelho + inclinação do tronco -> sobe -> avança.
     // Anterior V1.8 era uma invenção de 3 batidas sem as poses do vídeo.
     // O manequim é editorial 2D; não reivindicar retarget 1:1 sem rig volumétrico.
-    const T=5300,N=lite()?80:144;
+    const T=5300,N=lite()?96:160;
     // t, avanço X, agachamento, inclinação, cabeça, ombro esq/dir,
     // cotovelo esq/dir, punho esq/dir, pé esq/dir, balanço quadril.
     // Amostragem observada dos segundos 3.5–9.5 do anexo recebido.
@@ -757,20 +757,28 @@ function emote(name,{bpm=176,beats=8}={}){
     ];
     // C1: interpolação Hermite com derivadas centradas. Respeita tempo dos
     // quadros reais e elimina o para/arranca de cada keyframe antigo.
+    // Derivadas periódicas: primeira e última velocidade iguais.
+    // Evita o corte no compasso quando termina e reinicia.
     const pose=t=>{
       t=Math.max(0,Math.min(1,t));
       let i=0;while(i<keys.length-2&&keys[i+1][0]<t)i++;
-      const a=keys[i],b=keys[i+1],prev=keys[Math.max(0,i-1)],next=keys[Math.min(keys.length-1,i+2)];
-      const span=b[0]-a[0],u=(t-a[0])/span,u2=u*u,u3=u2*u;
-      const h00=2*u3-3*u2+1,h10=u3-2*u2+u,h01=-2*u3+3*u2,h11=u3-u2;
+      const a=keys[i],b=keys[i+1],n=keys.length,span=b[0]-a[0],
+        u=(t-a[0])/span,u2=u*u,u3=u2*u,
+        h00=2*u3-3*u2+1,h10=u3-2*u2+u,h01=-2*u3+3*u2,h11=u3-u2;
+      const prev=i===0?keys[n-2]:keys[i-1],prevT=i===0?prev[0]-1:prev[0],
+        next=i+2>=n?keys[1]:keys[i+2],nextT=i+2>=n?next[0]+1:next[0];
       return a.map((v,j)=>{
         if(j===0)return t;
-        const m0=(b[j]-prev[j])/(b[0]-prev[0]),m1=(next[j]-a[j])/(next[0]-a[0]);
-        return h00*v+h10*span*m0+h01*b[j]+h11*span*m1;
+        const m0=(b[j]-prev[j])/(b[0]-prevT),
+          m1=(next[j]-a[j])/(nextT-a[0]);
+        const val=h00*v+h10*span*m0+h01*b[j]+h11*span*m1;
+        const lo=Math.min(v,b[j]),hi=Math.max(v,b[j]),margin=Math.max(.025,(hi-lo)*.16);
+        return Math.max(lo-margin,Math.min(hi+margin,val));
       });
     };
     const frames=(fn,delay=0)=>Array.from({length:N+1},(_,i)=>{
-      const t=i/N,p=pose(((t-delay)%1+1)%1);return{offset:t,...fn(p),easing:'linear'};
+      const t=i/N,p=pose(((t-delay)%1+1)%1);
+      return{offset:t,...fn(p,t),easing:'linear'};
     });
     const pants=CAT.bottom[state.bottomId]?.kind==='pants';
     const long=isLongSleeve(CAT.top[state.topId]);
@@ -1011,7 +1019,7 @@ function mount(el,initial){
       value.y=clamp(value.y+value.vy*dt,-1,1);
       value.impact=Math.max(0,value.impact-dt*2.65);
       // Enquanto dança: micro reação no tronco, reação normal no olhar.
-      const dance=emoteName==='dance',bodyScale=dance?.40:1;
+      const dance=emoteName==='dance',bodyScale=dance?0.40:1;
       const headYaw=value.x*4.2+clamp(value.vx*.11,-.95,.95);
       const headPitch=value.y*3.6-value.impact*1.4;
       const vars={
