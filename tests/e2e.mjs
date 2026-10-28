@@ -536,6 +536,40 @@ async function run(w,h,reduced=false){
       Math.abs(parseFloat(attention.gaze))>.3&&Math.abs(parseFloat(attention.eye))>1&&
       Math.abs(parseFloat(attention.head))>.3,JSON.stringify(attention));
   }
+  // GB V2.0: spring de reação real ao mouse + touch, volta ao repouso;
+  // a coreografia deve ser periódica também na velocidade, não só na pose.
+  if(!reduced){
+    const attentionV20=await page.evaluate(async()=>{
+      const scene=document.querySelector('#lookstudio .fit-scene'),r=scene.getBoundingClientRect(),
+        sleep=t=>new Promise(done=>setTimeout(done,t)),
+        send=(type,pointerType,x,y,id=10)=>scene.dispatchEvent(new PointerEvent(type,{
+          bubbles:true,pointerType,pointerId:id,buttons:type==='pointerup'?0:1,
+          clientX:x,clientY:y
+        })),
+        gaze=()=>Number(scene.style.getPropertyValue('--gb-look-x')||0),
+        glow=()=>Number(scene.style.getPropertyValue('--gb-eye-glow')||1);
+      send('pointermove','mouse',r.right-16,r.top+25);await sleep(440);const right=gaze();
+      send('pointerdown','touch',r.left+20,r.bottom-20,88);
+      send('pointermove','touch',r.left+20,r.bottom-20,88);await sleep(440);
+      const left=gaze(),touchGlow=glow();
+      send('pointerup','touch',r.left+20,r.bottom-20,88);await sleep(1250);
+      const neutral=gaze();
+      const fig=document.querySelector('#gbFitFigure'),d=fig.querySelector('.fit-emote');
+      GBFitting.emote('dance');await sleep(130);
+      const k=d.getAnimations()[0]?.effect.getKeyframes()||[];
+      const angle=x=>Number(x?.transform?.match(/rotate\((-?[\d.]+)deg\)/)?.[1]||0);
+      const slopeA=angle(k[1])-angle(k[0]),slopeB=angle(k.at(-1))-angle(k.at(-2));
+      const seam=k[0]?.transform===k.at(-1)?.transform;
+      GBFitting.emote('dance');return{right,left,touchGlow,neutral,seam,slopeA,slopeB,
+        frames:k.length,stopped:GBFitting.emoting===null};
+    });
+    check(vp,'GB V2.0: cursor e toque inerciais, retorno neutro e loop sem tranco',
+      attentionV20.right>.65&&attentionV20.left<-.65&&
+      attentionV20.touchGlow>=1&&Math.abs(attentionV20.neutral)<.08&&
+      attentionV20.seam&&attentionV20.frames>=95&&
+      Math.abs(attentionV20.slopeA-attentionV20.slopeB)<.42&&
+      attentionV20.stopped,JSON.stringify(attentionV20));
+  }
   // V20: escala real dos tênis, rig com capuz medido, painel premium com cinco emotes.
   const v20=await page.evaluate(()=>{const f=document.querySelector('#gbFitFigure'),dock=document.querySelector('#lookstudio .fit-emotes');
     const base=window.GBFitting;return{shoeWidth:base.SHOE.len,buttons:dock?.querySelectorAll('[data-fit-emote]').length||0,

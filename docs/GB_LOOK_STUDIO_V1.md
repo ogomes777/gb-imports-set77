@@ -102,6 +102,20 @@ Referência concreta: vídeo WhatsApp anexado, duração 10,785s (gravação de 
 - Regressões: validar 1440, 390, 320 px; moletom/calça e camiseta/bermuda, sem overflow, sem erros JS, blink animado e pointer reactive.
 - Ainda **não é reprodução quadro a quadro**: fotografias 2D do produto não fornecem esqueletos/articulações volumétricas ou deformação realista do tecido. Para semelhança exata, retarget em rig 3D com IK/skin, vídeo autorizado e comparação sincronizada.
 
+## V2.0 · Passinho com ciclo C1 e atenção física (28/10/2026)
+
+Fonte visual: vídeo original fornecido pelo cliente, WhatsApp Video 2026-10-28 at 17.58.52.mp4 (10,785s, ação ~3,45–9,55s). A dança no Look Studio segue a seleção de 24 poses manuais V1.9 (braço cruzando o rosto, soltura, agachamento, subida e avanço); continua interpretação editorial 2D, **não** extração automática de juntas / captura de movimento.
+
+- Substitui tangentes de início/fim sem periodicidade por **Hermite com tangentes periódicas**, reduzindo tranco no fechamento do loop de 5,3s. Amostragem em 96/160 keyframes e limites de overshoot de ombro/cotovelo para preservar a manga.
+- Cria discreta aproximação de câmera no final do ciclo e retorno a escala 1 antes da repetição, mantendo o ponto de apoio no chão.
+- Gaze mouse + touch: spring baseado em delta de tempo, amortecimento e limite de velocidade. O olhar segue primeiro, a cabeça e corpo reagem com amplitude menor; glow do olho reage ao contato.
+- Touch down/move acompanha dedo, touch up desfaz a inclinação progressivamente; pointercancel, saída do cursor, aba oculta e offscreen têm limpeza adequada. Interação não cancela ORBIT nem scroll, e prefers-reduced-motion continua respeitado.
+- Não há dupla interpolação CSS/RAF: transições removidas da presença/olhos, integrador ativo apenas enquanto converge; pausado quando palco está fora da viewport. Durante a dança a reação do tronco ao ponteiro é atenuada para não disputar a coreografia.
+- **Não modificar a fotografia das roupas:** mangas intactas, calça em uma única imagem, rotação do tênis em torno do tornozelo. O controle PASSINHO/PARAR permanece reversível.
+- Testes: desktop 1440 e mobile 390/320 com moletom+calça e camiseta+bermuda; mouse direita/esquerda, toque e retorno à posição neutra; olhos piscando, sem overflow ou erros JS; keyframes inicial/final iguais e derivada angular próxima.
+
+Limitação: ser visualmente idêntico quadro a quadro ao vídeo exige rig completo com esqueleto de quadril/joelho/tornozelo, cotovelo, deformação de roupas e calibração da câmera. Em V2 futura, retarget com vídeo autorizado e testes de pose sincronizada.
+
 ## Backlog para futura V2
 
 Somente com novos ativos apropriados: modelagem e rig 3D próprios, movimentos capturados/autorizados, vistas reais, motor de tecido validado e medição de desempenho de campo.
