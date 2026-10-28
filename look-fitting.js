@@ -728,25 +728,25 @@ function emote(name,{bpm=176,beats=8}={}){
     const score=[
       //   t,    lateral, pé ativo, elevação, ponta, peso do quadril, compressão
       [0.000,  0, 0, 0, 0, 0,0],
-      [0.040,  0,-1, 6, 8,  .70,.18],
+      [0.040,  0,-1, 7,11,  .70,.18],
       [0.095,  0,-1, 0, 0,  .25,.08],
-      [0.143,  0,-1, 8,-8,  .95,.32],
+      [0.143,  0,-1, 9,-11, .95,.32],
       [0.200,  0,-1, 0, 0,  .24,.06],
-      [0.248,  0,-1, 7, 9,  .82,.22],
+      [0.248,  0,-1, 8,12,  .82,.22],
       [0.307,  0,-1, 0, 0,  .15,0],
-      [0.357, -5,-1, 1, 4,  .55,.20],
-      [0.413,-13,-1, 0, 0,  .35,.06],
-      [0.475,-13, 0, 0, 0,  0,0],
+      [0.357, -9,-1, 1, 5,  .55,.20],
+      [0.413,-24,-1, 0, 0,  .35,.06],
+      [0.475, -8, 0, 0, 0,  0,0],
       [0.500,  0, 0, 0, 0,  0,0],
-      [0.540,  0, 1, 6,-8, -.70,.18],
+      [0.540,  0, 1, 7,-11,-.70,.18],
       [0.595,  0, 1, 0, 0, -.25,.08],
-      [0.643,  0, 1, 8, 8, -.95,.32],
+      [0.643,  0, 1, 9,11, -.95,.32],
       [0.700,  0, 1, 0, 0, -.24,.06],
-      [0.748,  0, 1, 7,-9, -.82,.22],
+      [0.748,  0, 1, 8,-12,-.82,.22],
       [0.807,  0, 1, 0, 0, -.15,0],
-      [0.857,  5, 1, 1,-4, -.55,.20],
-      [0.913, 13, 1, 0, 0, -.35,.06],
-      [0.975, 13, 0, 0, 0, 0,0],
+      [0.857,  9, 1, 1,-5, -.55,.20],
+      [0.913, 24, 1, 0, 0, -.35,.06],
+      [0.975,  8, 0, 0, 0, 0,0],
       [1.000,  0, 0, 0, 0, 0,0]
     ].map(([offset,travel,active,lift,toe,hip,compress])=>({
       offset,travel,active,lift,toe,hip,compress
@@ -764,19 +764,19 @@ function emote(name,{bpm=176,beats=8}={}){
     run(q('head'),frames(s=>({transform:`rotate(${(-s.hip*3.1-s.travel*.10).toFixed(2)}deg)`})),{duration:T});
     // Quadril opõe o pé de apoio. Calça é UMA foto intacta, sem recortar joelho.
     run([fig.querySelector('.fit-layer-bottom')],frames(s=>({
-      transform:`translateX(${(s.hip*3.6).toFixed(2)}px) rotate(${(-s.hip*.8).toFixed(2)}deg)`
+      transform:`translateX(${(s.hip*5.8).toFixed(2)}px) rotate(${(-s.hip*1.2).toFixed(2)}deg)`
     })),{duration:T});
     run([fig.querySelector('.fit-layer-top')],frames(s=>({
-      transform:`translateX(${(-s.hip*1.9).toFixed(2)}px) rotate(${(s.hip*1.2).toFixed(2)}deg)`
+      transform:`translateX(${(-s.hip*2.8).toFixed(2)}px) rotate(${(s.hip*1.2).toFixed(2)}deg)`
     })),{duration:T});
     const shoeDx=parseFloat(fig.style.getPropertyValue('--shoeDx'))||0;
     for(const side of [-1,1]){
       const k=side<0?'L':'R';
       // Braço relaxado, com atraso no punho: balanço oposto ao quadril,
       // sem flexão rígida/exagerada no cotovelo ou corte no moletom.
-      run(q('sh'+k),frames(s=>({transform:`rotate(${(side*(s.hip*10+s.travel*.20)).toFixed(2)}deg)`})),{duration:T});
-      run(q('el'+k),frames(s=>({transform:`rotate(${(side*(s.hip*4.5+s.compress*3)).toFixed(2)}deg)`})),{duration:T});
-      run(q('wr'+k),frames(s=>({transform:`rotate(${(side*(s.hip*2.8-s.compress*5)).toFixed(2)}deg)`})),{duration:T});
+      run(q('sh'+k),frames(s=>({transform:`rotate(${(side*(s.hip*14+s.travel*.13)).toFixed(2)}deg)`})),{duration:T});
+      run(q('el'+k),frames((s,i)=>{const lag=score[Math.max(0,i-1)];return{transform:`rotate(${(side*(lag.hip*5.6+s.compress*3)).toFixed(2)}deg)`}}),{duration:T});
+      run(q('wr'+k),frames((s,i)=>{const lag=score[Math.max(0,i-2)];return{transform:`rotate(${(side*(lag.hip*4.3-s.compress*4)).toFixed(2)}deg)`}}),{duration:T});
       const taps=frames(s=>{
         const active=s.active===side,up=active?s.lift:0;
         // Em repouso, o pé NÃO atravessa a roupa nem anda sozinho.
