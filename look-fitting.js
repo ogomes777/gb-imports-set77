@@ -52,7 +52,7 @@ const B={cx:210,crown:58,chin:171,shoulderY:212,shL:[116,236],shR:[304,236],nave
   zones:{top:[90,176,240,340],bottom:[118,420,184,490]}};
 // alvos da roupa sobre o corpo: superior pela linha dos ombros, inferior pelo cós (folga de streetwear incluída)
 const FIT={top:{shoulder:232,lineY:212,kindDy:{hoodie:6,jacket:4,sweatshirt:0,longsleeve:0,tee:0,polo:0,jersey:0}},
-  bottom:{waist:166,waistY:430,pantsHem:870},armTilt:19,neck:{top:29,base:38},
+  bottom:{waist:166,waistY:430,pantsHem:886},armTilt:19,neck:{top:29,base:38},
   kindScale:{hoodie:1,jacket:1.02,sweatshirt:1,longsleeve:.98,tee:1,polo:1,jersey:1,pants:1,shorts:1}};
 const HEAD_R=[[210,58],[226,59.5],[239,65],[247.5,75],[251.5,88],[252.5,102],[251.5,114],[250,125],[247.5,136],[244,146],[239,155],[232.5,162],[224.5,167.5],[217,170.5],[210,171.5]];
 const HEAD=[...HEAD_R,...mirror(HEAD_R).reverse().slice(1,-1)];
@@ -180,8 +180,8 @@ function placeBottom(e){
   let Wb=FIT.bottom.waist*(FIT.kindScale[e.kind]||1)*(e.scale||1)/ww;
   // calça: a barra cai no tornozelo (o cós segue entre 168 e 206 de largura)
   if(e.kind==='pants'){const want=(FIT.bottom.pantsHem-FIT.bottom.waistY)/(leg*e.h/e.w);Wb=Math.max(168/ww,Math.min(206/ww,want))}
-  const Hb=Wb*e.h/e.w;
-  return{x:B.cx-(e.waist.l+ww/2)*Wb+(e.dx||0),y:FIT.bottom.waistY-e.waist.y*Hb+(e.dy||0),w:Wb,h:Hb};
+  const Hb=Wb*e.h/e.w,dy=e.kind==='shorts'?7:0;
+  return{x:B.cx-(e.waist.l+ww/2)*Wb+(e.dx||0),y:FIT.bottom.waistY+dy-e.waist.y*Hb+(e.dy||0),w:Wb,h:Hb};
 }
 const P=(pl,x,y)=>[pl.x+x*pl.w,pl.y+y*pl.h];
 const rot=(p,c,deg)=>{const a=deg*Math.PI/180,dx=p[0]-c[0],dy=p[1]-c[1];return[c[0]+dx*Math.cos(a)-dy*Math.sin(a),c[1]+dx*Math.sin(a)+dy*Math.cos(a)]};
@@ -321,13 +321,13 @@ function garmentParts(part,p,pfx){
   }else{
     // Barra curta no tornozelo: foto real recortada, sem deformação da textura.
     if(e.kind==='pants'&&e.legs?.length>=2){
-      const hem=875,top=716;
+      const hem=891,top=718;
       const cut=e.legs.slice(0,2).map(l=>{
         const x=pl.x+l.x*pl.w,hw=Math.max(19,l.w*pl.w*.56);
         const ankle=Math.max(13,Math.min(20,hw*.69));
         return `<path d="M${r1(x-hw-5)} ${top} Q${r1(x-hw)} 760 ${r1(x-hw*.88)} 786
-          L${r1(x-ankle)} 862 Q${r1(x-ankle)} ${hem} ${r1(x-ankle+7)} ${hem}
-          L${r1(x+ankle-7)} ${hem} Q${r1(x+ankle)} ${hem} ${r1(x+ankle)} 862
+          L${r1(x-ankle)} ${hem-13} Q${r1(x-ankle)} ${hem} ${r1(x-ankle+7)} ${hem}
+          L${r1(x+ankle-7)} ${hem} Q${r1(x+ankle)} ${hem} ${r1(x+ankle)} ${hem-13}
           L${r1(x+hw*.88)} 786 Q${r1(x+hw)} 760 ${r1(x+hw+5)} ${top}Z"/>`;
       }).join('');
       const id=`${pfx}-trouser-${p.id}`;
@@ -342,7 +342,7 @@ function garmentParts(part,p,pfx){
 // capuz na cabeça: o próprio capuz da foto, levantado por inteiro (escala única) até a abertura emoldurar o rosto.
 // Atrás da cabeça vai o capuz inteiro (o forro escuro aparece em volta do capacete); na frente, o mesmo capuz com a
 // abertura vazada (borda suave), para a cabeça ficar DENTRO dele. A base some aos poucos sobre os ombros.
-const HOOD={open:99,top:HEAD_TOP-2};
+const HOOD={open:95,top:HEAD_TOP+1};
 // com o capuz na cabeça, a parte de cima do capuz deitado na foto some (fica só a gola que desce aos ombros)
 function hoodHideMask(e,pl,pfx,pid){
   const h=e.hood,ox0=pl.x+h.x0*pl.w,ox1=pl.x+h.x1*pl.w,ot=pl.y+h.top*pl.h,ob=pl.y+h.bottom*pl.h,id=`${pfx}-hd-${pid}-t`;
@@ -357,7 +357,7 @@ function hoodParts(e,pl,pfx,pid){
   const h=e.hood,ox0=pl.x+h.x0*pl.w,ox1=pl.x+h.x1*pl.w,ot=pl.y+h.top*pl.h;
   const ow=Math.max(1,ox1-ox0),k=Math.max(.83,Math.min(1.25,HOOD.open/ow));
   const tx=B.cx-k*(ox0+ox1)/2,ty=HOOD.top-k*ot,id=`${pfx}-hood-${pid}`;
-  const cx=B.cx,cy=HEAD_TOP+69,rx=63,ry=82,ix=53,iy=71;
+  const cx=B.cx,cy=HEAD_TOP+69,rx=61,ry=78,ix=53,iy=70;
   const img=`<g transform="translate(${r1(tx)} ${r1(ty)}) scale(${r3(k)})">${photo(e.src,pl.x,pl.y,pl.w,pl.h)}</g>`;
   const outer=`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>`;
   const back=mkG('fit-hoodpart fit-hood-back',pid);
@@ -682,7 +682,7 @@ function mount(el,initial){
     <div class="fit-turnbar" role="group" aria-label="Girar o GB UNIT">
       <span class="fit-turn-title" aria-hidden="true">GB / ORBIT CONTROL</span>
       <button type="button" data-fit-turn="-1" aria-label="Girar para a esquerda" aria-pressed="false"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-      <span class="fit-dial" role="slider" tabindex="0" aria-label="Giro do manequim" aria-valuemin="-45" aria-valuemax="45" aria-valuenow="0" aria-valuetext="FRENTE"><b>ORBITAR</b><span class="fit-spin-track" aria-hidden="true"><i data-pose="-1"></i><i data-pose="0" class="is-active"></i><i data-pose="1"></i></span></span>
+      <span class="fit-dial" role="slider" tabindex="0" aria-label="Giro do manequim" aria-valuemin="-45" aria-valuemax="45" aria-valuenow="0" aria-valuetext="FRENTE"><b>ORBITAR</b><span class="fit-spin-track" aria-hidden="true"><i data-pose="-1"></i><i data-pose="0" class="is-active"></i><i data-pose="1"></i><i class="fit-orbit-thumb"></i></span></span>
       <button type="button" data-fit-turn="0" aria-label="De frente" aria-pressed="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
       <button type="button" data-fit-turn="1" aria-label="Girar para a direita" aria-pressed="false"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
     </div>
@@ -704,17 +704,34 @@ function mount(el,initial){
     onEnd(v){turnDrag?.end(v);turnDrag=null}});
   // giro: arrastar o corpo (mouse) ou a plataforma (toque), botões e setas do teclado; mola e encaixe em 3 poses
   const turn=scene.querySelector('.fit-turn'),dial=scene.querySelector('.fit-dial');
-  const spring=M?new M.Spring(0,{k:170,z:.82}):null;let spinning=false;
+  const spring=M?new M.Spring(0,{k:170,z:.82}):null;let spinning=false,stopTicker=null,orbitPointer=null;
   const label=y=>{const d=dirOf(y);return d==='L'?'ESQUERDA':d==='R'?'DIREITA':'FRENTE'};
   const sync=y=>{applyYaw(fig,y);scene.style.setProperty('--yaw',y.toFixed(3));scene.style.setProperty('--yawa',Math.abs(y).toFixed(3));if(dial){dial.setAttribute('aria-valuenow',String(Math.round(y*45)));dial.setAttribute('aria-valuetext',label(y))}
     scene.querySelectorAll('[data-fit-turn]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.fitTurn===Math.round(y))));
-    scene.querySelectorAll('.fit-spin-track [data-pose]').forEach(t=>t.classList.toggle('is-active',+t.dataset.pose===Math.round(y)))};
-  const loop=dt=>{const y=spring.step(Math.min(dt,.05));sync(y);if(spring.settled){spring.jump(spring.target);sync(spring.target);spinning=false;return false}};
-  const goTo=(t,impulse=0)=>{t=Math.max(-1,Math.min(1,t));if(!spring||reduced()){sync(t);return}spring.set(t,impulse);if(!spinning){spinning=true;M.Ticker.add(loop)}};
+    scene.querySelectorAll('.fit-spin-track [data-pose]').forEach(t=>t.classList.toggle('is-active',+t.dataset.pose===Math.round(y)));
+    dial?.style.setProperty('--orbit-position',String(50+Math.max(-1,Math.min(1,y))*41)+'%')};
+  const loop=dt=>{const y=spring.step(Math.min(dt,.05));sync(y);if(spring.settled){spring.jump(spring.target);sync(spring.target);spinning=false;stopTicker=null;return false}};
+  const goTo=(t,impulse=0)=>{t=Math.max(-1,Math.min(1,t));if(!spring||reduced()){sync(t);return}spring.set(t,impulse);if(!spinning){spinning=true;stopTicker=M.Ticker.add(loop)}};
   scene.querySelectorAll('[data-fit-turn]').forEach(b=>b.addEventListener('click',()=>goTo(+b.dataset.fitTurn)));
   dial?.addEventListener('keydown',e=>{const k={ArrowLeft:-1,ArrowDown:-1,ArrowRight:1,ArrowUp:1}[e.key];if(k==null)return;e.preventDefault();goTo(Math.round(spring?spring.target:yaw)+k)});
+   // Slider físico: segue cada pixel do mouse ou dedo; mola apenas ao soltar.
+   const track=scene.querySelector('.fit-spin-track');
+   const moveOrbit=e=>{const r=track.getBoundingClientRect();if(!r.width)return;
+     const pos=Math.max(-1,Math.min(1,((e.clientX-r.left)/r.width-.5)/.41));
+     spring?.jump(pos);sync(pos)};
+   dial?.addEventListener('pointerdown',e=>{if(e.button!==0||stage.classList.contains('is-fit-compare'))return;
+     if(emoteName)stopEmote();stopTicker?.();stopTicker=null;spinning=false;
+     orbitPointer=e.pointerId;dial.setPointerCapture?.(e.pointerId);moveOrbit(e);e.preventDefault()});
+   dial?.addEventListener('pointermove',e=>{if(e.pointerId===orbitPointer)moveOrbit(e)});
+   const endOrbit=e=>{if(e.pointerId!==orbitPointer)return;orbitPointer=null;
+     if(dial.hasPointerCapture?.(e.pointerId))dial.releasePointerCapture(e.pointerId);
+     goTo(Math.round(Math.max(-1,Math.min(1,yaw))))};
+   dial?.addEventListener('pointerup',endOrbit);
+   dial?.addEventListener('pointercancel',endOrbit);
+   dial?.addEventListener('lostpointercapture',e=>{if(orbitPointer===e.pointerId){orbitPointer=null;goTo(Math.round(yaw))}});
+
   // o giro acompanha o dedo/mouse; ao soltar, encaixa na pose mais perto (com o embalo do gesto)
-  turnStart=()=>{const y0=spring?spring.x:yaw;spring?.jump(y0);return{
+  turnStart=()=>{stopTicker?.();stopTicker=null;spinning=false;const y0=spring?spring.x:yaw;spring?.jump(y0);return{
     move(dx){const w=fig.getBoundingClientRect().width;const y=Math.max(-1.15,Math.min(1.15,y0+dx/(w*.55)));spring?.jump(y);sync(y)},
     end(v){const y=spring?spring.x:yaw;goTo(Math.round(Math.max(-1,Math.min(1,y+v/2600))))}}};
   fig.addEventListener('fit:turn',e=>goTo(+e.detail));
