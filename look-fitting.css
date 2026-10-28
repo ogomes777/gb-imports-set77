@@ -520,3 +520,17 @@ body[data-gb-theme="origem"] .look-stage.has-fit .fit-led{box-shadow:0 0 13px 2p
   #gbFitFigure .fit-presence,#gbFitFigure .fit-attention,#gbFitFigure .fit-eye-track{transform:none!important;transition:none!important}
   #gbFitFigure .fit-eye-glare,#gbFitFigure .fit-eye-lid{animation:none!important}
 }
+
+
+/* GB V2.0 / reação física: as transições antigas brigavam com o spring do
+   requestAnimationFrame e deixavam o touch com latência. Um único integrador
+   calcula toda a pose de atenção a cada frame, sem transição em cascata. */
+#gbFitFigure .fit-presence,
+#gbFitFigure .fit-attention,
+#gbFitFigure .fit-eye-track{transition:none!important}
+#gbFitFigure .fit-eye-track{will-change:transform}
+#gbFitFigure .fit-eye-glare{filter:brightness(var(--gb-eye-glow,1))}
+@media(prefers-reduced-motion:reduce){
+  #gbFitFigure .fit-eye-glare{filter:none!important}
+  #gbFitFigure .fit-eye-track{will-change:auto}
+}
