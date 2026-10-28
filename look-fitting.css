@@ -484,3 +484,39 @@ body[data-gb-theme="origem"] .look-stage.has-fit .fit-led{box-shadow:0 0 13px 2p
 #lookstudio .look-stage.is-awake #gbFitFigure[data-emote="dance"] .fit-rig{
   animation:none!important;
 }
+
+
+/* GB LOOK V1.9 — presença humana responsiva, sem reescalar as roupas. */
+#gbFitFigure .fit-presence{
+  transform-box:view-box;transform-origin:210px 948px;
+  transform:translateX(var(--gb-body-shift,0px)) rotate(var(--gb-body-turn,0deg));
+  transition:transform .18s cubic-bezier(.2,.78,.24,1);
+}
+#gbFitFigure .fit-attention{
+  transform-box:view-box;transform-origin:210px 175px;
+  transform:translateY(var(--gb-head-lift,0px)) rotate(var(--gb-head-turn,0deg));
+  transition:transform .23s cubic-bezier(.2,.78,.24,1);
+}
+#gbFitFigure .fit-eye-track{
+  transform:translate(var(--gb-eye-x,0px),var(--gb-eye-y,0px));
+  transition:transform .12s ease-out;
+}
+#gbFitFigure .fit-eye-glare{
+  transform-box:view-box;
+  animation:gbEyeClose 5.7s linear 1.1s infinite;
+}
+#gbFitFigure .fit-eye-lid{
+  animation:gbEyeLid 5.7s linear 1.1s infinite;
+}
+@keyframes gbEyeClose{
+  0%,10.7%,12%,13.0%,14.4%,52%,53.2%,54.5%,100%{transform:scaleY(1);opacity:1}
+  11.2%,12.5%,52.7%,53.7%{transform:scaleY(.05);opacity:.05}
+}
+@keyframes gbEyeLid{
+  0%,10.7%,12%,13%,14.4%,52%,53.2%,54.5%,100%{opacity:0}
+  11.2%,12.5%,52.7%,53.7%{opacity:.96}
+}
+@media(prefers-reduced-motion:reduce){
+  #gbFitFigure .fit-presence,#gbFitFigure .fit-attention,#gbFitFigure .fit-eye-track{transform:none!important;transition:none!important}
+  #gbFitFigure .fit-eye-glare,#gbFitFigure .fit-eye-lid{animation:none!important}
+}
