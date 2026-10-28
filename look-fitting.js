@@ -207,40 +207,50 @@ function sleevePose(e,pl){
 
 /* V1.2: manga longa com fonte real única, separada por máscaras suaves em ombro/cotovelo.
    Toda a cor e estampa vêm do mesmo produto; punho e mão acompanham a articulação. */
+/* V1.4: mangas da foto são uma peça contínua. O algoritmo antigo desenhava
+   a manga em dois clips (bíceps e antebraço) e gerava uma costura falsa no
+   cotovelo. Usamos a mesma fotografia UMA vez por manga. A mão acompanha
+   o punho. O gesto nunca torce/parte a estampa no cotovelo. */
 function articulatedLongSleeves(e,pl,pfx,pid){
   const defs=[],parts=[];
-  const safe=(v)=>r1(v),pt=(x,y)=>P(pl,x,y);
+  const safe=v=>r1(v),pt=(x,y)=>P(pl,x,y);
   const capsule=(a,b,wa,wb)=>{
     const dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy)||1,nx=dy/len,ny=-dx/len;
     return 'M'+safe(a[0]+nx*wa)+' '+safe(a[1]+ny*wa)+
       'L'+safe(b[0]+nx*wb)+' '+safe(b[1]+ny*wb)+
-      'Q'+safe(b[0]+dx/len*8)+' '+safe(b[1]+dy/len*8)+' '+safe(b[0]-nx*wb)+' '+safe(b[1]-ny*wb)+
+      'Q'+safe(b[0]+dx/len*7)+' '+safe(b[1]+dy/len*7)+' '+safe(b[0]-nx*wb)+' '+safe(b[1]-ny*wb)+
       'L'+safe(a[0]-nx*wa)+' '+safe(a[1]-ny*wa)+'Z';
   };
   for(const k of ['l','r']){
     const side=k==='l'?-1:1,s=e.sleeves[k];
-    const shoulder=pt(e.cx+side*e.sh.w*.48,e.sh.y+.015),
+    const shoulder=pt(e.cx+side*e.sh.w*.47,e.sh.y+.013),
       cuff=pt(s.x,s.y-.018),
-      elbow=[shoulder[0]+(cuff[0]-shoulder[0])*.56+side*4,shoulder[1]+(cuff[1]-shoulder[1])*.56];
-    const uId=pfx+'-ls-'+pid+'-'+k+'-upper',dId=pfx+'-ls-'+pid+'-'+k+'-lower',
-      w0=Math.min(48,pl.w*.115),wMid=Math.min(35,pl.w*.077),wCuff=Math.max(14,s.w*pl.w*.58);
-    defs.push('<clipPath id="'+uId+'"><path d="'+capsule(shoulder,[elbow[0],elbow[1]+7],w0,wMid)+'"/></clipPath>');
-    defs.push('<clipPath id="'+dId+'"><path d="'+capsule([elbow[0],elbow[1]-7],cuff,wMid+3,wCuff)+'"/></clipPath>');
-    const image=extra=>photo(e.src,pl.x,pl.y,pl.w,pl.h,extra);
-    const upper=image(' clip-path="url(#'+uId+')"'),lower=image(' clip-path="url(#'+dId+')"');
+      elbow=[shoulder[0]+(cuff[0]-shoulder[0])*.57+side*9,
+             shoulder[1]+(cuff[1]-shoulder[1])*.57];
+    // Os dois contornos compõem um único clip e UMA imagem, sem cortes no cotovelo.
+    const id=pfx+'-ls-'+pid+'-'+k+'-whole',
+      w0=Math.min(59,pl.w*.145),mid=Math.min(52,pl.w*.124),
+      wc=Math.max(22,s.w*pl.w*.88);
+    defs.push('<clipPath id="'+id+'"><path d="'+capsule(shoulder,elbow,w0,mid)+'"/>'+
+      '<path d="'+capsule(elbow,cuff,mid+5,wc)+'"/></clipPath>');
+    const art=photo(e.src,pl.x,pl.y,pl.w,pl.h,' clip-path="url(#'+id+')"');
     const hand=cuffHand(side,...pt(s.x,s.y),s.dx,s.dy,s.w*pl.w);
-    parts.push('<g class="fit-long-arm" data-side="'+side+'"><g transform="translate('+safe(shoulder[0])+' '+safe(shoulder[1])+')">'+
-      '<g class="fit-jnt" data-j="sh'+(side<0?'L':'R')+'"><g transform="translate('+safe(-shoulder[0])+' '+safe(-shoulder[1])+')">'+
-      upper+'<g transform="translate('+safe(elbow[0])+' '+safe(elbow[1])+')"><g class="fit-jnt" data-j="el'+(side<0?'L':'R')+'"><g transform="translate('+safe(-elbow[0])+' '+safe(-elbow[1])+')">'+
-      lower+hand+'</g></g></g></g></g></g></g>');
+    parts.push('<g class="fit-long-arm fit-long-arm-single" data-side="'+side+'">'+
+      '<g transform="translate('+safe(shoulder[0])+' '+safe(shoulder[1])+')">'+
+      '<g class="fit-jnt" data-j="sh'+(side<0?'L':'R')+'">'+
+      '<g transform="translate('+safe(-shoulder[0])+' '+safe(-shoulder[1])+')">'+art+
+      '<g transform="translate('+safe(cuff[0])+' '+safe(cuff[1])+')">'+
+      '<g class="fit-jnt" data-j="el'+(side<0?'L':'R')+'">'+
+      '<g transform="translate('+safe(-cuff[0])+' '+safe(-cuff[1])+')">'+
+      hand+'</g></g></g></g></g></g></g>');
   }
   const l=pt(e.cx-e.sh.w*.50,e.sh.y),r=pt(e.cx+e.sh.w*.50,e.sh.y),
     hemL=pt(e.cx-e.hemw*.50,e.hem),hemR=pt(e.cx+e.hemw*.50,e.hem),
     torsoId=pfx+'-ls-'+pid+'-body';
-  // A gola/capuz inteiro permanece íntegro; somente as asas laterais da foto separam-se.
-  const contour='M0 0H420V'+safe(r[1]+8)+'H'+safe(r[0]+8)+
-    'Q'+safe(r[0]-15)+' '+safe(r[1]+82)+' '+safe(hemR[0])+' '+safe(hemR[1]+5)+
-    'H'+safe(hemL[0])+'Q'+safe(l[0]+15)+' '+safe(l[1]+82)+' '+safe(l[0]-8)+' '+safe(l[1]+8)+'H0Z';
+  // Transição contínua do ombro para o torso; a gola/capuz permanece inteiro.
+  const contour='M0 0H420V'+safe(r[1]+13)+'H'+safe(r[0]+14)+
+    'Q'+safe(r[0]-12)+' '+safe(r[1]+92)+' '+safe(hemR[0])+' '+safe(hemR[1]+5)+
+    'H'+safe(hemL[0])+'Q'+safe(l[0]+12)+' '+safe(l[1]+92)+' '+safe(l[0]-14)+' '+safe(l[1]+13)+'H0Z';
   defs.push('<clipPath id="'+torsoId+'"><path d="'+contour+'"/></clipPath>');
   return{defs:'<defs>'+defs.join('')+'</defs>',torsoId,sleeves:parts.join('')};
 }
