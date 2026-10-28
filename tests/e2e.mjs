@@ -472,6 +472,15 @@ async function run(w,h,reduced=false){
   if(!reduced)check(vp,'fit V19: emote DANÇAR anima juntas e corpo e termina sozinho',v19.started&&v19.moving>=3&&v19.body===1&&v19.done,JSON.stringify(v19));
   else check(vp,'fit V19: movimento reduzido não roda emote',v19.started===false,JSON.stringify(v19));
   check(vp,'fit V19: seta › da fileira de peças rola a lista',v19.arrows&&v19.s1>v19.s0,JSON.stringify(v19));
+  // V20: escala real dos tênis, rig com capuz medido, painel premium com cinco emotes.
+  const v20=await page.evaluate(()=>{const f=document.querySelector('#gbFitFigure'),dock=document.querySelector('#lookstudio .fit-emotes');
+    const base=window.GBFitting;return{shoeWidth:base.SHOE.len,buttons:dock?.querySelectorAll('[data-fit-emote]').length||0,
+      salute:!!dock?.querySelector('[data-fit-emote="salute"]'),
+      previewWidth:document.documentElement.scrollWidth-innerWidth,
+      legs:f?.querySelectorAll('.fit-layer-legs .fit-leg').length||0}});
+  check(vp,'fit V20: tênis na escala corrigida, dois membros e cinco emotes',v20.shoeWidth>=160&&v20.buttons===5&&v20.salute&&v20.legs===2,JSON.stringify(v20));
+  check(vp,'fit V20: interface não cria overflow horizontal',v20.previewWidth<=1,JSON.stringify(v20));
+
   // V19.1: o 360 não pode cortar de uma lateral para a outra; é uma rotação
   // editorial sinalizada, nunca uma foto inventada do verso da roupa.
   if(!reduced&&(w===1440||w===390)){

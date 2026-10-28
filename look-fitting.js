@@ -141,13 +141,13 @@ const sideK=(side,k)=>k+(side<0?'L':'R');
 const widAt=(k,t)=>{const w=SK[k].wid,f=Math.max(0,Math.min(1,t))*10,i=Math.min(9,Math.floor(f));return w[i]+(w[i+1]-w[i])*(f-i)};
 // mão de manga longa: a luva sai de dentro do punho, na direção da manga
 function cuffHand(side,x,y,dx,dy,cuffW){
-  const s=Math.max(.36,Math.min(.56,cuffW*1.7/widAt('haL',.05)));
-  return `<g class="fit-arm" data-side="${side}">`+root(x-dx*3,y-dy*3,angOf(dx,dy)+side*-4,bone(sideK(side,'ha'),s,s,sideK(side,'wr'),'','fit-hand'))+`</g>`;
+  const s=Math.max(.32,Math.min(.43,cuffW*1.30/widAt('haL',.05)));
+  return `<g class="fit-arm" data-side="${side}">`+root(x-dx*13,y-dy*13,angOf(dx,dy)+side*-4,bone(sideK(side,'ha'),s,s,sideK(side,'wr'),'','fit-hand'))+`</g>`;
 }
 // braço que sai da manga curta: ombro dentro da manga, cotovelo na altura do umbigo, antebraço e luva da arte.
 // A raiz gira no pivô da manga (o mesmo ponto em que a manga gira), para os emotes moverem manga e braço juntos.
 function shortArm(sp){
-  const{side,O,n,piv}=sp,sw=Math.max(.42,Math.min(.62,sp.ow*.86/widAt('upL',.8))),sl=Math.max(sw,.5);
+  const{side,O,n,piv}=sp,sw=Math.max(.40,Math.min(.55,sp.ow*.84/widAt('upL',.8))),sl=Math.max(sw,.49);
   const k=sideK(side,'up'),tE=Math.max(26,(388-O[1])/Math.max(.5,n[1])),E=[O[0]+n[0]*tE,O[1]+n[1]*tE];
   const Lup=SK[k].len*sl,A=[E[0]-n[0]*Lup,E[1]-n[1]*Lup],a1=angOf(n[0],n[1]),a2=90+(a1-90)*.92,a3=a2+side*7;
   const hand=bone(sideK(side,'ha'),sw*1.05,sw*1.05,sideK(side,'wr'),'','fit-hand');
@@ -189,7 +189,7 @@ function sleevePose(e,pl){
   const out={};
   for(const k of['l','r']){const s=e.rig?.[k];if(!s)continue;
     const side=k==='l'?-1:1,a0=Math.atan2(s.nx,s.ny)*180/Math.PI,aT=side*FIT.armTilt;
-    const th=side<0?Math.max(-60,Math.min(0,a0-aT)):Math.min(60,Math.max(0,a0-aT));
+    const th=side<0?Math.max(-24,Math.min(0,a0-aT)):Math.min(24,Math.max(0,a0-aT));
     const piv=P(pl,s.px,s.py),O=rot(P(pl,s.ox,s.oy),piv,th),a=(a0-th)*Math.PI/180;
     // abertura medida torta num lado (dobra/sombra): vale a do outro lado, se maior
     const other=e.rig?.[k==='l'?'r':'l'],ow=Math.max(s.ow,other&&s.ow<other.ow*.7?other.ow:0)*pl.w;
@@ -223,13 +223,16 @@ function legsSVG(pfx,spec){
     const kt=sideK(side,'th'),ks=sideK(side,'shin'),kb=sideK(side,'boot');
     const lenS=Math.max(.5,Math.min(.74,D/((SK[kt].len+SK[ks].len)*.995)));
     // largura: a coxa no nível da barra da bermuda cabe na boca (92%); a perna toda segue essa largura
-    let sw=lenS;if(spec.openW){const t=Math.max(.3,Math.min(.95,(spec.openY-H[1])/(SK[kt].len*lenS)));sw=Math.max(lenS*.72,Math.min(lenS,spec.openW*.92/widAt(kt,t)))}
-    else if(spec.pants)sw=lenS*.86;
+    let sw=Math.min(.62,lenS*.84);
+    if(spec.openW){const t=Math.max(.3,Math.min(.95,(spec.openY-H[1])/(SK[kt].len*lenS)));
+      // Largura do recorte acompanha a boca real da bermuda; não cresce de repente na panturrilha.
+      sw=Math.max(.43,Math.min(.64,spec.openW*.93/Math.max(1,widAt(kt,t))));
+    }else if(spec.pants)sw=Math.min(.58,lenS*.81);
     const Lt=SK[kt].len*lenS,Ls=SK[ks].len*lenS,base=angOf(T[0]-H[0],T[1]-H[1]);
     const cosA=Math.max(-1,Math.min(1,(Lt*Lt+D*D-Ls*Ls)/(2*Lt*D))),bend=Math.acos(cosA)*DEG;
     // o joelho dobra para fora (lado do corpo)
-    const aT=base+side*-bend*.9,K=[H[0]+Math.cos(aT/DEG)*Lt,H[1]+Math.sin(aT/DEG)*Lt],aS=angOf(T[0]-K[0],T[1]-K[1]);
-    const bs=Math.max(.5,sw);
+    const aT=base+side*-bend*.64,K=[H[0]+Math.cos(aT/DEG)*Lt,H[1]+Math.sin(aT/DEG)*Lt],aS=angOf(T[0]-K[0],T[1]-K[1]);
+    const bs=Math.max(.44,Math.min(.58,sw));
     const boot=spec.boots===false?'':child(90-aS,bone(kb,bs,bs,sideK(side,'an')));
     const shin=bone(ks,sw,lenS,sideK(side,'kn'),boot);
     return `<g class="fit-leg" data-side="${side}">`+root(H[0],H[1],aT,bone(kt,sw,lenS,sideK(side,'hip'),child(aS-aT,shin)))+`</g>`;
@@ -244,7 +247,7 @@ const dirOf=y=>y<-.4?'L':y>.4?'R':'F';
 // escala horizontal de cada pé para a direção pedida (1 = como na foto; -1 = virado; ±.64 = de frente, em V)
 function applyFeet(g,dir){
   const toe=g.dataset.toe,flip=want=>want===toe?1:-1;
-  const sc={L:[flip('L'),flip('L')],R:[flip('R'),flip('R')],F:[flip('L')*.64,flip('R')*.64]}[dir];
+  const sc={L:[flip('L')*.98,flip('L')*.98],R:[flip('R')*.98,flip('R')*.98],F:[flip('L')*.91,flip('R')*.91]}[dir];
   g.style.setProperty('--fl',sc[0]);g.style.setProperty('--fr',sc[1]);
   // o pé mais perto de quem olha vai por cima (pés para a direita: o da esquerda está na frente)
   const near=g.querySelector(`.fit-foot[data-side="${dir==='R'?-1:1}"]`);if(near&&near!==g.lastElementChild)g.appendChild(near);
@@ -257,10 +260,10 @@ function applyYaw(root,y){
 }
 
 // tênis: o pé real do acervo nos dois pés; a sola pisa o chão e a canela entra na boca
-const SHOE={len:148,sep:50};
+const SHOE={len:164,sep:50};
 function shoePlace(e,sep=SHOE.sep){
-  const Wu=SHOE.len,Hu=Wu*e.h/e.w,y=B.floor+3-Hu;
-  return[-1,1].map(side=>{const ax=X(side,SHOE.sep),dx=side*(sep-SHOE.sep);return{side,x:ax-e.collar.x*Wu,y,w:Wu,h:Hu,ank:[ax+dx,y+e.collar.y*Hu+5]}});
+  const Wu=SHOE.len,Hu=Wu*e.h/e.w,y=B.floor+1-Hu;
+  return[-1,1].map(side=>{const ax=X(side,SHOE.sep),dx=side*(sep-SHOE.sep);return{side,x:ax-e.collar.x*Wu,y,w:Wu,h:Hu,ank:[ax+dx,y+e.collar.y*Hu+4]}});
 }
 // boné: a copa (marcada na foto) assenta no capacete, base na altura da testa
 // boné: a copa (marcada na foto) assenta no capacete; a aba nunca desce além do topo dos olhos (o rosto fica à vista)
@@ -281,7 +284,10 @@ function legsGroup(pfx,bot,shoeE,root){
   if(shoeE){spec.ank=shoePlace(shoeE,sep).map(s=>s.ank);spec.boots=false}
   else{const s0=SK?Math.max(.5,.6):.6,drop=SK?(SK.bootL.h-SK.bootL.a[1])*.6:100;spec.ank=[[X(-1,sep),B.floor-drop+2],[X(1,sep),B.floor-drop+2]]}
   root?.style.setProperty('--shoeDx',(sep-SHOE.sep).toFixed(1)+'px');
-  const g=mkG('fit-legs');g.dataset.bottom=bot?.id||'';g.dataset.shoe=shoeE?.id||'';g.innerHTML=legsSVG(pfx,spec);return g;
+  const g=mkG('fit-legs');g.dataset.bottom=bot?.id||'';g.dataset.shoe=shoeE?.id||'';
+  // Sombras de contato sob as bocas da bermuda evitam frestas artificiais entre tecido e pele.
+  const seams=!spec.pants&&spec.openW?[-1,1].map(side=>`<ellipse cx="${r1(X(side,HIP.dx))}" cy="${r1(spec.openY+5)}" rx="${r1(Math.min(38,spec.openW*.40))}" ry="9" fill="#08090a" opacity=".38"/>`).join(''):'';
+  g.innerHTML=seams+legsSVG(pfx,spec);return g;
 }
 // uma peça vira camadas: base (foto/torso) e corpo exposto (braços, pescoço) e, no superior, mangas por cima dos braços
 function garmentParts(part,p,pfx){
@@ -326,22 +332,25 @@ function hoodHideMask(e,pl,pfx,pid){
     `<ellipse class="fit-hood-hide" cx="${r1((ox0+ox1)/2)}" cy="${r1(ot-(ob-ot)*.1)}" rx="${r1((ox1-ox0)*1.05)}" ry="${r1((ob-ot)*1.05)}" fill="url(#${id}-g)"/></mask></defs>`;
 }
 function hoodParts(e,pl,pfx,pid){
-  const h=e.hood,ox0=pl.x+h.x0*pl.w,ox1=pl.x+h.x1*pl.w,ot=pl.y+h.top*pl.h,ob=pl.y+h.bottom*pl.h,ocx=(ox0+ox1)/2;
-  const k=Math.max(.85,Math.min(1.5,HOOD.open/(ox1-ox0))),tx=B.cx-k*ocx,ty=HOOD.top-k*ot,ow=ox1-ox0,oh=ob-ot,id=`${pfx}-hd-${pid}`;
-  const img=photo(e.src,pl.x,pl.y,pl.w,pl.h);
-  // máscara: só a região do capuz (elipse em volta da abertura, sem os ombros), sumindo logo abaixo da abertura
-  const defs=`<defs><radialGradient id="${id}-r"><stop offset="0" stop-color="#fff"/><stop offset=".86" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient>`+
-    `<linearGradient id="${id}-f" gradientUnits="userSpaceOnUse" x1="0" y1="${r1(ob-oh*.05)}" x2="0" y2="${r1(ob+oh*.32)}"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>`+
-    `<radialGradient id="${id}-h"><stop offset="0" stop-color="#000"/><stop offset=".9" stop-color="#000"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>`+
-    `<mask id="${id}-v" maskUnits="userSpaceOnUse" x="0" y="0" width="420" height="1000"><rect width="420" height="1000" fill="url(#${id}-f)"/></mask>`+
-    `<mask id="${id}-b" maskUnits="userSpaceOnUse" x="0" y="0" width="420" height="1000"><ellipse cx="${r1(ocx)}" cy="${r1(ot+oh*.25)}" rx="${r1(ow*.9)}" ry="${r1(oh*1.6)}" fill="url(#${id}-r)" mask="url(#${id}-v)"/></mask>`+
-    `<mask id="${id}-m" maskUnits="userSpaceOnUse" x="0" y="0" width="420" height="1000"><ellipse cx="${r1(ocx)}" cy="${r1(ot+oh*.25)}" rx="${r1(ow*.9)}" ry="${r1(oh*1.6)}" fill="url(#${id}-r)" mask="url(#${id}-v)"/>`+
-    `<ellipse cx="${r1(ocx)}" cy="${r1(ot+oh*.6)}" rx="${r1(ow*.47)}" ry="${r1(oh*.55)}" fill="url(#${id}-h)"/></mask></defs>`;
-  const wrap=(cls,m)=>{const g=mkG('fit-hoodpart '+cls,pid);g.innerHTML=`${m?'':defs}<g transform="translate(${r1(tx)} ${r1(ty)}) scale(${r1(k*1000)/1000})"><g mask="url(#${id}-${m?'m':'b'})">${img}</g></g>`;return g};
-  const back=wrap('fit-hood-back',false);
-  // sombra do capuz em volta do rosto e do pescoço: onde o capuz deitado da foto some, fica a sombra (nunca o fundo)
-  back.insertAdjacentHTML('afterbegin',`<ellipse cx="${B.cx}" cy="${r1(HOOD.top+oh*k*.95)}" rx="${r1(ow*k*.66)}" ry="${r1(oh*k*.92)}" fill="url(#${pfx}-hs)"/>`);
-  return{back,front:wrap('fit-hood-front',true)};
+  // Um único recorte da foto para o tecido do capuz. Todas as máscaras são calculadas
+  // nas coordenadas FINAIS do palco; a V19 misturava origem da foto e do SVG e duplicava
+  // o capuz inteiro em cima do rosto.
+  const h=e.hood,ox0=pl.x+h.x0*pl.w,ox1=pl.x+h.x1*pl.w,ot=pl.y+h.top*pl.h;
+  const ow=Math.max(1,ox1-ox0),k=Math.max(.83,Math.min(1.25,HOOD.open/ow));
+  const tx=B.cx-k*(ox0+ox1)/2,ty=HOOD.top-k*ot,id=`${pfx}-hood-${pid}`;
+  const cx=B.cx,cy=HEAD_TOP+69,rx=69,ry=85,ix=51,iy=69;
+  const img=`<g transform="translate(${r1(tx)} ${r1(ty)}) scale(${r3(k)})">${photo(e.src,pl.x,pl.y,pl.w,pl.h)}</g>`;
+  const outer=`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>`;
+  const back=mkG('fit-hoodpart fit-hood-back',pid);
+  back.innerHTML=`<defs><clipPath id="${id}-back">${outer}</clipPath></defs>`+
+    `<ellipse cx="${cx}" cy="${cy+9}" rx="${rx+6}" ry="${ry+4}" fill="url(#${pfx}-hs)" opacity=".9"/>`+
+    `<g clip-path="url(#${id}-back)">${img}</g>`;
+  const front=mkG('fit-hoodpart fit-hood-front',pid);
+  front.innerHTML=`<defs><mask id="${id}-rim" maskUnits="userSpaceOnUse" x="125" y="42" width="170" height="196">`+
+    `<rect x="125" y="42" width="170" height="196" fill="#000"/><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#fff"/>`+
+    `<ellipse cx="${cx}" cy="${cy+3}" rx="${ix}" ry="${iy}" fill="#000"/></mask></defs>`+
+    `<g mask="url(#${id}-rim)">${img}</g>`;
+  return{back,front};
 }
 const srcsOf=e=>e.rig?[e.rig.torso,e.rig.l?.src,e.rig.r?.src].filter(Boolean):[e.src];
 
@@ -604,6 +613,13 @@ function emote(name,{bpm=112,beats=8}={}){
     run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-16deg)',offset:.25},{transform:'rotate(16deg)',offset:.4},{transform:'rotate(-16deg)',offset:.55},{transform:'rotate(16deg)',offset:.7},{transform:'rotate(0deg)'}],{duration:T});
     run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-6deg)',offset:.3},{transform:'rotate(-6deg)',offset:.7},{transform:'rotate(0deg)'}],{duration:T});
     run(body,[{transform:'rotate(0deg)'},{transform:'rotate(-1.2deg)',offset:.3},{transform:'rotate(-1.2deg)',offset:.7},{transform:'rotate(0deg)'}],{duration:T});
+  }else if(name==='salute'){
+    // Salve curto: braço direito na altura da cabeça, a mão saúda e volta.
+    const T=1550;
+    run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-74deg)',offset:.24},{transform:'rotate(-74deg)',offset:.75},{transform:'rotate(0deg)'}],{duration:T});
+    run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(-92deg)',offset:.25},{transform:'rotate(-88deg)',offset:.73},{transform:'rotate(0deg)'}],{duration:T});
+    run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-20deg)',offset:.36},{transform:'rotate(16deg)',offset:.55},{transform:'rotate(0deg)'}],{duration:T});
+    run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-9deg)',offset:.42},{transform:'rotate(0deg)'}],{duration:T});
   }else if(name==='jump'){
     const T=1100;
     run(body,[{transform:'none'},{transform:'translateY(9px) scale(1.02,.95)',offset:.18},{transform:'translateY(-64px) scale(.98,1.03)',offset:.46,easing:'cubic-bezier(.3,0,.7,1)'},{transform:'translateY(0px) scale(1.03,.94)',offset:.72},{transform:'translateY(2px) scale(1,.99)',offset:.86},{transform:'none'}],{duration:T});
@@ -626,7 +642,7 @@ function mount(el,initial){
    <div class="fit-figure" id="gbFitFigure">${figureSVG('fitA','Manequim GB vestindo o look selecionado')}</div>
    <div class="fit-plat" aria-hidden="true"><i></i><b></b></div><div class="fit-turn" aria-hidden="true"></div>
    <span class="fit-orbit-note" aria-hidden="true">GIRO EDITORIAL · COSTAS NÃO FOTOGRAFADAS</span>
-    <div class="fit-emotes" role="group" aria-label="Emotes do manequim"><button type="button" data-fit-emote="dance"><i aria-hidden="true">♪</i><b>DANÇAR</b></button><button type="button" data-fit-emote="wave"><i aria-hidden="true">✋</i><b>ACENAR</b></button><button type="button" data-fit-emote="spin"><i aria-hidden="true">↻</i><b>360°</b></button><button type="button" data-fit-emote="jump"><i aria-hidden="true">⤒</i><b>PULAR</b></button></div>
+    <div class="fit-emotes" role="group" aria-label="Emotes do manequim"><span class="fit-emotes-title" aria-hidden="true">EMOTES</span><button type="button" data-fit-emote="dance" aria-label="Passinho"><i aria-hidden="true">♫</i><b>PASSINHO</b></button><button type="button" data-fit-emote="wave" aria-label="Tchau"><i aria-hidden="true">✋</i><b>TCHAU</b></button><button type="button" data-fit-emote="salute" aria-label="Salve"><i aria-hidden="true">♥</i><b>SALVE</b></button><button type="button" data-fit-emote="spin" aria-label="Giro editorial 360 graus"><i aria-hidden="true">↻</i><b>360°</b></button><button type="button" data-fit-emote="jump" aria-label="Pular"><i aria-hidden="true">↑</i><b>PULAR</b></button></div>
    <div class="fit-turnbar" role="group" aria-label="Girar o manequim"><button type="button" data-fit-turn="-1" aria-label="Girar para a esquerda" aria-pressed="false">◀</button><span class="fit-dial" role="slider" tabindex="0" aria-label="Giro do manequim" aria-valuemin="-45" aria-valuemax="45" aria-valuenow="0" aria-valuetext="FRENTE"><b>GIRAR</b></span><button type="button" data-fit-turn="0" aria-label="De frente" aria-pressed="true">●</button><button type="button" data-fit-turn="1" aria-label="Girar para a direita" aria-pressed="false">▶</button></div>
    <p class="fit-tag" aria-hidden="true"></p>
    <p class="fit-legal">SIMULAÇÃO EDITORIAL DE COMPOSIÇÃO · FOTOS REAIS DO ACERVO GB · NÃO É PROVADOR DE CAIMENTO</p>
