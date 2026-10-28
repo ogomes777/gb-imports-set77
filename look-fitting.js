@@ -614,7 +614,7 @@ function stopEmote(){
   if(fig)delete fig.dataset.emote;
   stage?.classList.remove('is-fit-orbiting');
 }
-function emote(name,{bpm=112,beats=8}={}){
+function emote(name,{bpm=138,beats=8}={}){
   if(!fig||reduced()||!fig.animate)return false;
   stopEmote();
   bpm=Math.max(60,Math.min(240,Number(bpm)||112));
