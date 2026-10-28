@@ -9,7 +9,8 @@
   "Kits só com foto conjunta entram só se as peças estão separadas no recorte: 090 (duas manchas). 032 (tech fleece creme) fica fora: superior e calça se sobrepõem na foto.",
   "Gola (V17): 'collar' marca a abertura do pescoço olhando a foto, em fração da imagem — x/w = centro e meia-largura internas, yb = borda interna da gola de trás, yf = borda interna da gola da frente (ou o ponto do V / início do zíper). O pescoço do manequim cobre o forro e para na gola da frente.",
   "Tênis (V17): as fotos do acervo mostram o PAR de lado, um pé sobreposto. 'cut' é a linha (olhando a foto) que separa o pé da frente: do calcanhar, por cima do cano e dos cadarços, até a ponta e a sola; 'toe' diz para onde aponta a ponta (L/R); 'collar' é o centro da boca do tênis. O manequim calça esse pé real nos dois pés, apontando para o mesmo lado — a foto não é espelhada nem pintada.",
-  "Boné (V17): vista 3/4 do acervo; 'crown' marca a copa (x0/x1 = largura na base, yb = base da copa, top = topo). O 025 fica fora: perfil puro não assenta numa cabeça de frente. O 077 é a segunda vista do 075 (duplicata)."
+  "Boné (V17): vista 3/4 do acervo; 'crown' marca a copa (x0/x1 = largura na base, yb = base da copa, top = topo). O 025 fica fora: perfil puro não assenta numa cabeça de frente. O 077 é a segunda vista do 075 (duplicata).",
+  "Capuz (V18): 'hood' marca a abertura do capuz olhando a foto (x0/x1, top/bottom em fração da imagem). Só moletom com o capuz fotografado de frente, aberto; o s-098 fica fora (capuz de costas). Capuz na cabeça = o próprio capuz da foto, levantado por inteiro (escala única) e assentado em volta do capacete; o rosto aparece pela abertura. Exclui o boné."
  ],
  "pieces": [
   {
@@ -22,6 +23,12 @@
     "w": 0.1,
     "yb": 0.17,
     "yf": 0.245
+   },
+   "hood": {
+    "x0": 0.37,
+    "x1": 0.63,
+    "top": 0.115,
+    "bottom": 0.3
    }
   },
   {
@@ -40,6 +47,12 @@
     "w": 0.1,
     "yb": 0.165,
     "yf": 0.245
+   },
+   "hood": {
+    "x0": 0.38,
+    "x1": 0.62,
+    "top": 0.12,
+    "bottom": 0.28
    }
   },
   {
@@ -58,6 +71,12 @@
     "w": 0.095,
     "yb": 0.14,
     "yf": 0.215
+   },
+   "hood": {
+    "x0": 0.38,
+    "x1": 0.62,
+    "top": 0.105,
+    "bottom": 0.26
    }
   },
   {
@@ -94,6 +113,12 @@
     "w": 0.08,
     "yb": 0.13,
     "yf": 0.28
+   },
+   "hood": {
+    "x0": 0.43,
+    "x1": 0.58,
+    "top": 0.085,
+    "bottom": 0.21
    }
   },
   {
@@ -148,6 +173,12 @@
     "w": 0.085,
     "yb": 0.16,
     "yf": 0.28
+   },
+   "hood": {
+    "x0": 0.39,
+    "x1": 0.61,
+    "top": 0.115,
+    "bottom": 0.29
    }
   },
   {

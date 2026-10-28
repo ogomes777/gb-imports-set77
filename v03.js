@@ -31,6 +31,9 @@ const accPool=mode=>FITC?.[mode]?Object.keys(FITC[mode]).map(getItem).filter(Boo
 const inAcc=(mode,id)=>accPool(mode).some(p=>p.id===id);
 let selectedShoe=savedLook&&'shoe' in savedLook?(inAcc('shoe',savedLook.shoe)?savedLook.shoe:''):(inAcc('shoe','gb-crt-s-052')?'gb-crt-s-052':accPool('shoe')[0]?.id||'');
 let selectedCap=inAcc('cap',savedLook?.cap)?savedLook.cap:'';
+// capuz na cabeça (V18): só com superior que tem capuz fotografado de frente; exclui o boné
+let hoodUp=!!savedLook?.hood;
+const hasHood=id=>!!FITC?.top?.[id]?.hood;
 const getSel=m=>m==='top'?selectedTop:m==='bottom'?selectedBottom:m==='shoe'?selectedShoe:selectedCap;
 function setSel(m,v){if(m==='top')selectedTop=v;else if(m==='bottom')selectedBottom=v;else if(m==='shoe')selectedShoe=v;else selectedCap=v}
 const NONE={shoe:'BOTA GB',cap:'SEM BONÉ'},PART_LABEL={top:'parte superior',bottom:'parte inferior',shoe:'tênis',cap:'boné'};
@@ -53,7 +56,7 @@ function emitLookChange(part,source){
 }
 function paintPiece(mode,dir=0,snap=false){
  if(window.GBFitting?.state.topId){
-  GBFitting.set({topId:selectedTop,bottomId:selectedBottom,shoeId:selectedShoe||null,capId:selectedCap||null},{changedPart:mode,source:lookSource,from:lookFrom,dir:lookSource==='cycle'||lookSource==='swipe'?dir:0});
+  GBFitting.set({topId:selectedTop,bottomId:selectedBottom,shoeId:selectedShoe||null,capId:selectedCap||null,hood:hoodUp&&hasHood(selectedTop)},{changedPart:mode,source:lookSource,from:lookFrom,dir:lookSource==='cycle'||lookSource==='swipe'?dir:0});
   emitLookChange(mode,lookSource);
   if(snap&&!reducedLook)snapIn(mode);
   return;
@@ -81,7 +84,9 @@ function renderOptions(){
  // tênis e boné: a primeira opção é "sem" (bota do robô / sem boné)
  for(const [id,mode] of [['lookShoes','shoe'],['lookCaps','cap']]){
    const box=one('#'+id);if(!box)continue;const selected=getSel(mode);
-   box.innerHTML=`<button type="button" class="look-option look-none ${!selected?'active':''}" data-look-mode="${mode}" data-look-id="" aria-pressed="${!selected}" aria-label="${NONE[mode]} / ${PART_LABEL[mode]}"><span class="look-index">00</span><span class="look-none-label">${NONE[mode]}</span></button>`+
+   const hood=mode==='cap'&&hoodUp&&hasHood(selectedTop),noneOn=!selected&&!hood;
+   box.innerHTML=`<button type="button" class="look-option look-none ${noneOn?'active':''}" data-look-mode="${mode}" data-look-id="" aria-pressed="${noneOn}" aria-label="${NONE[mode]} / ${PART_LABEL[mode]}"><span class="look-index">00</span><span class="look-none-label">${NONE[mode]}</span></button>`+
+     (mode==='cap'?`<button type="button" class="look-option look-none look-hood ${hood?'active':''}" data-look-hood="1" aria-pressed="${hood}" ${hasHood(selectedTop)?'':'disabled'} title="${hasHood(selectedTop)?'Capuz na cabeça':'A parte superior escolhida não tem capuz'}" aria-label="Capuz na cabeça / ${hasHood(selectedTop)?'disponível':'indisponível para esta peça'}"><span class="look-index">CP</span><span class="look-none-label">CAPUZ</span></button>`:'')+
      accPool(mode).map((p,i)=>`<button type="button" class="look-option ${p.id===selected?'active':''}" data-look-mode="${mode}" data-look-id="${p.id}" aria-pressed="${p.id===selected}" title="${escaped(p.name)}" aria-label="${String(i+1).padStart(2,'0')} — ${escaped(p.name)} / ${PART_LABEL[mode]}"><span class="look-index">${String(i+1).padStart(2,'0')}</span>${lookMedia(p,mode)}</button>`).join('');
    const active=box.querySelector('.active');if(active){const ar=active.getBoundingClientRect(),br=box.getBoundingClientRect();box.scrollLeft+=ar.left-br.left-box.clientWidth/2+ar.width/2;}
  }
@@ -91,18 +96,18 @@ function renderOptions(){
 function renderSummary(){
  const top=getItem(selectedTop),bottom=getItem(selectedBottom);
  const shoe=getItem(selectedShoe),cap=getItem(selectedCap);
- one('#lookSummary').textContent=(isKit(top.id)?pieceName(top,'top'):top.name+' (superior)')+'  +  '+(isKit(bottom.id)?pieceName(bottom,'bottom'):bottom.name+' (inferior)')+(shoe?'  +  '+shoe.name:'')+(cap?'  +  '+cap.name:'');
+ one('#lookSummary').textContent=(isKit(top.id)?pieceName(top,'top'):top.name+' (superior)')+'  +  '+(isKit(bottom.id)?pieceName(bottom,'bottom'):bottom.name+' (inferior)')+(shoe?'  +  '+shoe.name:'')+(cap?'  +  '+cap.name:'')+(hoodUp&&hasHood(top.id)?'  ·  capuz na cabeça':'');
  // kit pela metade: um toque veste a outra parte do MESMO produto
  const kit=isKit(top.id)&&top.id!==bottom.id?top.id:isKit(bottom.id)&&bottom.id!==top.id?bottom.id:null;
  const links=one('#lookSources');if(links)links.innerHTML=`<button type="button" data-look-open="${top.id}">VER SUPERIOR ↗</button><button type="button" data-look-open="${bottom.id}">VER INFERIOR ↗</button>`+(shoe?`<button type="button" data-look-open="${shoe.id}">VER TÊNIS ↗</button>`:'')+(cap?`<button type="button" data-look-open="${cap.id}">VER BONÉ ↗</button>`:'')+(kit?`<button type="button" class="look-kit" data-look-kit="${kit}">VESTIR O KIT COMPLETO</button>`:'');
- try{localStorage.setItem('gb-v06-look',JSON.stringify({top:selectedTop,bottom:selectedBottom,shoe:selectedShoe,cap:selectedCap}));}catch{}
+ try{localStorage.setItem('gb-v06-look',JSON.stringify({top:selectedTop,bottom:selectedBottom,shoe:selectedShoe,cap:selectedCap,hood:hoodUp}));}catch{}
 }
 function renderSaved(){
  const box=one('#lookSaved');if(!box)return;const list=readOutfits();
  box.hidden=!list.length;
  box.innerHTML=list.length?`<span class="look-saved-title">LOOKS SALVOS / ${String(list.length).padStart(2,'0')}</span><div class="look-saved-list">${list.map((o,i)=>`<div class="look-saved-item"><button type="button" class="look-saved-thumb" data-look-restore="${i}" aria-label="Restaurar look: ${escaped(pieceName(getItem(o.top),'top'))} com ${escaped(pieceName(getItem(o.bottom),'bottom'))}"><span>${lookMedia(getItem(o.top),'top')}</span><span>${lookMedia(getItem(o.bottom),'bottom')}</span></button><button type="button" class="look-saved-remove" data-look-remove="${i}" aria-label="Remover look salvo">×</button></div>`).join('')}</div>`:'';
 }
-function renderStudio(){window.GBFitting?.mount(one('.look-stage'),{topId:selectedTop,bottomId:selectedBottom,shoeId:selectedShoe||null,capId:selectedCap||null});paintPiece('top');paintPiece('bottom');renderOptions();renderSummary();renderSaved()}
+function renderStudio(){window.GBFitting?.mount(one('.look-stage'),{topId:selectedTop,bottomId:selectedBottom,shoeId:selectedShoe||null,capId:selectedCap||null,hood:hoodUp&&hasHood(selectedTop)});paintPiece('top');paintPiece('bottom');renderOptions();renderSummary();renderSaved()}
 // Comparação A/B: look atual × look salvo, lado a lado no mesmo palco e na mesma escala.
 let comparing=false,compareIndex=0;
 function renderCompare(){
@@ -120,6 +125,7 @@ function toggleCompare(){
  if(comparing)toast('Comparando o look atual (A) com o salvo (B). Toque num look salvo para trocar o B.');
 }
 function choose(mode,id,dir,snap=false){
+ if(mode==='cap'&&hoodUp){hoodUp=false;setSel(mode,id);paintPiece(mode,dir,snap);renderOptions();renderSummary();if(comparing)renderCompare();return}
  if(id===getSel(mode))return;setSel(mode,id);
  paintPiece(mode,dir,snap);renderOptions();renderSummary();if(comparing)renderCompare();
 }
@@ -135,19 +141,20 @@ for(const id of ['lookTops','lookBottoms','lookShoes','lookCaps'])one('#'+id)?.a
 one('.look-studio')?.addEventListener('click',e=>{
  const c=e.target.closest('[data-look-cycle]');if(c){const [mode,d]=c.dataset.lookCycle.split(':');cycle(mode,+d)}
  if(e.target.closest('#lookShuffle')){const pick=(mode,not)=>{const L=pool(mode).filter(p=>p.id!==not);return L[Math.floor(Math.random()*L.length)].id};const t=pick('top',selectedTop),b=pick('bottom',selectedBottom);/* misturar troca as duas peças, sempre; tênis e boné entram no sorteio */selectedTop=t;selectedBottom=b;
-   const sp=accPool('shoe').filter(p=>p.id!==selectedShoe),cp=accPool('cap');if(sp.length)selectedShoe=sp[Math.floor(Math.random()*sp.length)].id;if(cp.length)selectedCap=Math.random()<.5?'':cp[Math.floor(Math.random()*cp.length)].id;
+   const sp=accPool('shoe').filter(p=>p.id!==selectedShoe),cp=accPool('cap');if(sp.length)selectedShoe=sp[Math.floor(Math.random()*sp.length)].id;if(cp.length)selectedCap=Math.random()<.5?'':cp[Math.floor(Math.random()*cp.length)].id;hoodUp=!selectedCap&&hasHood(t)&&Math.random()<.5;
    withSource('shuffle',null,()=>{paintPiece('top',1);paintPiece('bottom',-1)});renderOptions();renderSummary();if(comparing)renderCompare()}
  const open=e.target.closest('[data-look-open]');if(open)detailModal(getItem(open.dataset.lookOpen));
  const kit=e.target.closest('[data-look-kit]');if(kit){const id=kit.dataset.lookKit,parts=[];if(selectedTop!==id){selectedTop=id;parts.push('top')}if(selectedBottom!==id){selectedBottom=id;parts.push('bottom')}withSource('kit',centerOf(kit),()=>parts.forEach(m=>paintPiece(m,1,true)));renderOptions();renderSummary();if(comparing)renderCompare()}
+ const hb=e.target.closest('[data-look-hood]');if(hb&&!hb.disabled){hoodUp=true;selectedCap='';withSource('click',centerOf(hb),()=>paintPiece('cap',1,true));renderOptions();renderSummary();if(comparing)renderCompare()}
  if(e.target.closest('#lookCompareBtn'))toggleCompare();
  const rest=e.target.closest('[data-look-restore]');if(rest&&comparing){compareIndex=+rest.dataset.lookRestore;renderCompare();return}
- if(rest){const o=readOutfits()[+rest.dataset.lookRestore];if(o){selectedTop=o.top;selectedBottom=o.bottom;if('shoe' in o)selectedShoe=inAcc('shoe',o.shoe)?o.shoe:'';if('cap' in o)selectedCap=inAcc('cap',o.cap)?o.cap:'';withSource('restore',null,()=>{paintPiece('top',1);paintPiece('bottom',1)});renderOptions();renderSummary();toast('Look restaurado.')}}
+ if(rest){const o=readOutfits()[+rest.dataset.lookRestore];if(o){selectedTop=o.top;selectedBottom=o.bottom;if('shoe' in o)selectedShoe=inAcc('shoe',o.shoe)?o.shoe:'';if('cap' in o)selectedCap=inAcc('cap',o.cap)?o.cap:'';hoodUp=!!o.hood;withSource('restore',null,()=>{paintPiece('top',1);paintPiece('bottom',1)});renderOptions();renderSummary();toast('Look restaurado.')}}
  const rem=e.target.closest('[data-look-remove]');if(rem){const list=readOutfits();list.splice(+rem.dataset.lookRemove,1);writeOutfits(list);renderSaved();if(comparing){if(!list.length){comparing=false;const b=one('#lookCompareBtn');if(b){b.setAttribute('aria-pressed','false');b.textContent='COMPARAR A / B'}}compareIndex=0;renderCompare()}toast('Look removido.')}
 });
 // Swipe no palco: metade de cima troca a parte superior, metade de baixo a inferior.
-const lookStage=one('.look-stage');let lsx=0,lsy=0,lsHalf='top';
-lookStage?.addEventListener('touchstart',e=>{const r=lookStage.getBoundingClientRect();lsx=e.touches[0].clientX;lsy=e.touches[0].clientY;lsHalf=(lsy-r.top)<r.height*.5?'top':'bottom'},{passive:true});
-lookStage?.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-lsx,dy=e.changedTouches[0].clientY-lsy;if(comparing)return; // no A/B o gesto horizontal move o divisor
+const lookStage=one('.look-stage');let lsx=0,lsy=0,lsHalf='top',lsSkip=false;
+lookStage?.addEventListener('touchstart',e=>{const r=lookStage.getBoundingClientRect();lsSkip=!!e.target.closest('.fit-turn,.fit-turnbar');lsx=e.touches[0].clientX;lsy=e.touches[0].clientY;lsHalf=(lsy-r.top)<r.height*.5?'top':'bottom'},{passive:true});
+lookStage?.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-lsx,dy=e.changedTouches[0].clientY-lsy;if(comparing||lsSkip)return; // no A/B o gesto horizontal move o divisor; na plataforma ele gira o manequim
  if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.3)cycle(lsHalf,dx<0?1:-1,'swipe')},{passive:true});
 // Arrastar da lista para o palco (mouse): a peça segue o cursor e encaixa na área correspondente.
 if(window.GBMotion&&GBMotion.Prefs.fine&&!reducedLook){
@@ -175,7 +182,7 @@ if(window.GBMotion&&GBMotion.Prefs.fine&&!reducedLook){
 one('#lookSave')?.addEventListener('click',()=>{
  const list=readOutfits();
  if(list.some(o=>o.top===selectedTop&&o.bottom===selectedBottom&&(o.shoe??'')===selectedShoe&&(o.cap??'')===selectedCap)){toast('Esse look já está salvo.');return}
- list.unshift({top:selectedTop,bottom:selectedBottom,shoe:selectedShoe,cap:selectedCap,createdAt:new Date().toISOString(),presentationVersion:'fit-v09'});writeOutfits(list);renderSaved();
+ list.unshift({top:selectedTop,bottom:selectedBottom,shoe:selectedShoe,cap:selectedCap,hood:hoodUp&&hasHood(selectedTop),createdAt:new Date().toISOString(),presentationVersion:'fit-v09'});writeOutfits(list);renderSaved();
  toast('Referência de look salva neste navegador.');
 });
 

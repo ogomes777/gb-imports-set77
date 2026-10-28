@@ -399,7 +399,7 @@ async function run(w,h,reduced=false){
     return{figs:document.querySelectorAll('#lookstudio .fit-figure:not(.fit-figure-b)').length,top:live('top').map(g=>g.dataset.product),bottom:live('bottom').map(g=>g.dataset.product),
       sel:{top:document.querySelector('#lookTops [aria-pressed="true"]')?.dataset.lookId,bottom:document.querySelector('#lookBottoms [aria-pressed="true"]')?.dataset.lookId},
       state:window.GBFitting?.state,phase:st.dataset.phase,label:f?.querySelector('.fit-svg')?.getAttribute('aria-label'),anims:f?f.getAnimations({subtree:true}).filter(a=>a.playState==='running'&&a.animationName!=='fitBreath').length:-1}});
-  const settled=async()=>{await page.waitForTimeout(reduced?120:1250);return fit()};
+  const settled=async()=>{await page.waitForTimeout(reduced?120:1700);return fit()};  // V18: a peça é arremessada do seletor antes de vestir
   const one1=s=>s.figs===1&&s.top.length===1&&s.bottom.length===1;
   const events=[];await page.exposeFunction('__gbLook',d=>events.push(d)).catch(()=>{});
   await page.evaluate(()=>addEventListener('gb:look-change',e=>window.__gbLook(e.detail)));
@@ -417,7 +417,7 @@ async function run(w,h,reduced=false){
   check(vp,'fit V16: seletores e manequim só com fotos reais do acervo (assets/fit)',real.opts===real.n&&real.thumbs&&real.hrefs&&real.ok,JSON.stringify(real));
   check(vp,'fit V16: robô completo — cabeça, duas mãos, duas pernas',real.head&&real.hands===2&&real.legs===2,JSON.stringify(real));
   const tee=await page.evaluate(async()=>{const C=window.GB_FIT_CATALOG,id=Object.keys(C.top).find(k=>C.top[k].rig?.l&&C.top[k].rig?.r);
-    document.querySelector(`#lookTops [data-look-id="${id}"]`).click();await new Promise(r=>setTimeout(r,1400));const f=document.querySelector('#gbFitFigure');
+    document.querySelector(`#lookTops [data-look-id="${id}"]`).click();await new Promise(r=>setTimeout(r,1800));const f=document.querySelector('#gbFitFigure');
     const sl=[...f.querySelectorAll('.fit-layer-sleeves .fit-sleeves image')].map(i=>i.getAttribute('transform')||'');
     return{id,state:GBFitting.state.topId,sl,arms:f.querySelectorAll('.fit-layer-arms .fit-limbs').length,hands:f.querySelectorAll('.fit-layer-arms .fit-hand').length,
       leftovers:f.querySelectorAll('.fit-layer-sleeves .fit-sleeves').length}});
@@ -427,23 +427,42 @@ async function run(w,h,reduced=false){
     const opt=(box,id)=>document.querySelector(`#${box} [data-look-id="${id}"]`);
     const shoes=document.querySelectorAll('#lookShoes .look-option').length,caps=document.querySelectorAll('#lookCaps .look-option').length;
     const s1=Object.keys(C.shoe)[3],c1=Object.keys(C.cap)[1];
-    opt('lookShoes',s1).click();await wait(80);opt('lookCaps',c1).click();await wait(1400);
+    opt('lookShoes',s1).click();await wait(80);opt('lookCaps',c1).click();await wait(1800);
     const worn={state:{...GBFitting.state},shoe:f.querySelector('.fit-layer-shoe .fit-shoe')?.dataset.product,shoeImgs:f.querySelectorAll('.fit-layer-shoe image.fit-photo').length,
       cap:f.querySelector('.fit-layer-cap .fit-cap')?.dataset.product,boots:f.querySelectorAll('.fit-layer-legs .fit-leg').length,legsShoe:f.querySelector('.fit-layer-legs .fit-legs')?.dataset.shoe,
       summary:document.querySelector('#lookSummary').textContent,neck:f.querySelectorAll('.fit-layer-neck .fit-neck').length,kind:f.dataset.kind};
-    opt('lookShoes','').click();await wait(80);opt('lookCaps','').click();await wait(1400);
+    opt('lookShoes','').click();await wait(80);opt('lookCaps','').click();await wait(1800);
     const off={state:{...GBFitting.state},shoe:f.querySelectorAll('.fit-layer-shoe .fit-shoe').length,cap:f.querySelectorAll('.fit-layer-cap .fit-cap').length,legsShoe:f.querySelector('.fit-layer-legs .fit-legs')?.dataset.shoe,legs:f.querySelectorAll('.fit-layer-legs .fit-legs').length};
     return{shoes,caps,nShoe:Object.keys(C.shoe).length,nCap:Object.keys(C.cap).length,s1,c1,worn,off}});
-  check(vp,'fit V17: seletores de tênis e boné = acervo real + opção "sem"',acc.shoes===acc.nShoe+1&&acc.caps===acc.nCap+1&&acc.nShoe>=10&&acc.nCap>=4,JSON.stringify(acc));
+  check(vp,'fit V17: seletores de tênis e boné = acervo real + opção "sem" (+ capuz)',acc.shoes===acc.nShoe+1&&acc.caps===acc.nCap+2&&acc.nShoe>=10&&acc.nCap>=4,JSON.stringify(acc));
   check(vp,'fit V17: veste tênis (dois pés reais) e boné, pernas entram no tênis',acc.worn.state.shoeId===acc.s1&&acc.worn.state.capId===acc.c1&&acc.worn.shoe===acc.s1&&acc.worn.shoeImgs===2&&acc.worn.cap===acc.c1&&acc.worn.legsShoe===acc.s1&&/\+.*\+/.test(acc.worn.summary),JSON.stringify(acc.worn));
   check(vp,'fit V17: pescoço por cima da peça, saindo da gola',acc.worn.neck===1,JSON.stringify(acc.worn));
   check(vp,'fit V17: "sem tênis / sem boné" tira as peças sem sobrar camada',acc.off.state.shoeId===null&&acc.off.state.capId===null&&acc.off.shoe===0&&acc.off.cap===0&&acc.off.legs===1&&!acc.off.legsShoe,JSON.stringify(acc.off));
+  // V18: giro (esquerda · frente · direita) com tênis virando; capuz na cabeça; arremesso + hélice
+  const v18=await page.evaluate(async([red])=>{const wait=ms=>new Promise(r=>setTimeout(r,ms)),f=document.querySelector('#gbFitFigure'),C=window.GB_FIT_CATALOG;
+    const shoe=Object.keys(C.shoe)[0];GBFitting.set({shoeId:shoe},{silent:true});await wait(1800);
+    const sg=()=>f.querySelector('.fit-layer-shoe .fit-shoe'),sc=()=>[sg().style.getPropertyValue('--fl'),sg().style.getPropertyValue('--fr')].map(Number);
+    const front=sc();GBFitting.turn(-1);await wait(red?150:1300);const left={yaw:GBFitting.yaw,dir:f.dataset.dir,sc:sc()};
+    GBFitting.turn(1);await wait(red?150:1300);const right={yaw:GBFitting.yaw,dir:f.dataset.dir,sc:sc()};
+    document.querySelector('[data-fit-turn="0"]').click();await wait(red?150:1300);const back={yaw:GBFitting.yaw,dir:f.dataset.dir};
+    const hoodie=Object.keys(C.top).find(k=>C.top[k].hood);document.querySelector(`#lookTops [data-look-id="${hoodie}"]`).click();await wait(1900);
+    const hb=document.querySelector('[data-look-hood]');const enabled=!!hb&&!hb.disabled;hb?.click();await wait(1200);
+    const hood={enabled,state:GBFitting.state.hood,attr:f.dataset.hood,front:f.querySelectorAll('.fit-layer-hood .fit-hood-front').length,capHidden:getComputedStyle(f.querySelector('.fit-layer-cap')).display==='none'};
+    const firstCap=document.querySelector('#lookCaps [data-look-id]:not([data-look-id=""])');firstCap.click();await wait(1500);
+    const capBack={hood:GBFitting.state.hood,attr:f.dataset.hood,cap:GBFitting.state.capId};
+    const tee=Object.keys(C.top).find(k=>!C.top[k].hood);const btn=document.querySelector(`#lookTops [data-look-id="${tee}"]`);btn.scrollIntoView({block:'nearest',inline:'nearest'});btn.click();await wait(140);
+    const fly=[...document.querySelectorAll('.fit-fly')].some(n=>n.getAnimations().length),helix=!!f.querySelector('.fit-scan .fit-helix path');await wait(1800);
+    return{front,left,right,back,hood,capBack,fly,helix,top:GBFitting.state.topId===tee}},[reduced]);
+  check(vp,'fit V18: girar para a esquerda/direita vira os dois tênis; de frente ficam em V',v18.left.dir==='L'&&v18.right.dir==='R'&&v18.back.dir==='F'&&Math.abs(v18.left.yaw+1)<.02&&Math.abs(v18.right.yaw-1)<.02&&Math.abs(v18.back.yaw)<.02&&
+    v18.left.sc[0]===v18.left.sc[1]&&v18.right.sc[0]===v18.right.sc[1]&&v18.left.sc[0]===-v18.right.sc[0]&&Math.sign(v18.front[0])===-Math.sign(v18.front[1])&&Math.abs(v18.front[0])<1,JSON.stringify(v18));
+  check(vp,'fit V18: capuz na cabeça (moletom com capuz) tira o boné; escolher boné baixa o capuz',v18.hood.enabled&&v18.hood.state===true&&v18.hood.attr==='up'&&v18.hood.front===1&&v18.hood.capHidden&&v18.capBack.hood===false&&v18.capBack.attr==='down'&&!!v18.capBack.cap,JSON.stringify(v18.hood)+JSON.stringify(v18.capBack));
+  check(vp,'fit V18: a peça é arremessada do seletor e a hélice de DNA varre o corpo',v18.top&&v18.helix&&(reduced?!v18.fly:v18.fly),JSON.stringify({fly:v18.fly,helix:v18.helix,top:v18.top}));
   // kit: com metade de um kit escolhida, um toque veste o kit completo (superior e inferior do MESMO produto)
   const kit=await page.evaluate(async([t0,b0])=>{const C=window.GB_FIT_CATALOG,kid=Object.keys(C.top).find(k=>C.bottom[k]),other=Object.keys(C.bottom).find(k=>!C.top[k]);
     const wait=ms=>new Promise(r=>setTimeout(r,ms)),opt=(m,id)=>document.querySelector(`${m==='top'?'#lookTops':'#lookBottoms'} [data-look-id="${id}"]`);
     opt('top',kid).click();opt('bottom',other).click();await wait(300);const btn=document.querySelector('[data-look-kit]');const had=!!btn&&btn.dataset.lookKit===kid;
-    btn?.click();await wait(1400);const f=document.querySelector('#gbFitFigure'),st={...GBFitting.state},fig=[f.querySelector('.fit-layer-top .fit-garment')?.dataset.product,f.querySelector('.fit-layer-bottom .fit-garment')?.dataset.product];
-    const gone=!document.querySelector('[data-look-kit]');opt('top',t0).click();opt('bottom',b0).click();await wait(1400);
+    btn?.click();await wait(1800);const f=document.querySelector('#gbFitFigure'),st={...GBFitting.state},fig=[f.querySelector('.fit-layer-top .fit-garment')?.dataset.product,f.querySelector('.fit-layer-bottom .fit-garment')?.dataset.product];
+    const gone=!document.querySelector('[data-look-kit]');opt('top',t0).click();opt('bottom',b0).click();await wait(1800);
     return{kid,had,st,fig,gone,back:GBFitting.state}},[f0.state.topId,f0.state.bottomId]);
   check(vp,'fit V16: botão "vestir o kit completo" veste superior + inferior do mesmo produto',kit.had&&kit.st.topId===kit.kid&&kit.st.bottomId===kit.kid&&kit.fig.every(x=>x===kit.kid)&&kit.gone,JSON.stringify(kit));
   check(vp,'fit V16: volta ao look inicial depois dos testes',kit.back.topId===f0.state.topId&&kit.back.bottomId===f0.state.bottomId,JSON.stringify(kit.back));

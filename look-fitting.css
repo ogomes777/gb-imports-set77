@@ -118,3 +118,91 @@
 .fit-figure-b .fit-glow{opacity:1}
 @media(prefers-reduced-motion:reduce){.fit-figure .fit-glow{opacity:1!important;transition:none;animation:none!important}.fit-scan{display:none}}
 .gb-lite .fit-scan{display:none}
+
+/* ---------- V18: giro do manequim (esquerda · frente · direita) — só transform ---------- */
+.fit-yaw,.fit-face,.fit-ear,.fit-arm,.fit-foot-flip,.fit-layer-cap{transform-box:view-box}
+.fit-figure{--yaw:0;--yawa:0;--armL:0px;--armR:0px}
+.fit-yaw{transform-origin:210px 500px;transform:translateX(calc(var(--yaw)*5px)) scaleX(calc(1 - var(--yawa)*.1))}
+.fit-face{transform-origin:210px 125px;transform:translateX(calc(var(--yaw)*7px)) scaleX(calc(1 - var(--yawa)*.12))}
+.fit-ear[data-side="-1"]{transform-origin:164px 123px;transform:translateX(calc(var(--yawa)*4px + var(--yaw)*3px))}
+.fit-ear[data-side="1"]{transform-origin:256px 123px;transform:translateX(calc(var(--yawa)*-4px + var(--yaw)*3px))}
+.fit-layer-cap{transform-origin:214px 100px;transform:translateX(calc(var(--yaw)*6px))}
+.fit-arm[data-side="-1"]{transform:translateX(var(--armL))}
+.fit-arm[data-side="1"]{transform:translateX(var(--armR))}
+.fit-foot[data-side="-1"] .fit-foot-flip{transform:scaleX(var(--fl,1))}
+.fit-foot[data-side="1"] .fit-foot-flip{transform:scaleX(var(--fr,1))}
+.fit-foot-flip{transition:transform .34s cubic-bezier(.3,.7,.2,1)}
+.fit-turn{position:absolute;z-index:3;left:50%;bottom:calc(11.4% - 32px);height:64px;width:min(62%,360px);translate:-50% 0;cursor:grab;touch-action:pan-y}
+.fit-turn.is-dragging{cursor:grabbing}
+.fit-plat{position:absolute;z-index:1;left:50%;bottom:calc(11.4% - 28px);height:56px;width:min(58%,330px);translate:-50% 0;pointer-events:none}
+.fit-plat i{position:absolute;border-radius:50%}
+.look-stage:has(.fit-turn.is-dragging) .fit-plat i,.look-stage:has(.fit-figure.is-dragging) .fit-plat i{border-color:#ffd447a6}
+.fit-figure:not(.fit-figure-b){cursor:grab}
+.fit-figure.is-dragging{cursor:grabbing}
+.fit-turnbar{position:absolute;z-index:6;left:50%;top:18px;translate:-50% 0;display:flex;align-items:center;gap:2px;padding:0 4px;border:1px solid #ffffff24;border-radius:999px;background:#0d0e10b8;color:#f4f1e8}
+.fit-turnbar button{width:44px;height:44px;border:0;background:none;color:inherit;font:900 11px/1 var(--font);cursor:pointer;border-radius:50%;transition:color .2s ease,background-color .2s ease}
+.fit-turnbar button[aria-pressed="true"]{color:#ffd447}
+.fit-turnbar button:hover{background:#ffffff12}
+.fit-turnbar button:focus-visible,.fit-dial:focus-visible{outline:2px solid #ffd447;outline-offset:2px}
+.fit-dial{order:0;padding:0 6px;font:800 9px/44px var(--font);letter-spacing:1.6px;min-width:44px;text-align:center}
+.fit-turnbar [data-fit-turn="0"]{order:1}.fit-turnbar [data-fit-turn="1"]{order:2}
+.look-stage.is-fit-compare .fit-turnbar,.look-stage.is-fit-compare .fit-turn,.look-stage.is-fit-compare .fit-plat{opacity:0;pointer-events:none}
+
+@media(prefers-reduced-motion:reduce){.fit-foot-flip{transition:none}}
+
+/* ---------- V18: capuz na cabeça ---------- */
+.fit-hoodpart{transform-box:view-box;transform-origin:210px 120px}
+.fit-figure:not([data-hood="up"]) .fit-hoodpart{display:none}
+.fit-figure[data-hood="up"] .fit-layer-cap{display:none}
+.fit-layer-hood,.fit-layer-hoodback{transform-box:view-box;transform-origin:214px 110px;transform:translateX(calc(var(--yaw)*4px))}
+.fit-figure:not([data-hood="up"]) .fit-hood-hide{display:none}
+
+/* ---------- V18: arremesso (ícone translúcido voando até o corpo) e hélice de DNA ---------- */
+.fit-fly{position:fixed;left:0;top:0;z-index:60;width:58px;height:58px;pointer-events:none;opacity:0;will-change:transform,opacity;
+  border-radius:50%;background:radial-gradient(closest-side,#ffd44738,#ffd44700);display:grid;place-items:center}
+.fit-fly img{width:86%;height:86%;object-fit:contain;filter:drop-shadow(0 0 6px #ffd447aa)}
+.fit-helix{transform-box:view-box}
+@media(prefers-reduced-motion:reduce){.fit-fly{display:none}}
+
+/* ---------- V18: palco consolidado — plataforma giratória e tema da landing (ORIGEM claro · SINAL escuro) ---------- */
+.fit-plat i{inset:10px 0 8px;border:1px solid #ffd4474d;background:radial-gradient(closest-side,#ffffff0d,#ffffff04 70%,transparent);box-shadow:inset 0 -6px 14px #0000004d}
+.fit-plat i::after{content:'';position:absolute;inset:9px 14%;border-radius:50%;border:1px solid #ffffff14}
+.fit-plat b{position:absolute;left:50%;bottom:9px;width:22px;height:4px;margin-left:-11px;border-radius:2px;background:#ffd447;box-shadow:0 0 10px #ffd447aa;
+  transform:translateX(calc(var(--yaw,0)*-120px)) scaleX(calc(1 - var(--yawa,0)*.35));transition:none}
+.fit-scene{--yaw:0;--yawa:0}
+body[data-gb-theme="origem"] .look-stage.has-fit{background:linear-gradient(180deg,#f8f6ef 0%,#efebe1 62%,#e6e1d4 100%)}
+body[data-gb-theme="origem"] .look-stage.has-fit .fit-key{background:radial-gradient(ellipse at 50% 34%,#ffffffd9 0%,#ffffff66 34%,#fff0 64%)}
+body[data-gb-theme="origem"] .look-stage.has-fit .fit-rim{background:radial-gradient(ellipse at 28% 50%,#ffd44730,#0000 62%)}
+body[data-gb-theme="origem"] .look-stage.has-fit .fit-horizon{background:linear-gradient(#11121412,#0000 1px),linear-gradient(180deg,#e8e3d6,#ddd7c8);border-top-color:#1112141a}
+body[data-gb-theme="origem"] .look-stage.has-fit .look-stage-title{color:#111214}
+body[data-gb-theme="origem"] .look-stage.has-fit .look-stage-foot{color:#3d3f3b}
+body[data-gb-theme="origem"] .look-stage.has-fit .fit-legal{color:#5c5e59}
+body[data-gb-theme="origem"] .look-stage.has-fit .fit-tag span,body[data-gb-theme="origem"] .look-stage.has-fit .fit-compare div span{color:#111214}
+body[data-gb-theme="origem"] .look-stage.has-fit .fit-tag b,body[data-gb-theme="origem"] .look-stage.has-fit .fit-compare b{color:#8a6a00}
+body[data-gb-theme="origem"] .look-stage.has-fit .look-cycle{color:#111214}
+body[data-gb-theme="origem"] .look-stage.has-fit .look-cycle button{background:#ffffffb3;color:#111214;border-color:#1112142e}
+body[data-gb-theme="origem"] .look-stage.has-fit .fit-turnbar{background:#ffffffc7;border-color:#1112141f;color:#111214}
+body[data-gb-theme="origem"] .look-stage.has-fit .fit-turnbar button[aria-pressed="true"]{color:#111214;background:#ffd447}
+body[data-gb-theme="origem"] .look-stage.has-fit .fit-turnbar button:hover{background:#1112140f}
+body[data-gb-theme="origem"] .look-stage.has-fit .fit-plat i{border-color:#11121426;background:radial-gradient(closest-side,#ffffffb3,#ffffff40 70%,transparent);box-shadow:inset 0 -6px 14px #1112140f}
+body[data-gb-theme="origem"] .look-stage.has-fit .fit-plat i::after{border-color:#11121414}
+body[data-gb-theme="origem"] .look-stage.has-fit .fit-scan{mix-blend-mode:multiply}
+body[data-gb-theme="origem"] .look-stage.has-fit .fit-floor{opacity:.55}
+.look-stage.has-fit,.look-stage.has-fit .fit-horizon,.look-stage.has-fit .fit-key{transition:background .45s ease}
+.fit-legal{z-index:4}
+.fit-plat b{bottom:5px}
+/* configurador no tema escuro: títulos dos passos e textos legíveis */
+body[data-gb-theme="sinal"] #lookstudio .look-step-title b,body[data-gb-theme="sinal"] #lookstudio .look-current strong,body[data-gb-theme="sinal"] #lookstudio .look-controls h3{color:#f4f1e8}
+body[data-gb-theme="sinal"] #lookstudio .look-controls-eyebrow,body[data-gb-theme="sinal"] #lookstudio .look-step-title,body[data-gb-theme="sinal"] #lookstudio .look-current span,body[data-gb-theme="sinal"] #lookstudio .look-legal{color:#a9a69c!important}
+
+/* ---------- V18 mobile: robô um pouco acima, giro logo abaixo dos pés, aviso legal no rodapé ---------- */
+@media(max-width:780px){
+  .fit-figure,.fit-geom,.fit-split-line{height:79%;bottom:13.5%}
+  .look-stage.has-fit .look-stage-foot{display:none}
+  .fit-legal{bottom:10px;font-size:7.5px;line-height:1.45}
+  .fit-turnbar{top:auto;bottom:40px;padding:0 2px}
+  .fit-dial b{display:none}.fit-dial{min-width:0;padding:0}
+  .fit-plat{bottom:calc(17.6% - 28px);width:min(64%,300px)}
+  .fit-turn{bottom:calc(17.6% - 32px);width:min(70%,320px)}
+  .fit-split{bottom:96px}
+}

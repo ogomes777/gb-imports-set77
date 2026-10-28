@@ -274,6 +274,7 @@ def main():
             if rig:   # a foto inteira não é usada quando a peça tem rig: tronco + mangas
                 entry['rig'] = rig; entry['src'] = rig['torso']; os.remove(f'{OUT}/{key}.webp')
         if 'collar' in p: entry['collar'] = p['collar']
+        if 'hood' in p: entry['hood'] = p['hood']
         for k in ('scale', 'dy', 'dx'):
             if k in p: entry[k] = p[k]
         cat[p['part']][p['product']] = entry

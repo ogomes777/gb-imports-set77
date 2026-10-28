@@ -4,7 +4,7 @@ description: Implementar o Look Studio da GB Imports com personagem persistente 
 ---
 
 # GB FIT STUDIO
-Leia `docs/FIT_V17_GB_UNIT.md` (estado atual), `docs/FIT_REAL_V16.md` e `docs/GB_FIT_STUDIO_V09_EXECUTION.md` (contrato e coreografia de origem).
+Leia `docs/FIT_V18_JOGO.md` (estado atual), `docs/FIT_V17_GB_UNIT.md`, `docs/FIT_REAL_V16.md` e `docs/GB_FIT_STUDIO_V09_EXECUTION.md` (contrato e coreografia de origem).
 
 ## V16 / FIT REAL
 - O manequim veste só peças reais: `data/gb-fit-curation.json` → `python3 scripts/gerar_fit_v16.py --qa <pasta>` → `assets/fit/` + `fit-catalog.js` (gerado, nunca à mão).
@@ -29,3 +29,9 @@ Dois SVGs flutuando com um boneco desenhado atrás, sem encaixe anatômico. Falh
 - Toda peça nova de cima precisa de `collar` (gola) marcada olhando a foto; tênis precisam de `cut`/`toe`/`collar`; bonés de `crown`.
 - Tênis: só o pé da frente do par real, o mesmo nos dois pés, mesma direção. Nunca espelhar.
 - Conferir as 81 peças vestidas (35+25+16+5) em 1440 e 390 depois de qualquer ajuste de corpo.
+
+## V18 / jogo
+- Giro só por transform (`--yaw`); nada de redesenhar o corpo por pose. Tênis: o outro lado é o mesmo pé espelhado (par simétrico); vista de bico só com foto real.
+- Capuz: só peça com `hood` marcado olhando a foto; capuz e boné se excluem.
+- Toda troca: ícone voa do seletor, hélice varre, peça assenta; movimento reduzido desliga voo e hélice.
+- Palco claro (ORIGEM) e escuro (SINAL) sempre conferidos juntos; mobile em 390 e 320.

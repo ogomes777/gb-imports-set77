@@ -207,3 +207,5 @@ body{background:#eeece5}
   .hero-v03 .hero-copy .gb-theme-option{pointer-events:auto}
   .hero-v03 .hero-copy .gb-theme-switcher{pointer-events:none}
 }
+/* V18 mobile: nos cards de categoria a peça fica acima do título (texto preto não passa por cima de peça preta) e o título cabe na largura */
+@media(max-width:490px){.category-tile{min-height:680px}.category-tile .category-object{inset:5% 0 50% 0}.category-tile .category-bottom h3{font-size:clamp(36px,10.6vw,50px)}}

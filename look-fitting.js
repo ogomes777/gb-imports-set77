@@ -52,7 +52,7 @@ const B={cx:210,crown:58,chin:171,shoulderY:212,shL:[116,236],shR:[304,236],nave
   zones:{top:[90,176,240,340],bottom:[118,420,184,490]}};
 // alvos da roupa sobre o corpo: superior pela linha dos ombros, inferior pelo cós (folga de streetwear incluída)
 const FIT={top:{shoulder:232,lineY:212,kindDy:{hoodie:6,jacket:4,sweatshirt:0,longsleeve:0,tee:0,polo:0,jersey:0}},
-  bottom:{waist:178,waistY:430,pantsHem:896},armTilt:11,neck:{top:22,base:31},
+  bottom:{waist:178,waistY:430,pantsHem:896},armTilt:11,neck:{top:25,base:35},
   kindScale:{hoodie:1,jacket:1.02,sweatshirt:1,longsleeve:.98,tee:1,polo:1,jersey:1,pants:1,shorts:1}};
 const HEAD_R=[[210,58],[226,59.5],[239,65],[247.5,75],[251.5,88],[252.5,102],[251.5,114],[250,125],[247.5,136],[244,146],[239,155],[232.5,162],[224.5,167.5],[217,170.5],[210,171.5]];
 const HEAD=[...HEAD_R,...mirror(HEAD_R).reverse().slice(1,-1)];
@@ -85,7 +85,7 @@ const along=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
 function headSVG(pfx){
   return `<g class="fit-head" transform="translate(-12.6 ${HEAD_DY}) scale(1.06 1)">`+
     // módulos auriculares com luz
-    both(s=>`<circle cx="${X(s,45.5)}" cy="123" r="8.6" fill="url(#${pfx}-yh)"/><circle cx="${X(s,45.5)}" cy="123" r="4.8" fill="#0b0c0e"/><circle class="fit-glow" cx="${X(s,45.5)}" cy="123" r="2" fill="#ffd447"/>`)+
+    both(s=>`<g class="fit-ear" data-side="${s}"><circle cx="${X(s,45.5)}" cy="123" r="8.6" fill="url(#${pfx}-yh)"/><circle cx="${X(s,45.5)}" cy="123" r="4.8" fill="#0b0c0e"/><circle class="fit-glow" cx="${X(s,45.5)}" cy="123" r="2" fill="#ffd447"/></g>`)+
     // capacete amarelo
     `<path d="${smooth(HEAD)}" fill="url(#${pfx}-yh)"/>`+
     both(s=>`<ellipse cx="${X(s,40)}" cy="118" rx="8" ry="26" fill="#3a2b05" opacity=".28"/>`)+
@@ -95,8 +95,8 @@ function headSVG(pfx){
     `<image href="${MONO}" x="216" y="72" width="26" height="15.9" preserveAspectRatio="xMidYMid meet" opacity=".92"/>`+
     // respiros nas têmporas
     both(s=>[0,1,2].map(i=>`<path d="M${X(s,37.5)} ${99+i*5.2}L${X(s,44)} ${97.4+i*5.2}" stroke="#0b0c0e" stroke-width="2.2" stroke-linecap="round"/>`).join(''))+
-    // máscara preta espelhada
-    `<path d="${smooth(FACE)}" fill="url(#${pfx}-fc)"/>`+
+    // máscara preta espelhada (o rosto inteiro vira junto no giro)
+    `<g class="fit-face"><path d="${smooth(FACE)}" fill="url(#${pfx}-fc)"/>`+
     shine('M187 101Q199 96.5 214 98',.42,2.6)+shine('M191 129Q193 149 205 161',.16,4.2)+shine('M236 112Q238 128 232 142',.12,3)+
     line('M210 96V167',1.4,.7)+
     // olhos: fendas acesas com halo
@@ -105,7 +105,7 @@ function headSVG(pfx){
     // grade da boca
     [150,154.5,159].map(y=>`<path d="M203 ${y}H217" stroke="#ffd447" stroke-opacity=".45" stroke-width="1.3" stroke-linecap="round"/>`).join('')+
     // borda da máscara e brilho do topo
-    seam(smooth(FACE),.55,1.2)+shine('M186 70Q198 62 206 61',.7,3)+
+    seam(smooth(FACE),.55,1.2)+`</g>`+shine('M186 70Q198 62 206 61',.7,3)+
   `</g>`;
 }
 // pescoço por cima da peça: cobre o forro e as costas da gola e para na gola da frente (medida na foto).
@@ -191,17 +191,17 @@ function sleevePose(e,pl){
 }
 // braço que sai da manga curta: ombro escondido na manga, cotovelo na altura do umbigo, antebraço blindado junto ao quadril
 function shortArm(pfx,sp){
-  const{side,O,n}=sp,hw=Math.max(18,Math.min(22,sp.ow*.44)),S=[O[0]-n[0]*34,O[1]-n[1]*34];
+  const{side,O,n}=sp,hw=Math.max(21,Math.min(28,sp.ow*.52)),S=[O[0]-n[0]*34,O[1]-n[1]*34];
   const t=Math.max(36,Math.min(170,(B.navel-O[1])/Math.max(.5,n[1]))),E=[O[0]+n[0]*t,O[1]+n[1]*t];
   const a2=Math.atan2(n[0],n[1])*.3,d2=[Math.sin(a2),Math.cos(a2)],Wr=[E[0]+d2[0]*126,E[1]+d2[1]*126];
-  const up=[[...S,hw],[...O,hw*.96],[...along(O,E,.55),hw*.88],[...E,16]],fo=[[...E,16],[...along(E,Wr,.28),18.4],[...along(E,Wr,.7),14.2],[...Wr,11.4]];
+  const up=[[...S,hw],[...O,hw*.98],[...along(O,E,.42),hw*1.02],[...along(O,E,.75),hw*.86],[...E,18]],fo=[[...E,18],[...along(E,Wr,.26),21.5],[...along(E,Wr,.62),17],[...Wr,13]];
   // boca da manga: a sombra do lado de dentro fica atrás do braço
-  return `<ellipse cx="${r1(O[0])}" cy="${r1(O[1])}" rx="${r1(hw*1.15)}" ry="${r1(hw*.45)}" transform="rotate(${r1(-Math.atan2(n[0],n[1])*180/Math.PI)} ${r1(O[0])} ${r1(O[1])})" fill="#000" opacity=".55"/>`+
+  return `<g class="fit-arm" data-side="${side}"><ellipse cx="${r1(O[0])}" cy="${r1(O[1])}" rx="${r1(hw*1.15)}" ry="${r1(hw*.45)}" transform="rotate(${r1(-Math.atan2(n[0],n[1])*180/Math.PI)} ${r1(O[0])} ${r1(O[1])})" fill="#000" opacity=".55"/>`+
     `<path d="${limb(up)}" fill="url(#${pfx}-bk)"/>`+`<path d="${plate(up,.25,.9,.42,side*.5)}" fill="url(#${pfx}-yl)"/>`+
     `<path d="${limb(fo)}" fill="url(#${pfx}-bk)"/>`+`<path d="${plate(fo,.12,.86,.7,side*.18)}" fill="url(#${pfx}-yl)"/>`+
     seam(`M${r1(along(E,Wr,.45)[0]-9)} ${r1(along(E,Wr,.45)[1])}L${r1(along(E,Wr,.45)[0]+9)} ${r1(along(E,Wr,.45)[1]+1)}`,.55,1.2)+
-    `<circle cx="${r1(E[0])}" cy="${r1(E[1])}" r="15" fill="url(#${pfx}-bh)"/><circle cx="${r1(E[0])}" cy="${r1(E[1])}" r="10.2" fill="none" stroke="#ffd447" stroke-width="2" stroke-opacity=".9"/>`+
-    handSVG(pfx,Wr[0],Wr[1]+3,-a2*180/Math.PI*.6,side);
+    `<circle cx="${r1(E[0])}" cy="${r1(E[1])}" r="17" fill="url(#${pfx}-bh)"/><circle cx="${r1(E[0])}" cy="${r1(E[1])}" r="11.5" fill="none" stroke="#ffd447" stroke-width="2" stroke-opacity=".9"/>`+
+    handSVG(pfx,Wr[0],Wr[1]+3,-a2*180/Math.PI*.6,side,1.14)+`</g>`;
 }
 function armsSVG(e,pl,pfx,sp){
   const out=[];
@@ -210,13 +210,13 @@ function armsSVG(e,pl,pfx,sp){
     const s=e.sleeves?.[side<0?'l':'r'];if(!s||s.type!=='long')continue;
     // manga longa: só a mão, saindo do punho na direção da manga
     const[cx,cy]=P(pl,s.x,s.y),ang=Math.atan2(s.dx,s.dy)*180/Math.PI;
-    out.push(handSVG(pfx,cx-s.dx*3,cy-s.dy*3,-ang,side,.98));
+    out.push(`<g class="fit-arm" data-side="${side}">`+handSVG(pfx,cx-s.dx*3,cy-s.dy*3,-ang,side,1.1)+`</g>`);
   }
   return out.join('');
 }
 // pernas: coxa, joelheira, panturrilha, caneleira; a coxa preenche a boca da bermuda e o tornozelo segue a barra
 // da calça (ou a boca do tênis). spec: {open:[{x,y,hw}|null ×2], ank:[[x,y]×2], boots}
-const LEG=[[0,38],[.14,37],[.3,32.5],[.46,25.5],[.555,21.5],[.6,22.5],[.67,27],[.74,26],[.83,19.5],[.92,14],[1,12.2]];
+const LEG=[[0,44],[.14,43],[.3,38],[.46,30],[.555,25],[.6,26.5],[.67,32],[.74,31],[.83,23],[.92,16.5],[1,14]];
 function legSpec(e,pl){
   const ww=(e.waist.r-e.waist.l)*pl.w,open=e.legs.slice(0,2).map(l=>{const[x,y]=P(pl,l.x,l.y);return{x,y,hw:l.w*pl.w/2}});
   const ok=open.length===2&&open[0].x<B.cx&&open[1].x>B.cx&&open[1].x-open[0].x>ww*.25&&open.every(o=>o.hw>ww*.1);
@@ -234,12 +234,12 @@ function legsSVG(pfx,spec){
     // largura da coxa: preenche a boca (82%) sem passar do atleta
     // a coxa enche a boca da bermuda (88%) e afina até o joelho, como um quadríceps
     const to=(oy-hy)/(ay-hy),tk=(ky-hy)/(ay-hy),lw=t=>{for(let i=1;i<LEG.length;i++)if(LEG[i][0]>=t){const[a,wa]=LEG[i-1],[b,wb]=LEG[i];return wa+(wb-wa)*(t-a)/(b-a)}return LEG.at(-1)[1]};
-    const thigh=o?Math.max(26,Math.min(44,o.hw*.88)):lw(to),kw=thigh/lw(to);
+    const thigh=o?Math.max(32,Math.min(54,o.hw*.96)):lw(to),kw=thigh/lw(to);
     const pts=LEG.map(([t,w])=>{const y=hy+t*(ay-hy),k=t<=to?kw:t<tk?kw+(1-kw)*Math.pow((t-to)/(tk-to),.6):1;return[xAt(y),y,w*Math.max(.9,k)]});
     const L=[],R=[];
     for(const[x,y,w]of pts){const t=(y-hy)/(ay-hy),wo=w*(t>.6&&t<.8?1.08:1);L.push([x+side*wo,y]);R.push([x-side*w,y])}
     const d=smooth([...L,[ax,ay+4],...R.reverse(),[hx,hy-20]]);
-    const kp=[[-17,-24],[17,-24],[21,-5],[15,17],[-15,17],[-21,-5]].map(([dx,dy])=>[kx+dx,ky+dy]);
+    const kp=[[-20,-27],[20,-27],[24,-5],[18,19],[-18,19],[-24,-5]].map(([dx,dy])=>[kx+dx,ky+dy]);
     const tl=pts.map(p=>[p[0]+side*p[2]*.55,p[1],p[2]*.42]);
     return `<g class="fit-leg">`+(o?`<ellipse cx="${r1(o.x)}" cy="${r1(o.y-2)}" rx="${r1(o.hw*.98)}" ry="${r1(o.hw*.3)}" fill="#000" opacity=".6"/>`:'')+
       `<path d="${d}" fill="url(#${pfx}-bk)"/>`+
@@ -252,7 +252,28 @@ function legsSVG(pfx,spec){
       (spec.boots===false?'':`<rect x="${r1(ax-12)}" y="${ay-14}" width="24" height="9" rx="3" fill="url(#${pfx}-yl)"/>`+bootSVG(pfx,ax,ay,side))+`</g>`;
   }).join('');
 }
-// tênis: o pé real do acervo nos dois pés, apontando para o mesmo lado; a sola pisa o chão e a canela entra na boca
+/* ============================== GIRO (jogo): esquerda · frente · direita ==============================
+   Pseudo-3D só com transform: o corpo estreita, o rosto e o boné viram, o braço do lado de trás recua e os tênis
+   giram no tornozelo. De frente, cada pé aponta para fora (em V) e encurta como num 3/4. O par de tênis é simétrico:
+   o pé que aponta para o lado oposto ao da foto é o mesmo recorte espelhado (é como o outro pé do par se vê). */
+let yaw=0,yawDir='F';
+const dirOf=y=>y<-.4?'L':y>.4?'R':'F';
+// escala horizontal de cada pé para a direção pedida (1 = como na foto; -1 = virado; ±.64 = de frente, em V)
+function applyFeet(g,dir){
+  const toe=g.dataset.toe,flip=want=>want===toe?1:-1;
+  const sc={L:[flip('L'),flip('L')],R:[flip('R'),flip('R')],F:[flip('L')*.64,flip('R')*.64]}[dir];
+  g.style.setProperty('--fl',sc[0]);g.style.setProperty('--fr',sc[1]);
+  // o pé mais perto de quem olha vai por cima (pés para a direita: o da esquerda está na frente)
+  const near=g.querySelector(`.fit-foot[data-side="${dir==='R'?-1:1}"]`);if(near&&near!==g.lastElementChild)g.appendChild(near);
+}
+function applyYaw(root,y){
+  const a=Math.abs(y);root.style.setProperty('--yaw',y.toFixed(3));root.style.setProperty('--yawa',a.toFixed(3));
+  // braço do lado de trás (oposto ao giro) recua para trás do tronco
+  root.style.setProperty('--armL',(y<0?-y*10:0).toFixed(2)+'px');root.style.setProperty('--armR',(y>0?-y*10:0).toFixed(2)+'px');
+  const d=dirOf(y);if(root===fig){yaw=y;yawDir=d}if(root.dataset.dir!==d){root.dataset.dir=d;root.querySelectorAll('.fit-shoe').forEach(g=>applyFeet(g,d))}
+}
+
+// tênis: o pé real do acervo nos dois pés; a sola pisa o chão e a canela entra na boca
 const SHOE={len:148,sep:50};
 function shoePlace(e){
   const Wu=SHOE.len,Hu=Wu*e.h/e.w,y=B.floor+3-Hu;
@@ -272,27 +293,57 @@ function legsGroup(pfx,bot,shoeE){
 // uma peça vira camadas: base (foto/torso) e corpo exposto (braços, pescoço) e, no superior, mangas por cima dos braços
 function garmentParts(part,p,pfx){
   const e=CAT[part][p.id],out={soft:[]};
-  if(part==='shoe'){const g=mkG('fit-garment fit-shoe',p.id),pl=shoePlace(e);
-    // o pé de trás primeiro: a ponta do pé de frente passa por cima do calcanhar do outro
-    (e.toe==='L'?pl:pl.slice().reverse()).forEach(s=>{g.innerHTML+=`<ellipse cx="${r1(s.ank[0]-(e.toe==='L'?1:-1)*s.w*.3)}" cy="${B.floor}" rx="${r1(s.w*.5)}" ry="7" fill="url(#${pfx}-drop)"/>`+photo(e.src,s.x,s.y,s.w,s.h)});
-    g.style.transformOrigin='210px 920px';out.base=g;return out}
+  if(part==='shoe'){const g=mkG('fit-garment fit-shoe',p.id),pl=shoePlace(e);g.dataset.toe=e.toe;
+    // cada pé gira no tornozelo (vira para a esquerda, para a direita ou fica de frente, em V); a sombra acompanha
+    g.innerHTML=pl.map(s=>`<g class="fit-foot" data-side="${s.side}"><g class="fit-foot-flip" style="transform-origin:${r1(s.ank[0])}px ${r1(s.ank[1])}px">`+
+      `<ellipse cx="${r1(s.ank[0]-(e.toe==='L'?1:-1)*s.w*.3)}" cy="${B.floor}" rx="${r1(s.w*.5)}" ry="7" fill="url(#${pfx}-drop)"/>`+photo(e.src,s.x,s.y,s.w,s.h)+`</g></g>`).join('');
+    applyFeet(g,yawDir);g.style.transformOrigin='210px 920px';out.base=g;return out}
   if(part==='cap'){const g=mkG('fit-garment fit-cap',p.id),c=capPlace(e);g.innerHTML=photo(e.src,c.x,c.y,c.w,c.h);g.style.transformOrigin='214px 90px';out.base=g;return out}
   const pl=part==='top'?placeTop(e):placeBottom(e);
   const g=mkG(`fit-garment fit-${part}`,p.id);g.dataset.kind=e.kind;out.base=g;out.e=e;out.pl=pl;
   if(part==='top'){
     const[hx,hy]=P(pl,e.cx,e.hem),sp=sleevePose(e,pl),c=collarOf(e,pl),limbs=mkG('fit-limbs fit-limbs-top',p.id);
-    g.innerHTML=`<ellipse cx="${r1(hx)}" cy="${r1(hy+6)}" rx="${r1(e.hemw*pl.w*.5)}" ry="12" fill="url(#${pfx}-drop)"/>`+photo(e.rig?e.rig.torso:e.src,pl.x,pl.y,pl.w,pl.h);
+    // sombra de contato da barra sobre a peça de baixo: a camisa cai por cima, não "flutua" sobre a calça
+    g.innerHTML=`<ellipse cx="${r1(hx)}" cy="${r1(hy+4)}" rx="${r1(e.hemw*pl.w*.53)}" ry="17" fill="url(#${pfx}-drop)"/><ellipse cx="${r1(hx)}" cy="${r1(hy+1)}" rx="${r1(e.hemw*pl.w*.47)}" ry="6" fill="url(#${pfx}-drop)"/>`+(e.hood?hoodHideMask(e,pl,pfx,p.id):'')+
+      photo(e.rig?e.rig.torso:e.src,pl.x,pl.y,pl.w,pl.h,e.hood?` mask="url(#${pfx}-hd-${p.id}-t)"`:'');
     limbs.innerHTML=armsSVG(e,pl,pfx,sp);out.limbs=limbs;out.soft.push(limbs);
     if(e.rig){const sl=mkG('fit-sleeves',p.id);
-      sl.innerHTML=Object.values(sp).map(s=>photo(s.src,s.box.x,s.box.y,s.box.w,s.box.h,` transform="rotate(${r1(s.th)} ${r1(s.piv[0])} ${r1(s.piv[1])})"`)).join('');
+      sl.innerHTML=Object.values(sp).map(s=>`<g class="fit-arm" data-side="${s.side}">`+photo(s.src,s.box.x,s.box.y,s.box.w,s.box.h,` transform="rotate(${r1(s.th)} ${r1(s.piv[0])} ${r1(s.piv[1])})"`)+`</g>`).join('');
       out.sleeves=sl}
     if(c){const nk=mkG('fit-neck',p.id);nk.innerHTML=neckSVG(pfx,c);out.neck=nk;out.soft.push(nk)}
+    if(e.hood){const hd=hoodParts(e,pl,pfx,p.id);out.hoodBack=hd.back;out.hood=hd.front}
     g.style.transformOrigin='210px 220px';
   }else{
     g.innerHTML=photo(e.src,pl.x,pl.y,pl.w,pl.h);
     g.style.transformOrigin='210px 480px';
   }
   return out;
+}
+// capuz na cabeça: o próprio capuz da foto, levantado por inteiro (escala única) até a abertura emoldurar o rosto.
+// Atrás da cabeça vai o capuz inteiro (o forro escuro aparece em volta do capacete); na frente, o mesmo capuz com a
+// abertura vazada (borda suave), para a cabeça ficar DENTRO dele. A base some aos poucos sobre os ombros.
+const HOOD={open:80,top:66};
+// com o capuz na cabeça, a parte de cima do capuz deitado na foto some (fica só a gola que desce aos ombros)
+function hoodHideMask(e,pl,pfx,pid){
+  const h=e.hood,ox0=pl.x+h.x0*pl.w,ox1=pl.x+h.x1*pl.w,ot=pl.y+h.top*pl.h,ob=pl.y+h.bottom*pl.h,id=`${pfx}-hd-${pid}-t`;
+  return `<defs><radialGradient id="${id}-g"><stop offset="0" stop-color="#000"/><stop offset=".7" stop-color="#000"/><stop offset="1" stop-color="#fff"/></radialGradient>`+
+    `<mask id="${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="420" height="1000"><rect width="420" height="1000" fill="#fff"/>`+
+    `<ellipse class="fit-hood-hide" cx="${r1((ox0+ox1)/2)}" cy="${r1(ot-(ob-ot)*.1)}" rx="${r1((ox1-ox0)*1.05)}" ry="${r1((ob-ot)*1.05)}" fill="url(#${id}-g)"/></mask></defs>`;
+}
+function hoodParts(e,pl,pfx,pid){
+  const h=e.hood,ox0=pl.x+h.x0*pl.w,ox1=pl.x+h.x1*pl.w,ot=pl.y+h.top*pl.h,ob=pl.y+h.bottom*pl.h,ocx=(ox0+ox1)/2;
+  const k=Math.max(.85,Math.min(1.5,HOOD.open/(ox1-ox0))),tx=B.cx-k*ocx,ty=HOOD.top-k*ot,ow=ox1-ox0,oh=ob-ot,id=`${pfx}-hd-${pid}`;
+  const img=photo(e.src,pl.x,pl.y,pl.w,pl.h);
+  // máscara: só a região do capuz (elipse em volta da abertura, sem os ombros), sumindo logo abaixo da abertura
+  const defs=`<defs><radialGradient id="${id}-r"><stop offset="0" stop-color="#fff"/><stop offset=".86" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient>`+
+    `<linearGradient id="${id}-f" gradientUnits="userSpaceOnUse" x1="0" y1="${r1(ob-oh*.05)}" x2="0" y2="${r1(ob+oh*.32)}"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>`+
+    `<radialGradient id="${id}-h"><stop offset="0" stop-color="#000"/><stop offset=".9" stop-color="#000"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>`+
+    `<mask id="${id}-v" maskUnits="userSpaceOnUse" x="0" y="0" width="420" height="1000"><rect width="420" height="1000" fill="url(#${id}-f)"/></mask>`+
+    `<mask id="${id}-b" maskUnits="userSpaceOnUse" x="0" y="0" width="420" height="1000"><ellipse cx="${r1(ocx)}" cy="${r1(ot+oh*.25)}" rx="${r1(ow*.9)}" ry="${r1(oh*1.6)}" fill="url(#${id}-r)" mask="url(#${id}-v)"/></mask>`+
+    `<mask id="${id}-m" maskUnits="userSpaceOnUse" x="0" y="0" width="420" height="1000"><ellipse cx="${r1(ocx)}" cy="${r1(ot+oh*.25)}" rx="${r1(ow*.9)}" ry="${r1(oh*1.6)}" fill="url(#${id}-r)" mask="url(#${id}-v)"/>`+
+    `<ellipse cx="${r1(ocx)}" cy="${r1(ot+oh*.6)}" rx="${r1(ow*.47)}" ry="${r1(oh*.55)}" fill="url(#${id}-h)"/></mask></defs>`;
+  const wrap=(cls,m)=>{const g=mkG('fit-hoodpart '+cls,pid);g.innerHTML=`${m?'':defs}<g transform="translate(${r1(tx)} ${r1(ty)}) scale(${r1(k*1000)/1000})"><g mask="url(#${id}-${m?'m':'b'})">${img}</g></g>`;return g};
+  return{back:wrap('fit-hood-back',false),front:wrap('fit-hood-front',true)};
 }
 const srcsOf=e=>e.rig?[e.rig.torso,e.rig.l?.src,e.rig.r?.src].filter(Boolean):[e.src];
 
@@ -311,17 +362,23 @@ function defsSVG(pfx){
   <radialGradient id="${pfx}-floor" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".62"/><stop offset=".6" stop-color="#000" stop-opacity=".22"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
   </defs>`;
 }
+// hélice de DNA (duas fitas + degraus) que varre a área vestida; o desenho é fixo, só o transform anda
+const HELIX=(()=>{const P=46,A=13,x0=-16,x1=436,pt=(x,ph)=>`${r1(x)} ${r1(A*Math.sin((x/P)*2*Math.PI+ph))}`;
+  let a='',b='',r='';for(let x=x0;x<=x1;x+=4){a+=(x===x0?'M':'L')+pt(x,0);b+=(x===x0?'M':'L')+pt(x,Math.PI)}
+  for(let x=x0+P/8;x<=x1;x+=P/4){const y=A*Math.sin((x/P)*2*Math.PI);r+=`M${r1(x)} ${r1(y)}V${r1(-y)}`}
+  return `<path d="${r}" stroke="#ffd447" stroke-opacity=".55" stroke-width="1.6"/><path d="${a}" fill="none" stroke="#ffd447" stroke-width="2.4"/><path d="${b}" fill="none" stroke="#fff3c4" stroke-opacity=".9" stroke-width="1.8"/>`})();
 function figureSVG(pfx,label){
   return `<svg class="fit-svg" viewBox="0 0 420 1000" role="img" aria-label="${label}" focusable="false">${defsSVG(pfx)}
   <ellipse class="fit-floor" cx="210" cy="${B.floor}" rx="130" ry="15" fill="url(#${pfx}-floor)"/>
-  <g class="fit-rig">${bodySVG(pfx)}<g class="fit-layer fit-layer-legs"></g><g class="fit-layer fit-layer-shoe"></g><g class="fit-layer fit-layer-bottom"></g><g class="fit-layer fit-layer-arms"></g><g class="fit-layer fit-layer-top"></g><g class="fit-layer fit-layer-sleeves"></g><g class="fit-layer fit-layer-neck"></g>${headSVG(pfx)}<g class="fit-layer fit-layer-cap"></g></g>
-  <g class="fit-scan" aria-hidden="true"><rect x="40" y="-14" width="340" height="28" fill="url(#${pfx}-sc)"/><rect x="40" y="-.75" width="340" height="1.5" fill="#ffd447"/></g></svg>`;
+  <g class="fit-yaw"><g class="fit-rig">${bodySVG(pfx)}<g class="fit-layer fit-layer-legs"></g><g class="fit-layer fit-layer-shoe"></g><g class="fit-layer fit-layer-bottom"></g><g class="fit-layer fit-layer-arms"></g><g class="fit-layer fit-layer-top"></g><g class="fit-layer fit-layer-sleeves"></g><g class="fit-layer fit-layer-neck"></g><g class="fit-layer fit-layer-hoodback"></g>${headSVG(pfx)}<g class="fit-layer fit-layer-hood"></g><g class="fit-layer fit-layer-cap"></g></g></g>
+  <g class="fit-scan" aria-hidden="true"><rect x="30" y="-22" width="360" height="44" fill="url(#${pfx}-sc)"/><g class="fit-helix">${HELIX}</g></g></svg>`;
 }
 // coloca as camadas de uma peça na figura
 function placeParts(root,part,o){
   const q=n=>root.querySelector('.fit-layer-'+n);
   q(part).appendChild(o.base);if(o.limbs)q('arms').appendChild(o.limbs);if(o.sleeves)q('sleeves').appendChild(o.sleeves);if(o.neck)q('neck').appendChild(o.neck);
-  return[o.base,o.limbs,o.sleeves,o.neck].filter(Boolean);
+  if(o.hood){q('hoodback').appendChild(o.hoodBack);q('hood').appendChild(o.hood)}
+  return[o.base,o.limbs,o.sleeves,o.neck,o.hoodBack,o.hood].filter(Boolean);
 }
 
 /* ============================== MÍDIA: troca só com a foto pronta ============================== */
@@ -336,11 +393,12 @@ function preload(part,id){
 /* ============================== MOTOR DE TROCA ============================== */
 const PARTS=['top','bottom','shoe','cap'],KEY={top:'topId',bottom:'bottomId',shoe:'shoeId',cap:'capId'};
 const LABEL={top:'SUPERIOR',bottom:'INFERIOR',shoe:'TÊNIS',cap:'BONÉ'};
-let stage=null,fig=null,figB=null,state={topId:null,bottomId:null,shoeId:null,capId:null},pending=null,flushQueued=false,rev=0,tagTimer=0,gen=0;
+let stage=null,fig=null,figB=null,state={topId:null,bottomId:null,shoeId:null,capId:null,hood:false},pending=null,flushQueued=false,rev=0,tagTimer=0,gen=0;
 // cada parte em cena: id + camadas (foto, membros, mangas) + medidas; as que estão saindo; animações vivas
 const live=Object.fromEntries([...PARTS,'legs'].map(k=>[k,{cur:null,anims:[],leaving:[]}]));
 const curId=part=>live[part].cur?.id??null;
 function entryVector(opts,part){
+  if(opts.thrown)return[0,-10];
   if(part==='cap')return[0,-110];
   if(part==='shoe')return[0,70];
   if(opts.from&&fig){const r=fig.getBoundingClientRect(),sx=420/r.width;const dx=(opts.from.x-(r.left+r.width/2))*sx,dy=(opts.from.y-(r.top+r.height*.4))*sx;return[Math.max(-140,Math.min(140,dx*.5)),Math.max(-120,Math.min(160,dy*.5))]}
@@ -351,18 +409,41 @@ const DUR={top:760,bottom:780,shoe:700,cap:700};
 // feixe de varredura: atravessa a faixa do corpo da peça que acabou de vestir (só transform/opacity)
 const SCAN={top:[190,560],bottom:[420,900],shoe:[860,950],cap:[50,130],boot:[60,940]};
 let scanAnim=null;
+let helixAnim=null;
 function scan(part,delay=0){
-  const el=fig?.querySelector('.fit-scan');if(!el||reduced()||lite()||!el.animate)return;
-  const[a,b]=SCAN[part];scanAnim?.cancel();
+  const el=fig?.querySelector('.fit-scan'),hx=el?.querySelector('.fit-helix');if(!el||reduced()||lite()||!el.animate)return;
+  const[a,b]=SCAN[part],dur=part==='boot'?1300:640;scanAnim?.cancel();helixAnim?.cancel();
   scanAnim=el.animate([{opacity:0,transform:`translateY(${a}px)`},{opacity:1,offset:.15},{opacity:1,offset:.8},{opacity:0,transform:`translateY(${b}px)`}],
-    {duration:part==='boot'?1300:620,delay,easing:'cubic-bezier(.45,0,.25,1)',fill:'backwards'});
+    {duration:dur,delay,easing:'cubic-bezier(.45,0,.25,1)',fill:'backwards'});
+  // as fitas giram (a hélice corre um período e meio enquanto desce)
+  helixAnim=hx?.animate([{transform:'translateX(0px)'},{transform:'translateX(-69px)'}],{duration:dur,delay,easing:'linear'});
+}
+/* ---------- arremesso: o ícone da peça sai do seletor, voa tremendo até o corpo e a peça veste ---------- */
+const FLY=340,ZONE={top:300,bottom:560,shoe:905,cap:92};
+const flyPool=[];
+function flyEl(){let el=flyPool.find(f=>!f.busy);if(!el){el={node:document.createElement('div'),busy:false};el.node.className='fit-fly';el.node.setAttribute('aria-hidden','true');el.node.innerHTML='<img alt="" decoding="async"/>';document.body.appendChild(el.node);flyPool.push(el)}return el}
+function originOf(part,id,opts){
+  const btn=document.querySelector(`.look-option[data-look-mode="${part}"][data-look-id="${id}"]`),r=btn?.getBoundingClientRect();
+  if(r&&r.width&&r.bottom>0&&r.top<innerHeight&&r.right>0&&r.left<innerWidth)return{x:r.left+r.width/2,y:r.top+r.height/2};
+  return opts.from||null;
+}
+function throwIn(part,id,opts,delay){
+  if(reduced()||!fig||!document.body.animate)return 0;
+  const from=originOf(part,id,opts);if(!from)return 0;
+  const fr=fig.getBoundingClientRect(),k=fr.height/1000,to={x:fr.left+fr.width/2,y:fr.top+ZONE[part]*k};
+  const f=flyEl();f.busy=true;const img=f.node.firstChild;img.src=CAT[part][id].thumb;
+  const dx=to.x-from.x,dy=to.y-from.y,lift=Math.min(180,Math.hypot(dx,dy)*.35),frames=[];
+  for(let i=0;i<=12;i++){const t=i/12,u=1-t,x=from.x+dx*t,y=from.y+dy*t-4*lift*t*u,j=i&&i<12?(i%2?1:-1):0;
+    frames.push({offset:t,opacity:t<.15?.2+t*3:t>.85?(1-t)*4.5:.62,transform:`translate(${r1(x+j*2.5)}px,${r1(y+j*1.5)}px) translate(-50%,-50%) rotate(${j*7}deg) scale(${r1(1-t*.45)})`})}
+  f.node.animate(frames,{duration:FLY*(lite()?.8:1),delay,easing:'cubic-bezier(.35,.1,.25,1)',fill:'both'}).finished.then(()=>{f.busy=false;f.node.getAnimations().forEach(a=>a.cancel())}).catch(()=>{f.busy=false});
+  return FLY*(lite()?.8:1);
 }
 // saída de um conjunto de camadas: a peça perde tensão, cede e dissolve; corpo exposto (soft) só esmaece
 function leave(L,cur,part,D,T){
   const quick=lite()?.72:1;
   cur.els.forEach(el=>{
     const soft=cur.soft.includes(el),kf=soft?[{opacity:1},{opacity:0}]:[{opacity:1,transform:el.style.transform||'none'},{opacity:0,transform:part==='cap'?'translate(0px,-14px)':part==='shoe'?'translate(0px,10px)':part==='top'?'translate(0px,12px) scale(1,.965)':'translate(0px,16px) scale(1,.97)'}];
-    const a=el.animate(kf,{duration:soft?.14*T:300*quick,delay:soft?D+T*.28:0,easing:soft?'linear':'cubic-bezier(.4,0,.8,.6)',fill:'forwards'});
+    const a=el.animate(kf,{duration:soft?.14*T:300*quick,delay:soft?D+T*.28:D*.85,easing:soft?'linear':'cubic-bezier(.4,0,.8,.6)',fill:'forwards'});
     L.leaving.push(el);a.finished.then(()=>{el.remove();L.leaving=L.leaving.filter(x=>x!==el)}).catch(()=>{});
   });
 }
@@ -402,6 +483,13 @@ function swapLegs(delay=0,animate=true){
   leave(L,old,'legs',D,T);
   L.anims.push(g.animate([{opacity:0},{opacity:0,offset:.42},{opacity:1,offset:.6},{opacity:1}],{duration:T,delay:D,easing:'linear',fill:'backwards'}));
 }
+// capuz: só com superior que tem capuz fotografado de frente; levantar o capuz tira o boné
+function hoodSync(delay=0){
+  const up=state.hood&&!!CAT.top[state.topId]?.hood,was=fig.dataset.hood==='up';
+  fig.dataset.hood=up?'up':'down';if(up===was||!up||reduced())return;
+  fig.querySelectorAll('.fit-layer-hood .fit-hoodpart,.fit-layer-hoodback .fit-hoodpart').forEach(el=>el.animate?.([{opacity:0,transform:'translateY(46px) scale(.9)'},{opacity:1,offset:.55},{opacity:1,transform:'none'}],{duration:520,delay,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'}));
+  scan('cap',delay+120);
+}
 function describe(){
   const n=k=>byId(state[KEY[k]])?.name;
   return `Manequim GB vestindo ${n('top')} com ${n('bottom')}`+(n('shoe')?`, tênis ${n('shoe')}`:'')+(n('cap')?`, boné ${n('cap')}`:'');
@@ -409,7 +497,7 @@ function describe(){
 function flush(){
   flushQueued=false;const want=pending;pending=null;if(!want||!fig)return;
   const opts=want.opts||{};
-  state={topId:want.topId,bottomId:want.bottomId,shoeId:want.shoeId,capId:want.capId};
+  state={topId:want.topId,bottomId:want.bottomId,shoeId:want.shoeId,capId:want.capId,hood:!!want.hood};
   PARTS.forEach(k=>{if(state[KEY[k]])fig.dataset[k]=state[KEY[k]];else delete fig.dataset[k]});
   const my=++gen;
   const valid=k=>{const id=state[KEY[k]];return id==null?(k==='shoe'||k==='cap'):!!(byId(id)&&CAT[k][id])};
@@ -419,13 +507,16 @@ function flush(){
   if(stage.dataset.phase!=='comparing'&&changed.length)stage.dataset.phase=reduced()?'reduced-motion':tb.length===2?'switching-both':changed.length>1?'switching-both':'switching-'+changed[0];
   clearTimeout(flush.idle);
   Promise.all(PARTS.map(k=>state[KEY[k]]?preload(k,state[KEY[k]]):null)).then(()=>{if(my!==gen)return;
-    let d=0;const delays={};
-    changed.forEach(k=>{delays[k]=d;dress(k,state[KEY[k]]?byId(state[KEY[k]]):null,{...opts,animateIn:true},d);d+=120});
-    if(changed.length)scan(changed.length>1?'boot':changed[0],(lite()?.72:1)*320);
+    // cada peça nova é arremessada do seletor; ao chegar, a hélice varre a área e a peça veste
+    let d=0,last=0;const delays={};
+    changed.forEach((k,i)=>{const id=state[KEY[k]],fly=id&&!opts.silent?throwIn(k,id,opts,i*60):0;delays[k]=fly?i*60+fly:d;
+      dress(k,id?byId(id):null,{...opts,animateIn:true,thrown:!!fly},delays[k]);last=Math.max(last,delays[k]);d+=fly?0:120});
+    if(changed.length)scan(changed.length>1?'boot':changed[0],Math.max(last,(lite()?.72:1)*320));
+    hoodSync(changed.length?last+120:0);
     if(changed.includes('bottom')||changed.includes('shoe'))swapLegs(Math.min(delays.bottom??99999,delays.shoe??99999));
     fig.querySelector('.fit-svg')?.setAttribute('aria-label',describe());
     if(changed.length)showTag(changed,opts);
-    clearTimeout(flush.idle);flush.idle=setTimeout(()=>{if(stage.dataset.phase!=='comparing')stage.dataset.phase=reduced()?'reduced-motion':'idle'},changed.length>1?1000+120*(changed.length-2):860);
+    clearTimeout(flush.idle);flush.idle=setTimeout(()=>{if(stage.dataset.phase!=='comparing')stage.dataset.phase=reduced()?'reduced-motion':'idle'},Math.max(changed.length>1?1000:860,last+720));
   });
 }
 const partName=(p,part)=>p.name+(CAT.top[p.id]&&CAT.bottom[p.id]&&(part==='top'||part==='bottom')?(part==='top'?' — superior':' — inferior'):'');
@@ -439,7 +530,7 @@ function showTag(parts,opts){
 // set({topId,bottomId,shoeId,capId}) — tênis/boné aceitam null (sem); o que não vier fica como está
 function set(next,opts={}){
   const base=pending||state,pick=k=>KEY[k] in next?(next[KEY[k]]??null):base[KEY[k]];
-  pending={topId:next.topId||base.topId,bottomId:next.bottomId||base.bottomId,shoeId:pick('shoe'),capId:pick('cap'),opts:{...(pending?.opts||{}),...opts}};
+  pending={topId:next.topId||base.topId,bottomId:next.bottomId||base.bottomId,shoeId:pick('shoe'),capId:pick('cap'),hood:'hood' in next?!!next.hood:!!base.hood,opts:{...(pending?.opts||{}),...opts}};
   if(!flushQueued){flushQueued=true;(window.queueMicrotask||setTimeout)(flush)}
 }
 
@@ -456,6 +547,7 @@ function compare(on,b){
   placeParts(figB,'bottom',ob);placeParts(figB,'top',garmentParts('top',tp,'fitB'));
   if(sh)placeParts(figB,'shoe',garmentParts('shoe',byId(sh),'fitB'));if(cp)placeParts(figB,'cap',garmentParts('cap',byId(cp),'fitB'));
   figB.querySelector('.fit-layer-legs').appendChild(legsGroup('fitB',{id:bp.id,e:ob.e,pl:ob.pl},sh?{...CAT.shoe[sh],id:sh}:null));
+  figB.dataset.hood=b.hood&&CAT.top[tp.id]?.hood?'up':'down';
   figB.dataset.top=tp.id;figB.dataset.bottom=bp.id;if(sh)figB.dataset.shoe=sh;if(cp)figB.dataset.cap=cp;
   fig.after(figB);
   stage.classList.add('is-fit-compare');stage.dataset.phase='comparing';
@@ -474,6 +566,8 @@ function mount(el,initial){
   const scene=document.createElement('div');scene.className='fit-scene';
   scene.innerHTML=`<div class="fit-backdrop" aria-hidden="true"><i class="fit-key"></i><i class="fit-rim"></i><i class="fit-horizon"></i></div>
    <div class="fit-figure" id="gbFitFigure">${figureSVG('fitA','Manequim GB vestindo o look selecionado')}</div>
+   <div class="fit-plat" aria-hidden="true"><i></i><b></b></div><div class="fit-turn" aria-hidden="true"></div>
+   <div class="fit-turnbar" role="group" aria-label="Girar o manequim"><button type="button" data-fit-turn="-1" aria-label="Girar para a esquerda" aria-pressed="false">◀</button><span class="fit-dial" role="slider" tabindex="0" aria-label="Giro do manequim" aria-valuemin="-45" aria-valuemax="45" aria-valuenow="0" aria-valuetext="FRENTE"><b>GIRAR</b></span><button type="button" data-fit-turn="0" aria-label="De frente" aria-pressed="true">●</button><button type="button" data-fit-turn="1" aria-label="Girar para a direita" aria-pressed="false">▶</button></div>
    <p class="fit-tag" aria-hidden="true"></p>
    <p class="fit-legal">SIMULAÇÃO EDITORIAL DE COMPOSIÇÃO · FOTOS REAIS DO ACERVO GB · NÃO É PROVADOR DE CAIMENTO</p>
    <div class="fit-compare" hidden><div class="fit-cmp-a"></div><div class="fit-cmp-b"></div><span class="fit-split-line" aria-hidden="true"><i>A | B</i></span><label class="fit-split"><span class="sr-only">Divisor entre o look A (atual) e o look B (salvo)</span><input type="range" min="8" max="92" value="50" step="1"></label></div>`;
@@ -486,10 +580,28 @@ function mount(el,initial){
   // arrastar o divisor diretamente sobre o palco (mouse e toque)
   if(M)M.drag(scene,{axis:'x',threshold:6,ignore:'button,input',
     onMove(dx,s){if(!stage.classList.contains('is-fit-compare'))return;const r=fig.getBoundingClientRect();const v=Math.max(8,Math.min(92,(s.lx-r.left)/r.width*100));range.value=String(Math.round(v));setSplit(v)}});
-  // primeira roupa sem animação; o palco "acorda" quando entra em cena
+  // giro: arrastar o corpo (mouse) ou a plataforma (toque), botões e setas do teclado; mola e encaixe em 3 poses
+  const turn=scene.querySelector('.fit-turn'),dial=scene.querySelector('.fit-dial');
+  const spring=M?new M.Spring(0,{k:170,z:.82}):null;let spinning=false;
+  const label=y=>{const d=dirOf(y);return d==='L'?'ESQUERDA':d==='R'?'DIREITA':'FRENTE'};
+  const sync=y=>{applyYaw(fig,y);scene.style.setProperty('--yaw',y.toFixed(3));scene.style.setProperty('--yawa',Math.abs(y).toFixed(3));if(dial){dial.setAttribute('aria-valuenow',String(Math.round(y*45)));dial.setAttribute('aria-valuetext',label(y))}
+    scene.querySelectorAll('[data-fit-turn]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.fitTurn===Math.round(y))))};
+  const loop=dt=>{const y=spring.step(Math.min(dt,.05));sync(y);if(spring.settled){spring.jump(spring.target);sync(spring.target);spinning=false;return false}};
+  const goTo=(t,impulse=0)=>{t=Math.max(-1,Math.min(1,t));if(!spring||reduced()){sync(t);return}spring.set(t,impulse);if(!spinning){spinning=true;M.Ticker.add(loop)}};
+  scene.querySelectorAll('[data-fit-turn]').forEach(b=>b.addEventListener('click',()=>goTo(+b.dataset.fitTurn)));
+  dial?.addEventListener('keydown',e=>{const k={ArrowLeft:-1,ArrowDown:-1,ArrowRight:1,ArrowUp:1}[e.key];if(k==null)return;e.preventDefault();goTo(Math.round(spring?spring.target:yaw)+k)});
+  const dragTurn=(el,mouseOnly)=>{if(!M||!el)return;let y0=0;M.drag(el,{axis:'x',threshold:6,ignore:'button,input,a',
+    onStart(st){if(stage.classList.contains('is-fit-compare')||mouseOnly&&st.pt!=='mouse'){st.skip=true;return}y0=spring?spring.x:yaw;spinning||(spring&&spring.jump(y0))},
+    onMove(dx,st){if(st.skip)return;const w=fig.getBoundingClientRect().width;const y=Math.max(-1.15,Math.min(1.15,y0+dx/(w*.55)));spring?.jump(y);sync(y)},
+    onEnd(v,st){if(st.skip)return;const y=spring?spring.x:yaw,t=Math.round(Math.max(-1,Math.min(1,y+v/2600)));goTo(t)}})};
+  dragTurn(turn,false);dragTurn(fig,true);
+  fig.addEventListener('fit:turn',e=>goTo(+e.detail));
+  sync(0);
+
   const t=byId(initial.topId),b=byId(initial.bottomId);
   state={topId:initial.topId,bottomId:initial.bottomId,shoeId:initial.shoeId&&CAT.shoe[initial.shoeId]?initial.shoeId:null,capId:initial.capId&&CAT.cap[initial.capId]?initial.capId:null};
   for(const part of['bottom','top','shoe','cap']){const p=byId(state[KEY[part]]);if(p&&CAT[part][p.id]){dress(part,p,{});preload(part,p.id);fig.dataset[part]=p.id}}
+  state.hood=!!initial.hood;fig.dataset.hood=state.hood&&CAT.top[state.topId]?.hood?'up':'down';
   swapLegs(0,false);
   if(t&&b)fig.querySelector('.fit-svg')?.setAttribute('aria-label',describe());
   stage.dataset.phase=reduced()?'reduced-motion':'entering';
@@ -505,5 +617,5 @@ function mount(el,initial){
 let awake=false;const later=[];
 function preloadSoon(part,id){if(awake)(window.requestIdleCallback||setTimeout)(()=>preload(part,id));else later.push([part,id])}
 const readyAll=()=>Promise.all([...ready.values()]);
-window.GBFitting={mount,set,compare,preload:preloadSoon,ready:readyAll,get state(){return{...state}},zones:B.zones,RIG:B,FIT,SHOE,CAP,catalog:CAT};
+window.GBFitting={mount,set,compare,turn:y=>fig&&fig.dispatchEvent(new CustomEvent('fit:turn',{detail:y})),get yaw(){return yaw},preload:preloadSoon,ready:readyAll,get state(){return{...state}},zones:B.zones,RIG:B,FIT,SHOE,CAP,catalog:CAT};
 })();
