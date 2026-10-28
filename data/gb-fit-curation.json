@@ -10,7 +10,8 @@
   "Gola (V17): 'collar' marca a abertura do pescoço olhando a foto, em fração da imagem — x/w = centro e meia-largura internas, yb = borda interna da gola de trás, yf = borda interna da gola da frente (ou o ponto do V / início do zíper). O pescoço do manequim cobre o forro e para na gola da frente.",
   "Tênis (V17): as fotos do acervo mostram o PAR de lado, um pé sobreposto. 'cut' é a linha (olhando a foto) que separa o pé da frente: do calcanhar, por cima do cano e dos cadarços, até a ponta e a sola; 'toe' diz para onde aponta a ponta (L/R); 'collar' é o centro da boca do tênis. O manequim calça esse pé real nos dois pés, apontando para o mesmo lado — a foto não é espelhada nem pintada.",
   "Boné (V17): vista 3/4 do acervo; 'crown' marca a copa (x0/x1 = largura na base, yb = base da copa, top = topo). O 025 fica fora: perfil puro não assenta numa cabeça de frente. O 077 é a segunda vista do 075 (duplicata).",
-  "Capuz (V18): 'hood' marca a abertura do capuz olhando a foto (x0/x1, top/bottom em fração da imagem). Só moletom com o capuz fotografado de frente, aberto; o s-098 fica fora (capuz de costas). Capuz na cabeça = o próprio capuz da foto, levantado por inteiro (escala única) e assentado em volta do capacete; o rosto aparece pela abertura. Exclui o boné."
+  "Capuz (V18): 'hood' marca a abertura do capuz olhando a foto (x0/x1, top/bottom em fração da imagem). Só moletom com o capuz fotografado de frente, aberto; o s-098 fica fora (capuz de costas). Capuz na cabeça = o próprio capuz da foto, levantado por inteiro (escala única) e assentado em volta do capacete; o rosto aparece pela abertura. Exclui o boné.",
+  "V19: s-001 (camiseta) sai do provador — a foto corta a manga direita na borda; vestir exigiria espelhar a outra manga."
  ],
  "pieces": [
   {
@@ -189,18 +190,6 @@
     "component": "lower"
    },
    "kind": "shorts"
-  },
-  {
-   "product": "gb-crt-s-001",
-   "part": "top",
-   "src": "001",
-   "kind": "tee",
-   "collar": {
-    "x": 0.525,
-    "w": 0.095,
-    "yb": 0.03,
-    "yf": 0.09
-   }
   },
   {
    "product": "gb-crt-s-002",

@@ -84,7 +84,7 @@ function drag(el,{axis='x',threshold=8,onStart,onMove,onEnd,ignore}={}){
   };
   const up=e=>{if(!s||(e&&e.pointerId!==s.id))return;const st=s;s=null;el.classList.remove('is-dragging');if(st.active){onEnd?.(st.v,st,e&&e.type==='pointercancel');setTimeout(()=>{suppress=false},60)}};
   el.addEventListener('pointerdown',down);el.addEventListener('pointermove',move,{passive:true});
-  el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);el.addEventListener('lostpointercapture',up);
+  el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);el.addEventListener('lostpointercapture',e=>{if(e.target===el)up(e)});   // a captura implícita do toque num filho não encerra o arrasto
   // clique logo após arrasto não abre nada
   el.addEventListener('click',e=>{if(suppress){e.preventDefault();e.stopImmediatePropagation()}},true);
   return{get dragging(){return!!s?.active},destroy(){el.removeEventListener('pointerdown',down);el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up)}};

@@ -457,6 +457,34 @@ async function run(w,h,reduced=false){
     v18.left.sc[0]===v18.left.sc[1]&&v18.right.sc[0]===v18.right.sc[1]&&v18.left.sc[0]===-v18.right.sc[0]&&Math.sign(v18.front[0])===-Math.sign(v18.front[1])&&Math.abs(v18.front[0])<1,JSON.stringify(v18));
   check(vp,'fit V18: capuz na cabeça (moletom com capuz) tira o boné; escolher boné baixa o capuz',v18.hood.enabled&&v18.hood.state===true&&v18.hood.attr==='up'&&v18.hood.front===1&&v18.hood.capHidden&&v18.capBack.hood===false&&v18.capBack.attr==='down'&&!!v18.capBack.cap,JSON.stringify(v18.hood)+JSON.stringify(v18.capBack));
   check(vp,'fit V18: a peça é arremessada do seletor e a hélice de DNA varre o corpo',v18.top&&v18.helix&&(reduced?!v18.fly:v18.fly),JSON.stringify({fly:v18.fly,helix:v18.helix,top:v18.top}));
+  // V19: skin da arte do GB UNIT, emotes, arrastar o boneco gira, setas das fileiras
+  const v19=await page.evaluate(async([red])=>{const wait=ms=>new Promise(r=>setTimeout(r,ms)),f=document.querySelector('#gbFitFigure');
+    const imgs=[...f.querySelectorAll('.fit-head image,.fit-layer-arms image,.fit-layer-legs image')].map(i=>i.getAttribute('href'));
+    const skin=imgs.filter(h=>/assets\/fit\/skin\//.test(h)).length,mono=!!f.querySelector('.fit-head image[href*="gb-monograma"]');
+    const ok=(await Promise.all([...new Set(imgs.filter(h=>/skin/.test(h)))].map(h=>{const i=new Image();i.src=h;return i.decode().then(()=>i.naturalWidth>0,()=>false)}))).every(Boolean);
+    const started=GBFitting.emote('dance',{bpm:240,beats:4});await wait(60);
+    const moving=[...f.querySelectorAll('[data-j]')].filter(el=>el.getAnimations().length).length,body=f.querySelector('.fit-emote').getAnimations().length;
+    await wait(1300);const done=!f.dataset.emote&&f.querySelector('.fit-emote').getAnimations().length===0;
+    const step=document.querySelector('#lookTops').closest('.look-step'),next=step.querySelector('.look-row-next'),row=step.querySelector('.look-options');row.scrollLeft=0;await wait(50);
+    const s0=row.scrollLeft;next?.click();await wait(700);const s1=row.scrollLeft;
+    return{skin,mono,ok,started,moving,body,done,arrows:!!next,s0,s1}},[reduced]);
+  check(vp,'fit V19: robô = peças da arte do GB UNIT (cabeça, braços, pernas) + monograma oficial',v19.skin>=6&&v19.mono&&v19.ok,JSON.stringify(v19));
+  if(!reduced)check(vp,'fit V19: emote DANÇAR anima juntas e corpo e termina sozinho',v19.started&&v19.moving>=3&&v19.body===1&&v19.done,JSON.stringify(v19));
+  else check(vp,'fit V19: movimento reduzido não roda emote',v19.started===false,JSON.stringify(v19));
+  check(vp,'fit V19: seta › da fileira de peças rola a lista',v19.arrows&&v19.s1>v19.s0,JSON.stringify(v19));
+  if(!reduced&&!mobile){const fb=await page.locator('#gbFitFigure').boundingBox();const y0=await page.evaluate(()=>GBFitting.yaw);
+    await page.mouse.move(fb.x+fb.width*.5,fb.y+fb.height*.45);await page.mouse.down();await page.mouse.move(fb.x+fb.width*.62,fb.y+fb.height*.45,{steps:4});await page.mouse.move(fb.x+fb.width*.95,fb.y+fb.height*.45,{steps:6});await page.mouse.up();
+    await page.waitForTimeout(1300);const y1=await page.evaluate(()=>GBFitting.yaw);
+    check(vp,'fit V19: arrastar o próprio boneco gira (mouse)',Math.abs(y0)<.02&&Math.abs(y1-1)<.02,JSON.stringify({y0,y1}));
+    await page.evaluate(()=>GBFitting.turn(0));await page.waitForTimeout(1200)}
+  if(!reduced&&mobile){const c=await page.context().newCDPSession(page),fb=await page.locator('#gbFitFigure').boundingBox(),x0=fb.x+fb.width*.45,y=fb.y+fb.height*.5;
+    const before=await page.evaluate(()=>({yaw:GBFitting.yaw,top:GBFitting.state.topId,sy:scrollY}));
+    const tp=(type,x)=>c.send('Input.dispatchTouchEvent',{type,touchPoints:type==='touchEnd'?[]:[{x,y}]});
+    await tp('touchStart',x0);for(let i=1;i<=10;i++){await tp('touchMove',x0-i*16);await page.waitForTimeout(16)}
+    const mid=await page.evaluate(()=>GBFitting.yaw);await tp('touchEnd');await page.waitForTimeout(1300);
+    const after=await page.evaluate(()=>({yaw:GBFitting.yaw,top:GBFitting.state.topId,sy:scrollY}));
+    check(vp,'fit V19: arrastar o boneco com o dedo gira e acompanha o toque (sem rolar a página nem trocar peça)',mid<-.5&&Math.abs(after.yaw+1)<.02&&after.top===before.top&&Math.abs(after.sy-before.sy)<2,JSON.stringify({before,mid,after}));
+    await page.evaluate(()=>GBFitting.turn(0));await page.waitForTimeout(1200);await c.detach()}
   // kit: com metade de um kit escolhida, um toque veste o kit completo (superior e inferior do MESMO produto)
   const kit=await page.evaluate(async([t0,b0])=>{const C=window.GB_FIT_CATALOG,kid=Object.keys(C.top).find(k=>C.bottom[k]),other=Object.keys(C.bottom).find(k=>!C.top[k]);
     const wait=ms=>new Promise(r=>setTimeout(r,ms)),opt=(m,id)=>document.querySelector(`${m==='top'?'#lookTops':'#lookBottoms'} [data-look-id="${id}"]`);

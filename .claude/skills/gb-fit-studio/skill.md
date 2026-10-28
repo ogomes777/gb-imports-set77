@@ -4,7 +4,7 @@ description: Implementar o Look Studio da GB Imports com personagem persistente 
 ---
 
 # GB FIT STUDIO
-Leia `docs/FIT_V18_JOGO.md` (estado atual), `docs/FIT_V17_GB_UNIT.md`, `docs/FIT_REAL_V16.md` e `docs/GB_FIT_STUDIO_V09_EXECUTION.md` (contrato e coreografia de origem).
+Leia `docs/FIT_V19_SKIN.md` (estado atual), `docs/FIT_V18_JOGO.md`, `docs/FIT_V17_GB_UNIT.md`, `docs/FIT_REAL_V16.md` e `docs/GB_FIT_STUDIO_V09_EXECUTION.md` (contrato e coreografia de origem).
 
 ## V16 / FIT REAL
 - O manequim veste só peças reais: `data/gb-fit-curation.json` → `python3 scripts/gerar_fit_v16.py --qa <pasta>` → `assets/fit/` + `fit-catalog.js` (gerado, nunca à mão).
@@ -35,3 +35,8 @@ Dois SVGs flutuando com um boneco desenhado atrás, sem encaixe anatômico. Falh
 - Capuz: só peça com `hood` marcado olhando a foto; capuz e boné se excluem.
 - Toda troca: ícone voa do seletor, hélice varre, peça assenta; movimento reduzido desliga voo e hélice.
 - Palco claro (ORIGEM) e escuro (SINAL) sempre conferidos juntos; mobile em 390 e 320.
+
+## V19 / skin
+- O manequim é a arte aprovada (`assets/characters/gb-unit-ref.webp`) recortada em ossos; nunca voltar ao robô vetorial nem redesenhar a arte. Ajuste de junta = coordenada em `scripts/gerar_skin_v19.py`, olhando a imagem com régua.
+- Emotes só giram juntas `[data-j]` e o `.fit-emote`; manga curta gira no mesmo pivô do ombro.
+- Arrastar o boneco gira (toque e mouse); conferir no celular com toque real (CDP) a cada mudança de gesto.
