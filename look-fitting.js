@@ -653,8 +653,8 @@ function emote(name,{bpm=112,beats=8}={}){
     const T=1470,isShort=['tee','polo','jersey'].includes(CAT.top[state.topId]?.kind);
     fig.dataset.salveMode=isShort?'full':'soft';
     run(body,[{transform:'none'},{transform:'rotate(-.6deg)',offset:.25},{transform:'rotate(-.6deg)',offset:.7},{transform:'none'}],{duration:T});
-    if(isShort)run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(86deg)',offset:.15},{transform:'rotate(110deg)',offset:.25},{transform:'rotate(110deg)',offset:.74},{transform:'rotate(0deg)'}],{duration:T});
-    if(isShort)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(105deg)',offset:.17},{transform:'rotate(145deg)',offset:.27},{transform:'rotate(145deg)',offset:.72},{transform:'rotate(0deg)'}],{duration:T});
+    if(isShort)run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(86deg)',offset:.15},{transform:'rotate(120deg)',offset:.25},{transform:'rotate(120deg)',offset:.74},{transform:'rotate(0deg)'}],{duration:T});
+    if(isShort)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(105deg)',offset:.17},{transform:'rotate(165deg)',offset:.27},{transform:'rotate(165deg)',offset:.72},{transform:'rotate(0deg)'}],{duration:T});
     run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-7deg)',offset:.36},{transform:'rotate(5deg)',offset:.55},{transform:'rotate(0deg)'}],{duration:T});
     run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-9deg)',offset:.42},{transform:'rotate(0deg)'}],{duration:T});
   }else if(name==='jump'){
