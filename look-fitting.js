@@ -714,11 +714,17 @@ function emote(name,{bpm=138,beats=8}={}){
     const sign=fig.querySelector('.fit-peace-sign');
     if(sign)sign.setAttribute('transform','rotate('+(isLong?-60:isShort?-40:120)+') scale(.48) translate(0 -85)');
     run(body,[{transform:'none'},{transform:'rotate(-.6deg)',offset:.25},{transform:'rotate(-.6deg)',offset:.7},{transform:'none'}],{duration:T});
-    if(isShort)run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-100deg)',offset:.18},{transform:'rotate(-170deg)',offset:.31},{transform:'rotate(-170deg)',offset:.70},{transform:'rotate(0deg)'}],{duration:T});
-    if(isLong)run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-80deg)',offset:.16},{transform:'rotate(-155deg)',offset:.29},{transform:'rotate(-155deg)',offset:.74},{transform:'rotate(0deg)'}],{duration:T});
-    if(isShort)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(0deg)',offset:.20},{transform:'rotate(-140deg)',offset:.43},{transform:'rotate(-140deg)',offset:.68},{transform:'rotate(0deg)'}],{duration:T});
-    if(isLong)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(0deg)',offset:.22},{transform:'rotate(-155deg)',offset:.43},{transform:'rotate(-155deg)',offset:.71},{transform:'rotate(0deg)'}],{duration:T});
+    if(isShort)run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-100deg)',offset:.18},{transform:'rotate(-170deg)',offset:.31},{transform:'rotate(-170deg)',offset:.85},{transform:'rotate(0deg)'}],{duration:T});
+    if(isLong)run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-80deg)',offset:.16},{transform:'rotate(-155deg)',offset:.29},{transform:'rotate(-155deg)',offset:.86},{transform:'rotate(0deg)'}],{duration:T});
+    if(isShort)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(0deg)',offset:.20},{transform:'rotate(-140deg)',offset:.43},{transform:'rotate(-140deg)',offset:.77},{transform:'rotate(-52deg)',offset:.88},{transform:'rotate(0deg)'}],{duration:T});
+    if(isLong)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(0deg)',offset:.22},{transform:'rotate(-155deg)',offset:.43},{transform:'rotate(-155deg)',offset:.78},{transform:'rotate(-52deg)',offset:.90},{transform:'rotate(0deg)'}],{duration:T});
     run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-7deg)',offset:.36},{transform:'rotate(5deg)',offset:.55},{transform:'rotate(0deg)'}],{duration:T});
+    if(isShort||isLong){
+      // Primeiro abre, depois dobra; a luva dá lugar ao V somente ao completar o cumprimento.
+      const glove=fig.querySelector('[data-j="wrR"] > .fit-bone-art');
+      run([glove],[{opacity:1},{opacity:1,offset:.30},{opacity:0,offset:.47},{opacity:0,offset:.78},{opacity:1,offset:.95},{opacity:1}],{duration:T});
+      run([sign],[{opacity:0},{opacity:0,offset:.30},{opacity:1,offset:.47},{opacity:1,offset:.78},{opacity:0,offset:.95},{opacity:0}],{duration:T});
+    }
     run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-9deg)',offset:.42},{transform:'rotate(0deg)'}],{duration:T});
   }else if(name==='jump'){
     const T=1100;
