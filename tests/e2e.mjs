@@ -478,44 +478,63 @@ async function run(w,h,reduced=false){
   if(!reduced)check(vp,'fit V1.3: passinho dança continuamente e segundo clique interrompe',v19.started&&v19.moving>=3&&v19.body===1&&v19.continuous&&v19.stopped&&v19.done&&v19.reset,JSON.stringify(v19));
   else check(vp,'fit V19: movimento reduzido não roda emote',v19.started===false,JSON.stringify(v19));
   check(vp,'fit V19: seta › da fileira de peças rola a lista',v19.arrows&&v19.s1>v19.s0,JSON.stringify(v19));
-  // V1.8: três contatos reais em cada pé, amostragem contínua/sem tranco.
+  // V1.9: referência do VÍDEO enviado, braços diagonais, agachamento e avanço.
   if(!reduced){
-    const jamal=await page.evaluate(async()=>{
+    const videoDance=await page.evaluate(async()=>{
       const sleep=t=>new Promise(r=>setTimeout(r,t)),old={...GBFitting.state};
       GBFitting.set({topId:'gb-crt-003',bottomId:'gb-crt-001',shoeId:'gb-crt-s-052',hood:false,capId:null},{silent:true});
-      await sleep(1550);GBFitting.emote('dance');await sleep(150);
-      const f=document.querySelector('#gbFitFigure'),feet=[...f.querySelectorAll('.fit-layer-shoe .fit-foot')];
-      const tracks=feet.map(el=>({origin:el.style.transformOrigin,
-        frames:el.getAnimations()[0]?.effect.getKeyframes()||[]}));
-      const angle=k=>{
-        const m=(k.transform||'').match(/rotate\((-?\d+(?:\.\d+)?)deg\)/);
-        return m?Math.abs(Number(m[1])):0;
+      await sleep(1450);
+      GBFitting.emote('dance');await sleep(130);
+      const f=document.querySelector('#gbFitFigure'),body=f.querySelector('.fit-emote'),
+        k=body.getAnimations()[0]?.effect.getKeyframes()||[],
+        arms=['shL','shR'].map(j=>f.querySelector('[data-j="'+j+'"]')?.getAnimations()[0]?.effect.getKeyframes()||[]);
+      const scales=k.map(p=>Number(p.transform?.match(/scaleY\(([\d.]+)\)/)?.[1]||1));
+      const shRange=frames=>frames.reduce((acc,p)=>{
+        const deg=Number(p.transform?.match(/rotate\(([-\d.]+)deg\)/)?.[1]||0);
+        return[Math.min(acc[0],deg),Math.max(acc[1],deg)];
+      },[0,0]);
+      const result={
+        duration:body.getAnimations()[0]?.effect.getTiming().duration,
+        continuous:body.getAnimations()[0]?.effect.getTiming().iterations===Infinity,
+        minScale:Math.min(...scales),maxScale:Math.max(...scales),
+        leftRange:shRange(arms[0]),rightRange:shRange(arms[1]),
+        frameCount:k.length,closed:k[0]?.transform===k.at(-1)?.transform,
+        eyes:f.querySelectorAll('.fit-eye').length,
+        lids:f.querySelectorAll('.fit-eye-lid').length,
+        sourceIntact:f.querySelector('.fit-long-rest image')?.getAttribute('clip-path')===null,
+        bottomIntact:!!f.querySelector('.fit-layer-bottom .fit-garment image')&&
+          !f.querySelector('.fit-layer-bottom .fit-garment clipPath')
       };
-      const localPeaks=frames=>{const values=frames.map(angle);let peaks=0;
-        for(let i=1;i<values.length-1;i++)
-          if(values[i]>8&&values[i]>values[i-1]&&values[i]>=values[i+1])peaks++;
-        return peaks;
-      };
-      const continuous=f.querySelector('.fit-emote').getAnimations().some(a=>a.effect.getTiming().iterations===Infinity);
-      const result={hoodie:f.dataset.articulated==='on',continuous,
-        tracks:tracks.map(x=>({origin:x.origin,frames:x.frames.length,
-          seam:x.frames[0]?.transform===x.frames[x.frames.length-1]?.transform,
-          linear:x.frames.every(f=>f.easing==='linear'),
-          // A calça permanece íntegra: sneaker collar não pode subir da bainha.
-          collarFixed:x.frames.every(k=>{
-            const y=(k.transform||'').match(/translate\([^,]+,\s*(-?\d+(?:\.\d+)?)px\)/);
-            return !y||Math.abs(Number(y[1]))<.05;
-          }),
-          peaks:localPeaks(x.frames)}))};
       GBFitting.emote('dance');await sleep(80);
-      result.restored=f.dataset.articulated!=='on';
-      GBFitting.set(old,{silent:true});await sleep(1150);
+      result.restored=GBFitting.emoting===null;
+      GBFitting.set(old,{silent:true});await sleep(1100);
       return result;
     });
-    check(vp,'GB V1.8: passinho fluido, três contatos por pé, fechamento perfeito e manga inteira',
-      jamal.hoodie&&jamal.continuous&&jamal.tracks.length===2&&
-      jamal.tracks.every(t=>t.frames>=65&&t.origin.includes('px')&&t.seam&&t.linear&&t.collarFixed&&t.peaks===3)&&
-      jamal.restored,JSON.stringify(jamal));
+    check(vp,'GB V1.9: video de referência, agachamento, braço cruza rosto e loop contínuo',
+      videoDance.duration===5300&&videoDance.continuous&&videoDance.frameCount>=81&&
+      videoDance.minScale<.94&&videoDance.maxScale>.975&&videoDance.closed&&
+      videoDance.rightRange[0]<-37&&videoDance.leftRange[1]>20&&
+      videoDance.eyes===2&&videoDance.lids===2&&
+      videoDance.sourceIntact&&videoDance.bottomIntact&&videoDance.restored,JSON.stringify(videoDance));
+    const attention=await page.evaluate(async()=>{
+      const scene=document.querySelector('#lookstudio .fit-scene')||
+        document.querySelector('#lookstudio .look-stage'),r=scene.getBoundingClientRect(),
+        sleep=t=>new Promise(res=>setTimeout(res,t));
+      scene.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerType:'mouse',
+        clientX:r.right-20,clientY:r.top+20,buttons:0}));
+      await sleep(280);
+      const vars={
+        head:scene.style.getPropertyValue('--gb-head-turn'),
+        eye:scene.style.getPropertyValue('--gb-eye-x'),
+        body:scene.style.getPropertyValue('--gb-body-shift'),
+        gaze:scene.style.getPropertyValue('--gb-look-x')
+      };
+      scene.dispatchEvent(new PointerEvent('pointerleave',{bubbles:false,pointerType:'mouse'}));
+      return vars;
+    });
+    check(vp,'GB V1.9: olhos e cabeça rastreiam o cursor sem alterar a roupa',
+      Math.abs(parseFloat(attention.gaze))>.3&&Math.abs(parseFloat(attention.eye))>1&&
+      Math.abs(parseFloat(attention.head))>.3,JSON.stringify(attention));
   }
   // V20: escala real dos tênis, rig com capuz medido, painel premium com cinco emotes.
   const v20=await page.evaluate(()=>{const f=document.querySelector('#gbFitFigure'),dock=document.querySelector('#lookstudio .fit-emotes');
