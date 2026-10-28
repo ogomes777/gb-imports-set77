@@ -769,8 +769,6 @@ function emote(name,{bpm=176,beats=8}={}){
       offset:t,...fn(pose(t-delay),t),easing:'linear'
     }));
     const pants=CAT.bottom[state.bottomId]?.kind==='pants';
-    const top=CAT.top[state.topId];
-    const isHood=isLongSleeve(top);
     run(body,frames(p=>({
       transform:`translate(${p.travel.toFixed(2)}px,${(p.compress*2.4-.045*(p.left+p.right)).toFixed(2)}px) rotate(${(p.hip*.85).toFixed(2)}deg)`
     })),{duration:T});
