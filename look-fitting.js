@@ -245,7 +245,7 @@ function articulatedLongSleeves(e,pl,pfx,pid){
   return{defs:'<defs>'+defs.join('')+'</defs>',torsoId,sleeves:parts.join('')};
 }
 
-const isLongSleeve=e=>!e.rig&&e.sleeves?.l?.type==='long'&&e.sleeves?.r?.type==='long';
+const isLongSleeve=e=>!!e&&!e.rig&&e.sleeves?.l?.type==='long'&&e.sleeves?.r?.type==='long';
 function armsSVG(e,pl,pfx,sp){
   const out=[];
   if(e.rig){for(const k of['l','r'])if(sp[k])out.push(shortArm(sp[k]))}
@@ -708,13 +708,16 @@ function emote(name,{bpm=138,beats=8}={}){
   }else if(name==='salute'){
     setArmForeground(true);
     // Salve curto: braço direito na altura da cabeça, a mão saúda e volta.
-    const T=1470,isShort=['tee','polo','jersey'].includes(CAT.top[state.topId]?.kind),isLong=isLongSleeve(CAT.top[state.topId]);
+    const T=1330,isShort=['tee','polo','jersey'].includes(CAT.top[state.topId]?.kind),isLong=isLongSleeve(CAT.top[state.topId]);
     fig.dataset.salveMode=isShort||isLong?'full':'soft';
+    // O pivô da mão é do punho: a orientação correta é específica de cada rig.
+    const sign=fig.querySelector('.fit-peace-sign');
+    if(sign)sign.setAttribute('transform','rotate('+(isLong?-60:isShort?-40:120)+') scale(.48) translate(0 -85)');
     run(body,[{transform:'none'},{transform:'rotate(-.6deg)',offset:.25},{transform:'rotate(-.6deg)',offset:.7},{transform:'none'}],{duration:T});
-    if(isShort)run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(86deg)',offset:.15},{transform:'rotate(120deg)',offset:.25},{transform:'rotate(120deg)',offset:.74},{transform:'rotate(0deg)'}],{duration:T});
+    if(isShort)run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-100deg)',offset:.18},{transform:'rotate(-170deg)',offset:.31},{transform:'rotate(-170deg)',offset:.70},{transform:'rotate(0deg)'}],{duration:T});
     if(isLong)run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-80deg)',offset:.16},{transform:'rotate(-155deg)',offset:.29},{transform:'rotate(-155deg)',offset:.74},{transform:'rotate(0deg)'}],{duration:T});
-    if(isShort)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(105deg)',offset:.17},{transform:'rotate(165deg)',offset:.27},{transform:'rotate(165deg)',offset:.72},{transform:'rotate(0deg)'}],{duration:T});
-    if(isLong)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(-65deg)',offset:.18},{transform:'rotate(-155deg)',offset:.30},{transform:'rotate(-155deg)',offset:.71},{transform:'rotate(0deg)'}],{duration:T});
+    if(isShort)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(0deg)',offset:.20},{transform:'rotate(-140deg)',offset:.43},{transform:'rotate(-140deg)',offset:.68},{transform:'rotate(0deg)'}],{duration:T});
+    if(isLong)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(0deg)',offset:.22},{transform:'rotate(-155deg)',offset:.43},{transform:'rotate(-155deg)',offset:.71},{transform:'rotate(0deg)'}],{duration:T});
     run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-7deg)',offset:.36},{transform:'rotate(5deg)',offset:.55},{transform:'rotate(0deg)'}],{duration:T});
     run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-9deg)',offset:.42},{transform:'rotate(0deg)'}],{duration:T});
   }else if(name==='jump'){
