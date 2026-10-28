@@ -649,7 +649,15 @@ function setSplit(v){stage?.style.setProperty('--split',String(v))}
 /* ============================== EMOTES (prontos para a música: bpm) ==============================
    Só transform via WAAPI nas juntas da skin (ombro = mesmo pivô da manga curta, cotovelo, punho, cabeça) e no corpo
    inteiro (.fit-emote, pivô nos pés). Mangas longas não dobram (a foto é a peça): aí dançam o corpo, a cabeça e as mãos. */
-let spin=()=>{},turnStart=null,emoteAnims=[],emoteName=null,spinAnim=null;
+let spin=()=>{},turnStart=null,emoteAnims=[],emoteName=null,spinAnim=null,danceVisible=true;
+function syncDancePlayback(){
+  if(emoteName!=='dance')return;
+  const play=danceVisible&&!document.hidden;
+  for(const a of emoteAnims){
+    if(play&&a.playState==='paused')a.play();
+    else if(!play&&a.playState==='running')a.pause();
+  }
+}
 // Cancelar um emote também limpa suas juntas e impede que uma animação antiga
 // termine por cima de uma nova roupa ou outro gesto.
 function setGestureState(name){
@@ -752,6 +760,7 @@ function emote(name,{bpm=176,beats=8}={}){
     for(const s of[-1,1]){const k=s<0?'L':'R';run(q('sh'+k),[{transform:'rotate(0deg)'},{transform:`rotate(${s*12}deg)`,offset:.18},{transform:`rotate(${-s*70}deg)`,offset:.46},{transform:'rotate(0deg)',offset:.75},{transform:'rotate(0deg)'}],{duration:T})}
   }else return false;
   emoteName=name;fig.dataset.emote=name;setGestureState(name);
+  if(name==='dance')syncDancePlayback();
   if(name!=='dance')Promise.all(emoteAnims.map(a=>a.finished)).then(()=>{
     if(emoteName===name){stopEmote()}
   }).catch(()=>{});
@@ -799,6 +808,16 @@ function mount(el,initial){
    <div class="fit-compare" hidden><div class="fit-cmp-a"></div><div class="fit-cmp-b"></div><span class="fit-split-line" aria-hidden="true"><i>A | B</i></span><label class="fit-split"><span class="sr-only">Divisor entre o look A (atual) e o look B (salvo)</span><input type="range" min="8" max="92" value="50" step="1"></label></div>`;
   stage.prepend(scene);
   fig=scene.querySelector('.fit-figure');
+  // O loop permanece selecionado, mas pausa quando o palco sai da viewport
+  // ou a aba fica oculta; retorna no mesmo compasso quando reaparece.
+  if(typeof IntersectionObserver!=='undefined'){
+    new IntersectionObserver(entries=>{
+      danceVisible=entries.some(e=>e.isIntersecting);
+      syncDancePlayback();
+    },{rootMargin:'80px'}).observe(fig);
+  }
+  document.addEventListener('visibilitychange',syncDancePlayback);
+
   // áreas de encaixe acompanham o corpo (soltar peça / feedback de encaixe)
   stage.querySelectorAll('.look-dock').forEach(d=>fig.appendChild(d));
   const range=scene.querySelector('.fit-split input');
