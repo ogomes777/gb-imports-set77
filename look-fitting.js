@@ -784,7 +784,12 @@ function emote(name,{bpm=176,beats=8}={}){
     const long=isLongSleeve(CAT.top[state.topId]);
     const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
     // Crouch gira/abaixa o corpo em torno dos pés, para não flutuar no ar.
-    run(body,frames(p=>({transform:`translateX(${p[1].toFixed(2)}px) translateY(0px) rotate(${p[3].toFixed(2)}deg) scaleY(${(1-clamp(p[2],0,.25)*.48).toFixed(4)})`})),{duration:T});
+    run(body,frames((p,t)=>{
+      // Aproximação de câmera no fim do vídeo, volta ao valor 1 no loop.
+      const approach=t<.72||t>.985?0:Math.sin(Math.PI*(t-.72)/(.985-.72))**2;
+      const depth=1+approach*.036;
+      return{transform:`translateX(${p[1].toFixed(2)}px) translateY(0px) rotate(${p[3].toFixed(2)}deg) scale(${depth.toFixed(4)}) scaleY(${(1-clamp(p[2],0,.25)*.48).toFixed(4)})`};
+    }),{duration:T});
     run(q('head'),frames(p=>({transform:`rotate(${p[4].toFixed(2)}deg)`}),.006),{duration:T});
     run([fig.querySelector('.fit-layer-bottom')],frames(p=>({
       transform:`rotate(${(p[13]*.24).toFixed(2)}deg) translateX(${(p[13]*.65).toFixed(2)}px)`
