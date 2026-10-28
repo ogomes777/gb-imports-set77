@@ -434,7 +434,8 @@ body[data-gb-theme="sinal"] #lookstudio .look-tools>span{color:#bbb4a5}
 #lookstudio .fit-dial:focus-visible{outline:2px solid #ffe186;outline-offset:4px}
 body[data-gb-theme] #lookstudio :is(.look-controls,.look-stage){transition:background-color .3s ease,color .3s ease,border-color .3s ease}
 @media(max-width:780px){
- #lookstudio #lookSave{min-height:54px;padding:9px 12px!important;font-size:9px;border-radius:14px!important;gap:9px}
+ #lookstudio #lookSave{min-height:62px;padding:9px 12px!important;font-size:9px;border-radius:14px!important;gap:9px}
+ #lookstudio #lookSave .look-cta-label{font-size:8.5px;letter-spacing:.55px;line-height:1.45;white-space:normal;overflow:visible;overflow-wrap:normal;max-width:100%}
  #lookstudio #lookSave .look-cta-mark{width:29px;height:29px;padding:6px}
  #lookstudio #lookSave .look-cta-arrow{width:29px;height:29px;font-size:16px}
  #lookstudio .look-tools{grid-template-columns:1fr;margin-top:9px}
