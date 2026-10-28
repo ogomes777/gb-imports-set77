@@ -766,7 +766,7 @@ function emote(name,{bpm=176,beats=8}={}){
       // Giro em torno da BOCA do tênis: sem separar o pé da calça.
       const shoeKeys=frames(s=>{
         const active=s.side===side,hit=active&&s.tap!==0;
-        const angle=active?(s.tap===2?-7:7)*side:(s.w*-1.8)*side;
+        const angle=active?(s.tap===0?0:(s.tap===2?-8:8))*side:(s.w*-1.8)*side;
         const shift=side*shoeOffset+s.w*2+(active?s.up*.4*side:0);
         return {transform:`translate(${shift.toFixed(2)}px,${hit?(-s.up*.63).toFixed(2):0}px) rotate(${angle.toFixed(2)}deg)`};
       });
