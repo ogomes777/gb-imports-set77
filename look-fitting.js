@@ -132,7 +132,7 @@ function bone(k,sw,sl,j,kids='',cls=''){
   const e=SK[k],R=90-angOf(e.b[0]-e.a[0],e.b[1]-e.a[1]),L=e.len*sl;
   // Paz e amor: mão direita com dois dedos abertos em V, articulada no punho.
   // A luva original é ocultada apenas durante o SALVE.
-  const peace=j==='wrR'? `<g class="fit-peace-sign" aria-hidden="true" transform="translate(-8 10) rotate(90) scale(.65)">
+  const peace=j==='wrR'? `<g class="fit-peace-sign" aria-hidden="true" transform="rotate(-90) scale(.48) translate(0 -85)">
     <path d="M-16 88Q-26 78-25 60L-38 34Q-44 21-35 17Q-27 13-21 25L-13 41-18-37Q-19-53-9-55Q1-55 3-40L7 22 18-40Q21-56 31-53Q40-50 35-36L24 25 34 19Q44 10 49 20Q52 27 44 40L33 62Q32 79 20 89Z" fill="#11141a" stroke="#c39b1e" stroke-width="4" stroke-linejoin="round"/>
     <path d="M-8 36L2 64 17 38M-12 71Q8 81 23 69" stroke="#ffd447" stroke-width="3.2" stroke-linecap="round" fill="none"/>
     <path d="M-9-36L-5 12M29-36L18 14" stroke="#fff1a8" stroke-width="3" stroke-linecap="round"/>
@@ -649,9 +649,9 @@ function emote(name,{bpm=112,beats=8}={}){
   }else if(name==='salute'){
     // Salve curto: braço direito na altura da cabeça, a mão saúda e volta.
     const T=1550;
-    run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-135deg)',offset:.24},{transform:'rotate(-135deg)',offset:.75},{transform:'rotate(0deg)'}],{duration:T});
+    run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-155deg)',offset:.24},{transform:'rotate(-155deg)',offset:.75},{transform:'rotate(0deg)'}],{duration:T});
     run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(-110deg)',offset:.25},{transform:'rotate(-110deg)',offset:.73},{transform:'rotate(0deg)'}],{duration:T});
-    run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-20deg)',offset:.36},{transform:'rotate(16deg)',offset:.55},{transform:'rotate(0deg)'}],{duration:T});
+    run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-7deg)',offset:.36},{transform:'rotate(5deg)',offset:.55},{transform:'rotate(0deg)'}],{duration:T});
     run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-9deg)',offset:.42},{transform:'rotate(0deg)'}],{duration:T});
   }else if(name==='jump'){
     const T=1100;
