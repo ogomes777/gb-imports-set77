@@ -992,6 +992,10 @@ function mount(el,initial){
       tick=0;reactX+=(targetX-reactX)*.23;reactY+=(targetY-reactY)*.23;
       scene.style.setProperty('--gb-look-x',reactX.toFixed(3));
       scene.style.setProperty('--gb-look-y',reactY.toFixed(3));
+      scene.style.setProperty('--gb-body-shift',(reactX*2.8).toFixed(2)+'px');
+      scene.style.setProperty('--gb-body-turn',(reactX*1.35).toFixed(2)+'deg');
+      scene.style.setProperty('--gb-head-turn',(reactX*2.6).toFixed(2)+'deg');
+      scene.style.setProperty('--gb-head-lift',(reactY*2.7).toFixed(2)+'px');
       scene.style.setProperty('--gb-eye-x',(reactX*5.5).toFixed(2)+'px');
       scene.style.setProperty('--gb-eye-y',(reactY*3.5).toFixed(2)+'px');
       if(Math.abs(targetX-reactX)+Math.abs(targetY-reactY)>.008)tick=requestAnimationFrame(render);
