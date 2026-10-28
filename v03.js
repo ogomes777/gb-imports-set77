@@ -100,7 +100,7 @@ function renderSummary(){
  one('#lookSummary').textContent=(isKit(top.id)?pieceName(top,'top'):top.name+' (superior)')+'  +  '+(isKit(bottom.id)?pieceName(bottom,'bottom'):bottom.name+' (inferior)')+(shoe?'  +  '+shoe.name:'')+(cap?'  +  '+cap.name:'')+(hoodUp&&hasHood(top.id)?'  ·  capuz na cabeça':'');
  // kit pela metade: um toque veste a outra parte do MESMO produto
  const kit=isKit(top.id)&&top.id!==bottom.id?top.id:isKit(bottom.id)&&bottom.id!==top.id?bottom.id:null;
- const links=one('#lookSources');if(links)links.innerHTML=`<button type="button" data-look-open="${top.id}">VER SUPERIOR ↗</button><button type="button" data-look-open="${bottom.id}">VER INFERIOR ↗</button>`+(shoe?`<button type="button" data-look-open="${shoe.id}">VER TÊNIS ↗</button>`:'')+(cap?`<button type="button" data-look-open="${cap.id}">VER BONÉ ↗</button>`:'')+(kit?`<button type="button" class="look-kit" data-look-kit="${kit}">VESTIR O KIT COMPLETO</button>`:'');
+ const links=one('#lookSources');if(links)links.innerHTML=`<button type="button" data-look-open="${top.id}">VER SUPERIOR ↗</button><button type="button" data-look-open="${bottom.id}">VER INFERIOR ↗</button>`+(shoe?`<button type="button" data-look-open="${shoe.id}">VER TÊNIS ↗</button>`:'')+(cap?`<button type="button" data-look-open="${cap.id}">VER BONÉ ↗</button>`:'')+(kit?`<button type="button" class="look-kit" data-look-kit="${kit}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 8l5-4 3 3 3-3 5 4-3 4v8H7v-8z"/><path d="M10 9h4m-2-2v13"/></svg><span>VESTIR KIT COMPLETO</span><span aria-hidden="true">↗</span></button>`:'');
  try{localStorage.setItem('gb-v06-look',JSON.stringify({top:selectedTop,bottom:selectedBottom,shoe:selectedShoe,cap:selectedCap,hood:hoodUp}));}catch{}
 }
 function renderSaved(){
@@ -194,6 +194,8 @@ one('#lookSave')?.addEventListener('click',()=>{
  const list=readOutfits();
  if(list.some(o=>o.top===selectedTop&&o.bottom===selectedBottom&&(o.shoe??'')===selectedShoe&&(o.cap??'')===selectedCap)){toast('Esse look já está salvo.');return}
  list.unshift({top:selectedTop,bottom:selectedBottom,shoe:selectedShoe,cap:selectedCap,hood:hoodUp&&hasHood(selectedTop),createdAt:new Date().toISOString(),presentationVersion:'fit-v09'});writeOutfits(list);renderSaved();
+ const saveBtn=one('#lookSave');saveBtn?.classList.add('is-confirmed');
+ clearTimeout(window.__gbSaveFeedback);window.__gbSaveFeedback=setTimeout(()=>saveBtn?.classList.remove('is-confirmed'),1300);
  toast('Referência de look salva neste navegador.');
 });
 
