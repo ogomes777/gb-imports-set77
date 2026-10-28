@@ -465,3 +465,22 @@ body[data-gb-theme="origem"] .look-stage.has-fit .fit-led{box-shadow:0 0 13px 2p
  #gbFitFigure .fit-long-rest{opacity:1}
  #gbFitFigure .fit-long-action,#gbFitFigure .fit-articulated-longsleeves{opacity:0}
 }
+
+
+/* Jamal V1.7: rotação do tecido inteiro no quadril e ombros,
+   sem fragmentar a calça ou criar juntas artificiais no moletom. */
+#gbFitFigure[data-emote="dance"] .fit-layer-bottom{
+  transform-origin:210px 495px;
+  transform-box:view-box;
+}
+#gbFitFigure[data-emote="dance"] .fit-layer-top{
+  transform-origin:210px 350px;
+  transform-box:view-box;
+}
+
+
+/* During the Jamal shuffle, do not let idle breathing compete with the
+   precisely synchronized hip/ankle track. It resumes as soon as PARAR runs. */
+#lookstudio .look-stage.is-awake #gbFitFigure[data-emote="dance"] .fit-rig{
+  animation:none!important;
+}

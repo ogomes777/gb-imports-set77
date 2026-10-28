@@ -66,6 +66,17 @@ A antiga animação movia o tronco e tênis, mas deixava praticamente fixa a sil
 
 Fontes para contagem e técnica: entrevista do próprio Jamal ao Gshow (14/01/2026) e tutorial do professor Derick publicado pela D24AM (02/01/2026).
 
+## V1.7 · Foot-lock e ritmo do Passinho do Jamal
+
+Esta revisão não altera o catálogo, as máscaras aprovadas nem a proporção de calças e moletons.
+
+- Partitura com 21 poses em tempos desiguais: três batidas por pé **antes** da transferência lateral, alternando esquerda e direita, com continuidade no fechamento do loop
+- Pé de apoio compensa parte da translação do corpo para reduzir patinação, preservando pivot no tornozelo e contato da boca do tênis com o calcanhar
+- Quadril funciona em contrapeso ao pé ativo; ombros, cotovelos e punhos recebem pequenas defasagens naturais (sem juntas novas cortando a fotografia do moletom)
+- Respiração de repouso suspensa enquanto a dança toca para não interferir na partitura; modo contínuo PASSINHO/PARAR e pausa fora da viewport preservados
+- Fotografia integral de calças e mangas mantida; com bermudas, canelas acompanham discretamente o pé
+- Reproduzir o passo **quadro a quadro** ainda exige vídeo de referência e rig de pernas com joelhos/tornozelos independentes. Não apresentar esta interpretação editorial 2D como reprodução 1:1
+
 ## Backlog para futura V2
 
 Somente com novos ativos apropriados: modelagem e rig 3D próprios, movimentos capturados/autorizados, vistas reais, motor de tecido validado e medição de desempenho de campo.
