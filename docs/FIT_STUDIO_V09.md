@@ -1,5 +1,7 @@
 # GB Fit Studio / V09
 
+> **Evoluiu na V16 (FIT REAL)**: o manequim veste as fotos reais do acervo e virou um robô prata de proporção humana. As roupas desenhadas abaixo deixaram de ser usadas. Ver `docs/FIT_REAL_V16.md`. O contrato público e a coreografia continuam os desta página.
+
 O Look Studio deixou de mostrar duas peças soltas. Agora há **um manequim editorial GB, de corpo inteiro e persistente**, que veste a parte superior e a inferior escolhidas. É uma **simulação editorial de composição**: não mede caimento, não ajusta tamanho, não simula tecido e não reconstrói nada em 3D. O aviso fica fixo no palco: *"simulação editorial de composição · caimento e cores reais sujeitos à foto aprovada"*.
 
 ## Arquivos

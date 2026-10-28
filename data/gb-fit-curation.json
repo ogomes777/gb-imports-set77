@@ -1,0 +1,376 @@
+{
+ "_note": "V16 / FIT REAL — peças REAIS do acervo GB que o manequim veste no Look Studio. Decisão por registro, olhando a imagem (nunca pelo nome). Gerar com: python3 scripts/gerar_fit_v16.py",
+ "reviewedAt": "2026-10-27",
+ "rules": [
+  "Só foto frontal plana (estilo manequim invisível), recorte limpo, peça sozinha.",
+  "Fora: cabide (005, 007, 016), peça sobreposta a outra (004 e camisas de time com as costas por cima: 062–064, 066–068, 071–073), foto inclinada com etiqueta (009).",
+  "Duplicatas confirmadas na curadoria da arara ficam fora (103 = 011, 120 = 080, 131 = 081, 126 ≈ 088).",
+  "Kits: superior e inferior do MESMO produto (vínculos 'view' da arara: 099+079 = gb-crt-009, 104+124 = gb-crt-007, 029 = topo de gb-crt-010).",
+  "Kits só com foto conjunta entram só se as peças estão separadas no recorte: 090 (duas manchas). 032 (tech fleece creme) fica fora: superior e calça se sobrepõem na foto."
+ ],
+ "pieces": [
+  {
+   "product": "gb-crt-001",
+   "part": "top",
+   "src": "034",
+   "kind": "hoodie"
+  },
+  {
+   "product": "gb-crt-001",
+   "part": "bottom",
+   "src": "036",
+   "kind": "pants"
+  },
+  {
+   "product": "gb-crt-003",
+   "part": "top",
+   "src": "039",
+   "kind": "hoodie"
+  },
+  {
+   "product": "gb-crt-003",
+   "part": "bottom",
+   "src": "040",
+   "kind": "pants"
+  },
+  {
+   "product": "gb-crt-004",
+   "part": "top",
+   "src": "042",
+   "kind": "hoodie"
+  },
+  {
+   "product": "gb-crt-004",
+   "part": "bottom",
+   "src": "044",
+   "kind": "pants"
+  },
+  {
+   "product": "gb-crt-005",
+   "part": "top",
+   "src": "011",
+   "kind": "tee"
+  },
+  {
+   "product": "gb-crt-005",
+   "part": "bottom",
+   "src": "119",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-006",
+   "part": "top",
+   "src": "028",
+   "kind": "hoodie"
+  },
+  {
+   "product": "gb-crt-006",
+   "part": "bottom",
+   "src": "017",
+   "kind": "pants"
+  },
+  {
+   "product": "gb-crt-007",
+   "part": "top",
+   "src": "104",
+   "kind": "tee"
+  },
+  {
+   "product": "gb-crt-007",
+   "part": "bottom",
+   "src": "124",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-009",
+   "part": "top",
+   "src": "099",
+   "kind": "polo"
+  },
+  {
+   "product": "gb-crt-009",
+   "part": "bottom",
+   "src": "079",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-010",
+   "part": "top",
+   "src": "029",
+   "kind": "hoodie"
+  },
+  {
+   "product": "gb-crt-010",
+   "part": "bottom",
+   "src": {
+    "from": "090",
+    "component": "lower"
+   },
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-001",
+   "part": "top",
+   "src": "001",
+   "kind": "tee"
+  },
+  {
+   "product": "gb-crt-s-002",
+   "part": "top",
+   "src": "002",
+   "kind": "tee"
+  },
+  {
+   "product": "gb-crt-s-003",
+   "part": "top",
+   "src": "003",
+   "kind": "tee"
+  },
+  {
+   "product": "gb-crt-s-008",
+   "part": "top",
+   "src": "008",
+   "kind": "tee"
+  },
+  {
+   "product": "gb-crt-s-014",
+   "part": "top",
+   "src": "014",
+   "kind": "tee"
+  },
+  {
+   "product": "gb-crt-s-019",
+   "part": "top",
+   "src": "019",
+   "kind": "tee"
+  },
+  {
+   "product": "gb-crt-s-020",
+   "part": "top",
+   "src": "020",
+   "kind": "tee"
+  },
+  {
+   "product": "gb-crt-s-021",
+   "part": "top",
+   "src": "021",
+   "kind": "tee"
+  },
+  {
+   "product": "gb-crt-s-022",
+   "part": "top",
+   "src": "022",
+   "kind": "polo"
+  },
+  {
+   "product": "gb-crt-s-023",
+   "part": "top",
+   "src": "023",
+   "kind": "polo"
+  },
+  {
+   "product": "gb-crt-s-026",
+   "part": "top",
+   "src": "026",
+   "kind": "jacket"
+  },
+  {
+   "product": "gb-crt-s-027",
+   "part": "top",
+   "src": "027",
+   "kind": "jacket"
+  },
+  {
+   "product": "gb-crt-s-061",
+   "part": "top",
+   "src": "061",
+   "kind": "jersey"
+  },
+  {
+   "product": "gb-crt-s-065",
+   "part": "top",
+   "src": "065",
+   "kind": "jersey"
+  },
+  {
+   "product": "gb-crt-s-069",
+   "part": "top",
+   "src": "069",
+   "kind": "jersey"
+  },
+  {
+   "product": "gb-crt-s-070",
+   "part": "top",
+   "src": "070",
+   "kind": "longsleeve"
+  },
+  {
+   "product": "gb-crt-s-089",
+   "part": "top",
+   "src": "089",
+   "kind": "sweatshirt"
+  },
+  {
+   "product": "gb-crt-s-095",
+   "part": "top",
+   "src": "095",
+   "kind": "jacket"
+  },
+  {
+   "product": "gb-crt-s-096",
+   "part": "top",
+   "src": "096",
+   "kind": "jacket"
+  },
+  {
+   "product": "gb-crt-s-098",
+   "part": "top",
+   "src": "098",
+   "kind": "hoodie"
+  },
+  {
+   "product": "gb-crt-s-100",
+   "part": "top",
+   "src": "100",
+   "kind": "tee"
+  },
+  {
+   "product": "gb-crt-s-101",
+   "part": "top",
+   "src": "101",
+   "kind": "tee"
+  },
+  {
+   "product": "gb-crt-s-102",
+   "part": "top",
+   "src": "102",
+   "kind": "polo"
+  },
+  {
+   "product": "gb-crt-s-105",
+   "part": "top",
+   "src": "105",
+   "kind": "tee"
+  },
+  {
+   "product": "gb-crt-s-106",
+   "part": "top",
+   "src": "106",
+   "kind": "tee"
+  },
+  {
+   "product": "gb-crt-s-107",
+   "part": "top",
+   "src": "107",
+   "kind": "tee"
+  },
+  {
+   "product": "gb-crt-s-108",
+   "part": "top",
+   "src": "108",
+   "kind": "tee"
+  },
+  {
+   "product": "gb-crt-s-080",
+   "part": "bottom",
+   "src": "080",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-081",
+   "part": "bottom",
+   "src": "081",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-082",
+   "part": "bottom",
+   "src": "082",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-083",
+   "part": "bottom",
+   "src": "083",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-084",
+   "part": "bottom",
+   "src": "084",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-085",
+   "part": "bottom",
+   "src": "085",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-086",
+   "part": "bottom",
+   "src": "086",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-087",
+   "part": "bottom",
+   "src": "087",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-088",
+   "part": "bottom",
+   "src": "088",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-121",
+   "part": "bottom",
+   "src": "121",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-122",
+   "part": "bottom",
+   "src": "122",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-123",
+   "part": "bottom",
+   "src": "123",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-125",
+   "part": "bottom",
+   "src": "125",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-127",
+   "part": "bottom",
+   "src": "127",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-128",
+   "part": "bottom",
+   "src": "128",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-129",
+   "part": "bottom",
+   "src": "129",
+   "kind": "shorts"
+  },
+  {
+   "product": "gb-crt-s-130",
+   "part": "bottom",
+   "src": "130",
+   "kind": "shorts"
+  }
+ ]
+}

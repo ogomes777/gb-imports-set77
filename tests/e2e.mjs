@@ -138,7 +138,7 @@ async function run(w,h,reduced=false){
     if(optionalCDN(location)||optionalCDN(message))optionalFailures.push(message);
     else errors.push(message);
   }});
-  page.on('requestfailed',r=>{const url=r.url();if(optionalCDN(url))optionalFailures.push(url);else if(!url.includes('fonts.g'))errors.push('requestfailed '+url)});
+  page.on('requestfailed',r=>{const url=r.url();if(optionalCDN(url))optionalFailures.push(url);else if(!url.includes('fonts.g'))errors.push('requestfailed '+url+' '+(r.failure()?.errorText||''))});
   await page.goto(BASE,{waitUntil:'networkidle'});await page.waitForTimeout(400);
   if(errors.length){console.error('GB BOOT ERRORS',errors.slice(0,15));throw Error('Page JavaScript failed to initialize: '+errors.slice(0,5).join(' | '))}
   // Mede contra a largura pedida: em modo mobile o Chrome alarga o viewport de layout se algo vaza.
@@ -338,6 +338,8 @@ async function run(w,h,reduced=false){
   // o filtro começa a carregar as capas; recarregar antes da rede assentar abortaria essas imagens
   await page.waitForFunction(()=>[...document.querySelectorAll('#productGrid img')].every(i=>i.complete),null,{timeout:8000}).catch(()=>{});
   await page.waitForLoadState('networkidle').catch(()=>{});
+  // o provador (V16) baixa as fotos reais do look inicial; navegar antes abortaria essas imagens
+  await page.evaluate(()=>window.GBFitting?.ready?.()).catch(()=>{});
   // Deep link + voltar
   await page.goto(BASE+'?peca=gb-sh-02',{waitUntil:'networkidle'});
   check(vp,'deep link abre peça',(await page.locator('#productModal h2').textContent()).includes('MANCHESTER CITY'));
@@ -404,6 +406,31 @@ async function run(w,h,reduced=false){
   let f0=await fit();
   check(vp,'fit: um único manequim vestindo superior e inferior',one1(f0)&&f0.top[0]===f0.state.topId&&f0.bottom[0]===f0.state.bottomId,JSON.stringify(f0));
   check(vp,'fit: aviso de simulação editorial visível',/SIMULAÇÃO EDITORIAL DE COMPOSIÇÃO/.test(await page.locator('#lookstudio .fit-legal').innerText()));
+  // V16 / FIT REAL: só peças reais do acervo; manga curta desce no ombro com o braço saindo dela; corpo completo
+  const real=await page.evaluate(async()=>{const C=window.GB_FIT_CATALOG,f=document.querySelector('#gbFitFigure');
+    const hrefs=[...f.querySelectorAll('image.fit-photo')].map(i=>i.getAttribute('href'));
+    const ok=(await Promise.all(hrefs.map(h=>{const i=new Image();i.src=h;return i.decode().then(()=>i.naturalWidth>0,()=>false)}))).every(Boolean);
+    return{n:Object.keys(C.top).length+Object.keys(C.bottom).length,opts:document.querySelectorAll('#lookTops .look-option,#lookBottoms .look-option').length,
+      thumbs:[...document.querySelectorAll('#lookTops .look-option img,#lookBottoms .look-option img')].every(i=>/assets\/fit\/thumb\//.test(i.getAttribute('src'))),
+      hrefs:hrefs.length&&hrefs.every(h=>/^\.\/assets\/fit\//.test(h)),ok,head:!!f.querySelector('.fit-head'),hands:f.querySelectorAll('.fit-layer-arms .fit-hand').length,
+      legs:f.querySelectorAll('.fit-layer-legs .fit-leg').length}});
+  check(vp,'fit V16: seletores e manequim só com fotos reais do acervo (assets/fit)',real.opts===real.n&&real.thumbs&&real.hrefs&&real.ok,JSON.stringify(real));
+  check(vp,'fit V16: robô completo — cabeça, duas mãos, duas pernas',real.head&&real.hands===2&&real.legs===2,JSON.stringify(real));
+  const tee=await page.evaluate(async()=>{const C=window.GB_FIT_CATALOG,id=Object.keys(C.top).find(k=>C.top[k].rig?.l&&C.top[k].rig?.r);
+    document.querySelector(`#lookTops [data-look-id="${id}"]`).click();await new Promise(r=>setTimeout(r,1400));const f=document.querySelector('#gbFitFigure');
+    const sl=[...f.querySelectorAll('.fit-layer-sleeves .fit-sleeves image')].map(i=>i.getAttribute('transform')||'');
+    return{id,state:GBFitting.state.topId,sl,arms:f.querySelectorAll('.fit-layer-arms .fit-limbs').length,hands:f.querySelectorAll('.fit-layer-arms .fit-hand').length,
+      leftovers:f.querySelectorAll('.fit-layer-sleeves .fit-sleeves').length}});
+  check(vp,'fit V16: manga curta = duas mangas da própria foto giradas no ombro + braços',tee.state===tee.id&&tee.sl.length===2&&tee.sl.every(t=>/rotate\(-?[1-9]/.test(t))&&tee.arms===1&&tee.hands===2&&tee.leftovers===1,JSON.stringify(tee));
+  // kit: com metade de um kit escolhida, um toque veste o kit completo (superior e inferior do MESMO produto)
+  const kit=await page.evaluate(async([t0,b0])=>{const C=window.GB_FIT_CATALOG,kid=Object.keys(C.top).find(k=>C.bottom[k]),other=Object.keys(C.bottom).find(k=>!C.top[k]);
+    const wait=ms=>new Promise(r=>setTimeout(r,ms)),opt=(m,id)=>document.querySelector(`${m==='top'?'#lookTops':'#lookBottoms'} [data-look-id="${id}"]`);
+    opt('top',kid).click();opt('bottom',other).click();await wait(300);const btn=document.querySelector('[data-look-kit]');const had=!!btn&&btn.dataset.lookKit===kid;
+    btn?.click();await wait(1400);const f=document.querySelector('#gbFitFigure'),st={...GBFitting.state},fig=[f.querySelector('.fit-layer-top .fit-garment')?.dataset.product,f.querySelector('.fit-layer-bottom .fit-garment')?.dataset.product];
+    const gone=!document.querySelector('[data-look-kit]');opt('top',t0).click();opt('bottom',b0).click();await wait(1400);
+    return{kid,had,st,fig,gone,back:GBFitting.state}},[f0.state.topId,f0.state.bottomId]);
+  check(vp,'fit V16: botão "vestir o kit completo" veste superior + inferior do mesmo produto',kit.had&&kit.st.topId===kit.kid&&kit.st.bottomId===kit.kid&&kit.fig.every(x=>x===kit.kid)&&kit.gone,JSON.stringify(kit));
+  check(vp,'fit V16: volta ao look inicial depois dos testes',kit.back.topId===f0.state.topId&&kit.back.bottomId===f0.state.bottomId,JSON.stringify(kit.back));
   const fb=await page.evaluate(()=>{const st=document.querySelector('#lookstudio .look-stage').getBoundingClientRect(),f=document.querySelector('#gbFitFigure').getBoundingClientRect(),
     nav=[...document.querySelectorAll('.mobile-nav,.bottom-nav,nav')].map(n=>n.getBoundingClientRect()).filter(r=>r.height&&r.top>innerHeight*.6&&r.bottom>=innerHeight-2&&r.width>innerWidth*.8)[0];
     const ctr=[...document.querySelectorAll('#lookstudio .look-cycle button,#lookShuffle')].filter(b=>b.offsetParent).map(b=>b.getBoundingClientRect());

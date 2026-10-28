@@ -15,15 +15,23 @@ if(editorial)editorial.innerHTML=productMedia(PRODUCTS.find(p=>p.id==='gb-crt-00
 one('#mobileSaved')?.addEventListener('click',()=>one('#wishlistOpen').click());
 one('#mobileBag')?.addEventListener('click',()=>one('#bagOpen').click());
 
-// The digital styling studio does not represent a real purchasable kit.
-// Só entram peças com vista superior e inferior coerentes (todas as de estudo, ou fotos com as duas vistas).
-// Os recortes CRT flat-lay não são malhas vestíveis e exigem mapeamento anatômico antes do Fit Studio.
-const lookPool=PRODUCTS.filter(p=>!p.id.startsWith('gb-crt-')&&!p.single&&(!hasPhoto(p)||(GB_ASSETS[p.id].top&&GB_ASSETS[p.id].bottom)));
+// V16 / FIT REAL: o manequim veste peças REAIS do acervo (fit-catalog.js, curadas olhando a imagem).
+// Superior e inferior têm listas próprias; kits (mesmo produto nas duas listas) vêm primeiro.
+// Sem o catálogo de peças reais, o estúdio cai nos estudos ilustrados da V07 (não representam kit à venda).
+const FITC=window.GB_FIT_CATALOG;
+const studyPool=PRODUCTS.filter(p=>!p.id.startsWith('gb-crt-')&&!p.single&&(!hasPhoto(p)||(GB_ASSETS[p.id].top&&GB_ASSETS[p.id].bottom)));
+const pools=FITC?{top:Object.keys(FITC.top).map(getItem).filter(Boolean),bottom:Object.keys(FITC.bottom).map(getItem).filter(Boolean)}:{top:studyPool,bottom:studyPool};
+const pool=mode=>pools[mode];
+const inPool=(mode,id)=>pool(mode).some(p=>p.id===id);
 const savedLook=(()=>{try{return JSON.parse(localStorage.getItem('gb-v06-look'))}catch{return null}})();
-let selectedTop=lookPool.some(p=>p.id===savedLook?.top)?savedLook.top:PRODUCTS[1].id;
-let selectedBottom=lookPool.some(p=>p.id===savedLook?.bottom)?savedLook.bottom:PRODUCTS[7].id;
+let selectedTop=inPool('top',savedLook?.top)?savedLook.top:pool('top')[0].id;
+let selectedBottom=inPool('bottom',savedLook?.bottom)?savedLook.bottom:(inPool('bottom',selectedTop)?selectedTop:pool('bottom')[0].id);
+// miniatura: o recorte da própria peça (superior ou inferior); nos estudos, a arte da V07
+const lookMedia=(p,mode)=>{const e=FITC?.[mode]?.[p.id];return e?`<span class="look-real"><img src="${e.thumb}" alt="" loading="lazy" decoding="async"/></span>`:productMedia(p,mode)};
+const isKit=id=>!!(FITC&&FITC.top[id]&&FITC.bottom[id]);
+const pieceName=(p,mode)=>p.name+(isKit(p.id)?(mode==='top'?' — superior':' — inferior'):'');
 const reducedLook=matchMedia('(prefers-reduced-motion: reduce)').matches;
-function readOutfits(){let saved=[];try{saved=JSON.parse(localStorage.getItem('gb-v03-outfits'))||[];if(!Array.isArray(saved))saved=[];}catch{}return saved.filter(o=>getItem(o.top)&&getItem(o.bottom))}
+function readOutfits(){let saved=[];try{saved=JSON.parse(localStorage.getItem('gb-v03-outfits'))||[];if(!Array.isArray(saved))saved=[];}catch{}return saved.filter(o=>inPool('top',o.top)&&inPool('bottom',o.bottom))}
 function writeOutfits(list){try{localStorage.setItem('gb-v03-outfits',JSON.stringify(list.slice(0,10)));}catch{}}
 // V09 / GB FIT STUDIO: toda origem (clique, setas, swipe, arraste, misturar, restaurar) passa por aqui.
 // Com o provador montado, a peça VESTE o manequim persistente; sem ele, cai no comportamento V07.
@@ -57,20 +65,24 @@ function snapIn(mode){
 function renderOptions(){
  for(const [id,selected,mode] of [['lookTops',selectedTop,'top'],['lookBottoms',selectedBottom,'bottom']]){
    const box=one('#'+id);
-   box.innerHTML=lookPool.map((p,i)=>`<button type="button" class="look-option ${p.id===selected?'active':''}" data-look-mode="${mode}" data-look-id="${p.id}" aria-pressed="${p.id===selected}" title="${escaped(p.name)}" aria-label="${String(i+1).padStart(2,'0')} — ${escaped(p.name)} / ${mode==='top'?'parte superior':'parte inferior'}"><span class="look-index">${String(i+1).padStart(2,'0')}</span>${productMedia(p,mode)}</button>`).join('');
+   box.innerHTML=pool(mode).map((p,i)=>`<button type="button" class="look-option ${p.id===selected?'active':''}${isKit(p.id)?' is-kit':''}" data-look-mode="${mode}" data-look-id="${p.id}" aria-pressed="${p.id===selected}" title="${escaped(pieceName(p,mode))}" aria-label="${String(i+1).padStart(2,'0')} — ${escaped(pieceName(p,mode))} / ${mode==='top'?'parte superior':'parte inferior'}"><span class="look-index">${String(i+1).padStart(2,'0')}</span>${lookMedia(p,mode)}</button>`).join('');
    const active=box.querySelector('.active');if(active){const ar=active.getBoundingClientRect(),br=box.getBoundingClientRect();box.scrollLeft+=ar.left-br.left-box.clientWidth/2+ar.width/2;}
  }
+ // vizinhas já decodificadas: a próxima troca não espera a foto
+ if(window.GBFitting?.preload)for(const mode of['top','bottom']){const L=pool(mode),i=L.findIndex(p=>p.id===(mode==='top'?selectedTop:selectedBottom));[1,-1].forEach(d=>{const n=L[(i+d+L.length)%L.length];if(n)GBFitting.preload(mode,n.id)})}
 }
 function renderSummary(){
  const top=getItem(selectedTop),bottom=getItem(selectedBottom);
- one('#lookSummary').textContent=top.name+' (superior)  +  '+bottom.name+' (inferior)';
- const links=one('#lookSources');if(links)links.innerHTML=`<button type="button" data-look-open="${top.id}">VER SUPERIOR ↗</button><button type="button" data-look-open="${bottom.id}">VER INFERIOR ↗</button>`;
+ one('#lookSummary').textContent=(isKit(top.id)?pieceName(top,'top'):top.name+' (superior)')+'  +  '+(isKit(bottom.id)?pieceName(bottom,'bottom'):bottom.name+' (inferior)');
+ // kit pela metade: um toque veste a outra parte do MESMO produto
+ const kit=isKit(top.id)&&top.id!==bottom.id?top.id:isKit(bottom.id)&&bottom.id!==top.id?bottom.id:null;
+ const links=one('#lookSources');if(links)links.innerHTML=`<button type="button" data-look-open="${top.id}">VER SUPERIOR ↗</button><button type="button" data-look-open="${bottom.id}">VER INFERIOR ↗</button>`+(kit?`<button type="button" class="look-kit" data-look-kit="${kit}">VESTIR O KIT COMPLETO</button>`:'');
  try{localStorage.setItem('gb-v06-look',JSON.stringify({top:selectedTop,bottom:selectedBottom}));}catch{}
 }
 function renderSaved(){
  const box=one('#lookSaved');if(!box)return;const list=readOutfits();
  box.hidden=!list.length;
- box.innerHTML=list.length?`<span class="look-saved-title">LOOKS SALVOS / ${String(list.length).padStart(2,'0')}</span><div class="look-saved-list">${list.map((o,i)=>`<div class="look-saved-item"><button type="button" class="look-saved-thumb" data-look-restore="${i}" aria-label="Restaurar look: ${escaped(getItem(o.top).name)} com ${escaped(getItem(o.bottom).name)}"><span>${productMedia(getItem(o.top),'top')}</span><span>${productMedia(getItem(o.bottom),'bottom')}</span></button><button type="button" class="look-saved-remove" data-look-remove="${i}" aria-label="Remover look salvo">×</button></div>`).join('')}</div>`:'';
+ box.innerHTML=list.length?`<span class="look-saved-title">LOOKS SALVOS / ${String(list.length).padStart(2,'0')}</span><div class="look-saved-list">${list.map((o,i)=>`<div class="look-saved-item"><button type="button" class="look-saved-thumb" data-look-restore="${i}" aria-label="Restaurar look: ${escaped(pieceName(getItem(o.top),'top'))} com ${escaped(pieceName(getItem(o.bottom),'bottom'))}"><span>${lookMedia(getItem(o.top),'top')}</span><span>${lookMedia(getItem(o.bottom),'bottom')}</span></button><button type="button" class="look-saved-remove" data-look-remove="${i}" aria-label="Remover look salvo">×</button></div>`).join('')}</div>`:'';
 }
 function renderStudio(){window.GBFitting?.mount(one('.look-stage'),{topId:selectedTop,bottomId:selectedBottom});paintPiece('top');paintPiece('bottom');renderOptions();renderSummary();renderSaved()}
 // Comparação A/B: look atual × look salvo, lado a lado no mesmo palco e na mesma escala.
@@ -93,19 +105,20 @@ function choose(mode,id,dir,snap=false){
  if(mode==='top'){if(id===selectedTop)return;selectedTop=id}else{if(id===selectedBottom)return;selectedBottom=id}
  paintPiece(mode,dir,snap);renderOptions();renderSummary();if(comparing)renderCompare();
 }
-function cycle(mode,d,src='cycle'){const cur=mode==='top'?selectedTop:selectedBottom;const i=lookPool.findIndex(p=>p.id===cur);withSource(src,null,()=>choose(mode,lookPool[(i+d+lookPool.length)%lookPool.length].id,d))}
+function cycle(mode,d,src='cycle'){const L=pool(mode),cur=mode==='top'?selectedTop:selectedBottom;const i=L.findIndex(p=>p.id===cur);withSource(src,null,()=>choose(mode,L[(i+d+L.length)%L.length].id,d))}
 // monta o estúdio só quando ele se aproxima da tela (menos trabalho no carregamento)
 if(window.GBMotion){const off=GBMotion.onVisible(one('#lookstudio'),v=>{if(v){off();renderStudio()}},{margin:'900px 0px'})}else renderStudio();
 for(const id of ['lookTops','lookBottoms'])one('#'+id)?.addEventListener('click',e=>{
  const btn=e.target.closest('[data-look-id]'); if(!btn)return;
  const mode=btn.dataset.lookMode,cur=mode==='top'?selectedTop:selectedBottom;
- const dir=lookPool.findIndex(p=>p.id===btn.dataset.lookId)>lookPool.findIndex(p=>p.id===cur)?1:-1;
+ const L=pool(mode),dir=L.findIndex(p=>p.id===btn.dataset.lookId)>L.findIndex(p=>p.id===cur)?1:-1;
  withSource('click',centerOf(btn),()=>choose(mode,btn.dataset.lookId,dir,true));
 });
 one('.look-studio')?.addEventListener('click',e=>{
  const c=e.target.closest('[data-look-cycle]');if(c){const [mode,d]=c.dataset.lookCycle.split(':');cycle(mode,+d)}
- if(e.target.closest('#lookShuffle')){const pick=not=>{const pool=lookPool.filter(p=>p.id!==not);return pool[Math.floor(Math.random()*pool.length)].id};const t=pick(selectedTop),b=pick(selectedBottom);/* misturar troca as duas peças, sempre */selectedTop=t;selectedBottom=b;withSource('shuffle',null,()=>{paintPiece('top',1);paintPiece('bottom',-1)});renderOptions();renderSummary();if(comparing)renderCompare()}
+ if(e.target.closest('#lookShuffle')){const pick=(mode,not)=>{const L=pool(mode).filter(p=>p.id!==not);return L[Math.floor(Math.random()*L.length)].id};const t=pick('top',selectedTop),b=pick('bottom',selectedBottom);/* misturar troca as duas peças, sempre */selectedTop=t;selectedBottom=b;withSource('shuffle',null,()=>{paintPiece('top',1);paintPiece('bottom',-1)});renderOptions();renderSummary();if(comparing)renderCompare()}
  const open=e.target.closest('[data-look-open]');if(open)detailModal(getItem(open.dataset.lookOpen));
+ const kit=e.target.closest('[data-look-kit]');if(kit){const id=kit.dataset.lookKit,parts=[];if(selectedTop!==id){selectedTop=id;parts.push('top')}if(selectedBottom!==id){selectedBottom=id;parts.push('bottom')}withSource('kit',centerOf(kit),()=>parts.forEach(m=>paintPiece(m,1,true)));renderOptions();renderSummary();if(comparing)renderCompare()}
  if(e.target.closest('#lookCompareBtn'))toggleCompare();
  const rest=e.target.closest('[data-look-restore]');if(rest&&comparing){compareIndex=+rest.dataset.lookRestore;renderCompare();return}
  if(rest){const o=readOutfits()[+rest.dataset.lookRestore];if(o){selectedTop=o.top;selectedBottom=o.bottom;withSource('restore',null,()=>{paintPiece('top',1);paintPiece('bottom',1)});renderOptions();renderSummary();toast('Look restaurado.')}}
@@ -130,7 +143,7 @@ if(window.GBMotion&&GBMotion.Prefs.fine&&!reducedLook){
  };
  for(const box of ['#lookTops','#lookBottoms'].map(s=>one(s))){
   box?.addEventListener('pointerdown',e=>{const b=e.target.closest('[data-look-id]');if(!b||e.pointerType!=='mouse'||e.button)return;
-    const ghost=document.createElement('div');ghost.className='look-drag-ghost';ghost.innerHTML=productMedia(getItem(b.dataset.lookId),b.dataset.lookMode);document.body.appendChild(ghost);
+    const ghost=document.createElement('div');ghost.className='look-drag-ghost';ghost.innerHTML=lookMedia(getItem(b.dataset.lookId),b.dataset.lookMode);document.body.appendChild(ghost);
     dragItem={ghost,mode:b.dataset.lookMode,id:b.dataset.lookId,x:e.clientX,y:e.clientY,moved:false};ghost.style.transform=`translate(${e.clientX-60}px,${e.clientY-70}px)`;ghost.style.opacity='0'});
  }
  document.addEventListener('pointermove',e=>{if(!dragItem)return;if(!dragItem.moved&&Math.hypot(e.clientX-dragItem.x,e.clientY-dragItem.y)<8)return;

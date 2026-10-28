@@ -4,7 +4,13 @@ description: Implementar o Look Studio da GB Imports com personagem persistente 
 ---
 
 # GB FIT STUDIO
-Leia `docs/GB_FIT_STUDIO_V09_EXECUTION.md` e o prompt master completo entregue no contexto.
+Leia `docs/FIT_REAL_V16.md` (estado atual) e `docs/GB_FIT_STUDIO_V09_EXECUTION.md` (contrato e coreografia de origem).
+
+## V16 / FIT REAL
+- O manequim veste só peças reais: `data/gb-fit-curation.json` → `python3 scripts/gerar_fit_v16.py --qa <pasta>` → `assets/fit/` + `fit-catalog.js` (gerado, nunca à mão).
+- Incluir peça = registro na curadoria, olhando a imagem (foto frontal plana, peça sozinha, recorte limpo). Conferir a folha de QA.
+- Manga curta usa o rig de manga (tronco + mangas da própria foto, giradas no ombro). Nunca espelhar, esticar ou pintar.
+- Robô prata humano: mexer em proporção só em `B`/`FIT` de `look-fitting.js`. Conferir as 60 peças vestidas em 1440 e 390 depois de qualquer ajuste.
 
 ## Obrigatório
 - Um único corpo em cena, oclusão/âncoras e roupa superior/inferior *vestindo* o boneco.
