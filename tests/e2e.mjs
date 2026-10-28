@@ -464,12 +464,18 @@ async function run(w,h,reduced=false){
     const ok=(await Promise.all([...new Set(imgs.filter(h=>/skin/.test(h)))].map(h=>{const i=new Image();i.src=h;return i.decode().then(()=>i.naturalWidth>0,()=>false)}))).every(Boolean);
     const started=GBFitting.emote('dance',{bpm:240,beats:4});await wait(60);
     const moving=[...f.querySelectorAll('[data-j]')].filter(el=>el.getAnimations().length).length,body=f.querySelector('.fit-emote').getAnimations().length;
-    await wait(3300);const done=!f.dataset.emote&&f.querySelector('.fit-emote').getAnimations().length===0;
+    await wait(3300);
+    const continuous=f.dataset.emote==='dance'&&f.querySelector('.fit-emote').getAnimations().some(a=>a.effect.getTiming().iterations===Infinity);
+    const stopped=GBFitting.emote('dance');
+    await wait(90);
+    const done=!f.dataset.emote&&f.querySelector('.fit-emote').getAnimations().length===0;
+    const control=document.querySelector('#lookstudio [data-fit-emote="dance"]');
+    const reset=control?.getAttribute('aria-pressed')==='false'&&control?.querySelector('b')?.textContent==='PASSINHO';
     const step=document.querySelector('#lookTops').closest('.look-step'),next=step.querySelector('.look-row-next'),row=step.querySelector('.look-options');row.scrollLeft=0;await wait(50);
     const s0=row.scrollLeft;next?.click();await wait(700);const s1=row.scrollLeft;
-    return{skin,mono,ok,started,moving,body,done,arrows:!!next,s0,s1}},[reduced]);
+    return{skin,mono,ok,started,moving,body,continuous,stopped,done,reset,arrows:!!next,s0,s1}},[reduced]);
   check(vp,'fit V19: robô = peças da arte do GB UNIT (cabeça, braços, pernas) + monograma oficial',v19.skin>=6&&v19.mono&&v19.ok,JSON.stringify(v19));
-  if(!reduced)check(vp,'fit V19: emote DANÇAR anima juntas e corpo e termina sozinho',v19.started&&v19.moving>=3&&v19.body===1&&v19.done,JSON.stringify(v19));
+  if(!reduced)check(vp,'fit V1.3: passinho dança continuamente e segundo clique interrompe',v19.started&&v19.moving>=3&&v19.body===1&&v19.continuous&&v19.stopped&&v19.done&&v19.reset,JSON.stringify(v19));
   else check(vp,'fit V19: movimento reduzido não roda emote',v19.started===false,JSON.stringify(v19));
   check(vp,'fit V19: seta › da fileira de peças rola a lista',v19.arrows&&v19.s1>v19.s0,JSON.stringify(v19));
   // V20: escala real dos tênis, rig com capuz medido, painel premium com cinco emotes.
@@ -527,6 +533,19 @@ async function run(w,h,reduced=false){
      check(vp,'GB Look Studio V1: SALVE junto à face, dedos para cima e indicador acessível',v1.dx>4&&v1.dy< -15&&v1.active==='true'&&v1.cleared&&v1.gestures===5,JSON.stringify(v1));
      check(vp,'GB Look Studio V1: controles satin-gold no tema escuro',v1.theme,JSON.stringify(v1));
    }
+
+   // V1.3: fotografia da calça original não sofre corte artificial em joelho.
+   const whole=await page.evaluate(async()=>{
+      const sleep=t=>new Promise(r=>setTimeout(r,t)), old={...GBFitting.state};
+      GBFitting.set({topId:'gb-crt-003',bottomId:'gb-crt-003'},{silent:true});
+      await sleep(1380);
+      const f=document.querySelector('#gbFitFigure'),p=f.querySelector('.fit-layer-bottom .fit-garment'),long=f.querySelector('.fit-long-rest'),active=f.querySelector('.fit-long-action');
+      const r={pantsImage:!!p?.querySelector('image'),pantsClip:!!p?.querySelector('[id*="trouser"]'),
+        restVisible:getComputedStyle(long).opacity==='1',actionHidden:getComputedStyle(active).opacity==='0'};
+      GBFitting.set(old,{silent:true});await sleep(1150);return r;
+   });
+   check(vp,'GB V1.3: calça integral e mangas contínuas na pose neutra',
+     whole.pantsImage&&!whole.pantsClip&&whole.restVisible&&whole.actionHidden,JSON.stringify(whole));
 
    // Manga longa articulada, pele ocultada quando se veste calça e tênis na frente da bainha.
    const v12=await page.evaluate(async()=>{
