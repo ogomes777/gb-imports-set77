@@ -712,28 +712,38 @@ function emote(name,{bpm=176,beats=8}={}){
   const body=[fig.querySelector('.fit-emote')],floor=[fig.querySelector('.fit-floor')],beat=60000/bpm;
   if(name==='spin'){spin();setGestureState(name);document.dispatchEvent(new CustomEvent('gb:emote',{detail:{name,editorial:true}}));return true}
   if(name==='dance'){
-    // Base declarada por Jamal: UM, DOIS, UM, DOIS, TRÊS, deslocando
-    // peso lateral, quadril contrário ao pé e mãos acompanhando os passos.
-    // Estudo editorial 2D, sem alegar reprodução frame a frame/mocap.
-    const T=Math.max(1350,Math.min(1880,beat*5));
-    const steps=[0,-.28,-.78,-.16,0,.24,.82,.15,-.26,0],n=steps.length-1;
-    const frames=fn=>steps.map((v,i)=>({offset:i/n,...fn(v,i)}));
+    // Jamal: três toques rápidos com o pé, passa lateralmente e repete
+    // ao outro lado, quadril contrário e mãos soltas. Interpretação editorial.
+    const T=Math.max(1380,Math.min(1850,beat*5.0));
+    const steps=[
+      {x:0,foot:0,lift:0},{x:-.16,foot:-1,lift:13},{x:-.30,foot:-1,lift:2},
+      {x:-.48,foot:-1,lift:13},{x:-.82,foot:-1,lift:2},{x:-1,foot:-1,lift:0},
+      {x:-.45,foot:0,lift:0},{x:0,foot:0,lift:0},
+      {x:.16,foot:1,lift:13},{x:.30,foot:1,lift:2},
+      {x:.48,foot:1,lift:13},{x:.82,foot:1,lift:2},
+      {x:1,foot:1,lift:0},{x:.45,foot:0,lift:0},{x:0,foot:0,lift:0}
+    ];
+    const frames=fn=>steps.map((s,i)=>({offset:i/(steps.length-1),...fn(s,i)}));
     const pants=CAT.bottom[state.bottomId]?.kind==='pants';
-    run(body,frames((v,i)=>({transform:`translateX(${v*12}px) translateY(${i%3===1?1.8:0}px) rotate(${-v*2.8}deg)`})),{duration:T});
-    run(q('head'),frames((v,i)=>({transform:`rotate(${-v*7+(i%3===0?1:0)}deg)`})),{duration:T});
-    for(const side of[-1,1]){
-      const k=side<0?'L':'R',accent=(i)=>((i===1||i===4||i===7)&&side<0)||((i===2||i===5||i===8)&&side>0);
-      run(q('sh'+k),frames((v,i)=>({transform:`rotate(${side*(v*24+(accent(i)?-8:6))}deg)`})),{duration:T});
-      run(q('el'+k),frames((v,i)=>({transform:`rotate(${side*(v*12+(accent(i)?-15:9))}deg)`})),{duration:T});
-      run(q('wr'+k),frames((v,i)=>({transform:`rotate(${side*(accent(i)?9:-6)}deg)`})),{duration:T});
-      // As pernas expostas e os tênis sobem no MESMO quadro.
-      const move=frames((v,i)=>({transform:`translate(${v*8}px,${!pants&&accent(i)?-9:0}px)`}));
-      if(!pants)run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${side}"]`)],move,{duration:T});
-      run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${side}"]`)],move,{duration:T});
+    run(body,frames(s=>({transform:
+      `translateX(${s.x*21}px) translateY(${s.lift?2:0}px) rotate(${-s.x*3.8}deg)`
+    })),{duration:T});
+    run(q('head'),frames((s,i)=>({transform:`rotate(${-s.x*8+(i%3===0?1.5:0)}deg)`})),{duration:T});
+    for(const side of [-1,1]){
+      const k=side<0?'L':'R';
+      run(q('sh'+k),frames(s=>({transform:`rotate(${side*(s.x*25+(s.foot===side?-12:7))}deg)`})),{duration:T});
+      run(q('el'+k),frames(s=>({transform:`rotate(${side*(s.x*13+(s.foot===side?-16:8))}deg)`})),{duration:T});
+      run(q('wr'+k),frames(s=>({transform:`rotate(${side*(s.foot===side?12:-7)}deg)`})),{duration:T});
+      // Calça permanece foto integral; sem seccionar joelho ou barra.
+      const moves=frames(s=>({transform:
+        `translate(${s.x*(pants?7:13)+(s.foot===side?side*6:0)}px,${s.foot===side?-(pants?s.lift*.30:s.lift):0}px) rotate(${s.foot===side?side*5:0}deg)`
+      }));
+      if(!pants)run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${side}"]`)],moves,{duration:T});
+      run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${side}"]`)],moves,{duration:T});
     }
-    // Calça é foto única: move como uma peça, não rasga no joelho para dançar.
-    if(pants)run([fig.querySelector('.fit-layer-bottom')],frames((v)=>({transform:`translateX(${v*8}px)`})),{duration:T});
-    run(floor,frames((v,i)=>({transform:`translateX(${v*4}px) scale(${i%3===1?.96:1},1)`})),{duration:T});
+    if(pants)run([fig.querySelector('.fit-layer-bottom')],
+      frames(s=>({transform:`translateX(${s.x*6}px) rotate(${s.x*1.2}deg)`})),{duration:T});
+    run(floor,frames(s=>({transform:`translateX(${s.x*5}px) scale(${s.lift?.965:1},1)`})),{duration:T});
   }else if(name==='wave'){
     setArmForeground(true);
     // Tchau real: erguer braço, três oscilações no antebraço/punho, retornar.
@@ -744,25 +754,42 @@ function emote(name,{bpm=176,beats=8}={}){
     run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-6deg)',offset:.30},{transform:'rotate(-4deg)',offset:.73},{transform:'rotate(0deg)'}],{duration:T});
   }else if(name==='salute'){
     setArmForeground(true);
-    // Salve curto: braço direito na altura da cabeça, a mão saúda e volta.
-    const T=1330,isShort=['tee','polo','jersey'].includes(CAT.top[state.topId]?.kind),isLong=isLongSleeve(CAT.top[state.topId]);
+    // SALVE ABERTO: braço à direita de quem observa, sem atravessar o rosto.
+    const T=1450,isShort=['tee','polo','jersey'].includes(CAT.top[state.topId]?.kind),
+      isLong=isLongSleeve(CAT.top[state.topId]);
     fig.dataset.salveMode=isShort||isLong?'full':'soft';
-    // O pivô da mão é do punho: a orientação correta é específica de cada rig.
     const sign=fig.querySelector('.fit-peace-sign');
-    if(sign)sign.setAttribute('transform','rotate('+(isLong?-60:isShort?-40:120)+') scale(.48) translate(0 -85)');
-    run(body,[{transform:'none'},{transform:'rotate(-.6deg)',offset:.25},{transform:'rotate(-.6deg)',offset:.7},{transform:'none'}],{duration:T});
-    if(isShort)run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-100deg)',offset:.18},{transform:'rotate(-170deg)',offset:.31},{transform:'rotate(-170deg)',offset:.85},{transform:'rotate(0deg)'}],{duration:T});
-    if(isLong)run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-80deg)',offset:.16},{transform:'rotate(-155deg)',offset:.29},{transform:'rotate(-155deg)',offset:.86},{transform:'rotate(0deg)'}],{duration:T});
-    if(isShort)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(0deg)',offset:.20},{transform:'rotate(-140deg)',offset:.43},{transform:'rotate(-140deg)',offset:.77},{transform:'rotate(-52deg)',offset:.88},{transform:'rotate(0deg)'}],{duration:T});
-    if(isLong)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(0deg)',offset:.22},{transform:'rotate(-155deg)',offset:.43},{transform:'rotate(-155deg)',offset:.78},{transform:'rotate(-52deg)',offset:.90},{transform:'rotate(0deg)'}],{duration:T});
-    run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-7deg)',offset:.36},{transform:'rotate(5deg)',offset:.55},{transform:'rotate(0deg)'}],{duration:T});
+    if(sign)sign.setAttribute('transform',
+      'rotate('+(isLong?-30:isShort?-25:120)+') scale(.48) translate(0 -85)');
+    run(body,[{transform:'none'},{transform:'rotate(-1.2deg)',offset:.31},
+      {transform:'rotate(-1.2deg)',offset:.76},{transform:'none'}],{duration:T});
+    const arm=[
+      {transform:'rotate(0deg)'},{transform:'rotate(-12deg)',offset:.18},
+      {transform:'rotate(-25deg)',offset:.39},{transform:'rotate(-25deg)',offset:.76},
+      {transform:'rotate(-11deg)',offset:.91},{transform:'rotate(0deg)'}
+    ];
+    if(isShort||isLong)run(q('shR'),arm,{duration:T});
+    if(isShort||isLong)run(q('elR'),[
+      {transform:'rotate(0deg)'},{transform:'rotate(-8deg)',offset:.38},
+      {transform:'rotate(-14deg)',offset:.58},{transform:'rotate(-14deg)',offset:.76},
+      {transform:'rotate(0deg)'}
+    ],{duration:T});
+    run(q('wrR'),[
+      {transform:'rotate(0deg)'},{transform:'rotate(-8deg)',offset:.38},
+      {transform:'rotate(9deg)',offset:.59},{transform:'rotate(0deg)',offset:.87},
+      {transform:'rotate(0deg)'}
+    ],{duration:T});
     if(isShort||isLong){
-      // Primeiro abre, depois dobra; a luva dá lugar ao V somente ao completar o cumprimento.
       const glove=fig.querySelector('[data-j="wrR"] > .fit-bone-art');
-      run([glove],[{opacity:1},{opacity:1,offset:.54},{opacity:0,offset:.64},{opacity:0,offset:.80},{opacity:1,offset:.85},{opacity:1}],{duration:T});
-      run([sign],[{opacity:0},{opacity:0,offset:.54},{opacity:1,offset:.64},{opacity:1,offset:.80},{opacity:0,offset:.85},{opacity:0}],{duration:T});
+      run([glove],[{opacity:1},{opacity:1,offset:.36},{opacity:0,offset:.49},
+        {opacity:0,offset:.79},{opacity:1,offset:.91},{opacity:1}],{duration:T});
+      run([sign],[{opacity:0},{opacity:0,offset:.36},{opacity:1,offset:.49},
+        {opacity:1,offset:.79},{opacity:0,offset:.91},{opacity:0}],{duration:T});
     }
-    run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-9deg)',offset:.42},{transform:'rotate(0deg)'}],{duration:T});
+    run(q('head'),[
+      {transform:'rotate(0deg)'},{transform:'rotate(-4deg)',offset:.45},
+      {transform:'rotate(-4deg)',offset:.75},{transform:'rotate(0deg)'}
+    ],{duration:T});
   }else if(name==='jump'){
     const T=1100;
     run(body,[{transform:'none'},{transform:'translateY(9px) scale(1.02,.95)',offset:.18},{transform:'translateY(-64px) scale(.98,1.03)',offset:.46,easing:'cubic-bezier(.3,0,.7,1)'},{transform:'translateY(0px) scale(1.03,.94)',offset:.72},{transform:'translateY(2px) scale(1,.99)',offset:.86},{transform:'none'}],{duration:T});
