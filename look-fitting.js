@@ -760,7 +760,7 @@ function emote(name,{bpm=176,beats=8}={}){
     fig.dataset.salveMode=isShort||isLong?'full':'soft';
     const sign=fig.querySelector('.fit-peace-sign');
     if(sign)sign.setAttribute('transform',
-      'rotate('+(isLong?-30:isShort?-25:120)+') scale(.48) translate(0 -85)');
+      'rotate('+(isLong?-15:isShort?45:120)+') scale(.48) translate(0 -85)');
     run(body,[{transform:'none'},{transform:'rotate(-1.2deg)',offset:.31},
       {transform:'rotate(-1.2deg)',offset:.76},{transform:'none'}],{duration:T});
     const arm=[
