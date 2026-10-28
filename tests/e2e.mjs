@@ -487,12 +487,13 @@ async function run(w,h,reduced=false){
       const f=document.querySelector('#gbFitFigure'),feet=[...f.querySelectorAll('.fit-layer-shoe .fit-foot')];
       const tracks=feet.map(el=>({origin:el.style.transformOrigin,
         frames:el.getAnimations()[0]?.effect.getKeyframes()||[]}));
-      const yValue=k=>{
-        const m=(k.transform||'').match(/translate\([^,]+,\s*(-?\d+(?:\.\d+)?)px\)/);
-        return m?Number(m[1]):0;
+      const angle=k=>{
+        const m=(k.transform||'').match(/rotate\((-?\d+(?:\.\d+)?)deg\)/);
+        return m?Math.abs(Number(m[1])):0;
       };
-      const localPeaks=frames=>{const y=frames.map(yValue);let peaks=0;
-        for(let i=1;i<y.length-1;i++)if(y[i]<-2.8&&y[i]<y[i-1]&&y[i]<=y[i+1])peaks++;
+      const localPeaks=frames=>{const values=frames.map(angle);let peaks=0;
+        for(let i=1;i<values.length-1;i++)
+          if(values[i]>8&&values[i]>values[i-1]&&values[i]>=values[i+1])peaks++;
         return peaks;
       };
       const continuous=f.querySelector('.fit-emote').getAnimations().some(a=>a.effect.getTiming().iterations===Infinity);
