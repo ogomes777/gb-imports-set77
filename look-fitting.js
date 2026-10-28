@@ -794,9 +794,12 @@ function emote(name,{bpm=176,beats=8}={}){
         const lift=side<0?p.left:p.right,angle=side<0?p.ltoe:p.rtoe;
         // Com calça, preservar ligação tênis/bainha. Com bermuda, permitir
         // um pé de apoio mais estável e canela deslocando junto.
-        const compensation=p.travel*(pants?-.20:-.40);
-        const dx=side*shoeDx+compensation+side*lift*.45;
-        const dy=-lift*.67;
+        const compensation=p.travel*(pants?-.16:-.40);
+        // Calça comprida: não levantar o tênis inteiro! A boca fica conectada
+        // ao tornozelo e somente a ponta gira sobre o pivô real do calcanhar.
+        // Bermuda: a canela está visível e pode subir alguns pixels no acento.
+        const dx=side*shoeDx+compensation+side*lift*(pants?.055:.38);
+        const dy=pants?0:-lift*.55;
         return {transform:`translate(${dx.toFixed(2)}px,${dy.toFixed(2)}px) rotate(${(side*angle).toFixed(2)}deg)`};
       });
       run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${side}"]`)],footFrames,{duration:T});
