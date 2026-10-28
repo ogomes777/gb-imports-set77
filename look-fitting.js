@@ -249,7 +249,7 @@ const isLongSleeve=e=>!!e&&!e.rig&&e.sleeves?.l?.type==='long'&&e.sleeves?.r?.ty
 function armsSVG(e,pl,pfx,sp){
   const out=[];
   if(e.rig){for(const k of['l','r'])if(sp[k])out.push(shortArm(sp[k]))}
-  else if(!isLongSleeve(e))for(const side of[-1,1]){
+  else for(const side of[-1,1]){
     const s=e.sleeves?.[side<0?'l':'r'];if(!s||s.type!=='long')continue;
     const[cx,cy]=P(pl,s.x,s.y);out.push(cuffHand(side,cx,cy,s.dx,s.dy,s.w*pl.w));
   }
@@ -363,8 +363,15 @@ function garmentParts(part,p,pfx){
         V${r1(hemY+14)}H${r1(cx-hemHalf*taper)}V${r1(hemY-5)}
         Q${r1(cx-hemHalf*1.08)} ${r1(upper+58)} ${r1(cx-hemHalf*1.17)} ${r1(upper)}H0Z"/>
         </clipPath></defs>`;
-      return mask+(longRig?longRig.defs:'')+(longRig?`<g clip-path="url(#${longRig.torsoId})">`:'')+photo(e.rig?e.rig.torso:e.src,pl.x,pl.y,pl.w,pl.h,
-        ` clip-path="url(#${id})"`+(e.hood?` mask="url(#${pfx}-hd-${p.id}-t)"`:''))+(longRig?'</g>':'');
+      const src=e.rig?e.rig.torso:e.src;
+      const attrs=` clip-path="url(#${id})"`+(e.hood?` mask="url(#${pfx}-hd-${p.id}-t)"`:'');
+      if(!longRig)return mask+photo(src,pl.x,pl.y,pl.w,pl.h,attrs);
+      // Idle, giro e dança mostram a fotografia CONTÍNUA original. Somente
+      // TCHAU/SALVE habilitam recortes articulados temporários.
+      return mask+longRig.defs+
+        `<g class="fit-long-rest">`+photo(src,pl.x,pl.y,pl.w,pl.h,attrs)+`</g>`+
+        `<g class="fit-long-action" clip-path="url(#${longRig.torsoId})">`+
+          photo(src,pl.x,pl.y,pl.w,pl.h,attrs)+`</g>`;
     })();
     limbs.innerHTML=armsSVG(e,pl,pfx,sp);out.limbs=limbs;out.soft.push(limbs);
     if(longRig){const sl=mkG('fit-sleeves fit-articulated-longsleeves',p.id);sl.innerHTML=longRig.sleeves;out.sleeves=sl;out.soft.push(sl)}
@@ -378,21 +385,10 @@ function garmentParts(part,p,pfx){
     g.style.transformOrigin='210px 220px';
   }else{
     // Barra curta no tornozelo: foto real recortada, sem deformação da textura.
-    if(e.kind==='pants'&&e.legs?.length>=2){
-      const hem=891,top=718;
-      const cut=e.legs.slice(0,2).map(l=>{
-        const x=pl.x+l.x*pl.w,hw=Math.max(19,l.w*pl.w*.56);
-        const ankle=Math.max(13,Math.min(20,hw*.69));
-        return `<path d="M${r1(x-hw-5)} ${top} Q${r1(x-hw)} 760 ${r1(x-hw*.88)} 786
-          L${r1(x-ankle)} ${hem-13} Q${r1(x-ankle)} ${hem} ${r1(x-ankle+7)} ${hem}
-          L${r1(x+ankle-7)} ${hem} Q${r1(x+ankle)} ${hem} ${r1(x+ankle)} ${hem-13}
-          L${r1(x+hw*.88)} 786 Q${r1(x+hw)} 760 ${r1(x+hw+5)} ${top}Z"/>`;
-      }).join('');
-      const id=`${pfx}-trouser-${p.id}`;
-      g.innerHTML=`<defs><clipPath id="${id}" clipPathUnits="userSpaceOnUse">
-        <rect x="0" y="0" width="420" height="${top+1}"/>${cut}</clipPath></defs>`+
-        photo(e.src,pl.x,pl.y,pl.w,pl.h,` clip-path="url(#${id})"`);
-    }else g.innerHTML=photo(e.src,pl.x,pl.y,pl.w,pl.h);
+    // A calça é UMA peça inteira: preservar a silhueta, textura e o afunilamento
+    // reais do PNG/WebP. O clip trapezoidal antigo cortava a foto no joelho e
+    // fabricava o efeito de bermuda por cima de canelas estreitas.
+    g.innerHTML=photo(e.src,pl.x,pl.y,pl.w,pl.h);
     g.style.transformOrigin='210px 480px';
   }
   return out;
@@ -656,7 +652,16 @@ function setSplit(v){stage?.style.setProperty('--split',String(v))}
 let spin=()=>{},turnStart=null,emoteAnims=[],emoteName=null,spinAnim=null;
 // Cancelar um emote também limpa suas juntas e impede que uma animação antiga
 // termine por cima de uma nova roupa ou outro gesto.
-function setGestureState(name){stage?.querySelectorAll('[data-fit-emote]').forEach(b=>{const on=b.dataset.fitEmote===name;b.classList.toggle('is-playing',on);b.setAttribute('aria-pressed',String(on))})}
+function setGestureState(name){
+  stage?.querySelectorAll('[data-fit-emote]').forEach(b=>{
+    const on=b.dataset.fitEmote===name;b.classList.toggle('is-playing',on);b.setAttribute('aria-pressed',String(on));
+    if(b.dataset.fitEmote==='dance'){
+      b.setAttribute('aria-label',on?'Parar o passinho contínuo':'Iniciar passinho contínuo do Jamal');
+      const label=b.querySelector('b');if(label)label.textContent=on?'PARAR':'PASSINHO';
+      b.title=on?'Clique novamente para parar':'Clique para dançar continuamente';
+    }
+  });
+}
 function setArmForeground(front){
   if(!fig)return;
   const rig=fig.querySelector('.fit-rig'),arms=rig?.querySelector('.fit-layer-arms'),
@@ -667,44 +672,50 @@ function setArmForeground(front){
 function stopEmote(){
   setArmForeground(false);
   emoteAnims.forEach(a=>a.cancel());emoteAnims=[];setGestureState(null);
-  if(fig)delete fig.dataset.salveMode;
+  if(fig){delete fig.dataset.salveMode;delete fig.dataset.articulated}
   spinAnim?.cancel();spinAnim=null;
   emoteName=null;
   if(fig)delete fig.dataset.emote;
   stage?.classList.remove('is-fit-orbiting');
 }
-function emote(name,{bpm=138,beats=8}={}){
+function emote(name,{bpm=176,beats=8}={}){
   if(!fig||reduced()||!fig.animate)return false;
+  // Alternância real: PASSINHO fica em loop até um segundo clique.
+  if(name==='dance'&&emoteName==='dance'){stopEmote();return true}
   stopEmote();
+  if((name==='salute'||name==='wave')&&isLongSleeve(CAT.top[state.topId]))fig.dataset.articulated='on';
   bpm=Math.max(60,Math.min(240,Number(bpm)||112));
   beats=Math.max(2,Math.min(16,Math.round(Number(beats)||8)));
   const q=j=>[...fig.querySelectorAll(`.fit-figure:not(.fit-figure-b) [data-j="${j}"], #gbFitFigure [data-j="${j}"]`)].filter((v,i,a)=>a.indexOf(v)===i);
   // Tempo global LINEAR: offsets dos ossos permanecem sincronizados. Suavidade em cada intervalo.
   const run=(els,kf,o)=>els.filter(Boolean).forEach(el=>emoteAnims.push(el.animate(
     kf.map(frame=>({...frame,easing:frame.easing||'cubic-bezier(.38,0,.62,1)'})),
-    {easing:'linear',...o})));
+    {easing:'linear',...(name==='dance'?{iterations:Infinity}:{}),...o})));
   const body=[fig.querySelector('.fit-emote')],floor=[fig.querySelector('.fit-floor')],beat=60000/bpm;
   if(name==='spin'){spin();setGestureState(name);document.dispatchEvent(new CustomEvent('gb:emote',{detail:{name,editorial:true}}));return true}
   if(name==='dance'){
-    // Jamal: duas passadas laterais, 3 marcações, quadril oposto ao pé que pisa.
-    // Braços relaxados e elásticos no ritmo, sem reprodução de áudio comercial.
-    const T=Math.max(2180,Math.min(3100,beat*5.7));
-    // Base do passo: um para cada lado, seguido por três marcações rápidas de volta.
-    const steps=[0,-.48,-1,-.45,.15,.84,1,.42,-.30,-.78,0],n=steps.length-1;
+    // Base declarada por Jamal: UM, DOIS, UM, DOIS, TRÊS, deslocando
+    // peso lateral, quadril contrário ao pé e mãos acompanhando os passos.
+    // Estudo editorial 2D, sem alegar reprodução frame a frame/mocap.
+    const T=Math.max(1350,Math.min(1880,beat*5));
+    const steps=[0,-.28,-.78,-.16,0,.24,.82,.15,-.26,0],n=steps.length-1;
     const frames=fn=>steps.map((v,i)=>({offset:i/n,...fn(v,i)}));
-    run(body,frames((v,i)=>({transform:`translateX(${v*12}px) translateY(${i%2?3.5:0}px) rotate(${-v*2.2}deg)`})),{duration:T});
-    run(q('head'),frames((v,i)=>({transform:`rotate(${-v*6+(i%3===0?1.5:0)}deg)`})),{duration:T});
-    for(const side of[-1,1]){const k=side<0?'L':'R';
-      run(q('sh'+k),frames((v,i)=>({transform:`rotate(${side*(v*19+(i%2?12:-6))}deg)`})),{duration:T});
-      run(q('el'+k),frames((v,i)=>({transform:`rotate(${side*(i%2?-19:10)+v*7}deg)`})),{duration:T});
-      run(q('wr'+k),frames((v,i)=>({transform:`rotate(${side*(i%2?12:-7)}deg)`})),{duration:T});
-      // Passada e tênis partilham a MESMA pose, com elevação limitada ao tecido visível.
-      const pants=CAT.bottom[state.bottomId]?.kind==='pants';
-      const move=frames((v,i)=>({transform:`translate(${v*8}px,${!pants&&i%2&&((i%4===1&&side<0)||(i%4===3&&side>0))?-6:0}px)`}));
-      run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${side}"]`)],move,{duration:T});
+    const pants=CAT.bottom[state.bottomId]?.kind==='pants';
+    run(body,frames((v,i)=>({transform:`translateX(${v*12}px) translateY(${i%3===1?1.8:0}px) rotate(${-v*2.8}deg)`})),{duration:T});
+    run(q('head'),frames((v,i)=>({transform:`rotate(${-v*7+(i%3===0?1:0)}deg)`})),{duration:T});
+    for(const side of[-1,1]){
+      const k=side<0?'L':'R',accent=(i)=>((i===1||i===4||i===7)&&side<0)||((i===2||i===5||i===8)&&side>0);
+      run(q('sh'+k),frames((v,i)=>({transform:`rotate(${side*(v*24+(accent(i)?-8:6))}deg)`})),{duration:T});
+      run(q('el'+k),frames((v,i)=>({transform:`rotate(${side*(v*12+(accent(i)?-15:9))}deg)`})),{duration:T});
+      run(q('wr'+k),frames((v,i)=>({transform:`rotate(${side*(accent(i)?9:-6)}deg)`})),{duration:T});
+      // As pernas expostas e os tênis sobem no MESMO quadro.
+      const move=frames((v,i)=>({transform:`translate(${v*8}px,${!pants&&accent(i)?-9:0}px)`}));
+      if(!pants)run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${side}"]`)],move,{duration:T});
       run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${side}"]`)],move,{duration:T});
     }
-    run(floor,frames((v,i)=>({transform:`translateX(${v*3}px) scale(${i%2?.955:1},1)`})),{duration:T});
+    // Calça é foto única: move como uma peça, não rasga no joelho para dançar.
+    if(pants)run([fig.querySelector('.fit-layer-bottom')],frames((v)=>({transform:`translateX(${v*8}px)`})),{duration:T});
+    run(floor,frames((v,i)=>({transform:`translateX(${v*4}px) scale(${i%3===1?.96:1},1)`})),{duration:T});
   }else if(name==='wave'){
     setArmForeground(true);
     // Tchau real: erguer braço, três oscilações no antebraço/punho, retornar.
@@ -741,7 +752,9 @@ function emote(name,{bpm=138,beats=8}={}){
     for(const s of[-1,1]){const k=s<0?'L':'R';run(q('sh'+k),[{transform:'rotate(0deg)'},{transform:`rotate(${s*12}deg)`,offset:.18},{transform:`rotate(${-s*70}deg)`,offset:.46},{transform:'rotate(0deg)',offset:.75},{transform:'rotate(0deg)'}],{duration:T})}
   }else return false;
   emoteName=name;fig.dataset.emote=name;setGestureState(name);
-  Promise.all(emoteAnims.map(a=>a.finished)).then(()=>{if(emoteName===name){delete fig.dataset.emote;delete fig.dataset.salveMode;emoteName=null;emoteAnims=[];setGestureState(null)}}).catch(()=>{});
+  if(name!=='dance')Promise.all(emoteAnims.map(a=>a.finished)).then(()=>{
+    if(emoteName===name){stopEmote()}
+  }).catch(()=>{});
   document.dispatchEvent(new CustomEvent('gb:emote',{detail:{name,bpm}}));
   return true;
 }
