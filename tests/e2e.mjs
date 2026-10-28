@@ -472,6 +472,20 @@ async function run(w,h,reduced=false){
   if(!reduced)check(vp,'fit V19: emote DANÇAR anima juntas e corpo e termina sozinho',v19.started&&v19.moving>=3&&v19.body===1&&v19.done,JSON.stringify(v19));
   else check(vp,'fit V19: movimento reduzido não roda emote',v19.started===false,JSON.stringify(v19));
   check(vp,'fit V19: seta › da fileira de peças rola a lista',v19.arrows&&v19.s1>v19.s0,JSON.stringify(v19));
+  // V19.1: o 360 não pode cortar de uma lateral para a outra; é uma rotação
+  // editorial sinalizada, nunca uma foto inventada do verso da roupa.
+  if(!reduced&&(w===1440||w===390)){
+    const orbit=await page.evaluate(async()=>{
+      const wait=ms=>new Promise(r=>setTimeout(r,ms)),f=document.querySelector('#gbFitFigure');
+      const started=GBFitting.emote('spin'),plane=f.querySelector('.fit-yaw');
+      await wait(480);
+      const a=plane.getAnimations()[0],middle=a?.effect?.getComputedTiming().progress;
+      const labeled=document.querySelector('.look-stage').classList.contains('is-fit-orbiting')&&!!document.querySelector('.fit-orbit-note');
+      await wait(2200);
+      return{started,middle,labeled,done:!f.dataset.emote&&!document.querySelector('.look-stage').classList.contains('is-fit-orbiting'),yaw:GBFitting.yaw};
+    });
+    check(vp,'fit V19.1: 360 contínuo, legenda editorial e retorno à frente',orbit.started&&orbit.middle>.05&&orbit.middle<.8&&orbit.labeled&&orbit.done&&Math.abs(orbit.yaw)<.02,JSON.stringify(orbit));
+  }
   if(!reduced&&!mobile){const fb=await page.locator('#gbFitFigure').boundingBox();const y0=await page.evaluate(()=>GBFitting.yaw);
     await page.mouse.move(fb.x+fb.width*.5,fb.y+fb.height*.45);await page.mouse.down();await page.mouse.move(fb.x+fb.width*.62,fb.y+fb.height*.45,{steps:4});await page.mouse.move(fb.x+fb.width*.95,fb.y+fb.height*.45,{steps:6});await page.mouse.up();
     await page.waitForTimeout(1300);const y1=await page.evaluate(()=>GBFitting.yaw);
