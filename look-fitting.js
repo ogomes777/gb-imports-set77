@@ -204,10 +204,52 @@ function sleevePose(e,pl){
   }
   return out;
 }
+
+/* V1.2: manga longa com fonte real única, separada por máscaras suaves em ombro/cotovelo.
+   Toda a cor e estampa vêm do mesmo produto; punho e mão acompanham a articulação. */
+function articulatedLongSleeves(e,pl,pfx,pid){
+  const defs=[],parts=[];
+  const safe=(v)=>r1(v),pt=(x,y)=>P(pl,x,y);
+  const capsule=(a,b,wa,wb)=>{
+    const dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy)||1,nx=dy/len,ny=-dx/len;
+    return 'M'+safe(a[0]+nx*wa)+' '+safe(a[1]+ny*wa)+
+      'L'+safe(b[0]+nx*wb)+' '+safe(b[1]+ny*wb)+
+      'Q'+safe(b[0]+dx/len*8)+' '+safe(b[1]+dy/len*8)+' '+safe(b[0]-nx*wb)+' '+safe(b[1]-ny*wb)+
+      'L'+safe(a[0]-nx*wa)+' '+safe(a[1]-ny*wa)+'Z';
+  };
+  for(const k of ['l','r']){
+    const side=k==='l'?-1:1,s=e.sleeves[k];
+    const shoulder=pt(e.cx+side*e.sh.w*.48,e.sh.y+.015),
+      cuff=pt(s.x,s.y-.018),
+      elbow=[shoulder[0]+(cuff[0]-shoulder[0])*.56+side*4,shoulder[1]+(cuff[1]-shoulder[1])*.56];
+    const uId=pfx+'-ls-'+pid+'-'+k+'-upper',dId=pfx+'-ls-'+pid+'-'+k+'-lower',
+      w0=Math.min(48,pl.w*.115),wMid=Math.min(35,pl.w*.077),wCuff=Math.max(14,s.w*pl.w*.58);
+    defs.push('<clipPath id="'+uId+'"><path d="'+capsule(shoulder,[elbow[0],elbow[1]+7],w0,wMid)+'"/></clipPath>');
+    defs.push('<clipPath id="'+dId+'"><path d="'+capsule([elbow[0],elbow[1]-7],cuff,wMid+3,wCuff)+'"/></clipPath>');
+    const image=extra=>photo(e.src,pl.x,pl.y,pl.w,pl.h,extra);
+    const upper=image(' clip-path="url(#'+uId+')"'),lower=image(' clip-path="url(#'+dId+')"');
+    const hand=cuffHand(side,...pt(s.x,s.y),s.dx,s.dy,s.w*pl.w);
+    parts.push('<g class="fit-long-arm" data-side="'+side+'"><g transform="translate('+safe(shoulder[0])+' '+safe(shoulder[1])+')">'+
+      '<g class="fit-jnt" data-j="sh'+(side<0?'L':'R')+'"><g transform="translate('+safe(-shoulder[0])+' '+safe(-shoulder[1])+')">'+
+      upper+'<g transform="translate('+safe(elbow[0])+' '+safe(elbow[1])+')"><g class="fit-jnt" data-j="el'+(side<0?'L':'R')+'"><g transform="translate('+safe(-elbow[0])+' '+safe(-elbow[1])+')">'+
+      lower+hand+'</g></g></g></g></g></g></g>');
+  }
+  const l=pt(e.cx-e.sh.w*.50,e.sh.y),r=pt(e.cx+e.sh.w*.50,e.sh.y),
+    hemL=pt(e.cx-e.hemw*.50,e.hem),hemR=pt(e.cx+e.hemw*.50,e.hem),
+    torsoId=pfx+'-ls-'+pid+'-body';
+  // A gola/capuz inteiro permanece íntegro; somente as asas laterais da foto separam-se.
+  const contour='M0 0H420V'+safe(r[1]+8)+'H'+safe(r[0]+8)+
+    'Q'+safe(r[0]-15)+' '+safe(r[1]+82)+' '+safe(hemR[0])+' '+safe(hemR[1]+5)+
+    'H'+safe(hemL[0])+'Q'+safe(l[0]+15)+' '+safe(l[1]+82)+' '+safe(l[0]-8)+' '+safe(l[1]+8)+'H0Z';
+  defs.push('<clipPath id="'+torsoId+'"><path d="'+contour+'"/></clipPath>');
+  return{defs:'<defs>'+defs.join('')+'</defs>',torsoId,sleeves:parts.join('')};
+}
+
+const isLongSleeve=e=>!e.rig&&e.sleeves?.l?.type==='long'&&e.sleeves?.r?.type==='long';
 function armsSVG(e,pl,pfx,sp){
   const out=[];
   if(e.rig){for(const k of['l','r'])if(sp[k])out.push(shortArm(sp[k]))}
-  else for(const side of[-1,1]){
+  else if(!isLongSleeve(e))for(const side of[-1,1]){
     const s=e.sleeves?.[side<0?'l':'r'];if(!s||s.type!=='long')continue;
     const[cx,cy]=P(pl,s.x,s.y);out.push(cuffHand(side,cx,cy,s.dx,s.dy,s.w*pl.w));
   }
@@ -291,7 +333,9 @@ function legsGroup(pfx,bot,shoeE,root){
   const g=mkG('fit-legs');g.dataset.bottom=bot?.id||'';g.dataset.shoe=shoeE?.id||'';
   // Sombras de contato sob as bocas da bermuda evitam frestas artificiais entre tecido e pele.
   const seams=!spec.pants&&spec.openW?[-1,1].map(side=>`<ellipse cx="${r1(X(side,HIP.dx))}" cy="${r1(spec.openY+5)}" rx="${r1(Math.min(38,spec.openW*.40))}" ry="9" fill="#08090a" opacity=".38"/>`).join(''):'';
-  g.innerHTML=seams+legsSVG(pfx,spec);return g;
+  g.dataset.pants=spec.pants?'true':'false';
+  // A roupa de calça esconde a skin: evita canela/amarelo vazando em bainhas estreitas.
+  g.innerHTML=seams+(spec.pants&&shoeE?'':legsSVG(pfx,spec));return g;
 }
 // uma peça vira camadas: base (foto/torso) e corpo exposto (braços, pescoço) e, no superior, mangas por cima dos braços
 function garmentParts(part,p,pfx){
@@ -306,6 +350,7 @@ function garmentParts(part,p,pfx){
   const g=mkG(`fit-garment fit-${part}`,p.id);g.dataset.kind=e.kind;out.base=g;out.e=e;out.pl=pl;
   if(part==='top'){
     const[hx,hy]=P(pl,e.cx,e.hem),sp=sleevePose(e,pl),c=collarOf(e,pl),limbs=mkG('fit-limbs fit-limbs-top',p.id);
+    const longRig=isLongSleeve(e)?articulatedLongSleeves(e,pl,pfx,p.id):null;
     // sombra de contato da barra sobre a peça de baixo: a camisa cai por cima, não "flutua" sobre a calça
     g.innerHTML=`<ellipse cx="${r1(hx)}" cy="${r1(hy+4)}" rx="${r1(e.hemw*pl.w*.53)}" ry="17" fill="url(#${pfx}-drop)"/><ellipse cx="${r1(hx)}" cy="${r1(hy+1)}" rx="${r1(e.hemw*pl.w*.47)}" ry="6" fill="url(#${pfx}-drop)"/>`+(e.hood?hoodHideMask(e,pl,pfx,p.id):'')+
       (()=>{
@@ -318,10 +363,11 @@ function garmentParts(part,p,pfx){
         V${r1(hemY+14)}H${r1(cx-hemHalf*taper)}V${r1(hemY-5)}
         Q${r1(cx-hemHalf*1.08)} ${r1(upper+58)} ${r1(cx-hemHalf*1.17)} ${r1(upper)}H0Z"/>
         </clipPath></defs>`;
-      return mask+photo(e.rig?e.rig.torso:e.src,pl.x,pl.y,pl.w,pl.h,
-        ` clip-path="url(#${id})"`+(e.hood?` mask="url(#${pfx}-hd-${p.id}-t)"`:''));
+      return mask+(longRig?longRig.defs:'')+(longRig?`<g clip-path="url(#${longRig.torsoId})">`:'')+photo(e.rig?e.rig.torso:e.src,pl.x,pl.y,pl.w,pl.h,
+        ` clip-path="url(#${id})"`+(e.hood?` mask="url(#${pfx}-hd-${p.id}-t)"`:''))+(longRig?'</g>':'');
     })();
     limbs.innerHTML=armsSVG(e,pl,pfx,sp);out.limbs=limbs;out.soft.push(limbs);
+    if(longRig){const sl=mkG('fit-sleeves fit-articulated-longsleeves',p.id);sl.innerHTML=longRig.sleeves;out.sleeves=sl;out.soft.push(sl)}
     if(e.rig){const sl=mkG('fit-sleeves',p.id);
       // a manga gira no mesmo pivô do ombro do braço (emotes movem os dois juntos)
       sl.innerHTML=Object.values(sp).map(s=>`<g class="fit-arm" data-side="${s.side}"><g transform="translate(${r1(s.piv[0])} ${r1(s.piv[1])})"><g class="fit-jnt" data-j="${sideK(s.side,'sh')}"><g transform="translate(${r1(-s.piv[0])} ${r1(-s.piv[1])})">`+
@@ -409,7 +455,7 @@ const HELIX=(()=>{const P=46,A=13,x0=-16,x1=436,pt=(x,ph)=>`${r1(x)} ${r1(A*Math
 function figureSVG(pfx,label){
   return `<svg class="fit-svg" viewBox="0 0 420 1000" role="img" aria-label="${label}" focusable="false">${defsSVG(pfx)}
   <ellipse class="fit-floor" cx="210" cy="${B.floor}" rx="130" ry="15" fill="url(#${pfx}-floor)"/>
-  <g class="fit-yaw"><g class="fit-emote"><g class="fit-rig">${bodySVG(pfx)}<g class="fit-layer fit-layer-legs"></g><g class="fit-layer fit-layer-shoe"></g><g class="fit-layer fit-layer-bottom"></g><g class="fit-layer fit-layer-arms"></g><g class="fit-layer fit-layer-top"></g><g class="fit-layer fit-layer-sleeves"></g><g class="fit-layer fit-layer-neck"></g><g class="fit-layer fit-layer-hoodback"></g>${headSVG(pfx)}<g class="fit-layer fit-layer-hood"></g><g class="fit-layer fit-layer-cap"></g></g></g></g>
+  <g class="fit-yaw"><g class="fit-emote"><g class="fit-rig">${bodySVG(pfx)}<g class="fit-layer fit-layer-legs"></g><g class="fit-layer fit-layer-bottom"></g><g class="fit-layer fit-layer-shoe"></g><g class="fit-layer fit-layer-arms"></g><g class="fit-layer fit-layer-top"></g><g class="fit-layer fit-layer-sleeves"></g><g class="fit-layer fit-layer-neck"></g><g class="fit-layer fit-layer-hoodback"></g>${headSVG(pfx)}<g class="fit-layer fit-layer-hood"></g><g class="fit-layer fit-layer-cap"></g></g></g></g>
   <g class="fit-scan" aria-hidden="true"><rect x="30" y="-22" width="360" height="44" fill="url(#${pfx}-sc)"/><g class="fit-helix">${HELIX}</g></g></svg>`;
 }
 // coloca as camadas de uma peça na figura
