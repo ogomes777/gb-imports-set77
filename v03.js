@@ -76,6 +76,7 @@ function snapIn(mode){
  if(dock){dock.classList.remove('is-snap');void dock.offsetWidth;dock.classList.add('is-snap')}
 }
 function renderOptions(){
+ requestAnimationFrame(()=>many('.look-options').forEach(r=>r._navSync?.()));
  for(const [id,selected,mode] of [['lookTops',selectedTop,'top'],['lookBottoms',selectedBottom,'bottom']]){
    const box=one('#'+id);
    box.innerHTML=pool(mode).map((p,i)=>`<button type="button" class="look-option ${p.id===selected?'active':''}${isKit(p.id)?' is-kit':''}" data-look-mode="${mode}" data-look-id="${p.id}" aria-pressed="${p.id===selected}" title="${escaped(pieceName(p,mode))}" aria-label="${String(i+1).padStart(2,'0')} — ${escaped(pieceName(p,mode))} / ${mode==='top'?'parte superior':'parte inferior'}"><span class="look-index">${String(i+1).padStart(2,'0')}</span>${lookMedia(p,mode)}</button>`).join('');
@@ -107,7 +108,17 @@ function renderSaved(){
  box.hidden=!list.length;
  box.innerHTML=list.length?`<span class="look-saved-title">LOOKS SALVOS / ${String(list.length).padStart(2,'0')}</span><div class="look-saved-list">${list.map((o,i)=>`<div class="look-saved-item"><button type="button" class="look-saved-thumb" data-look-restore="${i}" aria-label="Restaurar look: ${escaped(pieceName(getItem(o.top),'top'))} com ${escaped(pieceName(getItem(o.bottom),'bottom'))}"><span>${lookMedia(getItem(o.top),'top')}</span><span>${lookMedia(getItem(o.bottom),'bottom')}</span></button><button type="button" class="look-saved-remove" data-look-remove="${i}" aria-label="Remover look salvo">×</button></div>`).join('')}</div>`:'';
 }
-function renderStudio(){window.GBFitting?.mount(one('.look-stage'),{topId:selectedTop,bottomId:selectedBottom,shoeId:selectedShoe||null,capId:selectedCap||null,hood:hoodUp&&hasHood(selectedTop)});paintPiece('top');paintPiece('bottom');renderOptions();renderSummary();renderSaved()}
+// setas ‹ › nas fileiras de peças: andam uma "página" da lista; somem quando não há mais para o lado
+function wireRowArrows(){
+ many('.look-step').forEach(step=>{const row=step.querySelector('.look-options');if(!row||step.querySelector('.look-row-nav'))return;
+  step.classList.add('has-row-nav');
+  const mk=(d,l)=>{const b=document.createElement('button');b.type='button';b.className='look-row-nav look-row-'+(d<0?'prev':'next');b.setAttribute('aria-label',l);b.innerHTML=d<0?'‹':'›';
+   b.addEventListener('click',()=>row.scrollBy({left:d*Math.max(120,row.clientWidth*.8),behavior:reducedLook?'auto':'smooth'}));step.appendChild(b);return b};
+  const p=mk(-1,'Ver peças anteriores'),n=mk(1,'Ver mais peças');
+  const sync=()=>{const max=row.scrollWidth-row.clientWidth-2;p.disabled=row.scrollLeft<=2;n.disabled=row.scrollLeft>=max;step.classList.toggle('row-fits',max<=0)};
+  row.addEventListener('scroll',sync,{passive:true});addEventListener('resize',sync,{passive:true});requestAnimationFrame(sync);row._navSync=sync});
+}
+function renderStudio(){window.GBFitting?.mount(one('.look-stage'),{topId:selectedTop,bottomId:selectedBottom,shoeId:selectedShoe||null,capId:selectedCap||null,hood:hoodUp&&hasHood(selectedTop)});paintPiece('top');paintPiece('bottom');renderOptions();renderSummary();renderSaved();wireRowArrows()}
 // Comparação A/B: look atual × look salvo, lado a lado no mesmo palco e na mesma escala.
 let comparing=false,compareIndex=0;
 function renderCompare(){
@@ -153,7 +164,7 @@ one('.look-studio')?.addEventListener('click',e=>{
 });
 // Swipe no palco: metade de cima troca a parte superior, metade de baixo a inferior.
 const lookStage=one('.look-stage');let lsx=0,lsy=0,lsHalf='top',lsSkip=false;
-lookStage?.addEventListener('touchstart',e=>{const r=lookStage.getBoundingClientRect();lsSkip=!!e.target.closest('.fit-turn,.fit-turnbar');lsx=e.touches[0].clientX;lsy=e.touches[0].clientY;lsHalf=(lsy-r.top)<r.height*.5?'top':'bottom'},{passive:true});
+lookStage?.addEventListener('touchstart',e=>{const r=lookStage.getBoundingClientRect();lsSkip=!!e.target.closest('.fit-turn,.fit-turnbar,.fit-figure,.fit-emotes');lsx=e.touches[0].clientX;lsy=e.touches[0].clientY;lsHalf=(lsy-r.top)<r.height*.5?'top':'bottom'},{passive:true});
 lookStage?.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-lsx,dy=e.changedTouches[0].clientY-lsy;if(comparing||lsSkip)return; // no A/B o gesto horizontal move o divisor; na plataforma ele gira o manequim
  if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.3)cycle(lsHalf,dx<0?1:-1,'swipe')},{passive:true});
 // Arrastar da lista para o palco (mouse): a peça segue o cursor e encaixa na área correspondente.
