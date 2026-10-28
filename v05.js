@@ -6,13 +6,17 @@
   {id:'sinal',name:'SINAL',desc:'Blocos de alto contraste organizam informação, coleção e experiência.',img:'./assets/brand/gb-sinal.png',stageTheme:'signal'}
  ];
  const stage=document.querySelector('[data-identity-stage]'),image=document.querySelector('#identitySymbol');
+ let activeTheme=null;
  const title=document.querySelector('#identityTitle'),desc=document.querySelector('#identityDesc');
  const buttons=[...document.querySelectorAll('[data-gb-identity]')];
  function setTheme(index,persist=true){
   const s=states[index];if(!s)return;
+  if(activeTheme===s.id)return;activeTheme=s.id;
   document.documentElement.dataset.gbTheme=s.id;if(document.body)document.body.dataset.gbTheme=s.id;
   if(stage)stage.dataset.theme=s.stageTheme;
-  if(image){image.classList.remove('changed');void image.offsetWidth;image.src=s.img;image.alt='Estudo visual '+s.name+' da identidade GB v1';image.classList.add('changed')}
+  if(image){image.classList.remove('changed');if(image.getAttribute('src')!==s.img)image.src=s.img;
+    image.alt='Estudo visual '+s.name+' da identidade GB v1';
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(()=>{if(activeTheme===s.id)image.classList.add('changed')})}
   if(title)title.textContent=s.name+'.';if(desc)desc.textContent=s.desc;
   buttons.forEach(b=>{const on=Number(b.dataset.gbIdentity)===index;b.classList.toggle('selected',on);b.setAttribute('aria-pressed',String(on))});
   if(persist){try{localStorage.setItem('gb-theme',s.id)}catch(e){}}
