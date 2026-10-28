@@ -494,7 +494,7 @@ async function run(w,h,reduced=false){
       const continuous=f.querySelector('.fit-emote').getAnimations().some(a=>a.effect.getTiming().iterations===Infinity);
       const result={hoodie,continuous,tracks:tracks.map(x=>({origin:x.origin,frames:x.frames.length})),
         triples:signs.map(a=>a.filter(s=>/rotate\([+-]?(?:4|5|6|7)/.test(s)).length),
-        negativeLifts:signs.map(a=>a.filter(s=>/,-(?:3|4|5|6)\./.test(s)).length)};
+        negativeLifts:signs.map(a=>a.filter(s=>/,\s*-(?:3|4|5|6)\./.test(s)).length)};
       GBFitting.emote('dance');await sleep(80);
       result.restored=f.dataset.articulated!=='on';
       GBFitting.set(old,{silent:true});await sleep(1150);
