@@ -635,7 +635,7 @@ function emote(name,{bpm=112,beats=8}={}){
   }else if(name==='salute'){
     // Salve curto: braço direito na altura da cabeça, a mão saúda e volta.
     const T=1550;
-    run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-155deg)',offset:.24},{transform:'rotate(-155deg)',offset:.75},{transform:'rotate(0deg)'}],{duration:T});
+    run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-135deg)',offset:.24},{transform:'rotate(-135deg)',offset:.75},{transform:'rotate(0deg)'}],{duration:T});
     run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(-110deg)',offset:.25},{transform:'rotate(-110deg)',offset:.73},{transform:'rotate(0deg)'}],{duration:T});
     run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-20deg)',offset:.36},{transform:'rotate(16deg)',offset:.55},{transform:'rotate(0deg)'}],{duration:T});
     run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-9deg)',offset:.42},{transform:'rotate(0deg)'}],{duration:T});
