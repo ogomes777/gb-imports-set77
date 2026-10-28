@@ -464,7 +464,7 @@ async function run(w,h,reduced=false){
     const ok=(await Promise.all([...new Set(imgs.filter(h=>/skin/.test(h)))].map(h=>{const i=new Image();i.src=h;return i.decode().then(()=>i.naturalWidth>0,()=>false)}))).every(Boolean);
     const started=GBFitting.emote('dance',{bpm:240,beats:4});await wait(60);
     const moving=[...f.querySelectorAll('[data-j]')].filter(el=>el.getAnimations().length).length,body=f.querySelector('.fit-emote').getAnimations().length;
-    await wait(1300);const done=!f.dataset.emote&&f.querySelector('.fit-emote').getAnimations().length===0;
+    await wait(3300);const done=!f.dataset.emote&&f.querySelector('.fit-emote').getAnimations().length===0;
     const step=document.querySelector('#lookTops').closest('.look-step'),next=step.querySelector('.look-row-next'),row=step.querySelector('.look-options');row.scrollLeft=0;await wait(50);
     const s0=row.scrollLeft;next?.click();await wait(700);const s1=row.scrollLeft;
     return{skin,mono,ok,started,moving,body,done,arrows:!!next,s0,s1}},[reduced]);
@@ -488,7 +488,24 @@ async function run(w,h,reduced=false){
       ankle:GBFitting.FIT.bottom.pantsHem,
       shortStable:GBFitting?.RIG?.floor===948};
   });
-  check(vp,'fit V21: controles originais, mão em V e barra curta',v21.icons===5&&v21.poses===3&&v21.peace&&v21.ankle===870&&v21.shortStable,JSON.stringify(v21));
+  check(vp,'fit V21: controles originais, mão em V e barra curta',v21.icons===5&&v21.poses===3&&v21.peace&&v21.ankle===886&&v21.shortStable,JSON.stringify(v21));
+   // V22: controle ORBIT 1:1. Arrasto no slider NÃO deve ser interceptado pelo drag do palco.
+   if(!reduced&&!mobile){
+     const dial=page.locator('#lookstudio .fit-dial'),r=await dial.boundingBox(),track=await page.locator('.fit-spin-track').boundingBox();
+     await page.mouse.move(r.x+r.width/2,r.y+r.height*.65);await page.mouse.down();
+     await page.mouse.move(track.x+track.width-3,r.y+r.height*.65,{steps:8});
+     const live=await page.evaluate(()=>GBFitting.yaw);await page.mouse.up();await page.waitForTimeout(850);
+     const end=await page.evaluate(()=>GBFitting.yaw);
+     check(vp,'fit V22: bolinha ORBIT acompanha arrasto contínuo',live>.85&&end>.94,JSON.stringify({live,end}));
+     await page.evaluate(()=>GBFitting.turn(0));await page.waitForTimeout(850);
+   }
+   const v22=await page.evaluate(()=>({knob:!!document.querySelector('.fit-orbit-thumb'),
+     save:!!document.querySelector('#lookSave .look-cta-mark'),
+     shuffle:!!document.querySelector('#lookShuffle svg'),
+     clipped:!!document.querySelector('#gbFitFigure [id*="-waist-"]'),
+     scrollWidth:document.documentElement.scrollWidth-innerWidth}));
+   check(vp,'fit V22: novo design premium com marcador e sem overflow',v22.knob&&v22.save&&v22.shuffle&&v22.clipped&&v22.scrollWidth<=1,JSON.stringify(v22));
+
 
 
   // V19.1: o 360 não pode cortar de uma lateral para a outra; é uma rotação
