@@ -500,7 +500,13 @@ async function run(w,h,reduced=false){
       const result={hoodie:f.dataset.articulated==='on',continuous,
         tracks:tracks.map(x=>({origin:x.origin,frames:x.frames.length,
           seam:x.frames[0]?.transform===x.frames[x.frames.length-1]?.transform,
-          linear:x.frames.every(f=>f.easing==='linear'),peaks:localPeaks(x.frames)}))};
+          linear:x.frames.every(f=>f.easing==='linear'),
+          // A calça permanece íntegra: sneaker collar não pode subir da bainha.
+          collarFixed:x.frames.every(k=>{
+            const y=(k.transform||'').match(/translate\([^,]+,\s*(-?\d+(?:\.\d+)?)px\)/);
+            return !y||Math.abs(Number(y[1]))<.05;
+          }),
+          peaks:localPeaks(x.frames)}))};
       GBFitting.emote('dance');await sleep(80);
       result.restored=f.dataset.articulated!=='on';
       GBFitting.set(old,{silent:true});await sleep(1150);
@@ -508,7 +514,7 @@ async function run(w,h,reduced=false){
     });
     check(vp,'GB V1.8: passinho fluido, três contatos por pé, fechamento perfeito e manga inteira',
       jamal.hoodie&&jamal.continuous&&jamal.tracks.length===2&&
-      jamal.tracks.every(t=>t.frames>=65&&t.origin.includes('px')&&t.seam&&t.linear&&t.peaks===3)&&
+      jamal.tracks.every(t=>t.frames>=65&&t.origin.includes('px')&&t.seam&&t.linear&&t.collarFixed&&t.peaks===3)&&
       jamal.restored,JSON.stringify(jamal));
   }
   // V20: escala real dos tênis, rig com capuz medido, painel premium com cinco emotes.
