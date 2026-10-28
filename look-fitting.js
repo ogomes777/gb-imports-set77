@@ -651,6 +651,16 @@ function emote(name,{bpm=112,beats=8}={}){
   return true;
 }
 
+const icon=k=>{
+const p={
+dance:'<path d="M4 15l4-4 3 3-3 4-4 1zM13 6l3-3 4 3-1 5-4 2-3-3z"/><path d="M5 7h3m-1-2v4m9 8h3m-1-2v4"/>',
+wave:'<path d="M7 20c-3-2-3-5-3-7l-1-3a1.6 1.6 0 013-1l2 3V5a1.5 1.5 0 013 0v5-6a1.5 1.5 0 013 0v6-5a1.5 1.5 0 013 0v6-3a1.5 1.5 0 013 0v6c0 4-2 7-6 8z"/>',
+salute:'<path d="M8 21L6 12 3 8a1.8 1.8 0 013-2l3 3-2-6a1.6 1.6 0 013-1l3 8 2-7a1.6 1.6 0 013 1l-2 9 2-2a1.8 1.8 0 013 2l-5 7z"/>',
+spin:'<path d="M19 8a8 8 0 10-1 10"/><path d="M16 4l4 4-5 3"/><path d="M9 20h5"/>',
+jump:'<path d="M12 19V4M7 9l5-5 5 5"/><path d="M4 21h16M8 16l-3 3m11-3 3 3"/>'
+};
+return `<svg class="fit-icon-glyph" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p[k]||''}</svg>`;
+};
 /* ============================== MONTAGEM ============================== */
 function mount(el,initial){
   stage=el;if(!stage||stage.querySelector('.fit-figure'))return;
@@ -661,9 +671,22 @@ function mount(el,initial){
    <div class="fit-figure" id="gbFitFigure">${figureSVG('fitA','Manequim GB vestindo o look selecionado')}</div>
    <div class="fit-plat" aria-hidden="true"><i></i><b></b></div><div class="fit-turn" aria-hidden="true"></div>
    <span class="fit-orbit-note" aria-hidden="true">GIRO EDITORIAL · COSTAS NÃO FOTOGRAFADAS</span>
-    <div class="fit-emotes" role="group" aria-label="Emotes do manequim"><span class="fit-emotes-title" aria-hidden="true">EMOTES</span><button type="button" data-fit-emote="dance" aria-label="Passinho"><i aria-hidden="true">♫</i><b>PASSINHO</b></button><button type="button" data-fit-emote="wave" aria-label="Tchau"><i aria-hidden="true">✋</i><b>TCHAU</b></button><button type="button" data-fit-emote="salute" aria-label="Salve"><i aria-hidden="true">♥</i><b>SALVE</b></button><button type="button" data-fit-emote="spin" aria-label="Giro editorial 360 graus"><i aria-hidden="true">↻</i><b>360°</b></button><button type="button" data-fit-emote="jump" aria-label="Pular"><i aria-hidden="true">↑</i><b>PULAR</b></button></div>
-   <div class="fit-turnbar" role="group" aria-label="Girar o manequim"><button type="button" data-fit-turn="-1" aria-label="Girar para a esquerda" aria-pressed="false">◀</button><span class="fit-dial" role="slider" tabindex="0" aria-label="Giro do manequim" aria-valuemin="-45" aria-valuemax="45" aria-valuenow="0" aria-valuetext="FRENTE"><b>GIRAR</b></span><button type="button" data-fit-turn="0" aria-label="De frente" aria-pressed="true">●</button><button type="button" data-fit-turn="1" aria-label="Girar para a direita" aria-pressed="false">▶</button></div>
-   <p class="fit-tag" aria-hidden="true"></p>
+    <div class="fit-emotes" role="group" aria-label="Emotes do GB UNIT">
+      <span class="fit-emotes-title" aria-hidden="true">GB / GESTOS</span>
+      <button type="button" data-fit-emote="dance" aria-label="Passinho do Jamal"><i aria-hidden="true">${icon('dance')}</i><b>PASSINHO</b></button>
+      <button type="button" data-fit-emote="wave" aria-label="Acenar tchau"><i aria-hidden="true">${icon('wave')}</i><b>TCHAU</b></button>
+      <button type="button" data-fit-emote="salute" aria-label="Salve com paz e amor"><i aria-hidden="true">${icon('salute')}</i><b>SALVE</b></button>
+      <button type="button" data-fit-emote="spin" aria-label="Girar 360 graus"><i aria-hidden="true">${icon('spin')}</i><b>360°</b></button>
+      <button type="button" data-fit-emote="jump" aria-label="Pular"><i aria-hidden="true">${icon('jump')}</i><b>PULAR</b></button>
+    </div>
+    <div class="fit-turnbar" role="group" aria-label="Girar o GB UNIT">
+      <span class="fit-turn-title" aria-hidden="true">GB / ORBIT CONTROL</span>
+      <button type="button" data-fit-turn="-1" aria-label="Girar para a esquerda" aria-pressed="false"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <span class="fit-dial" role="slider" tabindex="0" aria-label="Giro do manequim" aria-valuemin="-45" aria-valuemax="45" aria-valuenow="0" aria-valuetext="FRENTE"><b>ORBITAR</b><span class="fit-spin-track" aria-hidden="true"><i data-pose="-1"></i><i data-pose="0" class="is-active"></i><i data-pose="1"></i></span></span>
+      <button type="button" data-fit-turn="0" aria-label="De frente" aria-pressed="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
+      <button type="button" data-fit-turn="1" aria-label="Girar para a direita" aria-pressed="false"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <p class="fit-tag" aria-hidden="true"></p>
    <p class="fit-legal">SIMULAÇÃO EDITORIAL DE COMPOSIÇÃO · FOTOS REAIS DO ACERVO GB · NÃO É PROVADOR DE CAIMENTO</p>
    <div class="fit-compare" hidden><div class="fit-cmp-a"></div><div class="fit-cmp-b"></div><span class="fit-split-line" aria-hidden="true"><i>A | B</i></span><label class="fit-split"><span class="sr-only">Divisor entre o look A (atual) e o look B (salvo)</span><input type="range" min="8" max="92" value="50" step="1"></label></div>`;
   stage.prepend(scene);
@@ -684,7 +707,8 @@ function mount(el,initial){
   const spring=M?new M.Spring(0,{k:170,z:.82}):null;let spinning=false;
   const label=y=>{const d=dirOf(y);return d==='L'?'ESQUERDA':d==='R'?'DIREITA':'FRENTE'};
   const sync=y=>{applyYaw(fig,y);scene.style.setProperty('--yaw',y.toFixed(3));scene.style.setProperty('--yawa',Math.abs(y).toFixed(3));if(dial){dial.setAttribute('aria-valuenow',String(Math.round(y*45)));dial.setAttribute('aria-valuetext',label(y))}
-    scene.querySelectorAll('[data-fit-turn]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.fitTurn===Math.round(y))))};
+    scene.querySelectorAll('[data-fit-turn]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.fitTurn===Math.round(y))));
+    scene.querySelectorAll('.fit-spin-track [data-pose]').forEach(t=>t.classList.toggle('is-active',+t.dataset.pose===Math.round(y)))};
   const loop=dt=>{const y=spring.step(Math.min(dt,.05));sync(y);if(spring.settled){spring.jump(spring.target);sync(spring.target);spinning=false;return false}};
   const goTo=(t,impulse=0)=>{t=Math.max(-1,Math.min(1,t));if(!spring||reduced()){sync(t);return}spring.set(t,impulse);if(!spinning){spinning=true;M.Ticker.add(loop)}};
   scene.querySelectorAll('[data-fit-turn]').forEach(b=>b.addEventListener('click',()=>goTo(+b.dataset.fitTurn)));
