@@ -52,7 +52,7 @@ const B={cx:210,crown:58,chin:171,shoulderY:212,shL:[116,236],shR:[304,236],nave
   zones:{top:[90,176,240,340],bottom:[118,420,184,490]}};
 // alvos da roupa sobre o corpo: superior pela linha dos ombros, inferior pelo cós (folga de streetwear incluída)
 const FIT={top:{shoulder:232,lineY:212,kindDy:{hoodie:6,jacket:4,sweatshirt:0,longsleeve:0,tee:0,polo:0,jersey:0}},
-  bottom:{waist:166,waistY:430,pantsHem:896},armTilt:19,neck:{top:29,base:38},
+  bottom:{waist:166,waistY:430,pantsHem:870},armTilt:19,neck:{top:29,base:38},
   kindScale:{hoodie:1,jacket:1.02,sweatshirt:1,longsleeve:.98,tee:1,polo:1,jersey:1,pants:1,shorts:1}};
 const HEAD_R=[[210,58],[226,59.5],[239,65],[247.5,75],[251.5,88],[252.5,102],[251.5,114],[250,125],[247.5,136],[244,146],[239,155],[232.5,162],[224.5,167.5],[217,170.5],[210,171.5]];
 const HEAD=[...HEAD_R,...mirror(HEAD_R).reverse().slice(1,-1)];
@@ -130,8 +130,15 @@ function bodySVG(pfx){
 const DEG=180/Math.PI,angOf=(dx,dy)=>Math.atan2(dy,dx)*DEG;
 function bone(k,sw,sl,j,kids='',cls=''){
   const e=SK[k],R=90-angOf(e.b[0]-e.a[0],e.b[1]-e.a[1]),L=e.len*sl;
-  return `<g class="fit-jnt${cls?' '+cls:''}" data-j="${j}"><g transform="scale(${r3(sw)} ${r3(sl)}) rotate(${r1(R)}) translate(${-e.a[0]} ${-e.a[1]})"><image href="${e.src}" width="${e.w}" height="${e.h}"/></g>`+
-    (kids?`<g transform="translate(0 ${r1(L)})">${kids}</g>`:'')+`</g>`;
+  // Paz e amor: mão direita com dois dedos abertos em V, articulada no punho.
+  // A luva original é ocultada apenas durante o SALVE.
+  const peace=j==='wrR'? `<g class="fit-peace-sign" aria-hidden="true" transform="translate(-8 10) scale(.65)">
+    <path d="M-16 88Q-26 78-25 60L-38 34Q-44 21-35 17Q-27 13-21 25L-13 41-18-37Q-19-53-9-55Q1-55 3-40L7 22 18-40Q21-56 31-53Q40-50 35-36L24 25 34 19Q44 10 49 20Q52 27 44 40L33 62Q32 79 20 89Z" fill="#11141a" stroke="#c39b1e" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M-8 36L2 64 17 38M-12 71Q8 81 23 69" stroke="#ffd447" stroke-width="3.2" stroke-linecap="round" fill="none"/>
+    <path d="M-9-36L-5 12M29-36L18 14" stroke="#fff1a8" stroke-width="3" stroke-linecap="round"/>
+    </g>`: '';
+  return `<g class="fit-jnt${cls?' '+cls:''}" data-j="${j}"><g class="fit-bone-art" transform="scale(${r3(sw)} ${r3(sl)}) rotate(${r1(R)}) translate(${-e.a[0]} ${-e.a[1]})"><image href="${e.src}" width="${e.w}" height="${e.h}"/></g>`+
+    peace+(kids?`<g transform="translate(0 ${r1(L)})">${kids}</g>`:'')+`</g>`;
 }
 const r3=n=>Math.round(n*1000)/1000;
 const child=(rel,inner)=>`<g transform="rotate(${r1(rel)})">${inner}</g>`;
@@ -223,11 +230,8 @@ function legsSVG(pfx,spec){
     const kt=sideK(side,'th'),ks=sideK(side,'shin'),kb=sideK(side,'boot');
     const lenS=Math.max(.5,Math.min(.74,D/((SK[kt].len+SK[ks].len)*.995)));
     // largura: a coxa no nível da barra da bermuda cabe na boca (92%); a perna toda segue essa largura
-    let sw=Math.min(.62,lenS*.84);
-    if(spec.openW){const t=Math.max(.3,Math.min(.95,(spec.openY-H[1])/(SK[kt].len*lenS)));
-      // Largura do recorte acompanha a boca real da bermuda; não cresce de repente na panturrilha.
-      sw=Math.max(.43,Math.min(.64,spec.openW*.93/Math.max(1,widAt(kt,t))));
-    }else if(spec.pants)sw=Math.min(.58,lenS*.81);
+    // Fotos de bermudas variam; a anatomia do GB UNIT não deve mudar de espessura a cada peça.
+    const sw=spec.pants?.54:.555;
     const Lt=SK[kt].len*lenS,Ls=SK[ks].len*lenS,base=angOf(T[0]-H[0],T[1]-H[1]);
     const cosA=Math.max(-1,Math.min(1,(Lt*Lt+D*D-Ls*Ls)/(2*Lt*D))),bend=Math.acos(cosA)*DEG;
     // o joelho dobra para fora (lado do corpo)
@@ -315,7 +319,22 @@ function garmentParts(part,p,pfx){
     if(e.hood){const hd=hoodParts(e,pl,pfx,p.id);out.hoodBack=hd.back;out.hood=hd.front}
     g.style.transformOrigin='210px 220px';
   }else{
-    g.innerHTML=photo(e.src,pl.x,pl.y,pl.w,pl.h);
+    // Barra curta no tornozelo: foto real recortada, sem deformação da textura.
+    if(e.kind==='pants'&&e.legs?.length>=2){
+      const hem=875,top=716;
+      const cut=e.legs.slice(0,2).map(l=>{
+        const x=pl.x+l.x*pl.w,hw=Math.max(19,l.w*pl.w*.56);
+        const ankle=Math.max(13,Math.min(20,hw*.69));
+        return `<path d="M${r1(x-hw-5)} ${top} Q${r1(x-hw)} 760 ${r1(x-hw*.88)} 786
+          L${r1(x-ankle)} 862 Q${r1(x-ankle)} ${hem} ${r1(x-ankle+7)} ${hem}
+          L${r1(x+ankle-7)} ${hem} Q${r1(x+ankle)} ${hem} ${r1(x+ankle)} 862
+          L${r1(x+hw*.88)} 786 Q${r1(x+hw)} 760 ${r1(x+hw+5)} ${top}Z"/>`;
+      }).join('');
+      const id=`${pfx}-trouser-${p.id}`;
+      g.innerHTML=`<defs><clipPath id="${id}" clipPathUnits="userSpaceOnUse">
+        <rect x="0" y="0" width="420" height="${top+1}"/>${cut}</clipPath></defs>`+
+        photo(e.src,pl.x,pl.y,pl.w,pl.h,` clip-path="url(#${id})"`);
+    }else g.innerHTML=photo(e.src,pl.x,pl.y,pl.w,pl.h);
     g.style.transformOrigin='210px 480px';
   }
   return out;
@@ -323,7 +342,7 @@ function garmentParts(part,p,pfx){
 // capuz na cabeça: o próprio capuz da foto, levantado por inteiro (escala única) até a abertura emoldurar o rosto.
 // Atrás da cabeça vai o capuz inteiro (o forro escuro aparece em volta do capacete); na frente, o mesmo capuz com a
 // abertura vazada (borda suave), para a cabeça ficar DENTRO dele. A base some aos poucos sobre os ombros.
-const HOOD={open:104,top:HEAD_TOP-2};
+const HOOD={open:99,top:HEAD_TOP-2};
 // com o capuz na cabeça, a parte de cima do capuz deitado na foto some (fica só a gola que desce aos ombros)
 function hoodHideMask(e,pl,pfx,pid){
   const h=e.hood,ox0=pl.x+h.x0*pl.w,ox1=pl.x+h.x1*pl.w,ot=pl.y+h.top*pl.h,ob=pl.y+h.bottom*pl.h,id=`${pfx}-hd-${pid}-t`;
@@ -338,7 +357,7 @@ function hoodParts(e,pl,pfx,pid){
   const h=e.hood,ox0=pl.x+h.x0*pl.w,ox1=pl.x+h.x1*pl.w,ot=pl.y+h.top*pl.h;
   const ow=Math.max(1,ox1-ox0),k=Math.max(.83,Math.min(1.25,HOOD.open/ow));
   const tx=B.cx-k*(ox0+ox1)/2,ty=HOOD.top-k*ot,id=`${pfx}-hood-${pid}`;
-  const cx=B.cx,cy=HEAD_TOP+69,rx=69,ry=85,ix=51,iy=69;
+  const cx=B.cx,cy=HEAD_TOP+69,rx=63,ry=82,ix=53,iy=71;
   const img=`<g transform="translate(${r1(tx)} ${r1(ty)}) scale(${r3(k)})">${photo(e.src,pl.x,pl.y,pl.w,pl.h)}</g>`;
   const outer=`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>`;
   const back=mkG('fit-hoodpart fit-hood-back',pid);
@@ -591,33 +610,33 @@ function emote(name,{bpm=112,beats=8}={}){
   const body=[fig.querySelector('.fit-emote')],floor=[fig.querySelector('.fit-floor')],beat=60000/bpm;
   if(name==='spin'){spin();document.dispatchEvent(new CustomEvent('gb:emote',{detail:{name,editorial:true}}));return true}
   if(name==='dance'){
-    const T=beat*beats,n=beats,kf=f=>Array.from({length:n*2+1},(_,i)=>({offset:i/(n*2),...f(i)}));
-    run(body,kf(i=>({transform:`translateY(${i%2?6:0}px) rotate(${i%4===1?1.8:i%4===3?-1.8:0}deg)`})),{duration:T});
-    run(q('head'),kf(i=>({transform:`rotate(${i%2?(i%4===1?7:-7):0}deg)`})),{duration:T});
-    for(const s of[-1,1]){const k=s<0?'L':'R';
-      run(q('sh'+k),kf(i=>({transform:`rotate(${i%2?(((i+1)/2+(s<0?0:1))%2?-s*42:-s*12):-s*6}deg)`})),{duration:T});
-      run(q('el'+k),kf(i=>({transform:`rotate(${i%2?s*-38:s*-10}deg)`})),{duration:T});
-      run(q('wr'+k),kf(i=>({transform:`rotate(${i%2?s*14:-s*8}deg)`})),{duration:T})}
-    run(floor,kf(i=>({transform:`scale(${i%2?.94:1},1)`})),{duration:T});
-    // Footwork apenas com bermuda; calça é foto real plana, sem malha de deformação.
-    if(CAT.bottom[state.bottomId]?.kind==='shorts')for(const side of[-1,1]){
-      const k=side<0?'-1':'1',lift=kf(i=>({transform:`translateY(${i%4===1?-7:i%4===3?-3:0}px)`}));
-      run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${k}"]`)],lift,{duration:T});
-      run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${k}"]`)],lift,{duration:T});
+    // Passinho do Jamal: um, dois, um, dois, três; braços e pés se respondem.
+    // Sem áudio comercial embutido, só a coreografia editorial.
+    const T=Math.max(2450,beat*8),sequence=[0,-1,0,1,0,1,-1,0,0];
+    const frames=f=>sequence.map((v,i)=>({offset:i/8,...f(v,i)}));
+    run(body,frames((v,i)=>({transform:`translate(${v*8}px,${i%2?3:0}px) rotate(${v*1.6}deg)`})),{duration:T});
+    run(q('head'),frames(v=>({transform:`rotate(${v*7}deg)`})),{duration:T});
+    for(const side of[-1,1]){const k=side<0?'L':'R';
+      run(q('sh'+k),frames((v,i)=>({transform:`rotate(${side*(v*19+(i%2?28:-6))}deg)`})),{duration:T});
+      run(q('el'+k),frames((v,i)=>({transform:`rotate(${side*(i%2?-33:14)+v*7}deg)`})),{duration:T});
+      run(q('wr'+k),frames((v,i)=>({transform:`rotate(${side*(i%2?12:-11)}deg)`})),{duration:T});
+      const feet=frames((v,i)=>({transform:`translate(${v*3}px,${(i===1||i===3||i===5)&&((i%4===1&&side<0)||(i%4===3&&side>0))?-6:0}px)`}));
+      run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${side}"]`)],feet,{duration:T});
+      run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${side}"]`)],feet,{duration:T});
     }
+    run(floor,frames((v,i)=>({transform:`translateX(${v*3}px) scale(${i%2?.95:1},1)`})),{duration:T});
   }else if(name==='wave'){
-    const T=2200;
-    const up=q('shR').length?'R':null;
-    if(up){run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-118deg)',offset:.2},{transform:'rotate(-112deg)',offset:.5},{transform:'rotate(-118deg)',offset:.8},{transform:'rotate(0deg)'}],{duration:T});
-      run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(-62deg)',offset:.2},{transform:'rotate(-28deg)',offset:.32},{transform:'rotate(-62deg)',offset:.44},{transform:'rotate(-28deg)',offset:.56},{transform:'rotate(-62deg)',offset:.68},{transform:'rotate(0deg)',offset:.8},{transform:'rotate(0deg)'}],{duration:T})}
-    run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-16deg)',offset:.25},{transform:'rotate(16deg)',offset:.4},{transform:'rotate(-16deg)',offset:.55},{transform:'rotate(16deg)',offset:.7},{transform:'rotate(0deg)'}],{duration:T});
-    run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-6deg)',offset:.3},{transform:'rotate(-6deg)',offset:.7},{transform:'rotate(0deg)'}],{duration:T});
-    run(body,[{transform:'rotate(0deg)'},{transform:'rotate(-1.2deg)',offset:.3},{transform:'rotate(-1.2deg)',offset:.7},{transform:'rotate(0deg)'}],{duration:T});
+    // Tchau real: erguer braço, três oscilações no antebraço/punho, retornar.
+    const T=2350;
+    run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-79deg)',offset:.16},{transform:'rotate(-86deg)',offset:.80},{transform:'rotate(0deg)'}],{duration:T});
+    run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(-41deg)',offset:.17},{transform:'rotate(-19deg)',offset:.30},{transform:'rotate(-48deg)',offset:.43},{transform:'rotate(-16deg)',offset:.56},{transform:'rotate(-44deg)',offset:.69},{transform:'rotate(0deg)'}],{duration:T});
+    run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-27deg)',offset:.18},{transform:'rotate(25deg)',offset:.31},{transform:'rotate(-28deg)',offset:.44},{transform:'rotate(24deg)',offset:.57},{transform:'rotate(-26deg)',offset:.70},{transform:'rotate(0deg)'}],{duration:T});
+    run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-6deg)',offset:.30},{transform:'rotate(-4deg)',offset:.73},{transform:'rotate(0deg)'}],{duration:T});
   }else if(name==='salute'){
     // Salve curto: braço direito na altura da cabeça, a mão saúda e volta.
     const T=1550;
-    run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-74deg)',offset:.24},{transform:'rotate(-74deg)',offset:.75},{transform:'rotate(0deg)'}],{duration:T});
-    run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(-92deg)',offset:.25},{transform:'rotate(-88deg)',offset:.73},{transform:'rotate(0deg)'}],{duration:T});
+    run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-135deg)',offset:.24},{transform:'rotate(-135deg)',offset:.75},{transform:'rotate(0deg)'}],{duration:T});
+    run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(-110deg)',offset:.25},{transform:'rotate(-110deg)',offset:.73},{transform:'rotate(0deg)'}],{duration:T});
     run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-20deg)',offset:.36},{transform:'rotate(16deg)',offset:.55},{transform:'rotate(0deg)'}],{duration:T});
     run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-9deg)',offset:.42},{transform:'rotate(0deg)'}],{duration:T});
   }else if(name==='jump'){
@@ -632,6 +651,16 @@ function emote(name,{bpm=112,beats=8}={}){
   return true;
 }
 
+const icon=k=>{
+const p={
+dance:'<path d="M4 15l4-4 3 3-3 4-4 1zM13 6l3-3 4 3-1 5-4 2-3-3z"/><path d="M5 7h3m-1-2v4m9 8h3m-1-2v4"/>',
+wave:'<path d="M7 20c-3-2-3-5-3-7l-1-3a1.6 1.6 0 013-1l2 3V5a1.5 1.5 0 013 0v5-6a1.5 1.5 0 013 0v6-5a1.5 1.5 0 013 0v6-3a1.5 1.5 0 013 0v6c0 4-2 7-6 8z"/>',
+salute:'<path d="M8 21L6 12 3 8a1.8 1.8 0 013-2l3 3-2-6a1.6 1.6 0 013-1l3 8 2-7a1.6 1.6 0 013 1l-2 9 2-2a1.8 1.8 0 013 2l-5 7z"/>',
+spin:'<path d="M19 8a8 8 0 10-1 10"/><path d="M16 4l4 4-5 3"/><path d="M9 20h5"/>',
+jump:'<path d="M12 19V4M7 9l5-5 5 5"/><path d="M4 21h16M8 16l-3 3m11-3 3 3"/>'
+};
+return `<svg class="fit-icon-glyph" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p[k]||''}</svg>`;
+};
 /* ============================== MONTAGEM ============================== */
 function mount(el,initial){
   stage=el;if(!stage||stage.querySelector('.fit-figure'))return;
@@ -642,9 +671,22 @@ function mount(el,initial){
    <div class="fit-figure" id="gbFitFigure">${figureSVG('fitA','Manequim GB vestindo o look selecionado')}</div>
    <div class="fit-plat" aria-hidden="true"><i></i><b></b></div><div class="fit-turn" aria-hidden="true"></div>
    <span class="fit-orbit-note" aria-hidden="true">GIRO EDITORIAL · COSTAS NÃO FOTOGRAFADAS</span>
-    <div class="fit-emotes" role="group" aria-label="Emotes do manequim"><span class="fit-emotes-title" aria-hidden="true">EMOTES</span><button type="button" data-fit-emote="dance" aria-label="Passinho"><i aria-hidden="true">♫</i><b>PASSINHO</b></button><button type="button" data-fit-emote="wave" aria-label="Tchau"><i aria-hidden="true">✋</i><b>TCHAU</b></button><button type="button" data-fit-emote="salute" aria-label="Salve"><i aria-hidden="true">♥</i><b>SALVE</b></button><button type="button" data-fit-emote="spin" aria-label="Giro editorial 360 graus"><i aria-hidden="true">↻</i><b>360°</b></button><button type="button" data-fit-emote="jump" aria-label="Pular"><i aria-hidden="true">↑</i><b>PULAR</b></button></div>
-   <div class="fit-turnbar" role="group" aria-label="Girar o manequim"><button type="button" data-fit-turn="-1" aria-label="Girar para a esquerda" aria-pressed="false">◀</button><span class="fit-dial" role="slider" tabindex="0" aria-label="Giro do manequim" aria-valuemin="-45" aria-valuemax="45" aria-valuenow="0" aria-valuetext="FRENTE"><b>GIRAR</b></span><button type="button" data-fit-turn="0" aria-label="De frente" aria-pressed="true">●</button><button type="button" data-fit-turn="1" aria-label="Girar para a direita" aria-pressed="false">▶</button></div>
-   <p class="fit-tag" aria-hidden="true"></p>
+    <div class="fit-emotes" role="group" aria-label="Emotes do GB UNIT">
+      <span class="fit-emotes-title" aria-hidden="true">GB / GESTOS</span>
+      <button type="button" data-fit-emote="dance" aria-label="Passinho do Jamal"><i aria-hidden="true">${icon('dance')}</i><b>PASSINHO</b></button>
+      <button type="button" data-fit-emote="wave" aria-label="Acenar tchau"><i aria-hidden="true">${icon('wave')}</i><b>TCHAU</b></button>
+      <button type="button" data-fit-emote="salute" aria-label="Salve com paz e amor"><i aria-hidden="true">${icon('salute')}</i><b>SALVE</b></button>
+      <button type="button" data-fit-emote="spin" aria-label="Girar 360 graus"><i aria-hidden="true">${icon('spin')}</i><b>360°</b></button>
+      <button type="button" data-fit-emote="jump" aria-label="Pular"><i aria-hidden="true">${icon('jump')}</i><b>PULAR</b></button>
+    </div>
+    <div class="fit-turnbar" role="group" aria-label="Girar o GB UNIT">
+      <span class="fit-turn-title" aria-hidden="true">GB / ORBIT CONTROL</span>
+      <button type="button" data-fit-turn="-1" aria-label="Girar para a esquerda" aria-pressed="false"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <span class="fit-dial" role="slider" tabindex="0" aria-label="Giro do manequim" aria-valuemin="-45" aria-valuemax="45" aria-valuenow="0" aria-valuetext="FRENTE"><b>ORBITAR</b><span class="fit-spin-track" aria-hidden="true"><i data-pose="-1"></i><i data-pose="0" class="is-active"></i><i data-pose="1"></i></span></span>
+      <button type="button" data-fit-turn="0" aria-label="De frente" aria-pressed="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
+      <button type="button" data-fit-turn="1" aria-label="Girar para a direita" aria-pressed="false"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <p class="fit-tag" aria-hidden="true"></p>
    <p class="fit-legal">SIMULAÇÃO EDITORIAL DE COMPOSIÇÃO · FOTOS REAIS DO ACERVO GB · NÃO É PROVADOR DE CAIMENTO</p>
    <div class="fit-compare" hidden><div class="fit-cmp-a"></div><div class="fit-cmp-b"></div><span class="fit-split-line" aria-hidden="true"><i>A | B</i></span><label class="fit-split"><span class="sr-only">Divisor entre o look A (atual) e o look B (salvo)</span><input type="range" min="8" max="92" value="50" step="1"></label></div>`;
   stage.prepend(scene);
@@ -665,7 +707,8 @@ function mount(el,initial){
   const spring=M?new M.Spring(0,{k:170,z:.82}):null;let spinning=false;
   const label=y=>{const d=dirOf(y);return d==='L'?'ESQUERDA':d==='R'?'DIREITA':'FRENTE'};
   const sync=y=>{applyYaw(fig,y);scene.style.setProperty('--yaw',y.toFixed(3));scene.style.setProperty('--yawa',Math.abs(y).toFixed(3));if(dial){dial.setAttribute('aria-valuenow',String(Math.round(y*45)));dial.setAttribute('aria-valuetext',label(y))}
-    scene.querySelectorAll('[data-fit-turn]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.fitTurn===Math.round(y))))};
+    scene.querySelectorAll('[data-fit-turn]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.fitTurn===Math.round(y))));
+    scene.querySelectorAll('.fit-spin-track [data-pose]').forEach(t=>t.classList.toggle('is-active',+t.dataset.pose===Math.round(y)))};
   const loop=dt=>{const y=spring.step(Math.min(dt,.05));sync(y);if(spring.settled){spring.jump(spring.target);sync(spring.target);spinning=false;return false}};
   const goTo=(t,impulse=0)=>{t=Math.max(-1,Math.min(1,t));if(!spring||reduced()){sync(t);return}spring.set(t,impulse);if(!spinning){spinning=true;M.Ticker.add(loop)}};
   scene.querySelectorAll('[data-fit-turn]').forEach(b=>b.addEventListener('click',()=>goTo(+b.dataset.fitTurn)));
