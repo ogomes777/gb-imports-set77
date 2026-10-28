@@ -511,7 +511,7 @@ async function run(w,h,reduced=false){
      const v1=await page.evaluate(async()=>{
        const sleep=t=>new Promise(r=>setTimeout(r,t)),old=GBFitting.state.topId;
        GBFitting.set({topId:'gb-crt-005'},{silent:true});await sleep(1400);
-       GBFitting.emote('salute');await sleep(660);
+       GBFitting.emote('salute');await sleep(820);
        const f=document.querySelector('#gbFitFigure'),hand=f.querySelector('.fit-peace-sign');
        const matrix=hand.getScreenCTM(),finger=new DOMPoint(0,-40).matrixTransform(matrix),palm=new DOMPoint(0,80).matrixTransform(matrix),face=f.querySelector('.fit-head').getBoundingClientRect();
        const active=document.querySelector('[data-fit-emote="salute"]')?.getAttribute('aria-pressed');
@@ -527,6 +527,28 @@ async function run(w,h,reduced=false){
      check(vp,'GB Look Studio V1: SALVE junto à face, dedos para cima e indicador acessível',v1.dx>4&&v1.dy< -15&&v1.active==='true'&&v1.cleared&&v1.gestures===5,JSON.stringify(v1));
      check(vp,'GB Look Studio V1: controles satin-gold no tema escuro',v1.theme,JSON.stringify(v1));
    }
+
+   // Manga longa articulada, pele ocultada quando se veste calça e tênis na frente da bainha.
+   const v12=await page.evaluate(async()=>{
+     const sleep=t=>new Promise(r=>setTimeout(r,t)),old={...GBFitting.state};
+     GBFitting.set({topId:'gb-crt-003',bottomId:'gb-crt-003',shoeId:'gb-crt-s-052',hood:false,capId:null},{silent:true});
+     await sleep(1400);
+     const f=document.querySelector('#gbFitFigure'),rig=f.querySelector('.fit-rig'),
+       arms=f.querySelectorAll('.fit-articulated-longsleeves .fit-long-arm').length,
+       skin=f.querySelectorAll('.fit-legs[data-pants="true"] .fit-leg').length,
+       shoeAbove=!!(rig.querySelector('.fit-layer-bottom').compareDocumentPosition(rig.querySelector('.fit-layer-shoe'))&Node.DOCUMENT_POSITION_FOLLOWING);
+     let bending=false,full=false;
+     if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+       GBFitting.emote('salute');await sleep(820);
+       bending=f.querySelector('.fit-articulated-longsleeves [data-j="elR"]')?.getAnimations().some(a=>a.playState==='running')||false;
+       full=f.dataset.salveMode==='full';
+     }
+     GBFitting.set(old,{silent:true});await sleep(1300);
+     return{arms,skin,shoeAbove,bending,full};
+   });
+   check(vp,'GB Look V1.2: manga em duas juntas, calça sem skin e sapato sobreposto',
+     v12.arms===2&&v12.skin===0&&v12.shoeAbove&&(reduced||v12.bending&&v12.full),JSON.stringify(v12));
+
 
 
 
