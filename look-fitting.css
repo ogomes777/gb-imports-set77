@@ -207,6 +207,16 @@ body[data-gb-theme="sinal"] #lookstudio .look-controls-eyebrow,body[data-gb-them
   .fit-split{bottom:96px}
 }
 
+/* ---------- V19.1: giro editorial, gestos de verdade e estados interrompíveis ---------- */
+.fit-figure:not(.fit-figure-b){touch-action:pan-y}
+.fit-scene.is-dragging .fit-figure:not(.fit-figure-b){cursor:grabbing}
+.fit-orbit-note{position:absolute;z-index:7;left:50%;bottom:18%;translate:-50% 0;max-width:calc(100% - 36px);white-space:nowrap;
+  font:800 8px/1.45 var(--font);letter-spacing:1px;text-align:center;color:#ffd447;background:#101113e6;border:1px solid #ffd44761;
+  padding:8px 11px;border-radius:999px;pointer-events:none;opacity:0;transition:opacity .16s ease}
+.look-stage.is-fit-orbiting .fit-orbit-note{opacity:1}
+body[data-gb-theme="origem"] .fit-orbit-note{background:#fffdf4e8;color:#574600;border-color:#d6ad27}
+@media(max-width:780px){.fit-orbit-note{bottom:24%;font-size:7px;max-width:calc(100% - 20px);white-space:normal}}
+@media(prefers-reduced-motion:reduce){.fit-orbit-note{display:none}}
 /* ---------- V19: skin da arte (ossos com a junta na origem; emotes giram as juntas) ---------- */
 .fit-jnt,.fit-emote,.fit-foot{transform-box:view-box;transform-origin:0 0}
 .fit-emote{transform-origin:210px 948px}
