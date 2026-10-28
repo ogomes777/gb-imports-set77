@@ -348,3 +348,116 @@ body[data-gb-theme="sinal"] .how-section.gb-how{--how-bg:#0e0f10;--how-ink:#f4f1
 @media(max-width:780px){.editorial-break .slot-campaign{margin-bottom:290px}}
 /* anel no celular: peça um pouco mais estreita para a da frente não cobrir o centro das laterais (toque certo) */
 @media(max-width:780px){.trio-obj{left:24%!important;width:52%!important}}
+
+
+/* ================= V22 / GB LOOK STUDIO | interface editorial ================= */
+#lookstudio .look-controls{
+ --gb-studio-accent:#f5c945;--gb-studio-edge:rgba(180,145,58,.46);
+}
+#lookstudio #lookSave{
+ display:flex;align-items:center;justify-content:flex-start;gap:13px;
+ width:100%;min-height:62px;padding:10px 19px!important;border:1px solid #d6b453!important;
+ border-radius:19px!important;overflow:hidden;
+ background:linear-gradient(118deg,#0c0d10,#202022 65%,#39301b)!important;
+ color:#f9f5e9!important;box-shadow:0 12px 26px #0a0a0a2a,0 2px 0 #9d7a236e,
+ inset 0 1px #ffffff26, inset 0 -1px #0009;
+ font:800 10px/1.2 var(--font);letter-spacing:1.25px;text-align:left;
+ transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease!important;
+}
+#lookstudio #lookSave::after{inset:2px!important;border:1px solid #e8c86d35;box-shadow:none!important;opacity:1!important;animation:none!important}
+#lookstudio #lookSave .look-cta-mark{flex:none;width:32px;height:32px;padding:7px;color:#f7db88;border:1px solid #dbb45260;border-radius:10px;
+ background:linear-gradient(140deg,#ffd66c24,#ad8b4110)}
+#lookstudio #lookSave .look-cta-label{flex:1;min-width:0}
+#lookstudio #lookSave .look-cta-arrow{display:grid;place-items:center;flex:none;width:33px;height:33px;
+ border-radius:10px;background:linear-gradient(135deg,#ffe593,#d5a620);color:#17140d;font-size:19px;font-weight:700}
+#lookstudio #lookSave:hover{transform:translateY(-2px);border-color:#ffe49d!important;box-shadow:0 14px 32px #05050746,0 0 23px #e8b73a2a,inset 0 1px #fff4}
+#lookstudio #lookSave.is-confirmed{border-color:#fff4b2!important;box-shadow:0 0 0 2px #e3c65e45,0 12px 28px #0a0a0a31}
+#lookstudio .look-tools{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px;margin:14px 0 0}
+#lookstudio .look-tools>span{font-size:10px;line-height:1.45;letter-spacing:.2px;min-width:0;max-width:340px}
+#lookstudio #lookCompareBtn{
+ display:inline-flex;align-items:center;justify-content:center;gap:10px;flex:none;
+ min-height:47px;padding:0 17px!important;border-radius:15px!important;
+ border:1px solid #9e874b9c!important;background:linear-gradient(140deg,#fffbea,#ece3c8)!important;
+ color:#292720!important;box-shadow:inset 0 1px #fff,0 4px 12px #2a21101c;
+ font:850 9px/1 var(--font);letter-spacing:1.05px;
+}
+#lookstudio #lookCompareBtn::before{content:"A / B";font:900 7px/1 var(--font);letter-spacing:0;
+ display:grid;place-items:center;width:35px;height:28px;border-radius:8px;
+ background:#242322;color:#f7d366;box-shadow:inset 0 0 0 1px #f8d36755}
+#lookstudio #lookCompareBtn::after{display:none!important}
+#lookstudio #lookCompareBtn[aria-pressed="true"]{background:linear-gradient(125deg,#2e2a1f,#101116)!important;color:#ffdf80!important}
+#lookstudio .look-sources{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#lookstudio .look-sources button:not(.look-kit){min-height:38px;display:inline-flex;align-items:center;
+ padding:8px 11px;border:1px solid #987d3f55;border-radius:10px;background:rgba(204,165,82,.06);
+ font-size:8px;letter-spacing:.8px;transition:background .2s ease,color .2s ease}
+#lookstudio .look-sources button:not(.look-kit):hover{background:#ffdc7740}
+#lookstudio .look-kit{
+ display:inline-flex;align-items:center;gap:9px;justify-content:center;min-height:43px;
+ padding:8px 12px!important;border-radius:12px!important;
+ border:1px solid #c79d30!important;background:linear-gradient(135deg,#fff0aa,#f6cb44 60%,#dba82b)!important;
+ color:#1b1b1b!important;box-shadow:inset 0 1px #fff9,0 4px 12px #c59c3140;
+ font:900 9px/1.3 var(--font);letter-spacing:.7px;transition:transform .2s ease,box-shadow .2s ease;
+}
+#lookstudio .look-kit svg{flex:none}
+#lookstudio .look-kit span:last-child{font-size:15px;padding-left:2px}
+#lookstudio .look-kit:hover{transform:translateY(-1px);box-shadow:0 7px 19px #c59c3155}
+#lookstudio #lookShuffle{
+ display:flex;align-items:center;justify-content:center;gap:9px;
+ top:16px;right:18px;min-height:46px;min-width:134px;padding:0 16px;
+ border:1px solid #ffefb3!important;border-radius:15px!important;
+ background:linear-gradient(125deg,#ffeca0,#ffcf37 65%,#dd9c18)!important;
+ color:#221b0b!important;box-shadow:inset 0 1px #fff9,0 4px 0 #bf8a1e8a,0 10px 25px #0003;
+ font:900 9px var(--font);letter-spacing:1px;transition:transform .22s ease,box-shadow .22s ease;
+}
+#lookstudio #lookShuffle svg{flex:none}
+#lookstudio #lookShuffle:hover{transform:translateY(-2px);box-shadow:inset 0 1px #fff9,0 5px 0 #bf8a1e8a,0 13px 27px #0004}
+#lookstudio .look-saved{border-top:1px solid #bd9d594a}
+#lookstudio .look-saved-thumb{width:76px;height:104px;border-radius:13px;overflow:hidden;
+ border:1px solid #bba56b8c;box-shadow:0 3px 10px #1112}
+#lookstudio .look-saved-remove{background:#2a2722;border:1px solid #c49b39}
+body[data-gb-theme="sinal"] #lookstudio .look-controls{--gb-studio-edge:#ffd1657c}
+body[data-gb-theme="sinal"] #lookstudio #lookCompareBtn{background:linear-gradient(145deg,#343331,#1d1e22)!important;color:#f5e8ca!important}
+body[data-gb-theme="sinal"] #lookstudio #lookCompareBtn[aria-pressed="true"]{border-color:#ffd447!important;color:#ffe490!important}
+body[data-gb-theme="sinal"] #lookstudio .look-sources button:not(.look-kit){color:#f6e9cb;background:#ffffff0a;border-color:#ffd44755}
+body[data-gb-theme="sinal"] #lookstudio .look-tools>span{color:#bbb4a5}
+/* ORBIT com feedback de arraste e bolinha física, acessível ao toque. */
+#lookstudio .fit-dial{cursor:ew-resize;touch-action:none;user-select:none;overscroll-behavior:contain;min-height:42px}
+#lookstudio .fit-spin-track{position:relative;touch-action:none;cursor:ew-resize}
+#lookstudio .fit-spin-track .fit-orbit-thumb{
+ position:absolute;z-index:5;top:50%;left:var(--orbit-position,50%);
+ transform:translate(-50%,-50%);width:15px;height:15px;border:2px solid #fff2a7;border-radius:50%;
+ background:radial-gradient(circle at 35% 24%,#fffbc5 0%,#f4c13d 51%,#8b620a 100%);
+ box-shadow:0 0 0 4px #a88a2226,0 2px 9px #000b,0 0 12px #e7bd40a5;
+ pointer-events:none;transition:none;
+}
+#lookstudio .fit-spin-track i.is-active{width:6px;height:6px;box-shadow:0 0 0 1px #554019,0 0 5px #ffe47b72}
+#lookstudio .fit-dial:focus-visible{outline:2px solid #ffe186;outline-offset:4px}
+body[data-gb-theme] #lookstudio :is(.look-controls,.look-stage){transition:background-color .3s ease,color .3s ease,border-color .3s ease}
+@media(max-width:780px){
+ #lookstudio #lookSave{min-height:54px;padding:9px 12px!important;font-size:9px;border-radius:14px!important;gap:9px}
+ #lookstudio #lookSave .look-cta-mark{width:29px;height:29px;padding:6px}
+ #lookstudio #lookSave .look-cta-arrow{width:29px;height:29px;font-size:16px}
+ #lookstudio .look-tools{grid-template-columns:1fr;margin-top:9px}
+ #lookstudio .look-tools>span{display:none}
+ #lookstudio #lookCompareBtn{width:100%;min-height:43px;border-radius:12px!important;font-size:9px}
+ #lookstudio .look-sources{gap:6px}
+ #lookstudio .look-sources button:not(.look-kit){min-height:34px;font-size:8px;padding:7px 9px}
+ #lookstudio .look-kit{min-height:40px;padding:7px 10px!important;font-size:8px}
+ #lookstudio #lookShuffle{top:12px;right:10px;min-width:0;min-height:40px;padding:0 10px;border-radius:12px!important;font-size:8px;gap:6px}
+ #lookstudio #lookShuffle svg{width:15px;height:15px}
+ #lookstudio .fit-dial{min-height:39px}
+ #lookstudio .fit-spin-track .fit-orbit-thumb{width:14px;height:14px}
+}
+@media(max-width:355px){
+ #lookstudio #lookShuffle{font-size:7px;gap:4px;padding:0 7px}
+ #lookstudio .look-cta-label{font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-gb-theme] #lookstudio :is(.look-controls,.look-stage){transition:none!important}
+ #lookstudio :is(.look-kit,#lookSave,#lookShuffle,#lookCompareBtn){transition:none!important}
+}
+/* Não rodar neon infinito em todas as CTAs fora de foco: economiza composição/GPU no mobile. */
+@media(prefers-reduced-motion:no-preference){
+ html :is(.btn,.showroom-link,.rail-viewer-cta,.look-compare-btn,#showMore)::after{animation:none!important;will-change:auto!important}
+ html :is(.btn,.showroom-link,.rail-viewer-cta,.look-compare-btn,#showMore):is(:hover,:focus-visible)::after{animation:gbNeon 1.8s ease-in-out 1!important}
+}
