@@ -52,6 +52,20 @@ Grafite e preto, ouro acetinado e champagne; acabamento metálico, focos visíve
 - Testar a prévia em 1440, 390 e 320 px com camiseta, moletom e calça, sem scroll horizontal, recortes internos artificiais ou erros de JS. Os movimentos são editoriais 2D, não mocap nem simulação física. Não declarar equivalência quadro a quadro com vídeos reais do Jamal.
 - Os arquivos de origem ainda podem conter vincos/dobras reais da fotografia. Não é possível reconstruir toda a anatomia volumétrica apenas com CSS, por isso evitar movimentos exagerados em mangas de foto.
 
+## V1.6 · PASSINHO / estudo de movimento (28/10/2026)
+
+A antiga animação movia o tronco e tênis, mas deixava praticamente fixa a silhueta das pernas quando havia calça comprida. Esta V1.6 melhora a leitura do passo, sem afirmar semelhança 1:1 com vídeo real:
+
+- Ciclo contínuo de aproximadamente 2,2 s: três batidas em um pé, transferência lateral, três no outro e retorno.
+- Pés giram em torno da boca real do tênis com pivot no tornozelo, voltando ao apoio entre batidas.
+- Quadril cede no sentido contrário à pisada; ombros e mãos acompanham suavemente, sem movimentos mecânicos excessivos.
+- Em moletom, mangas são recortadas por braço **inteiro** e movidas apenas pelo ombro durante a dança, sem divisão no cotovelo.
+- A fotografia integral da calça e os caimentos aprovados continuam preservados. O modo PASSINHO alterna iniciar/parar, pausa fora da tela/aba e restaura a silhueta original.
+- Não adicionar a faixa comercial “Toma Botada” ao website sem licenciamento. A animação funciona sem trilha embutida.
+- **Limite técnico:** 2D não fornece joelhos, quadril, tornozelos e manga com controle volumétrico independente. Exigir identidade de movimento quadro a quadro a partir dessas fotografias é inviável. V2: usar vídeo de referência autorizado, extrair keypoints e ângulos, retarget em rig GLB 3D (quadril/coxas/joelhos/tíbias/tornozelos/braços), IK para pés firmes, roupas com skinning/mesh e teste lado-a-lado sincronizado. Sem vídeo ou rig de referência, não prometer coreografia idêntica.
+
+Fontes para contagem e técnica: entrevista do próprio Jamal ao Gshow (14/01/2026) e tutorial do professor Derick publicado pela D24AM (02/01/2026).
+
 ## Backlog para futura V2
 
 Somente com novos ativos apropriados: modelagem e rig 3D próprios, movimentos capturados/autorizados, vistas reais, motor de tecido validado e medição de desempenho de campo.

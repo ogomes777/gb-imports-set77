@@ -352,7 +352,7 @@ function garmentParts(part,p,pfx){
   const e=CAT[part][p.id],out={soft:[]};
   if(part==='shoe'){const g=mkG('fit-garment fit-shoe',p.id),pl=shoePlace(e);g.dataset.toe=e.toe;
     // cada pé gira no tornozelo (vira para a esquerda, para a direita ou fica de frente, em V); a sombra acompanha
-    g.innerHTML=pl.map(s=>`<g class="fit-foot" data-side="${s.side}"><g class="fit-foot-flip" style="transform-origin:${r1(s.ank[0])}px ${r1(s.ank[1])}px">`+
+    g.innerHTML=pl.map(s=>`<g class="fit-foot" data-side="${s.side}" style="transform-origin:${r1(s.ank[0])}px ${r1(s.ank[1])}px"><g class="fit-foot-flip" style="transform-origin:${r1(s.ank[0])}px ${r1(s.ank[1])}px">`+
       `<ellipse cx="${r1(s.ank[0]-(e.toe==='L'?1:-1)*s.w*.3)}" cy="${B.floor}" rx="${r1(s.w*.5)}" ry="7" fill="url(#${pfx}-drop)"/>`+photo(e.src,s.x,s.y,s.w,s.h)+`</g></g>`).join('');
     applyFeet(g,yawDir);g.style.transformOrigin='210px 920px';out.base=g;return out}
   if(part==='cap'){const g=mkG('fit-garment fit-cap',p.id),c=capPlace(e);g.innerHTML=photo(e.src,c.x,c.y,c.w,c.h);g.style.transformOrigin='214px 90px';out.base=g;return out}
@@ -706,7 +706,9 @@ function emote(name,{bpm=176,beats=8}={}){
   // Alternância real: PASSINHO fica em loop até um segundo clique.
   if(name==='dance'&&emoteName==='dance'){stopEmote();return true}
   stopEmote();
-  if((name==='salute'||name==='wave')&&isLongSleeve(CAT.top[state.topId]))fig.dataset.articulated='on';
+  // Na dança, a manga inteira articula pelo OMBRO (sem cortar antebraço/cotovelo).
+  // A fotografia original volta íntegra ao parar.
+  if((name==='salute'||name==='wave'||name==='dance')&&isLongSleeve(CAT.top[state.topId]))fig.dataset.articulated='on';
   bpm=Math.max(60,Math.min(240,Number(bpm)||112));
   beats=Math.max(2,Math.min(16,Math.round(Number(beats)||8)));
   const q=j=>[...fig.querySelectorAll(`.fit-figure:not(.fit-figure-b) [data-j="${j}"], #gbFitFigure [data-j="${j}"]`)].filter((v,i,a)=>a.indexOf(v)===i);
@@ -717,38 +719,65 @@ function emote(name,{bpm=176,beats=8}={}){
   const body=[fig.querySelector('.fit-emote')],floor=[fig.querySelector('.fit-floor')],beat=60000/bpm;
   if(name==='spin'){spin();setGestureState(name);document.dispatchEvent(new CustomEvent('gb:emote',{detail:{name,editorial:true}}));return true}
   if(name==='dance'){
-    // Jamal: três toques rápidos com o pé, passa lateralmente e repete
-    // ao outro lado, quadril contrário e mãos soltas. Interpretação editorial.
-    const T=Math.max(1380,Math.min(1850,beat*5.0));
+    // Base descrita pelo criador Jamal e pelo professor Derick:
+    // três batidas do pé, transferência lateral e repetir no outro lado;
+    // quadril no sentido oposto ao pé de apoio, braços relaxados.
+    // Estudo editorial 2D, não é captura de movimento.
+    const T=Math.round(Math.max(1780,Math.min(2240,60000/bpm*6.4)));
+    // 16 subdivisões sem salto de posição na costura do loop.
     const steps=[
-      {x:0,foot:0,lift:0},{x:-.16,foot:-1,lift:13},{x:-.30,foot:-1,lift:2},
-      {x:-.48,foot:-1,lift:13},{x:-.82,foot:-1,lift:2},{x:-1,foot:-1,lift:0},
-      {x:-.45,foot:0,lift:0},{x:0,foot:0,lift:0},
-      {x:.16,foot:1,lift:13},{x:.30,foot:1,lift:2},
-      {x:.48,foot:1,lift:13},{x:.82,foot:1,lift:2},
-      {x:1,foot:1,lift:0},{x:.45,foot:0,lift:0},{x:0,foot:0,lift:0}
+      {w:0,side:0,up:0,tap:0,b:0},
+      {w:-.12,side:-1,up:7,tap:1,b:-1},
+      {w:-.18,side:-1,up:0,tap:0,b:0},
+      {w:-.24,side:-1,up:9,tap:2,b:-1},
+      {w:-.30,side:-1,up:0,tap:0,b:0},
+      {w:-.40,side:-1,up:7,tap:3,b:-1},
+      {w:-.87,side:-1,up:0,tap:0,b:1},
+      {w:-1,side:0,up:0,tap:0,b:0},
+      {w:-.28,side:0,up:0,tap:0,b:0},
+      {w:.12,side:1,up:7,tap:1,b:-1},
+      {w:.18,side:1,up:0,tap:0,b:0},
+      {w:.24,side:1,up:9,tap:2,b:-1},
+      {w:.30,side:1,up:0,tap:0,b:0},
+      {w:.40,side:1,up:7,tap:3,b:-1},
+      {w:.87,side:1,up:0,tap:0,b:1},
+      {w:1,side:0,up:0,tap:0,b:0},
+      {w:0,side:0,up:0,tap:0,b:0}
     ];
-    const frames=fn=>steps.map((s,i)=>({offset:i/(steps.length-1),...fn(s,i)}));
+    const frames=fn=>steps.map((s,i)=>({offset:i/(steps.length-1),...fn(s,i),
+      easing:s.up?'cubic-bezier(.22,.06,.23,.98)':'cubic-bezier(.38,0,.62,1)'}));
     const pants=CAT.bottom[state.bottomId]?.kind==='pants';
-    run(body,frames(s=>({transform:
-      `translateX(${s.x*21}px) translateY(${s.lift?2:0}px) rotate(${-s.x*3.8}deg)`
+    // Mais balanço de cintura sem deslocar a boca da calça em relação ao tênis.
+    run(body,frames(s=>({transform:`translateX(${(s.w*18).toFixed(2)}px) translateY(${s.up?1.5:0}px) rotate(${-s.w*1.9}deg)`})),{duration:T});
+    run(q('head'),frames(s=>({transform:`rotate(${(-s.w*4.5+s.b*1.7).toFixed(2)}deg)`})),{duration:T});
+    // Moletom inteiro acompanha o ritmo, sem máscara/recorte no braço.
+    run([fig.querySelector('.fit-layer-top')],frames(s=>({
+      transform:`translateX(${(-s.w*3.2).toFixed(2)}px) rotate(${(s.w*.8).toFixed(2)}deg)`
     })),{duration:T});
-    run(q('head'),frames((s,i)=>({transform:`rotate(${-s.x*8+(i%3===0?1.5:0)}deg)`})),{duration:T});
+    run([fig.querySelector('.fit-layer-bottom')],frames(s=>({
+      transform:`translateX(${(-s.w*(pants?4.8:2.3)).toFixed(2)}px) rotate(${(s.w*(pants?1.0:.45)).toFixed(2)}deg)`
+    })),{duration:T});
+    const shoeOffset=parseFloat(fig.style.getPropertyValue('--shoeDx'))||0;
     for(const side of [-1,1]){
-      const k=side<0?'L':'R';
-      run(q('sh'+k),frames(s=>({transform:`rotate(${side*(s.x*25+(s.foot===side?-12:7))}deg)`})),{duration:T});
-      run(q('el'+k),frames(s=>({transform:`rotate(${side*(s.x*13+(s.foot===side?-16:8))}deg)`})),{duration:T});
-      run(q('wr'+k),frames(s=>({transform:`rotate(${side*(s.foot===side?12:-7)}deg)`})),{duration:T});
-      // Calça permanece foto integral; sem seccionar joelho ou barra.
-      const moves=frames(s=>({transform:
-        `translate(${s.x*(pants?7:13)+(s.foot===side?side*6:0)}px,${s.foot===side?-(pants?s.lift*.30:s.lift):0}px) rotate(${s.foot===side?side*5:0}deg)`
-      }));
-      if(!pants)run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${side}"]`)],moves,{duration:T});
-      run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${side}"]`)],moves,{duration:T});
+      const k=side<0?'L':'R',pulse=s=>s.side===side?(s.tap?1:.5):0;
+      run(q('sh'+k),frames(s=>({transform:`rotate(${(side*(s.w*12-s.b*4.5)-pulse(s)*side*5).toFixed(2)}deg)`})),{duration:T});
+      run(q('el'+k),frames(s=>({transform:`rotate(${(side*(s.w*6+s.b*3.5)+pulse(s)*side*4).toFixed(2)}deg)`})),{duration:T});
+      run(q('wr'+k),frames(s=>({transform:`rotate(${(side*(s.w*3.5+s.b*5)).toFixed(2)}deg)`})),{duration:T});
+      // Giro em torno da BOCA do tênis: sem separar o pé da calça.
+      const shoeKeys=frames(s=>{
+        const active=s.side===side,hit=active&&s.tap!==0;
+        const angle=active?(s.tap===0?0:(s.tap===2?-8:8))*side:(s.w*-1.8)*side;
+        const shift=side*shoeOffset+s.w*2+(active?s.up*.4*side:0);
+        return {transform:`translate(${shift.toFixed(2)}px,${hit?(-s.up*.63).toFixed(2):0}px) rotate(${angle.toFixed(2)}deg)`};
+      });
+      run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${side}"]`)],shoeKeys,{duration:T});
+      if(!pants){
+        run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${side}"]`)],frames(s=>({
+          transform:`translateX(${(s.w*2+(s.side===side?s.up*.32*side:0)).toFixed(2)}px) rotate(${(s.side===side?s.tap*side*1.5:0).toFixed(2)}deg)`
+        })),{duration:T});
+      }
     }
-    if(pants)run([fig.querySelector('.fit-layer-bottom')],
-      frames(s=>({transform:`translateX(${s.x*6}px) rotate(${s.x*1.2}deg)`})),{duration:T});
-    run(floor,frames(s=>({transform:`translateX(${s.x*5}px) scale(${s.lift?.965:1},1)`})),{duration:T});
+    run(floor,frames(s=>({transform:`translateX(${(s.w*4).toFixed(2)}px) scale(${s.up?.97:1},1)`})),{duration:T});
   }else if(name==='wave'){
     setArmForeground(true);
     // Tchau real: erguer braço, três oscilações no antebraço/punho, retornar.
