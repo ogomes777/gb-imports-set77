@@ -206,6 +206,47 @@ def measure_bottom(a):
     return {'waist': {'y': y0 / H, 'l': wl / W, 'r': wr / W}, 'legs': legs}
 
 
+def full(name):
+    a = np.array(Image.open(f'{SRC}/gb-crt-{name}.webp').convert('RGBA')); a[..., 3][a[..., 3] <= 12] = 0
+    return a
+
+
+def crop_alpha(a, pad=2):
+    ys, xs = np.where(a[..., 3] > 30); H, W = a.shape[:2]
+    y0, y1, x0, x1 = max(0, ys.min() - pad), min(H, ys.max() + pad + 1), max(0, xs.min() - pad), min(W, xs.max() + pad + 1)
+    return a[y0:y1, x0:x1].copy(), (x0, y0, x1, y1)
+
+
+def cut_shoe(p):
+    """Tênis: o pé da frente do par, separado pela linha marcada olhando a foto (cano, cadarços e ponta);
+    o resto do contorno é o próprio recorte do acervo. Medidas no recorte: boca (collar) e sola (base)."""
+    import cv2
+    a = full(p['src']); H, W = a.shape[:2]
+    pts = [(x * W, y * H) for x, y in p['cut']]
+    edge = W if p['toe'] == 'L' else 0          # o calcanhar fica do lado oposto à ponta
+    poly = pts + [(pts[-1][0], H), (edge, H), (edge, pts[0][1])]
+    m = np.zeros((H, W), np.uint8); cv2.fillPoly(m, [np.array(poly, np.int32)], 255)
+    m = cv2.GaussianBlur(m, (0, 0), 1.1)
+    a[..., 3] = (a[..., 3].astype(np.float32) * m / 255).astype(np.uint8)
+    c, (x0, y0, x1, y1) = crop_alpha(a)
+    key = f"{p['product']}-shoe"
+    w, h = save(c, f'{OUT}/{key}.webp', 640); save(full(p['src']), f'{OUT}/thumb/{key}.webp', THUMB)
+    cx, cy = p['collar']
+    return {'src': f'./assets/fit/{key}.webp', 'thumb': f'./assets/fit/thumb/{key}.webp', 'from': f"gb-crt-{p['src']}", 'kind': p['kind'],
+            'w': w, 'h': h, 'toe': p['toe'], 'collar': {'x': round((cx * W - x0) / (x1 - x0), 4), 'y': round((cy * H - y0) / (y1 - y0), 4)}}
+
+
+def cut_cap(p):
+    """Boné: recorte inteiro do acervo; a copa (marcada olhando a foto) vira âncora no recorte."""
+    a = full(p['src']); H, W = a.shape[:2]
+    c, (x0, y0, x1, y1) = crop_alpha(a)
+    key = f"{p['product']}-cap"
+    w, h = save(c, f'{OUT}/{key}.webp', 520); save(c, f'{OUT}/thumb/{key}.webp', THUMB)
+    k = p['crown']; X = lambda v: round((v * W - x0) / (x1 - x0), 4); Y = lambda v: round((v * H - y0) / (y1 - y0), 4)
+    return {'src': f'./assets/fit/{key}.webp', 'thumb': f'./assets/fit/thumb/{key}.webp', 'from': f"gb-crt-{p['src']}", 'kind': 'cap',
+            'w': w, 'h': h, 'crown': {'x0': X(k['x0']), 'x1': X(k['x1']), 'yb': Y(k['yb']), 'top': Y(k['top'])}}
+
+
 def save(a, path, maxpx):
     im = Image.fromarray(a); s = min(1, maxpx / max(im.size))
     if s < 1: im = im.resize((round(im.width * s), round(im.height * s)), Image.LANCZOS)
@@ -217,9 +258,11 @@ def main():
     qa = sys.argv[sys.argv.index('--qa') + 1] if '--qa' in sys.argv else None
     cur = json.load(open(os.path.join(ROOT, 'data/gb-fit-curation.json')))
     os.makedirs(f'{OUT}/thumb', exist_ok=True)
-    cat = {'version': 'fit-v16', 'top': {}, 'bottom': {}}
+    cat = {'version': 'fit-v17', 'top': {}, 'bottom': {}, 'shoe': {}, 'cap': {}}
     tiles = []
     for p in cur['pieces']:
+        if p['part'] in ('shoe', 'cap'):
+            cat[p['part']][p['product']] = (cut_shoe if p['part'] == 'shoe' else cut_cap)(p); continue
         a, srcname = load_piece(p['src'])
         meas = measure_top(a, p['kind']) if p['part'] == 'top' else measure_bottom(a)
         key = f"{p['product']}-{p['part']}"
@@ -230,15 +273,16 @@ def main():
             rig = split_sleeves(a, meas, key)
             if rig:   # a foto inteira não é usada quando a peça tem rig: tronco + mangas
                 entry['rig'] = rig; entry['src'] = rig['torso']; os.remove(f'{OUT}/{key}.webp')
+        if 'collar' in p: entry['collar'] = p['collar']
         for k in ('scale', 'dy', 'dx'):
             if k in p: entry[k] = p[k]
         cat[p['part']][p['product']] = entry
         if qa: tiles.append(qa_tile(a, p, {**meas, **({'rig': entry['rig']} if 'rig' in entry else {})}))
-    js = ('/* GB IMPORTS / V16 — FIT REAL. GERADO por scripts/gerar_fit_v16.py a partir de data/gb-fit-curation.json; não editar à mão.\n'
+    js = ('/* GB IMPORTS / V16–V17 — FIT REAL. GERADO por scripts/gerar_fit_v16.py a partir de data/gb-fit-curation.json; não editar à mão.\n'
           ' * Peças reais do acervo (foto frontal recortada) e as âncoras medidas no próprio recorte. Dados comerciais seguem A VALIDAR. */\n'
           'window.GB_FIT_CATALOG=' + json.dumps(cat, ensure_ascii=False, separators=(',', ':')) + ';\n')
     open(os.path.join(ROOT, 'fit-catalog.js'), 'w').write(js)
-    print(f"{len(cat['top'])} superiores, {len(cat['bottom'])} inferiores → fit-catalog.js ({len(js)//1024} KB)")
+    print(f"{len(cat['top'])} superiores, {len(cat['bottom'])} inferiores, {len(cat['shoe'])} tênis, {len(cat['cap'])} bonés → fit-catalog.js ({len(js)//1024} KB)")
     if qa:
         os.makedirs(qa, exist_ok=True); C = 10
         out = Image.new('RGB', (200 * C, 230 * ((len(tiles) + C - 1) // C)), (30, 30, 30))

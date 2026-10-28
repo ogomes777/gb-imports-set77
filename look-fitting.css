@@ -20,7 +20,7 @@
 .fit-scene .fit-figure .fit-svg{translate:calc(var(--fx,0)*6px) 0}
 .fit-rig,.fit-garment,.fit-limbs,.fit-sleeves{transform-box:view-box}
 .fit-sleeves{transform-origin:210px 220px}
-.fit-figure:not([data-neck="front"]) .fit-neck-front{display:none}
+.fit-limbs,.fit-neck{transform-box:view-box}
 .fit-rig{transform-origin:210px 948px}
 .look-stage.is-awake:not([data-phase^="switching"]) .fit-figure:not(.fit-figure-b) .fit-rig{animation:fitBreath 5.6s ease-in-out infinite alternate}
 @keyframes fitBreath{to{transform:translateY(-1.4px) scale(1,1.004)}}
@@ -103,3 +103,18 @@
 .look-saved-thumb .look-real img{width:92%;height:92%}
 .look-kit{background:#ffd447!important;color:#111214!important;border-color:#111214!important}
 @media(prefers-reduced-motion:reduce){.look-real img{transition:none}}
+
+/* ---------- V17: tênis e boné — opção "sem" (bota GB / sem boné) ---------- */
+.look-none{display:grid;place-items:center}
+.look-none-label{font:900 9px/1.25 var(--font);letter-spacing:1.2px;text-align:center;color:#111214;padding:0 8px}
+.look-none-label::before{content:'';display:block;width:22px;height:3px;margin:0 auto 8px;background:#ffd447;box-shadow:0 0 0 1px #111214}
+
+/* ---------- V17: ligar o GB UNIT e varredura ao vestir ---------- */
+.fit-scan{opacity:0;pointer-events:none;mix-blend-mode:screen}
+.fit-figure .fit-glow{opacity:0;transition:opacity .5s ease .7s}
+.look-stage.is-awake .fit-figure .fit-glow{opacity:1}
+.look-stage.is-awake .fit-figure:not(.fit-figure-b) .fit-head .fit-glow{animation:fitEyes 1.1s steps(1,end) .7s backwards}
+@keyframes fitEyes{0%{opacity:0}18%{opacity:1}26%{opacity:.15}40%{opacity:1}52%{opacity:.4}62%,100%{opacity:1}}
+.fit-figure-b .fit-glow{opacity:1}
+@media(prefers-reduced-motion:reduce){.fit-figure .fit-glow{opacity:1!important;transition:none;animation:none!important}.fit-scan{display:none}}
+.gb-lite .fit-scan{display:none}

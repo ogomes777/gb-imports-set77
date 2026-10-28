@@ -422,6 +422,22 @@ async function run(w,h,reduced=false){
     return{id,state:GBFitting.state.topId,sl,arms:f.querySelectorAll('.fit-layer-arms .fit-limbs').length,hands:f.querySelectorAll('.fit-layer-arms .fit-hand').length,
       leftovers:f.querySelectorAll('.fit-layer-sleeves .fit-sleeves').length}});
   check(vp,'fit V16: manga curta = duas mangas da própria foto giradas no ombro + braços',tee.state===tee.id&&tee.sl.length===2&&tee.sl.every(t=>/rotate\(-?[1-9]/.test(t))&&tee.arms===1&&tee.hands===2&&tee.leftovers===1,JSON.stringify(tee));
+  // V17: tênis e boné reais; "sem" volta à bota GB / cabeça livre; pescoço sai da gola medida
+  const acc=await page.evaluate(async()=>{const C=window.GB_FIT_CATALOG,wait=ms=>new Promise(r=>setTimeout(r,ms)),f=document.querySelector('#gbFitFigure');
+    const opt=(box,id)=>document.querySelector(`#${box} [data-look-id="${id}"]`);
+    const shoes=document.querySelectorAll('#lookShoes .look-option').length,caps=document.querySelectorAll('#lookCaps .look-option').length;
+    const s1=Object.keys(C.shoe)[3],c1=Object.keys(C.cap)[1];
+    opt('lookShoes',s1).click();await wait(80);opt('lookCaps',c1).click();await wait(1400);
+    const worn={state:{...GBFitting.state},shoe:f.querySelector('.fit-layer-shoe .fit-shoe')?.dataset.product,shoeImgs:f.querySelectorAll('.fit-layer-shoe image.fit-photo').length,
+      cap:f.querySelector('.fit-layer-cap .fit-cap')?.dataset.product,boots:f.querySelectorAll('.fit-layer-legs .fit-leg').length,legsShoe:f.querySelector('.fit-layer-legs .fit-legs')?.dataset.shoe,
+      summary:document.querySelector('#lookSummary').textContent,neck:f.querySelectorAll('.fit-layer-neck .fit-neck').length,kind:f.dataset.kind};
+    opt('lookShoes','').click();await wait(80);opt('lookCaps','').click();await wait(1400);
+    const off={state:{...GBFitting.state},shoe:f.querySelectorAll('.fit-layer-shoe .fit-shoe').length,cap:f.querySelectorAll('.fit-layer-cap .fit-cap').length,legsShoe:f.querySelector('.fit-layer-legs .fit-legs')?.dataset.shoe,legs:f.querySelectorAll('.fit-layer-legs .fit-legs').length};
+    return{shoes,caps,nShoe:Object.keys(C.shoe).length,nCap:Object.keys(C.cap).length,s1,c1,worn,off}});
+  check(vp,'fit V17: seletores de tênis e boné = acervo real + opção "sem"',acc.shoes===acc.nShoe+1&&acc.caps===acc.nCap+1&&acc.nShoe>=10&&acc.nCap>=4,JSON.stringify(acc));
+  check(vp,'fit V17: veste tênis (dois pés reais) e boné, pernas entram no tênis',acc.worn.state.shoeId===acc.s1&&acc.worn.state.capId===acc.c1&&acc.worn.shoe===acc.s1&&acc.worn.shoeImgs===2&&acc.worn.cap===acc.c1&&acc.worn.legsShoe===acc.s1&&/\+.*\+/.test(acc.worn.summary),JSON.stringify(acc.worn));
+  check(vp,'fit V17: pescoço por cima da peça, saindo da gola',acc.worn.neck===1,JSON.stringify(acc.worn));
+  check(vp,'fit V17: "sem tênis / sem boné" tira as peças sem sobrar camada',acc.off.state.shoeId===null&&acc.off.state.capId===null&&acc.off.shoe===0&&acc.off.cap===0&&acc.off.legs===1&&!acc.off.legsShoe,JSON.stringify(acc.off));
   // kit: com metade de um kit escolhida, um toque veste o kit completo (superior e inferior do MESMO produto)
   const kit=await page.evaluate(async([t0,b0])=>{const C=window.GB_FIT_CATALOG,kid=Object.keys(C.top).find(k=>C.bottom[k]),other=Object.keys(C.bottom).find(k=>!C.top[k]);
     const wait=ms=>new Promise(r=>setTimeout(r,ms)),opt=(m,id)=>document.querySelector(`${m==='top'?'#lookTops':'#lookBottoms'} [data-look-id="${id}"]`);
