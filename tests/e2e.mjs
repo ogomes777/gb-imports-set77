@@ -547,6 +547,29 @@ async function run(w,h,reduced=false){
    check(vp,'GB V1.3: calça integral e mangas contínuas na pose neutra',
      whole.pantsImage&&!whole.pantsClip&&whole.restVisible&&whole.actionHidden,JSON.stringify(whole));
 
+   // V1.4: manga longa preserva a fotografia contínua, sem corte artificial
+   // no cotovelo, e o SALVE não atravessa a face.
+   const v14=await page.evaluate(async()=>{
+     const sleep=t=>new Promise(r=>setTimeout(r,t)),old={...GBFitting.state},f=document.querySelector('#gbFitFigure');
+     const results=[];
+     for(const topId of ['gb-crt-003','gb-crt-005']){
+       GBFitting.set({topId,bottomId:'gb-crt-001',shoeId:'gb-crt-s-052',capId:null,hood:false},{silent:true});
+       await sleep(1250);
+       const photoCount=f.querySelectorAll('.fit-long-arm > g > .fit-jnt > g > image').length;
+       const started=GBFitting.emote('salute');await sleep(350);
+       const anim=[...f.querySelectorAll('*')].flatMap(x=>x.getAnimations()).filter(x=>x.effect?.getTiming().duration===1450);
+       anim.forEach(x=>{x.pause();x.currentTime=940});
+       const sign=f.querySelector('.fit-peace-sign'),m=sign.getScreenCTM(),tip=new DOMPoint(0,-40).matrixTransform(m),
+        palm=new DOMPoint(0,80).matrixTransform(m),face=f.querySelector('.fit-head').getBoundingClientRect();
+       results.push({topId,photoCount,started,side:palm.x-face.right,up:palm.y-tip.y,active:document.querySelector('[data-fit-emote="salute"]')?.getAttribute('aria-pressed')});
+       GBFitting.set({topId:'gb-crt-005'},{silent:true});await sleep(1100);
+     }
+     GBFitting.set(old,{silent:true});await sleep(1100);
+     return results;
+   });
+   check(vp,'GB V1.4: moletom uma foto por manga; SALVE aberto, dedos verticais e sem cruzar face',
+     reduced||v14[0].photoCount===2&&v14.every(v=>v.started&&v.side>12&&v.up>18&&v.active==='true'),JSON.stringify(v14));
+
    // Manga longa articulada, pele ocultada quando se veste calça e tênis na frente da bainha.
    const v12=await page.evaluate(async()=>{
      const sleep=t=>new Promise(r=>setTimeout(r,t)),old={...GBFitting.state};

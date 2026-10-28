@@ -42,6 +42,16 @@ Grafite e preto, ouro acetinado e champagne; acabamento metálico, focos visíve
 - Testes: verificar todas as 34 partes superiores, 25 inferiores, 16 tênis e 5 bonés; desktop 1440 e mobile 390/320. Conferir ausência de overflow, recortes nas calças, ausência de manga segmentada em idle e parada/recomeço do PASSINHO.
 - Fotografias 2D ainda têm limites em dobras durante SALVE/TCHAU; futura versão com rig volumétrico é a solução realista para eliminar completamente artefatos nas articulações.
 
+## Ajustes de fechamento V1.4 · 28/10/2026
+
+- A calça segue uma única fotografia original, sem dividir coxa/joelho/canela.
+- No gesto em moletom, a manga usa apenas **uma fotografia contínua por braço** (máscara unificada). Não separar bíceps e antebraço em duas imagens, porque a emenda artificial reaparece no cotovelo.
+- No estado normal, no giro e na dança, a peça original inteira deve continuar intacta.
+- O SALVE é lateral, à direita de quem observa: abre ombro moderadamente e mantém cotovelo relaxado. Não atravessar rosto/cabeça. Os dedos em V ficam verticais.
+- O PASSINHO se repete até clicar PARAR, com três batidas rápidas e avanço lateral alternado, balanço de corpo e braços soltos; cancela na troca de roupa ou escolha de outro gesto.
+- Testar a prévia em 1440, 390 e 320 px com camiseta, moletom e calça, sem scroll horizontal, recortes internos artificiais ou erros de JS. Os movimentos são editoriais 2D, não mocap nem simulação física. Não declarar equivalência quadro a quadro com vídeos reais do Jamal.
+- Os arquivos de origem ainda podem conter vincos/dobras reais da fotografia. Não é possível reconstruir toda a anatomia volumétrica apenas com CSS, por isso evitar movimentos exagerados em mangas de foto.
+
 ## Backlog para futura V2
 
 Somente com novos ativos apropriados: modelagem e rig 3D próprios, movimentos capturados/autorizados, vistas reais, motor de tecido validado e medição de desempenho de campo.

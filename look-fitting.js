@@ -207,40 +207,50 @@ function sleevePose(e,pl){
 
 /* V1.2: manga longa com fonte real única, separada por máscaras suaves em ombro/cotovelo.
    Toda a cor e estampa vêm do mesmo produto; punho e mão acompanham a articulação. */
+/* V1.4: mangas da foto são uma peça contínua. O algoritmo antigo desenhava
+   a manga em dois clips (bíceps e antebraço) e gerava uma costura falsa no
+   cotovelo. Usamos a mesma fotografia UMA vez por manga. A mão acompanha
+   o punho. O gesto nunca torce/parte a estampa no cotovelo. */
 function articulatedLongSleeves(e,pl,pfx,pid){
   const defs=[],parts=[];
-  const safe=(v)=>r1(v),pt=(x,y)=>P(pl,x,y);
+  const safe=v=>r1(v),pt=(x,y)=>P(pl,x,y);
   const capsule=(a,b,wa,wb)=>{
     const dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy)||1,nx=dy/len,ny=-dx/len;
     return 'M'+safe(a[0]+nx*wa)+' '+safe(a[1]+ny*wa)+
       'L'+safe(b[0]+nx*wb)+' '+safe(b[1]+ny*wb)+
-      'Q'+safe(b[0]+dx/len*8)+' '+safe(b[1]+dy/len*8)+' '+safe(b[0]-nx*wb)+' '+safe(b[1]-ny*wb)+
+      'Q'+safe(b[0]+dx/len*7)+' '+safe(b[1]+dy/len*7)+' '+safe(b[0]-nx*wb)+' '+safe(b[1]-ny*wb)+
       'L'+safe(a[0]-nx*wa)+' '+safe(a[1]-ny*wa)+'Z';
   };
   for(const k of ['l','r']){
     const side=k==='l'?-1:1,s=e.sleeves[k];
-    const shoulder=pt(e.cx+side*e.sh.w*.48,e.sh.y+.015),
+    const shoulder=pt(e.cx+side*e.sh.w*.47,e.sh.y+.013),
       cuff=pt(s.x,s.y-.018),
-      elbow=[shoulder[0]+(cuff[0]-shoulder[0])*.56+side*4,shoulder[1]+(cuff[1]-shoulder[1])*.56];
-    const uId=pfx+'-ls-'+pid+'-'+k+'-upper',dId=pfx+'-ls-'+pid+'-'+k+'-lower',
-      w0=Math.min(48,pl.w*.115),wMid=Math.min(35,pl.w*.077),wCuff=Math.max(14,s.w*pl.w*.58);
-    defs.push('<clipPath id="'+uId+'"><path d="'+capsule(shoulder,[elbow[0],elbow[1]+7],w0,wMid)+'"/></clipPath>');
-    defs.push('<clipPath id="'+dId+'"><path d="'+capsule([elbow[0],elbow[1]-7],cuff,wMid+3,wCuff)+'"/></clipPath>');
-    const image=extra=>photo(e.src,pl.x,pl.y,pl.w,pl.h,extra);
-    const upper=image(' clip-path="url(#'+uId+')"'),lower=image(' clip-path="url(#'+dId+')"');
+      elbow=[shoulder[0]+(cuff[0]-shoulder[0])*.57+side*9,
+             shoulder[1]+(cuff[1]-shoulder[1])*.57];
+    // Os dois contornos compõem um único clip e UMA imagem, sem cortes no cotovelo.
+    const id=pfx+'-ls-'+pid+'-'+k+'-whole',
+      w0=Math.min(59,pl.w*.145),mid=Math.min(52,pl.w*.124),
+      wc=Math.max(22,s.w*pl.w*.88);
+    defs.push('<clipPath id="'+id+'"><path d="'+capsule(shoulder,elbow,w0,mid)+'"/>'+
+      '<path d="'+capsule(elbow,cuff,mid+5,wc)+'"/></clipPath>');
+    const art=photo(e.src,pl.x,pl.y,pl.w,pl.h,' clip-path="url(#'+id+')"');
     const hand=cuffHand(side,...pt(s.x,s.y),s.dx,s.dy,s.w*pl.w);
-    parts.push('<g class="fit-long-arm" data-side="'+side+'"><g transform="translate('+safe(shoulder[0])+' '+safe(shoulder[1])+')">'+
-      '<g class="fit-jnt" data-j="sh'+(side<0?'L':'R')+'"><g transform="translate('+safe(-shoulder[0])+' '+safe(-shoulder[1])+')">'+
-      upper+'<g transform="translate('+safe(elbow[0])+' '+safe(elbow[1])+')"><g class="fit-jnt" data-j="el'+(side<0?'L':'R')+'"><g transform="translate('+safe(-elbow[0])+' '+safe(-elbow[1])+')">'+
-      lower+hand+'</g></g></g></g></g></g></g>');
+    parts.push('<g class="fit-long-arm fit-long-arm-single" data-side="'+side+'">'+
+      '<g transform="translate('+safe(shoulder[0])+' '+safe(shoulder[1])+')">'+
+      '<g class="fit-jnt" data-j="sh'+(side<0?'L':'R')+'">'+
+      '<g transform="translate('+safe(-shoulder[0])+' '+safe(-shoulder[1])+')">'+art+
+      '<g transform="translate('+safe(cuff[0])+' '+safe(cuff[1])+')">'+
+      '<g class="fit-jnt" data-j="el'+(side<0?'L':'R')+'">'+
+      '<g transform="translate('+safe(-cuff[0])+' '+safe(-cuff[1])+')">'+
+      hand+'</g></g></g></g></g></g></g>');
   }
   const l=pt(e.cx-e.sh.w*.50,e.sh.y),r=pt(e.cx+e.sh.w*.50,e.sh.y),
     hemL=pt(e.cx-e.hemw*.50,e.hem),hemR=pt(e.cx+e.hemw*.50,e.hem),
     torsoId=pfx+'-ls-'+pid+'-body';
-  // A gola/capuz inteiro permanece íntegro; somente as asas laterais da foto separam-se.
-  const contour='M0 0H420V'+safe(r[1]+8)+'H'+safe(r[0]+8)+
-    'Q'+safe(r[0]-15)+' '+safe(r[1]+82)+' '+safe(hemR[0])+' '+safe(hemR[1]+5)+
-    'H'+safe(hemL[0])+'Q'+safe(l[0]+15)+' '+safe(l[1]+82)+' '+safe(l[0]-8)+' '+safe(l[1]+8)+'H0Z';
+  // Transição contínua do ombro para o torso; a gola/capuz permanece inteiro.
+  const contour='M0 0H420V'+safe(r[1]+13)+'H'+safe(r[0]+14)+
+    'Q'+safe(r[0]-12)+' '+safe(r[1]+92)+' '+safe(hemR[0])+' '+safe(hemR[1]+5)+
+    'H'+safe(hemL[0])+'Q'+safe(l[0]+12)+' '+safe(l[1]+92)+' '+safe(l[0]-14)+' '+safe(l[1]+13)+'H0Z';
   defs.push('<clipPath id="'+torsoId+'"><path d="'+contour+'"/></clipPath>');
   return{defs:'<defs>'+defs.join('')+'</defs>',torsoId,sleeves:parts.join('')};
 }
@@ -702,28 +712,38 @@ function emote(name,{bpm=176,beats=8}={}){
   const body=[fig.querySelector('.fit-emote')],floor=[fig.querySelector('.fit-floor')],beat=60000/bpm;
   if(name==='spin'){spin();setGestureState(name);document.dispatchEvent(new CustomEvent('gb:emote',{detail:{name,editorial:true}}));return true}
   if(name==='dance'){
-    // Base declarada por Jamal: UM, DOIS, UM, DOIS, TRÊS, deslocando
-    // peso lateral, quadril contrário ao pé e mãos acompanhando os passos.
-    // Estudo editorial 2D, sem alegar reprodução frame a frame/mocap.
-    const T=Math.max(1350,Math.min(1880,beat*5));
-    const steps=[0,-.28,-.78,-.16,0,.24,.82,.15,-.26,0],n=steps.length-1;
-    const frames=fn=>steps.map((v,i)=>({offset:i/n,...fn(v,i)}));
+    // Jamal: três toques rápidos com o pé, passa lateralmente e repete
+    // ao outro lado, quadril contrário e mãos soltas. Interpretação editorial.
+    const T=Math.max(1380,Math.min(1850,beat*5.0));
+    const steps=[
+      {x:0,foot:0,lift:0},{x:-.16,foot:-1,lift:13},{x:-.30,foot:-1,lift:2},
+      {x:-.48,foot:-1,lift:13},{x:-.82,foot:-1,lift:2},{x:-1,foot:-1,lift:0},
+      {x:-.45,foot:0,lift:0},{x:0,foot:0,lift:0},
+      {x:.16,foot:1,lift:13},{x:.30,foot:1,lift:2},
+      {x:.48,foot:1,lift:13},{x:.82,foot:1,lift:2},
+      {x:1,foot:1,lift:0},{x:.45,foot:0,lift:0},{x:0,foot:0,lift:0}
+    ];
+    const frames=fn=>steps.map((s,i)=>({offset:i/(steps.length-1),...fn(s,i)}));
     const pants=CAT.bottom[state.bottomId]?.kind==='pants';
-    run(body,frames((v,i)=>({transform:`translateX(${v*12}px) translateY(${i%3===1?1.8:0}px) rotate(${-v*2.8}deg)`})),{duration:T});
-    run(q('head'),frames((v,i)=>({transform:`rotate(${-v*7+(i%3===0?1:0)}deg)`})),{duration:T});
-    for(const side of[-1,1]){
-      const k=side<0?'L':'R',accent=(i)=>((i===1||i===4||i===7)&&side<0)||((i===2||i===5||i===8)&&side>0);
-      run(q('sh'+k),frames((v,i)=>({transform:`rotate(${side*(v*24+(accent(i)?-8:6))}deg)`})),{duration:T});
-      run(q('el'+k),frames((v,i)=>({transform:`rotate(${side*(v*12+(accent(i)?-15:9))}deg)`})),{duration:T});
-      run(q('wr'+k),frames((v,i)=>({transform:`rotate(${side*(accent(i)?9:-6)}deg)`})),{duration:T});
-      // As pernas expostas e os tênis sobem no MESMO quadro.
-      const move=frames((v,i)=>({transform:`translate(${v*8}px,${!pants&&accent(i)?-9:0}px)`}));
-      if(!pants)run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${side}"]`)],move,{duration:T});
-      run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${side}"]`)],move,{duration:T});
+    run(body,frames(s=>({transform:
+      `translateX(${s.x*21}px) translateY(${s.lift?2:0}px) rotate(${-s.x*3.8}deg)`
+    })),{duration:T});
+    run(q('head'),frames((s,i)=>({transform:`rotate(${-s.x*8+(i%3===0?1.5:0)}deg)`})),{duration:T});
+    for(const side of [-1,1]){
+      const k=side<0?'L':'R';
+      run(q('sh'+k),frames(s=>({transform:`rotate(${side*(s.x*25+(s.foot===side?-12:7))}deg)`})),{duration:T});
+      run(q('el'+k),frames(s=>({transform:`rotate(${side*(s.x*13+(s.foot===side?-16:8))}deg)`})),{duration:T});
+      run(q('wr'+k),frames(s=>({transform:`rotate(${side*(s.foot===side?12:-7)}deg)`})),{duration:T});
+      // Calça permanece foto integral; sem seccionar joelho ou barra.
+      const moves=frames(s=>({transform:
+        `translate(${s.x*(pants?7:13)+(s.foot===side?side*6:0)}px,${s.foot===side?-(pants?s.lift*.30:s.lift):0}px) rotate(${s.foot===side?side*5:0}deg)`
+      }));
+      if(!pants)run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${side}"]`)],moves,{duration:T});
+      run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${side}"]`)],moves,{duration:T});
     }
-    // Calça é foto única: move como uma peça, não rasga no joelho para dançar.
-    if(pants)run([fig.querySelector('.fit-layer-bottom')],frames((v)=>({transform:`translateX(${v*8}px)`})),{duration:T});
-    run(floor,frames((v,i)=>({transform:`translateX(${v*4}px) scale(${i%3===1?.96:1},1)`})),{duration:T});
+    if(pants)run([fig.querySelector('.fit-layer-bottom')],
+      frames(s=>({transform:`translateX(${s.x*6}px) rotate(${s.x*1.2}deg)`})),{duration:T});
+    run(floor,frames(s=>({transform:`translateX(${s.x*5}px) scale(${s.lift?.965:1},1)`})),{duration:T});
   }else if(name==='wave'){
     setArmForeground(true);
     // Tchau real: erguer braço, três oscilações no antebraço/punho, retornar.
@@ -734,25 +754,42 @@ function emote(name,{bpm=176,beats=8}={}){
     run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-6deg)',offset:.30},{transform:'rotate(-4deg)',offset:.73},{transform:'rotate(0deg)'}],{duration:T});
   }else if(name==='salute'){
     setArmForeground(true);
-    // Salve curto: braço direito na altura da cabeça, a mão saúda e volta.
-    const T=1330,isShort=['tee','polo','jersey'].includes(CAT.top[state.topId]?.kind),isLong=isLongSleeve(CAT.top[state.topId]);
+    // SALVE ABERTO: braço à direita de quem observa, sem atravessar o rosto.
+    const T=1450,isShort=['tee','polo','jersey'].includes(CAT.top[state.topId]?.kind),
+      isLong=isLongSleeve(CAT.top[state.topId]);
     fig.dataset.salveMode=isShort||isLong?'full':'soft';
-    // O pivô da mão é do punho: a orientação correta é específica de cada rig.
     const sign=fig.querySelector('.fit-peace-sign');
-    if(sign)sign.setAttribute('transform','rotate('+(isLong?-60:isShort?-40:120)+') scale(.48) translate(0 -85)');
-    run(body,[{transform:'none'},{transform:'rotate(-.6deg)',offset:.25},{transform:'rotate(-.6deg)',offset:.7},{transform:'none'}],{duration:T});
-    if(isShort)run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-100deg)',offset:.18},{transform:'rotate(-170deg)',offset:.31},{transform:'rotate(-170deg)',offset:.85},{transform:'rotate(0deg)'}],{duration:T});
-    if(isLong)run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-80deg)',offset:.16},{transform:'rotate(-155deg)',offset:.29},{transform:'rotate(-155deg)',offset:.86},{transform:'rotate(0deg)'}],{duration:T});
-    if(isShort)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(0deg)',offset:.20},{transform:'rotate(-140deg)',offset:.43},{transform:'rotate(-140deg)',offset:.77},{transform:'rotate(-52deg)',offset:.88},{transform:'rotate(0deg)'}],{duration:T});
-    if(isLong)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(0deg)',offset:.22},{transform:'rotate(-155deg)',offset:.43},{transform:'rotate(-155deg)',offset:.78},{transform:'rotate(-52deg)',offset:.90},{transform:'rotate(0deg)'}],{duration:T});
-    run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-7deg)',offset:.36},{transform:'rotate(5deg)',offset:.55},{transform:'rotate(0deg)'}],{duration:T});
+    if(sign)sign.setAttribute('transform',
+      'rotate('+(isLong?-15:isShort?45:120)+') scale(.48) translate(0 -85)');
+    run(body,[{transform:'none'},{transform:'rotate(-1.2deg)',offset:.31},
+      {transform:'rotate(-1.2deg)',offset:.76},{transform:'none'}],{duration:T});
+    const arm=[
+      {transform:'rotate(0deg)'},{transform:'rotate(-12deg)',offset:.18},
+      {transform:'rotate(-25deg)',offset:.39},{transform:'rotate(-25deg)',offset:.76},
+      {transform:'rotate(-11deg)',offset:.91},{transform:'rotate(0deg)'}
+    ];
+    if(isShort||isLong)run(q('shR'),arm,{duration:T});
+    if(isShort||isLong)run(q('elR'),[
+      {transform:'rotate(0deg)'},{transform:'rotate(-8deg)',offset:.38},
+      {transform:'rotate(-14deg)',offset:.58},{transform:'rotate(-14deg)',offset:.76},
+      {transform:'rotate(0deg)'}
+    ],{duration:T});
+    run(q('wrR'),[
+      {transform:'rotate(0deg)'},{transform:'rotate(-8deg)',offset:.38},
+      {transform:'rotate(9deg)',offset:.59},{transform:'rotate(0deg)',offset:.87},
+      {transform:'rotate(0deg)'}
+    ],{duration:T});
     if(isShort||isLong){
-      // Primeiro abre, depois dobra; a luva dá lugar ao V somente ao completar o cumprimento.
       const glove=fig.querySelector('[data-j="wrR"] > .fit-bone-art');
-      run([glove],[{opacity:1},{opacity:1,offset:.54},{opacity:0,offset:.64},{opacity:0,offset:.80},{opacity:1,offset:.85},{opacity:1}],{duration:T});
-      run([sign],[{opacity:0},{opacity:0,offset:.54},{opacity:1,offset:.64},{opacity:1,offset:.80},{opacity:0,offset:.85},{opacity:0}],{duration:T});
+      run([glove],[{opacity:1},{opacity:1,offset:.36},{opacity:0,offset:.49},
+        {opacity:0,offset:.79},{opacity:1,offset:.91},{opacity:1}],{duration:T});
+      run([sign],[{opacity:0},{opacity:0,offset:.36},{opacity:1,offset:.49},
+        {opacity:1,offset:.79},{opacity:0,offset:.91},{opacity:0}],{duration:T});
     }
-    run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-9deg)',offset:.42},{transform:'rotate(0deg)'}],{duration:T});
+    run(q('head'),[
+      {transform:'rotate(0deg)'},{transform:'rotate(-4deg)',offset:.45},
+      {transform:'rotate(-4deg)',offset:.75},{transform:'rotate(0deg)'}
+    ],{duration:T});
   }else if(name==='jump'){
     const T=1100;
     run(body,[{transform:'none'},{transform:'translateY(9px) scale(1.02,.95)',offset:.18},{transform:'translateY(-64px) scale(.98,1.03)',offset:.46,easing:'cubic-bezier(.3,0,.7,1)'},{transform:'translateY(0px) scale(1.03,.94)',offset:.72},{transform:'translateY(2px) scale(1,.99)',offset:.86},{transform:'none'}],{duration:T});
