@@ -814,7 +814,7 @@ function mount(el,initial){
     new IntersectionObserver(entries=>{
       danceVisible=entries.some(e=>e.isIntersecting);
       syncDancePlayback();
-    },{rootMargin:'80px'}).observe(fig);
+    },{rootMargin:'80px'}).observe(stage);
   }
   document.addEventListener('visibilitychange',syncDancePlayback);
 
