@@ -537,6 +537,11 @@ function dress(part,p,opts,delay=0){
   const L=live[part];reset(L);
   const old=L.cur;
   if(!p){L.cur=null;if(old){if(reduced()||!fig.animate)old.els.forEach(el=>el.remove());else leave(L,old,part,delay,DUR[part]*(lite()?.72:1))}return}
+  // A manga articulada anterior não pode conviver com a nova na troca (quatro braços).
+  if(part==='top'&&old){old.els=old.els.filter(el=>{
+    if(el.classList?.contains('fit-articulated-longsleeves')){el.remove();return false}
+    return true;
+  })}
   const o=garmentParts(part,p,'fitA'),els=placeParts(fig,part,o);o.base.dataset.rev=String(++rev);
   L.cur={id:p.id,els,soft:o.soft,e:o.e,pl:o.pl};
   if(part==='top')fig.dataset.kind=o.e.kind;
@@ -546,7 +551,7 @@ function dress(part,p,opts,delay=0){
   // entrada: chega como fantasma a partir do seletor, encosta no corpo e assenta; a pose nova do corpo acende junto
   const[dx,dy]=entryVector(opts,part);
   els.forEach(el=>{
-    const a=o.soft.includes(el)?el.animate([{opacity:0},{opacity:0,offset:.42},{opacity:1,offset:.6},{opacity:1}],{duration:T,delay:D,easing:'linear',fill:'backwards'}):
+    const a=el.classList?.contains('fit-articulated-longsleeves')?el.animate([{opacity:0},{opacity:1}],{duration:240,delay:D,easing:'ease-out',fill:'backwards'}):o.soft.includes(el)?el.animate([{opacity:0},{opacity:0,offset:.42},{opacity:1,offset:.6},{opacity:1}],{duration:T,delay:D,easing:'linear',fill:'backwards'}):
       el.animate([
       {opacity:0,transform:`translate(${dx}px,${dy}px) scale(1.07)`},
       {opacity:.5,offset:.32,transform:`translate(${dx*.22}px,${dy*.22}px) scale(1.02)`},
@@ -722,8 +727,8 @@ function emote(name,{bpm=138,beats=8}={}){
     if(isShort||isLong){
       // Primeiro abre, depois dobra; a luva dá lugar ao V somente ao completar o cumprimento.
       const glove=fig.querySelector('[data-j="wrR"] > .fit-bone-art');
-      run([glove],[{opacity:1},{opacity:1,offset:.30},{opacity:0,offset:.47},{opacity:0,offset:.78},{opacity:1,offset:.95},{opacity:1}],{duration:T});
-      run([sign],[{opacity:0},{opacity:0,offset:.30},{opacity:1,offset:.47},{opacity:1,offset:.78},{opacity:0,offset:.95},{opacity:0}],{duration:T});
+      run([glove],[{opacity:1},{opacity:1,offset:.54},{opacity:0,offset:.64},{opacity:0,offset:.80},{opacity:1,offset:.96},{opacity:1}],{duration:T});
+      run([sign],[{opacity:0},{opacity:0,offset:.54},{opacity:1,offset:.64},{opacity:1,offset:.80},{opacity:0,offset:.96},{opacity:0}],{duration:T});
     }
     run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-9deg)',offset:.42},{transform:'rotate(0deg)'}],{duration:T});
   }else if(name==='jump'){
