@@ -52,7 +52,7 @@ const B={cx:210,crown:58,chin:171,shoulderY:212,shL:[116,236],shR:[304,236],nave
   zones:{top:[90,176,240,340],bottom:[118,420,184,490]}};
 // alvos da roupa sobre o corpo: superior pela linha dos ombros, inferior pelo cós (folga de streetwear incluída)
 const FIT={top:{shoulder:232,lineY:212,kindDy:{hoodie:6,jacket:4,sweatshirt:0,longsleeve:0,tee:0,polo:0,jersey:0}},
-  bottom:{waist:166,waistY:430,pantsHem:896},armTilt:19,neck:{top:29,base:38},
+  bottom:{waist:166,waistY:430,pantsHem:870},armTilt:19,neck:{top:29,base:38},
   kindScale:{hoodie:1,jacket:1.02,sweatshirt:1,longsleeve:.98,tee:1,polo:1,jersey:1,pants:1,shorts:1}};
 const HEAD_R=[[210,58],[226,59.5],[239,65],[247.5,75],[251.5,88],[252.5,102],[251.5,114],[250,125],[247.5,136],[244,146],[239,155],[232.5,162],[224.5,167.5],[217,170.5],[210,171.5]];
 const HEAD=[...HEAD_R,...mirror(HEAD_R).reverse().slice(1,-1)];
@@ -223,11 +223,8 @@ function legsSVG(pfx,spec){
     const kt=sideK(side,'th'),ks=sideK(side,'shin'),kb=sideK(side,'boot');
     const lenS=Math.max(.5,Math.min(.74,D/((SK[kt].len+SK[ks].len)*.995)));
     // largura: a coxa no nível da barra da bermuda cabe na boca (92%); a perna toda segue essa largura
-    let sw=Math.min(.62,lenS*.84);
-    if(spec.openW){const t=Math.max(.3,Math.min(.95,(spec.openY-H[1])/(SK[kt].len*lenS)));
-      // Largura do recorte acompanha a boca real da bermuda; não cresce de repente na panturrilha.
-      sw=Math.max(.43,Math.min(.64,spec.openW*.93/Math.max(1,widAt(kt,t))));
-    }else if(spec.pants)sw=Math.min(.58,lenS*.81);
+    // Fotos de bermudas variam; a anatomia do GB UNIT não deve mudar de espessura a cada peça.
+    const sw=spec.pants?.54:.555;
     const Lt=SK[kt].len*lenS,Ls=SK[ks].len*lenS,base=angOf(T[0]-H[0],T[1]-H[1]);
     const cosA=Math.max(-1,Math.min(1,(Lt*Lt+D*D-Ls*Ls)/(2*Lt*D))),bend=Math.acos(cosA)*DEG;
     // o joelho dobra para fora (lado do corpo)
@@ -315,7 +312,22 @@ function garmentParts(part,p,pfx){
     if(e.hood){const hd=hoodParts(e,pl,pfx,p.id);out.hoodBack=hd.back;out.hood=hd.front}
     g.style.transformOrigin='210px 220px';
   }else{
-    g.innerHTML=photo(e.src,pl.x,pl.y,pl.w,pl.h);
+    // Barra curta no tornozelo: foto real recortada, sem deformação da textura.
+    if(e.kind==='pants'&&e.legs?.length>=2){
+      const hem=875,top=716;
+      const cut=e.legs.slice(0,2).map(l=>{
+        const x=pl.x+l.x*pl.w,hw=Math.max(19,l.w*pl.w*.56);
+        const ankle=Math.max(13,Math.min(20,hw*.69));
+        return `<path d="M${r1(x-hw-5)} ${top} Q${r1(x-hw)} 760 ${r1(x-hw*.88)} 786
+          L${r1(x-ankle)} 862 Q${r1(x-ankle)} ${hem} ${r1(x-ankle+7)} ${hem}
+          L${r1(x+ankle-7)} ${hem} Q${r1(x+ankle)} ${hem} ${r1(x+ankle)} 862
+          L${r1(x+hw*.88)} 786 Q${r1(x+hw)} 760 ${r1(x+hw+5)} ${top}Z"/>`;
+      }).join('');
+      const id=`${pfx}-trouser-${p.id}`;
+      g.innerHTML=`<defs><clipPath id="${id}" clipPathUnits="userSpaceOnUse">
+        <rect x="0" y="0" width="420" height="${top+1}"/>${cut}</clipPath></defs>`+
+        photo(e.src,pl.x,pl.y,pl.w,pl.h,` clip-path="url(#${id})"`);
+    }else g.innerHTML=photo(e.src,pl.x,pl.y,pl.w,pl.h);
     g.style.transformOrigin='210px 480px';
   }
   return out;
@@ -323,7 +335,7 @@ function garmentParts(part,p,pfx){
 // capuz na cabeça: o próprio capuz da foto, levantado por inteiro (escala única) até a abertura emoldurar o rosto.
 // Atrás da cabeça vai o capuz inteiro (o forro escuro aparece em volta do capacete); na frente, o mesmo capuz com a
 // abertura vazada (borda suave), para a cabeça ficar DENTRO dele. A base some aos poucos sobre os ombros.
-const HOOD={open:104,top:HEAD_TOP-2};
+const HOOD={open:99,top:HEAD_TOP-2};
 // com o capuz na cabeça, a parte de cima do capuz deitado na foto some (fica só a gola que desce aos ombros)
 function hoodHideMask(e,pl,pfx,pid){
   const h=e.hood,ox0=pl.x+h.x0*pl.w,ox1=pl.x+h.x1*pl.w,ot=pl.y+h.top*pl.h,ob=pl.y+h.bottom*pl.h,id=`${pfx}-hd-${pid}-t`;
@@ -338,7 +350,7 @@ function hoodParts(e,pl,pfx,pid){
   const h=e.hood,ox0=pl.x+h.x0*pl.w,ox1=pl.x+h.x1*pl.w,ot=pl.y+h.top*pl.h;
   const ow=Math.max(1,ox1-ox0),k=Math.max(.83,Math.min(1.25,HOOD.open/ow));
   const tx=B.cx-k*(ox0+ox1)/2,ty=HOOD.top-k*ot,id=`${pfx}-hood-${pid}`;
-  const cx=B.cx,cy=HEAD_TOP+69,rx=69,ry=85,ix=51,iy=69;
+  const cx=B.cx,cy=HEAD_TOP+69,rx=63,ry=82,ix=53,iy=71;
   const img=`<g transform="translate(${r1(tx)} ${r1(ty)}) scale(${r3(k)})">${photo(e.src,pl.x,pl.y,pl.w,pl.h)}</g>`;
   const outer=`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>`;
   const back=mkG('fit-hoodpart fit-hood-back',pid);
