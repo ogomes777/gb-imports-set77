@@ -374,14 +374,19 @@ function garmentParts(part,p,pfx){
         Q${r1(cx-hemHalf*1.08)} ${r1(upper+58)} ${r1(cx-hemHalf*1.17)} ${r1(upper)}H0Z"/>
         </clipPath></defs>`;
       const src=e.rig?e.rig.torso:e.src;
-      const attrs=` clip-path="url(#${id})"`+(e.hood?` mask="url(#${pfx}-hd-${p.id}-t)"`:'');
-      if(!longRig)return mask+photo(src,pl.x,pl.y,pl.w,pl.h,attrs);
-      // Idle, giro e dança mostram a fotografia CONTÍNUA original. Somente
-      // TCHAU/SALVE habilitam recortes articulados temporários.
-      return mask+longRig.defs+
-        `<g class="fit-long-rest">`+photo(src,pl.x,pl.y,pl.w,pl.h,attrs)+`</g>`+
+      const hoodAttr=e.hood?` mask="url(#${pfx}-hd-${p.id}-t)"`:'';
+      if(!longRig){
+        // Camisetas usam modelagem leve na cintura; não alterar essa categoria.
+        return mask+photo(src,pl.x,pl.y,pl.w,pl.h,` clip-path="url(#${id})"`+hoodAttr);
+      }
+      // CRITICAL: NÃO aplicar clip de cintura sobre o hoodie inteiro. O path
+      // convergia na cintura mas era aplicado à foto COMPLETA, incluindo mangas.
+      // Por isso amputava o tecido na altura do cotovelo, mesmo em repouso.
+      // A fotografia original já tem transparência/silhueta correta; respeitá-la.
+      return longRig.defs+
+        `<g class="fit-long-rest">`+photo(src,pl.x,pl.y,pl.w,pl.h,hoodAttr)+`</g>`+
         `<g class="fit-long-action" clip-path="url(#${longRig.torsoId})">`+
-          photo(src,pl.x,pl.y,pl.w,pl.h,attrs)+`</g>`;
+          photo(src,pl.x,pl.y,pl.w,pl.h,hoodAttr)+`</g>`;
     })();
     limbs.innerHTML=armsSVG(e,pl,pfx,sp);out.limbs=limbs;out.soft.push(limbs);
     if(longRig){const sl=mkG('fit-sleeves fit-articulated-longsleeves',p.id);sl.innerHTML=longRig.sleeves;out.sleeves=sl;out.soft.push(sl)}

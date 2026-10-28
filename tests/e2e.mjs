@@ -547,6 +547,27 @@ async function run(w,h,reduced=false){
    check(vp,'GB V1.3: calça integral e mangas contínuas na pose neutra',
      whole.pantsImage&&!whole.pantsClip&&whole.restVisible&&whole.actionHidden,JSON.stringify(whole));
 
+   // V1.5: cintura não pode recortar os punhos/cotovelos dos moletons.
+   // O erro anterior vinha da waist clip aplicada à FOTO inteira.
+   const hoodIntegrity=await page.evaluate(async()=>{
+     const sleep=t=>new Promise(r=>setTimeout(r,t)),saved={...GBFitting.state},
+       ids=['gb-crt-001','gb-crt-003','gb-crt-004'],result=[];
+     for(const topId of ids){
+       GBFitting.set({topId},{silent:true});
+       await sleep(1250);
+       const f=document.querySelector('#gbFitFigure'),
+         img=f.querySelector('.fit-long-rest image'),
+         e=GBFitting.catalog.top[topId];
+       result.push({topId,original:img?.getAttribute('href')===e.src,
+         clip:img?.getAttribute('clip-path')||null,
+         rest:getComputedStyle(f.querySelector('.fit-long-rest')).opacity});
+     }
+     GBFitting.set(saved,{silent:true});await sleep(1200);
+     return result;
+   });
+   check(vp,'GB V1.5: foto integral do moletom sem waist clip nos cotovelos',
+     hoodIntegrity.length===3&&hoodIntegrity.every(x=>x.original&&!x.clip&&x.rest==='1'),JSON.stringify(hoodIntegrity));
+
    // V1.4: manga longa preserva a fotografia contínua, sem corte artificial
    // no cotovelo, e o SALVE não atravessa a face.
    const v14=await page.evaluate(async()=>{
