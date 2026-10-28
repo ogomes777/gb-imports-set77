@@ -480,6 +480,16 @@ async function run(w,h,reduced=false){
       legs:f?.querySelectorAll('.fit-layer-legs .fit-leg').length||0}});
   check(vp,'fit V20: tênis na escala corrigida, dois membros e cinco emotes',v20.shoeWidth>=160&&v20.buttons===5&&v20.salute&&v20.legs===2,JSON.stringify(v20));
   check(vp,'fit V20: interface não cria overflow horizontal',v20.previewWidth<=1,JSON.stringify(v20));
+  const v21=await page.evaluate(()=>{
+    const f=document.querySelector('#gbFitFigure');
+    return{icons:document.querySelectorAll('#lookstudio .fit-icon-glyph').length,
+      poses:document.querySelectorAll('#lookstudio .fit-spin-track [data-pose]').length,
+      peace:!!f?.querySelector('[data-j="wrR"] .fit-peace-sign'),
+      ankle:GBFitting.FIT.bottom.pantsHem,
+      shortStable:GBFitting?.RIG?.floor===948};
+  });
+  check(vp,'fit V21: controles originais, mão em V e barra curta',v21.icons===5&&v21.poses===3&&v21.peace&&v21.ankle===870&&v21.shortStable,JSON.stringify(v21));
+
 
   // V19.1: o 360 não pode cortar de uma lateral para a outra; é uma rotação
   // editorial sinalizada, nunca uma foto inventada do verso da roupa.
