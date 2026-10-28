@@ -787,7 +787,7 @@ function emote(name,{bpm=176,beats=8}={}){
     for(const side of [-1,1]){
       const k=side<0?'L':'R',sh=side<0?5:6,el=side<0?7:8,wr=side<0?9:10,foot=side<0?11:12;
       // Moletom: angulação limitada ao braço original inteiro, sem rasgar manga.
-      run(q('sh'+k),frames(p=>({transform:`rotate(${clamp(p[sh],long?-43:-68,50).toFixed(2)}deg)`})),{duration:T});
+      run(q('sh'+k),frames(p=>({transform:`rotate(${clamp(p[sh],long?-34:-68,long?29:50).toFixed(2)}deg)`})),{duration:T});
       run(q('el'+k),frames(p=>({transform:`rotate(${(long?clamp(p[el]*.28,-12,12):clamp(p[el],-45,36)).toFixed(2)}deg)`}),.009),{duration:T});
       run(q('wr'+k),frames(p=>({transform:`rotate(${p[wr].toFixed(2)}deg)`}),.016),{duration:T});
       run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${side}"]`)],frames(p=>{
