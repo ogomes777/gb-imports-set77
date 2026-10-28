@@ -478,31 +478,37 @@ async function run(w,h,reduced=false){
   if(!reduced)check(vp,'fit V1.3: passinho dança continuamente e segundo clique interrompe',v19.started&&v19.moving>=3&&v19.body===1&&v19.continuous&&v19.stopped&&v19.done&&v19.reset,JSON.stringify(v19));
   else check(vp,'fit V19: movimento reduzido não roda emote',v19.started===false,JSON.stringify(v19));
   check(vp,'fit V19: seta › da fileira de peças rola a lista',v19.arrows&&v19.s1>v19.s0,JSON.stringify(v19));
-  // V1.6: base Jamal = três toques por lado + deslocamento + braços leves.
-  // Não confundir com apenas mover o corpo inteiro para esquerda/direita.
+  // V1.8: três contatos reais em cada pé, amostragem contínua/sem tranco.
   if(!reduced){
     const jamal=await page.evaluate(async()=>{
       const sleep=t=>new Promise(r=>setTimeout(r,t)),old={...GBFitting.state};
       GBFitting.set({topId:'gb-crt-003',bottomId:'gb-crt-001',shoeId:'gb-crt-s-052',hood:false,capId:null},{silent:true});
-      await sleep(1550);
-      GBFitting.emote('dance');await sleep(110);
+      await sleep(1550);GBFitting.emote('dance');await sleep(150);
       const f=document.querySelector('#gbFitFigure'),feet=[...f.querySelectorAll('.fit-layer-shoe .fit-foot')];
       const tracks=feet.map(el=>({origin:el.style.transformOrigin,
         frames:el.getAnimations()[0]?.effect.getKeyframes()||[]}));
-      const signs=tracks.map(({frames})=>frames.map(x=>x.transform).filter(Boolean));
-      const hoodie=f.dataset.articulated==='on';
+      const yValue=k=>{
+        const m=(k.transform||'').match(/translate\([^,]+,\s*(-?\d+(?:\.\d+)?)px\)/);
+        return m?Number(m[1]):0;
+      };
+      const localPeaks=frames=>{const y=frames.map(yValue);let peaks=0;
+        for(let i=1;i<y.length-1;i++)if(y[i]<-2.8&&y[i]<y[i-1]&&y[i]<=y[i+1])peaks++;
+        return peaks;
+      };
       const continuous=f.querySelector('.fit-emote').getAnimations().some(a=>a.effect.getTiming().iterations===Infinity);
-      const result={hoodie,continuous,tracks:tracks.map(x=>({origin:x.origin,frames:x.frames.length})),
-        triples:signs.map(a=>a.filter(s=>/rotate\([+-]?(?:8|9|1[012])/.test(s)).length),
-        negativeLifts:signs.map(a=>a.filter(s=>/,\s*-(?:3|4|5|6)\./.test(s)).length)};
+      const result={hoodie:f.dataset.articulated==='on',continuous,
+        tracks:tracks.map(x=>({origin:x.origin,frames:x.frames.length,
+          seam:x.frames[0]?.transform===x.frames[x.frames.length-1]?.transform,
+          linear:x.frames.every(f=>f.easing==='linear'),peaks:localPeaks(x.frames)}))};
       GBFitting.emote('dance');await sleep(80);
       result.restored=f.dataset.articulated!=='on';
       GBFitting.set(old,{silent:true});await sleep(1150);
       return result;
     });
-    check(vp,'GB V1.7: passinho com três toques por pé, apoio estável, roupa íntegra e loop reversível',
-      jamal.hoodie&&jamal.continuous&&jamal.tracks.every(t=>t.frames===21&&t.origin.includes('px'))&&
-      jamal.triples.every(n=>n>=2)&&jamal.negativeLifts.every(n=>n>=2)&&jamal.restored,JSON.stringify(jamal));
+    check(vp,'GB V1.8: passinho fluido, três contatos por pé, fechamento perfeito e manga inteira',
+      jamal.hoodie&&jamal.continuous&&jamal.tracks.length===2&&
+      jamal.tracks.every(t=>t.frames>=65&&t.origin.includes('px')&&t.seam&&t.linear&&t.peaks===3)&&
+      jamal.restored,JSON.stringify(jamal));
   }
   // V20: escala real dos tênis, rig com capuz medido, painel premium com cinco emotes.
   const v20=await page.evaluate(()=>{const f=document.querySelector('#gbFitFigure'),dock=document.querySelector('#lookstudio .fit-emotes');
