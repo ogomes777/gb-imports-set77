@@ -679,7 +679,10 @@ function emote(name,{bpm=138,beats=8}={}){
   bpm=Math.max(60,Math.min(240,Number(bpm)||112));
   beats=Math.max(2,Math.min(16,Math.round(Number(beats)||8)));
   const q=j=>[...fig.querySelectorAll(`.fit-figure:not(.fit-figure-b) [data-j="${j}"], #gbFitFigure [data-j="${j}"]`)].filter((v,i,a)=>a.indexOf(v)===i);
-  const run=(els,kf,o)=>els.filter(Boolean).forEach(el=>emoteAnims.push(el.animate(kf,{easing:'cubic-bezier(.35,0,.2,1)',...o})));
+  // Tempo global LINEAR: offsets dos ossos permanecem sincronizados. Suavidade em cada intervalo.
+  const run=(els,kf,o)=>els.filter(Boolean).forEach(el=>emoteAnims.push(el.animate(
+    kf.map(frame=>({...frame,easing:frame.easing||'cubic-bezier(.38,0,.62,1)'})),
+    {easing:'linear',...o})));
   const body=[fig.querySelector('.fit-emote')],floor=[fig.querySelector('.fit-floor')],beat=60000/bpm;
   if(name==='spin'){spin();setGestureState(name);document.dispatchEvent(new CustomEvent('gb:emote',{detail:{name,editorial:true}}));return true}
   if(name==='dance'){
@@ -727,8 +730,8 @@ function emote(name,{bpm=138,beats=8}={}){
     if(isShort||isLong){
       // Primeiro abre, depois dobra; a luva dá lugar ao V somente ao completar o cumprimento.
       const glove=fig.querySelector('[data-j="wrR"] > .fit-bone-art');
-      run([glove],[{opacity:1},{opacity:1,offset:.54},{opacity:0,offset:.64},{opacity:0,offset:.80},{opacity:1,offset:.96},{opacity:1}],{duration:T});
-      run([sign],[{opacity:0},{opacity:0,offset:.54},{opacity:1,offset:.64},{opacity:1,offset:.80},{opacity:0,offset:.96},{opacity:0}],{duration:T});
+      run([glove],[{opacity:1},{opacity:1,offset:.54},{opacity:0,offset:.64},{opacity:0,offset:.80},{opacity:1,offset:.85},{opacity:1}],{duration:T});
+      run([sign],[{opacity:0},{opacity:0,offset:.54},{opacity:1,offset:.64},{opacity:1,offset:.80},{opacity:0,offset:.85},{opacity:0}],{duration:T});
     }
     run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-9deg)',offset:.42},{transform:'rotate(0deg)'}],{duration:T});
   }else if(name==='jump'){
