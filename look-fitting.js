@@ -90,11 +90,11 @@ const HEAD_CHIN=SK?HEAD_TOP+(SK.head.b[1]-SK.head.a[1])*HEAD_S:176;
 function headSVG(pfx){
   if(!SK)return '';
   const e=SK.head,[mx0,my0]=e.mono[0],[mx1,my1]=e.mono[1];
-  return `<g class="fit-head"><g transform="translate(${B.cx} ${r1(HEAD_CHIN)})"><g class="fit-jnt" data-j="head"><g class="fit-face">`+
+  return `<g class="fit-attention"><g class="fit-head"><g transform="translate(${B.cx} ${r1(HEAD_CHIN)})"><g class="fit-jnt" data-j="head"><g class="fit-face">`+
     `<g transform="scale(${HEAD_S}) translate(${-e.b[0]} ${-e.b[1]})"><image href="${e.src}" width="${e.w}" height="${e.h}"/>`+
     `<image href="${MONO}" x="${mx0}" y="${my0}" width="${mx1-mx0}" height="${my1-my0}" preserveAspectRatio="xMidYMid meet" opacity=".9"/>`+
-    e.eyes.map(([x,y])=>`<ellipse class="fit-glow" cx="${x}" cy="${y}" rx="30" ry="15" fill="url(#${pfx}-gl)"/><ellipse class="fit-glow" cx="${x}" cy="${y}" rx="13" ry="4" fill="#fff6d6" opacity=".55"/>`).join('')+
-    `</g></g></g></g></g>`;
+    e.eyes.map(([x,y])=>`<g class="fit-eye"><g class="fit-eye-track"><g class="fit-eye-glare" style="transform-origin:${x}px ${y}px"><ellipse class="fit-glow" cx="${x}" cy="${y}" rx="30" ry="15" fill="url(#${pfx}-gl)"/><ellipse class="fit-glow" cx="${x}" cy="${y}" rx="13" ry="4" fill="#fff6d6" opacity=".55"/></g></g><rect class="fit-eye-lid" x="${x-22}" y="${y-8}" rx="5" width="44" height="16" fill="#08090c" opacity="0"/></g>`).join('')+
+    `</g></g></g></g></g></g>`;
 }
 // pescoço por cima da peça: cobre o forro e as costas da gola e para na gola da frente (medida na foto).
 // Sem medida de gola, o pescoço fica por baixo da peça (corpo).
@@ -466,7 +466,7 @@ const HELIX=(()=>{const P=46,A=13,x0=-16,x1=436,pt=(x,ph)=>`${r1(x)} ${r1(A*Math
 function figureSVG(pfx,label){
   return `<svg class="fit-svg" viewBox="0 0 420 1000" role="img" aria-label="${label}" focusable="false">${defsSVG(pfx)}
   <ellipse class="fit-floor" cx="210" cy="${B.floor}" rx="130" ry="15" fill="url(#${pfx}-floor)"/>
-  <g class="fit-yaw"><g class="fit-emote"><g class="fit-rig">${bodySVG(pfx)}<g class="fit-layer fit-layer-legs"></g><g class="fit-layer fit-layer-bottom"></g><g class="fit-layer fit-layer-shoe"></g><g class="fit-layer fit-layer-arms"></g><g class="fit-layer fit-layer-top"></g><g class="fit-layer fit-layer-sleeves"></g><g class="fit-layer fit-layer-neck"></g><g class="fit-layer fit-layer-hoodback"></g>${headSVG(pfx)}<g class="fit-layer fit-layer-hood"></g><g class="fit-layer fit-layer-cap"></g></g></g></g>
+  <g class="fit-yaw"><g class="fit-emote"><g class="fit-presence"><g class="fit-rig">${bodySVG(pfx)}<g class="fit-layer fit-layer-legs"></g><g class="fit-layer fit-layer-bottom"></g><g class="fit-layer fit-layer-shoe"></g><g class="fit-layer fit-layer-arms"></g><g class="fit-layer fit-layer-top"></g><g class="fit-layer fit-layer-sleeves"></g><g class="fit-layer fit-layer-neck"></g><g class="fit-layer fit-layer-hoodback"></g>${headSVG(pfx)}<g class="fit-layer fit-layer-hood"></g><g class="fit-layer fit-layer-cap"></g></g></g></g></g>
   <g class="fit-scan" aria-hidden="true"><rect x="30" y="-22" width="360" height="44" fill="url(#${pfx}-sc)"/><g class="fit-helix">${HELIX}</g></g></svg>`;
 }
 // coloca as camadas de uma peça na figura
@@ -720,95 +720,85 @@ function emote(name,{bpm=176,beats=8}={}){
   if(name==='spin'){spin();setGestureState(name);document.dispatchEvent(new CustomEvent('gb:emote',{detail:{name,editorial:true}}));return true}
 
   if(name==='dance'){
-    // PASSINHO V1.8. Não interpolar poses desconexas com easing por segmento.
-    // Seis contatos de pés, com ciclo C1 contínuo, foot-pivot e mãos retardadas.
-    // A fotografia integral da calça e da manga permanece intacta.
-    // É interpretação física 2D, não uma captura 1:1.
-    const T=Math.round(Math.max(1600,Math.min(2010,60000/bpm*5.25)));
-    const N=lite()?64:96;
-    const TAU=Math.PI*2,wrap=t=>(t%1+1)%1;
-    const smoother=x=>{
-      const u=Math.min(1,Math.max(0,x));
-      return u*u*u*(u*(u*6-15)+10);
-    };
-    // Pulso com velocidade ZERO no começo/fim: pé nunca dá salto entre quadros.
-    const pulse=(t,c,w)=>{
-      const d=Math.abs(wrap(t-c+.5)-.5);
-      return d>=w?0:(1+Math.cos(Math.PI*d/w))*.5;
-    };
-    const glide=(t,a,b,c,d)=>smoother((t-a)/(b-a))*(1-smoother((t-c)/(d-c)));
-    const taps=[
-      {t:.046,side:-1,lift:11,toe:13,weight:.85},
-      {t:.142,side:-1,lift:14,toe:-14,weight:1.08},
-      {t:.241,side:-1,lift:12,toe:15,weight:.91},
-      {t:.546,side:1,lift:11,toe:-13,weight:.85},
-      {t:.642,side:1,lift:14,toe:14,weight:1.08},
-      {t:.741,side:1,lift:12,toe:-15,weight:.91}
+    // GB V1.9: referência DIRETA do vídeo enviado (trecho 03.45s–09.55s).
+    // Gesto característico: braço na diagonal diante do rosto -> solta ->
+    // flexão profunda do joelho + inclinação do tronco -> sobe -> avança.
+    // Anterior V1.8 era uma invenção de 3 batidas sem as poses do vídeo.
+    // O manequim é editorial 2D; não reivindicar retarget 1:1 sem rig volumétrico.
+    const T=5300,N=lite()?80:144;
+    // t, avanço X, agachamento, inclinação, cabeça, ombro esq/dir,
+    // cotovelo esq/dir, punho esq/dir, pé esq/dir, balanço quadril.
+    // Amostragem observada dos segundos 3.5–9.5 do anexo recebido.
+    const keys=[
+      [0,     0,.04,-2,  2,  2,-9,  0,-14, 0,  6,  0, 0, 0],
+      [.042, -2,.10,-3, -6, 13,-43,  8,-33, 1, 12, -4, 7,-3],
+      [.083, -1,.04, 1, -2,  2,-55,  0,-40, 0,  4,  0, 0, 0],
+      [.128,  4,.01, 3,  3,  1,-13, -5, -4, 0,  0, -3, 0, 2],
+      [.178, -1,.08,-5, -5, 18,-45, 10,-39, 2,  9,  5, 0,-4],
+      [.223,  0,.05,-2, -3,  5,-61, -4,-32, 4,  6,  0, 5, 1],
+      [.266,  1,.02, 0,  2,  3,-10,  2, -8, 0,  0,  0, 0, 0],
+      [.307,  2,.12,-6,  7, 30,-26, 13,-18, 4,  7,  2, 0, 4],
+      [.345,  3,.19,-8, -7, 43,-11, 25,  -4, 0,  7,  0, 4,-4],
+      [.387,  1,.03, 3, -3,  7,-36,  0,-22, 0, 11, -3, 0, 1],
+      [.432, -2,.01, 2,  1,  0,-59,  0,-37, 1, 13,  0, 0, 0],
+      [.478,  5,.05, 4,  5,  7,-19,  2,-10, 0,  0, -4, 2, 3],
+      [.518, -1,.02,-4, -3, 28,-32, 15,-24, 3,  9,  3, 0,-3],
+      [.564,  0,.11,-5, -5, 39,-43, 20,-26, 5,  6,  0, 3,-2],
+      [.607, -2,.05, 0,  4,  4,-45,  0,-28, 0, 11,  0, 0, 0],
+      [.652,  4,.01, 2,  4,  8,-12,  2, -5, 0,  0, -4, 0, 3],
+      [.694,  5,.04,-3, -5, 15,-56,  3,-27, 1,  9,  0, 5,-1],
+      [.733,  5,.09,-6, -7, 26,-23, 18,-18, 2,  8,  3, 0,-3],
+      [.775,  0,.15,-8, -5, 44,-33, 22,-20, 4,  5,  0, 4,-5],
+      [.812,  6,.24,-11,-7, 42,-51, 26,-34, 8,  9,  3, 0,-5],
+      [.856, 10,.15,-7,  2, 12,-18,  5,-12, 3,  0, -4, 5, 0],
+      [.905, 11,.04, 4,  5,  3,-35, -3,-23, 0, 11,  3, 0, 4],
+      [.956,  3,.02, 1,  2,  3,-15,  0,-13, 0,  0,  0, 1, 1],
+      [1,     0,.04,-2,  2,  2,-9,  0,-14, 0,  6,  0, 0, 0]
     ];
-    const pose=time=>{
-      const t=wrap(time);
-      const travel=-20*glide(t,.307,.407,.460,.504)+
-                    20*glide(t,.807,.907,.960,1);
-      let left=0,right=0,ltoe=0,rtoe=0,hip=0,compress=0;
-      for(const k of taps){
-        const lift=pulse(t,k.t,.039),weight=pulse(t-.015,k.t,.055)*k.weight;
-        const impact=pulse(t,k.t+.030,.032);
-        if(k.side<0){left+=lift*k.lift;ltoe+=lift*k.toe}
-        else{right+=lift*k.lift;rtoe+=lift*k.toe}
-        hip-=k.side*weight;
-        compress+=impact*.20;
-      }
-      // Na transferência, a bacia atrasa um pouco os pés.
-      hip+=glide(t,.313,.405,.453,.500)*.46-
-           glide(t,.813,.905,.953,1)*.46;
-      return {travel,left,right,ltoe,rtoe,hip,compress};
-    };
-    // Todas as juntas têm a MESMA linha do tempo e fecham a curva sem tranco.
-    const samples=Array.from({length:N+1},(_,i)=>i/N);
-    const frames=(fn,delay=0)=>samples.map(t=>({
-      offset:t,...fn(pose(t-delay),t),easing:'linear'
-    }));
-    const pants=CAT.bottom[state.bottomId]?.kind==='pants';
-    run(body,frames(p=>({
-      transform:`translate(${p.travel.toFixed(2)}px,${(p.compress*2.4-.045*(p.left+p.right)).toFixed(2)}px) rotate(${(p.hip*.85).toFixed(2)}deg)`
-    })),{duration:T});
-    run(q('head'),frames(p=>({transform:`rotate(${(-p.hip*3.0-p.travel*.08).toFixed(2)}deg)`}),.024),{duration:T});
-    // Tecido inteiro, leve arrasto contrário ao quadril. Nada de clip no cotovelo.
-    run([fig.querySelector('.fit-layer-top')],frames(p=>({
-      transform:`translateX(${(-p.hip*2.15).toFixed(2)}px) rotate(${(p.hip*.85).toFixed(2)}deg)`
-    }),.012),{duration:T});
-    run([fig.querySelector('.fit-layer-bottom')],frames(p=>({
-      transform:`translateX(${(p.hip*3.8).toFixed(2)}px) rotate(${(-p.hip*.72).toFixed(2)}deg)`
-    }),.009),{duration:T});
-    const shoeDx=parseFloat(fig.style.getPropertyValue('--shoeDx'))||0;
-    for(const side of[-1,1]){
-      const k=side<0?'L':'R';
-      // Ombro acompanha o pé oposto; cotovelo e punho respondem um pouco depois.
-      const shoulder=frames(p=>({transform:`rotate(${(side*(p.hip*13+p.travel*.15)).toFixed(2)}deg)`}),.015);
-      run(q('sh'+k),shoulder,{duration:T});
-      run(q('el'+k),frames(p=>({transform:`rotate(${(side*(p.hip*5.8+p.compress*4)).toFixed(2)}deg)`}),.045),{duration:T});
-      run(q('wr'+k),frames(p=>({transform:`rotate(${(side*(p.hip*4.2-p.compress*4.8)).toFixed(2)}deg)`}),.068),{duration:T});
-      const footFrames=frames(p=>{
-        const lift=side<0?p.left:p.right,angle=side<0?p.ltoe:p.rtoe;
-        // Com calça, preservar ligação tênis/bainha. Com bermuda, permitir
-        // um pé de apoio mais estável e canela deslocando junto.
-        const compensation=p.travel*(pants?-.16:-.40);
-        // Calça comprida: não levantar o tênis inteiro! A boca fica conectada
-        // ao tornozelo e somente a ponta gira sobre o pivô real do calcanhar.
-        // Bermuda: a canela está visível e pode subir alguns pixels no acento.
-        const dx=side*shoeDx+compensation+side*lift*(pants?.055:.38);
-        const dy=pants?0:-lift*.55;
-        return {transform:`translate(${dx.toFixed(2)}px,${dy.toFixed(2)}px) rotate(${(side*angle).toFixed(2)}deg)`};
+    // C1: interpolação Hermite com derivadas centradas. Respeita tempo dos
+    // quadros reais e elimina o para/arranca de cada keyframe antigo.
+    const pose=t=>{
+      t=Math.max(0,Math.min(1,t));
+      let i=0;while(i<keys.length-2&&keys[i+1][0]<t)i++;
+      const a=keys[i],b=keys[i+1],prev=keys[Math.max(0,i-1)],next=keys[Math.min(keys.length-1,i+2)];
+      const span=b[0]-a[0],u=(t-a[0])/span,u2=u*u,u3=u2*u;
+      const h00=2*u3-3*u2+1,h10=u3-2*u2+u,h01=-2*u3+3*u2,h11=u3-u2;
+      return a.map((v,j)=>{
+        if(j===0)return t;
+        const m0=(b[j]-prev[j])/(b[0]-prev[0]),m1=(next[j]-a[j])/(next[0]-a[0]);
+        return h00*v+h10*span*m0+h01*b[j]+h11*span*m1;
       });
-      run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${side}"]`)],footFrames,{duration:T});
-      if(!pants)run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${side}"]`)],
-        frames(p=>{const lift=side<0?p.left:p.right;return{
-          transform:`translateX(${(p.travel*.20+side*lift*.29).toFixed(2)}px) rotate(${(side*lift*.14).toFixed(2)}deg)`
-        }}),{duration:T});
-    }
-    run(floor,frames(p=>({
-      transform:`translateX(${(p.travel*.35).toFixed(2)}px) scale(${(1-p.compress*.04).toFixed(3)},1)`
+    };
+    const frames=(fn,delay=0)=>Array.from({length:N+1},(_,i)=>{
+      const t=i/N,p=pose(((t-delay)%1+1)%1);return{offset:t,...fn(p),easing:'linear'};
+    });
+    const pants=CAT.bottom[state.bottomId]?.kind==='pants';
+    const long=isLongSleeve(CAT.top[state.topId]);
+    const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+    // Crouch gira/abaixa o corpo em torno dos pés, para não flutuar no ar.
+    run(body,frames(p=>({transform:`translateX(${p[1].toFixed(2)}px) translateY(0px) rotate(${p[3].toFixed(2)}deg) scaleY(${(1-clamp(p[2],0,.25)*.48).toFixed(4)})`})),{duration:T});
+    run(q('head'),frames(p=>({transform:`rotate(${p[4].toFixed(2)}deg)`}),.006),{duration:T});
+    run([fig.querySelector('.fit-layer-bottom')],frames(p=>({
+      transform:`rotate(${(p[13]*.24).toFixed(2)}deg) translateX(${(p[13]*.65).toFixed(2)}px)`
     })),{duration:T});
+    run([fig.querySelector('.fit-layer-top')],frames(p=>({
+      transform:`rotate(${(-p[13]*.20).toFixed(2)}deg)`
+    })),{duration:T});
+    for(const side of [-1,1]){
+      const k=side<0?'L':'R',sh=side<0?5:6,el=side<0?7:8,wr=side<0?9:10,foot=side<0?11:12;
+      // Moletom: angulação limitada ao braço original inteiro, sem rasgar manga.
+      run(q('sh'+k),frames(p=>({transform:`rotate(${clamp(p[sh],long?-34:-68,long?29:50).toFixed(2)}deg)`})),{duration:T});
+      run(q('el'+k),frames(p=>({transform:`rotate(${(long?clamp(p[el]*.28,-12,12):clamp(p[el],-45,36)).toFixed(2)}deg)`}),.009),{duration:T});
+      run(q('wr'+k),frames(p=>({transform:`rotate(${p[wr].toFixed(2)}deg)`}),.016),{duration:T});
+      run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${side}"]`)],frames(p=>{
+        const step=p[foot],base=side*(parseFloat(fig.style.getPropertyValue('--shoeDx'))||0);
+        return{transform:`translate(${(base+(pants?0:side*step*.19)).toFixed(2)}px,${(pants?0:-Math.abs(step)*.32).toFixed(2)}px) rotate(${(side*step).toFixed(2)}deg)`};
+      }),{duration:T});
+      if(!pants)run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${side}"]`)],frames(p=>({
+        transform:`rotate(${(side*p[foot]*.3).toFixed(2)}deg)`
+      })),{duration:T});
+    }
+    run(floor,frames(p=>({transform:`scale(${(1+p[2]*.08).toFixed(3)},1)`})),{duration:T});
   }else if(name==='wave'){
     setArmForeground(true);
     // Tchau real: erguer braço, três oscilações no antebraço/punho, retornar.
@@ -993,6 +983,45 @@ function mount(el,initial){
   stage.dataset.phase=reduced()?'reduced-motion':'entering';
   const wake=()=>{stage.classList.add('is-awake');scan('boot',500);awake=true;later.splice(0).forEach(([p,i])=>preloadSoon(p,i));setTimeout(()=>{if(stage.dataset.phase==='entering')stage.dataset.phase='idle'},1100)};
   if(reduced()||!M)wake();else{const off=M.onVisible(stage,v=>{if(v){off();wake()}},{threshold:.3})}
+
+  // GB V1.9: o manequim acompanha o cursor/touch com cabeça, olhos e
+  // leve balanço de corpo sem bloquear scroll ou arrasto para girar.
+  if(!reduced()){
+    let reactX=0,reactY=0,targetX=0,targetY=0,tick=0,hold=0;
+    const render=()=>{
+      tick=0;reactX+=(targetX-reactX)*.23;reactY+=(targetY-reactY)*.23;
+      scene.style.setProperty('--gb-look-x',reactX.toFixed(3));
+      scene.style.setProperty('--gb-look-y',reactY.toFixed(3));
+      scene.style.setProperty('--gb-body-shift',(reactX*2.8).toFixed(2)+'px');
+      scene.style.setProperty('--gb-body-turn',(reactX*1.35).toFixed(2)+'deg');
+      scene.style.setProperty('--gb-head-turn',(reactX*2.6).toFixed(2)+'deg');
+      scene.style.setProperty('--gb-head-lift',(reactY*2.7).toFixed(2)+'px');
+      scene.style.setProperty('--gb-eye-x',(reactX*5.5).toFixed(2)+'px');
+      scene.style.setProperty('--gb-eye-y',(reactY*3.5).toFixed(2)+'px');
+      if(Math.abs(targetX-reactX)+Math.abs(targetY-reactY)>.008)tick=requestAnimationFrame(render);
+    };
+    const update=(x,y)=>{
+      const r=scene.getBoundingClientRect();if(!r.width||!r.height)return;
+      targetX=Math.max(-1,Math.min(1,((x-r.left)/r.width-.5)*2));
+      targetY=Math.max(-1,Math.min(1,((y-r.top)/r.height-.5)*2));
+      if(!tick)tick=requestAnimationFrame(render);
+    };
+    const reset=()=>{targetX=targetY=0;if(!tick)tick=requestAnimationFrame(render)};
+    scene.addEventListener('pointermove',e=>{
+      if(e.pointerType==='touch'&&e.buttons===0)return;
+      update(e.clientX,e.clientY);
+    },{passive:true});
+    scene.addEventListener('pointerdown',e=>{
+      if(e.target.closest?.('button,a,input,.fit-dial,.look-option'))return;
+      clearTimeout(hold);update(e.clientX,e.clientY);
+    },{passive:true});
+    scene.addEventListener('pointerup',e=>{
+      if(e.pointerType==='touch'){clearTimeout(hold);hold=setTimeout(reset,750)}
+    },{passive:true});
+    scene.addEventListener('pointercancel',reset,{passive:true});
+    scene.addEventListener('pointerleave',e=>{if(e.pointerType!=='touch')reset()},{passive:true});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)reset()},{passive:true});
+  }
   // microparallax de luz apenas com ponteiro fino e aparelho capaz
   if(M&&M.Prefs.fine&&!reduced()&&!lite()){let tx=0,ty=0,cx=0,cy=0,on=false;
     const loop=dt=>{const k=1-Math.pow(.002,dt);cx+=(tx-cx)*k;cy+=(ty-cy)*k;scene.style.setProperty('--fx',cx.toFixed(3));scene.style.setProperty('--fy',cy.toFixed(3));if(Math.abs(tx-cx)<.002&&Math.abs(ty-cy)<.002){on=false;return false}};
