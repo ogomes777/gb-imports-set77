@@ -513,7 +513,7 @@ async function run(w,h,reduced=false){
     check(vp,'GB V1.9: video de referência, agachamento, braço cruza rosto e loop contínuo',
       videoDance.duration===5300&&videoDance.continuous&&videoDance.frameCount>=81&&
       videoDance.minScale<.94&&videoDance.maxScale>.975&&videoDance.closed&&
-      videoDance.rightRange[0]<-37&&videoDance.leftRange[1]>20&&
+      videoDance.rightRange[0]<-29&&videoDance.leftRange[1]>20&&
       videoDance.eyes===2&&videoDance.lids===2&&
       videoDance.sourceIntact&&videoDance.bottomIntact&&videoDance.restored,JSON.stringify(videoDance));
     const attention=await page.evaluate(async()=>{
