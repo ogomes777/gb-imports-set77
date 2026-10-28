@@ -706,7 +706,9 @@ function emote(name,{bpm=176,beats=8}={}){
   // Alternância real: PASSINHO fica em loop até um segundo clique.
   if(name==='dance'&&emoteName==='dance'){stopEmote();return true}
   stopEmote();
-  if((name==='salute'||name==='wave')&&isLongSleeve(CAT.top[state.topId]))fig.dataset.articulated='on';
+  // Na dança, a manga inteira articula pelo OMBRO (sem cortar antebraço/cotovelo).
+  // A fotografia original volta íntegra ao parar.
+  if((name==='salute'||name==='wave'||name==='dance')&&isLongSleeve(CAT.top[state.topId]))fig.dataset.articulated='on';
   bpm=Math.max(60,Math.min(240,Number(bpm)||112));
   beats=Math.max(2,Math.min(16,Math.round(Number(beats)||8)));
   const q=j=>[...fig.querySelectorAll(`.fit-figure:not(.fit-figure-b) [data-j="${j}"], #gbFitFigure [data-j="${j}"]`)].filter((v,i,a)=>a.indexOf(v)===i);
