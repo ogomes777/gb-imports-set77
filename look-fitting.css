@@ -447,3 +447,21 @@ body[data-gb-theme="origem"] .look-stage.has-fit .fit-led{box-shadow:0 0 13px 2p
  .fit-spin-track{width:56px}}
 @media(prefers-reduced-motion:reduce){.fit-peace-sign{transition:none!important}
  .fit-emotes button i,.fit-spin-track i{transition:none!important}}
+
+
+/* LOOK STUDIO V1.3 — integridade da fotografia / modo dança contínuo.
+   O tecido real da peça nunca é dividido em partes visíveis quando está parado,
+   girando ou dançando. Recortes móveis aparecem somente nos cumprimentos. */
+#gbFitFigure .fit-long-rest{opacity:1}
+#gbFitFigure .fit-long-action{opacity:0}
+#gbFitFigure .fit-articulated-longsleeves{opacity:0;pointer-events:none}
+#gbFitFigure[data-articulated="on"] .fit-long-rest{opacity:0}
+#gbFitFigure[data-articulated="on"] .fit-long-action,
+#gbFitFigure[data-articulated="on"] .fit-articulated-longsleeves{opacity:1}
+#gbFitFigure[data-articulated="on"] .fit-layer-arms .fit-limbs-top{opacity:0}
+#lookstudio [data-fit-emote="dance"].is-playing{border-color:#e6c376!important;box-shadow:inset 0 1px #fff3,0 0 0 1px #d6ab4a55}
+#lookstudio [data-fit-emote="dance"].is-playing i{box-shadow:0 0 0 1px #fff5,0 0 14px #ddb04a55}
+@media(prefers-reduced-motion:reduce){
+ #gbFitFigure .fit-long-rest{opacity:1}
+ #gbFitFigure .fit-long-action,#gbFitFigure .fit-articulated-longsleeves{opacity:0}
+}
