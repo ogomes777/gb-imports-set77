@@ -77,6 +77,16 @@ Esta revisão não altera o catálogo, as máscaras aprovadas nem a proporção 
 - Fotografia integral de calças e mangas mantida; com bermudas, canelas acompanham discretamente o pé
 - Reproduzir o passo **quadro a quadro** ainda exige vídeo de referência e rig de pernas com joelhos/tornozelos independentes. Não apresentar esta interpretação editorial 2D como reprodução 1:1
 
+## V1.8 · Passinho com interpolação contínua e boca do tênis fixa
+
+- Seis batidas de ponta/apoio (três por lado), definidas por pulsos trigonométricos de velocidade suave; sem interromper o movimento entre poses.
+- Linha do tempo única amostrada com 64 quadros para dispositivos leves e 96 para dispositivos mais potentes. Todas as animações usam interpolação linear entre amostras já suavizadas, sem curva de easing adicional que gere repiques.
+- Quadril contrário ao pé, cabeça e braços com pequenas defasagens temporais; ombro, cotovelo e punho não param ao mesmo tempo.
+- Durante uso de **calça comprida**, o tênis pivota no tornozelo e a ponta sobe via rotação, sem deslocamento vertical de toda a boca. A foto da calça permanece inteira. Na bermuda, a canela acompanha o levantamento.
+- Pausa fora da viewport, controle PASSINHO/PARAR, troca de roupas e reinício sem salto de looping mantidos.
+- QA em 1440/390/320, com moletom + calça e camiseta + bermuda. Testar sempre os três contatos, a igualdade entre primeiro/último quadro, ausência de máscara cortando manga e o contato do tênis com a calça.
+- Não afirmar fidelidade idêntica ao Jamal enquanto o rig for 2D, sem juntas independentes de quadril/joelhos/tornozelos.
+
 ## Backlog para futura V2
 
 Somente com novos ativos apropriados: modelagem e rig 3D próprios, movimentos capturados/autorizados, vistas reais, motor de tecido validado e medição de desempenho de campo.
