@@ -87,6 +87,21 @@ Esta revisão não altera o catálogo, as máscaras aprovadas nem a proporção 
 - QA em 1440/390/320, com moletom + calça e camiseta + bermuda. Testar sempre os três contatos, a igualdade entre primeiro/último quadro, ausência de máscara cortando manga e o contato do tênis com a calça.
 - Não afirmar fidelidade idêntica ao Jamal enquanto o rig for 2D, sem juntas independentes de quadril/joelhos/tornozelos.
 
+## V1.9 · Coreografia revisada com vídeo do cliente (28/10/2026)
+
+Referência concreta: vídeo WhatsApp anexado, duração 10,785s (gravação de tela vertical). A dança começa por volta de 3,45s; o personagem de camisa amarela e o parceiro à esquerda realizam os movimentos até ~9,55s.
+
+**Importante:** o vídeo mostra movimentos de braço diagonal diante do rosto, agachamentos, inclinação do tronco, passadas alternadas e aproximação da câmera. A hipótese anterior de "apenas três toques do pé" não descreve adequadamente esse trecho.
+
+- V1.9 substitui o ciclo artificial de 1,8s por 5,3s de coreografia de referência em 24 poses marcadas manualmente a partir do trecho de dança, interpoladas com Hermite C1 de 80/144 amostras.
+- Movimento do tronco ancorado nos pés: inclinações, agachamentos até ~11,5% de compressão vertical, avanços e reações de cabeça. Ombros, cotovelos e punhos acompanham a sequência, com atraso natural sem congelar entre posições.
+- Manga longa: não cortar ou deformar arte original. Rotação de ombro deliberadamente limitada (não é captura de movimento, nem dobra 3D de cotovelo).
+- Olhos GB: brilho/escurecimento de pálpebras em piscadas duplas discretas, temporizadas; gaze move alguns pixels na direção do cursor.
+- Mouse/touch: reação sutil no rosto e no corpo a pointermove/pointerdown, reset ao sair/soltar e sem bloquear scroll/drag do ORBIT. Desabilitada em prefers-reduced-motion.
+- Preservar os pés encaixados na calça; com bermuda, canela acompanha suavemente a rotação do sapato. PASSINHO/PARAR mantém início, pausa, retorno e loop sem salto.
+- Regressões: validar 1440, 390, 320 px; moletom/calça e camiseta/bermuda, sem overflow, sem erros JS, blink animado e pointer reactive.
+- Ainda **não é reprodução quadro a quadro**: fotografias 2D do produto não fornecem esqueletos/articulações volumétricas ou deformação realista do tecido. Para semelhança exata, retarget em rig 3D com IK/skin, vídeo autorizado e comparação sincronizada.
+
 ## Backlog para futura V2
 
 Somente com novos ativos apropriados: modelagem e rig 3D próprios, movimentos capturados/autorizados, vistas reais, motor de tecido validado e medição de desempenho de campo.
