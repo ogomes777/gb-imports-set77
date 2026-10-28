@@ -501,6 +501,7 @@ function flush(){
   const my=++gen;
   const valid=k=>{const id=state[KEY[k]];return id==null?(k==='shoe'||k==='cap'):!!(byId(id)&&CAT[k][id])};
   const changed=PARTS.filter(k=>valid(k)&&(state[KEY[k]]??null)!==curId(k));
+  if(changed.length&&emoteName)stopEmote();
   const tb=changed.filter(k=>k==='top'||k==='bottom');
   // a fase anuncia a troca na hora do pedido; a foto entra decodificada (sem piscar) e a última escolha vence
   if(stage.dataset.phase!=='comparing'&&changed.length)stage.dataset.phase=reduced()?'reduced-motion':tb.length===2?'switching-both':changed.length>1?'switching-both':'switching-'+changed[0];
@@ -561,14 +562,25 @@ function setSplit(v){stage?.style.setProperty('--split',String(v))}
 /* ============================== EMOTES (prontos para a música: bpm) ==============================
    Só transform via WAAPI nas juntas da skin (ombro = mesmo pivô da manga curta, cotovelo, punho, cabeça) e no corpo
    inteiro (.fit-emote, pivô nos pés). Mangas longas não dobram (a foto é a peça): aí dançam o corpo, a cabeça e as mãos. */
-let spin=()=>{},turnStart=null,emoteAnims=[],emoteName=null;
+let spin=()=>{},turnStart=null,emoteAnims=[],emoteName=null,spinAnim=null;
+// Cancelar um emote também limpa suas juntas e impede que uma animação antiga
+// termine por cima de uma nova roupa ou outro gesto.
+function stopEmote(){
+  emoteAnims.forEach(a=>a.cancel());emoteAnims=[];
+  spinAnim?.cancel();spinAnim=null;
+  emoteName=null;
+  if(fig)delete fig.dataset.emote;
+  stage?.classList.remove('is-fit-orbiting');
+}
 function emote(name,{bpm=112,beats=8}={}){
   if(!fig||reduced()||!fig.animate)return false;
-  emoteAnims.forEach(a=>a.cancel());emoteAnims=[];
+  stopEmote();
+  bpm=Math.max(60,Math.min(240,Number(bpm)||112));
+  beats=Math.max(2,Math.min(16,Math.round(Number(beats)||8)));
   const q=j=>[...fig.querySelectorAll(`.fit-figure:not(.fit-figure-b) [data-j="${j}"], #gbFitFigure [data-j="${j}"]`)].filter((v,i,a)=>a.indexOf(v)===i);
   const run=(els,kf,o)=>els.forEach(el=>emoteAnims.push(el.animate(kf,{easing:'ease-in-out',...o})));
   const body=[fig.querySelector('.fit-emote')],floor=[fig.querySelector('.fit-floor')],beat=60000/bpm;
-  if(name==='spin'){spin();emoteName=null;document.dispatchEvent(new CustomEvent('gb:emote',{detail:{name}}));return true}
+  if(name==='spin'){spin();document.dispatchEvent(new CustomEvent('gb:emote',{detail:{name,editorial:true}}));return true}
   if(name==='dance'){
     const T=beat*beats,n=beats,kf=f=>Array.from({length:n*2+1},(_,i)=>({offset:i/(n*2),...f(i)}));
     run(body,kf(i=>({transform:`translateY(${i%2?6:0}px) rotate(${i%4===1?1.8:i%4===3?-1.8:0}deg)`})),{duration:T});
@@ -578,6 +590,12 @@ function emote(name,{bpm=112,beats=8}={}){
       run(q('el'+k),kf(i=>({transform:`rotate(${i%2?s*-38:s*-10}deg)`})),{duration:T});
       run(q('wr'+k),kf(i=>({transform:`rotate(${i%2?s*14:-s*8}deg)`})),{duration:T})}
     run(floor,kf(i=>({transform:`scale(${i%2?.94:1},1)`})),{duration:T});
+    // Footwork apenas com bermuda; calça é foto real plana, sem malha de deformação.
+    if(CAT.bottom[state.bottomId]?.kind==='shorts')for(const side of[-1,1]){
+      const k=side<0?'-1':'1',lift=kf(i=>({transform:`translateY(${i%4===1?-7:i%4===3?-3:0}px)`}));
+      run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${k}"]`)],lift,{duration:T});
+      run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${k}"]`)],lift,{duration:T});
+    }
   }else if(name==='wave'){
     const T=2200;
     const up=q('shR').length?'R':null;
@@ -593,7 +611,7 @@ function emote(name,{bpm=112,beats=8}={}){
     for(const s of[-1,1]){const k=s<0?'L':'R';run(q('sh'+k),[{transform:'rotate(0deg)'},{transform:`rotate(${s*12}deg)`,offset:.18},{transform:`rotate(${-s*70}deg)`,offset:.46},{transform:'rotate(0deg)',offset:.75},{transform:'rotate(0deg)'}],{duration:T})}
   }else return false;
   emoteName=name;fig.dataset.emote=name;
-  Promise.all(emoteAnims.map(a=>a.finished)).then(()=>{if(emoteName===name){delete fig.dataset.emote;emoteName=null}}).catch(()=>{});
+  Promise.all(emoteAnims.map(a=>a.finished)).then(()=>{if(emoteName===name){delete fig.dataset.emote;emoteName=null;emoteAnims=[]}}).catch(()=>{});
   document.dispatchEvent(new CustomEvent('gb:emote',{detail:{name,bpm}}));
   return true;
 }
@@ -607,7 +625,8 @@ function mount(el,initial){
   scene.innerHTML=`<div class="fit-backdrop" aria-hidden="true"><i class="fit-wall"></i><i class="fit-led fit-led-l"></i><i class="fit-led fit-led-r"></i><i class="fit-arch"></i><img class="fit-mark" src="./assets/brand/gb-monograma-claro.svg" alt="" decoding="async" loading="lazy"/><i class="fit-halo"></i><i class="fit-spot fit-spot-l"></i><i class="fit-spot fit-spot-r"></i><i class="fit-key"></i><i class="fit-rim"></i><i class="fit-horizon"></i><i class="fit-gloss"></i></div>
    <div class="fit-figure" id="gbFitFigure">${figureSVG('fitA','Manequim GB vestindo o look selecionado')}</div>
    <div class="fit-plat" aria-hidden="true"><i></i><b></b></div><div class="fit-turn" aria-hidden="true"></div>
-   <div class="fit-emotes" role="group" aria-label="Emotes do manequim"><button type="button" data-fit-emote="dance"><i aria-hidden="true">♪</i><b>DANÇAR</b></button><button type="button" data-fit-emote="wave"><i aria-hidden="true">✋</i><b>ACENAR</b></button><button type="button" data-fit-emote="spin"><i aria-hidden="true">↻</i><b>360°</b></button><button type="button" data-fit-emote="jump"><i aria-hidden="true">⤒</i><b>PULAR</b></button></div>
+   <span class="fit-orbit-note" aria-hidden="true">GIRO EDITORIAL · COSTAS NÃO FOTOGRAFADAS</span>
+    <div class="fit-emotes" role="group" aria-label="Emotes do manequim"><button type="button" data-fit-emote="dance"><i aria-hidden="true">♪</i><b>DANÇAR</b></button><button type="button" data-fit-emote="wave"><i aria-hidden="true">✋</i><b>ACENAR</b></button><button type="button" data-fit-emote="spin"><i aria-hidden="true">↻</i><b>360°</b></button><button type="button" data-fit-emote="jump"><i aria-hidden="true">⤒</i><b>PULAR</b></button></div>
    <div class="fit-turnbar" role="group" aria-label="Girar o manequim"><button type="button" data-fit-turn="-1" aria-label="Girar para a esquerda" aria-pressed="false">◀</button><span class="fit-dial" role="slider" tabindex="0" aria-label="Giro do manequim" aria-valuemin="-45" aria-valuemax="45" aria-valuenow="0" aria-valuetext="FRENTE"><b>GIRAR</b></span><button type="button" data-fit-turn="0" aria-label="De frente" aria-pressed="true">●</button><button type="button" data-fit-turn="1" aria-label="Girar para a direita" aria-pressed="false">▶</button></div>
    <p class="fit-tag" aria-hidden="true"></p>
    <p class="fit-legal">SIMULAÇÃO EDITORIAL DE COMPOSIÇÃO · FOTOS REAIS DO ACERVO GB · NÃO É PROVADOR DE CAIMENTO</p>
@@ -619,10 +638,10 @@ function mount(el,initial){
   const range=scene.querySelector('.fit-split input');
   range.addEventListener('input',()=>setSplit(range.value));
   // arrastar o divisor diretamente sobre o palco (mouse e toque)
-  // um gesto só no palco: no A/B move o divisor; fora dele gira o boneco (dedo ou mouse, segurando e arrastando)
+  // Só o robô e a plataforma giram; no modo A/B o palco move o divisor.
   let turnDrag=null;
   if(M)M.drag(scene,{axis:'x',threshold:6,ignore:'button,input,a,.look-option',
-    onStart(st){turnDrag=stage.classList.contains('is-fit-compare')?null:turnStart?.()},
+    onStart(st){turnDrag=stage.classList.contains('is-fit-compare')?null:(st.target?.closest?.('#gbFitFigure,.fit-turn')?turnStart?.():null)},
     onMove(dx,st){if(!turnDrag){if(!stage.classList.contains('is-fit-compare'))return;const r=fig.getBoundingClientRect();const v=Math.max(8,Math.min(92,(st.lx-r.left)/r.width*100));range.value=String(Math.round(v));setSplit(v);return}turnDrag.move(dx)},
     onEnd(v){turnDrag?.end(v);turnDrag=null}});
   // giro: arrastar o corpo (mouse) ou a plataforma (toque), botões e setas do teclado; mola e encaixe em 3 poses
@@ -640,8 +659,23 @@ function mount(el,initial){
     move(dx){const w=fig.getBoundingClientRect().width;const y=Math.max(-1.15,Math.min(1.15,y0+dx/(w*.55)));spring?.jump(y);sync(y)},
     end(v){const y=spring?spring.x:yaw;goTo(Math.round(Math.max(-1,Math.min(1,y+v/2600))))}}};
   fig.addEventListener('fit:turn',e=>goTo(+e.detail));
-  // giro 360°: vira para um lado, troca de lado no meio (as costas não existem na foto) e volta de frente
-  spin=()=>{if(!spring||reduced())return;const d=yaw>=0?1:-1;goTo(d,d*6);setTimeout(()=>{spring.jump(-d);sync(-d);goTo(0,d*4)},300)};
+  // Órbita de 360° contínua do sprite editorial; a vista traseira não é foto de produto.
+  // Elimina o salto instantâneo de uma lateral para a outra da V19 anterior.
+  spin=()=>{
+    if(!spring||reduced())return;
+    spring.jump(0);sync(0);
+    const plane=fig.querySelector('.fit-yaw');if(!plane?.animate)return;
+    stage.classList.add('is-fit-orbiting');
+    const anim=plane.animate([
+      {offset:0,transform:'perspective(960px) rotateY(0deg)'},
+      {offset:.25,transform:'perspective(960px) rotateY(90deg)'},
+      {offset:.5,transform:'perspective(960px) rotateY(180deg)'},
+      {offset:.75,transform:'perspective(960px) rotateY(270deg)'},
+      {offset:1,transform:'perspective(960px) rotateY(360deg)'}
+    ],{duration:2400,easing:'cubic-bezier(.42,0,.58,1)'});
+    spinAnim=anim;emoteName='spin';fig.dataset.emote='spin';
+    anim.finished.then(()=>{if(spinAnim===anim){spinAnim=null;emoteName=null;delete fig.dataset.emote;stage.classList.remove('is-fit-orbiting');sync(0)}}).catch(()=>{});
+  };
   scene.querySelectorAll('[data-fit-emote]').forEach(b=>b.addEventListener('click',()=>emote(b.dataset.fitEmote)));
   sync(0);
 
