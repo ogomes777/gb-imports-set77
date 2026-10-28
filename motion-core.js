@@ -69,7 +69,7 @@ function onVisible(el,cb,{margin='0px',threshold=0}={}){
 /* ---------- Gesto: eixo dominante, 1:1, velocidade, cancelamento e clique pós-arrasto ---------- */
 function drag(el,{axis='x',threshold=8,onStart,onMove,onEnd,ignore}={}){
   let s=null,suppress=false;
-  const down=e=>{if(e.button>0||(ignore&&e.target.closest(ignore)))return;s={id:e.pointerId,pt:e.pointerType,x:e.clientX,y:e.clientY,lx:e.clientX,ly:e.clientY,lt:performance.now(),v:0,active:false};suppress=false};
+  const down=e=>{if(e.button>0||(ignore&&e.target.closest(ignore)))return;s={id:e.pointerId,pt:e.pointerType,target:e.target,x:e.clientX,y:e.clientY,lx:e.clientX,ly:e.clientY,lt:performance.now(),v:0,active:false};suppress=false};
   const move=e=>{
     if(!s||e.pointerId!==s.id)return;
     const dx=e.clientX-s.x,dy=e.clientY-s.y,main=axis==='x'?dx:dy,cross=axis==='x'?dy:dx;
