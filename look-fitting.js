@@ -130,8 +130,15 @@ function bodySVG(pfx){
 const DEG=180/Math.PI,angOf=(dx,dy)=>Math.atan2(dy,dx)*DEG;
 function bone(k,sw,sl,j,kids='',cls=''){
   const e=SK[k],R=90-angOf(e.b[0]-e.a[0],e.b[1]-e.a[1]),L=e.len*sl;
-  return `<g class="fit-jnt${cls?' '+cls:''}" data-j="${j}"><g transform="scale(${r3(sw)} ${r3(sl)}) rotate(${r1(R)}) translate(${-e.a[0]} ${-e.a[1]})"><image href="${e.src}" width="${e.w}" height="${e.h}"/></g>`+
-    (kids?`<g transform="translate(0 ${r1(L)})">${kids}</g>`:'')+`</g>`;
+  // Paz e amor: mão direita com dois dedos abertos em V, articulada no punho.
+  // A luva original é ocultada apenas durante o SALVE.
+  const peace=j==='wrR'? `<g class="fit-peace-sign" aria-hidden="true" transform="translate(-8 10) scale(.65)">
+    <path d="M-16 88Q-26 78-25 60L-38 34Q-44 21-35 17Q-27 13-21 25L-13 41-18-37Q-19-53-9-55Q1-55 3-40L7 22 18-40Q21-56 31-53Q40-50 35-36L24 25 34 19Q44 10 49 20Q52 27 44 40L33 62Q32 79 20 89Z" fill="#11141a" stroke="#c39b1e" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M-8 36L2 64 17 38M-12 71Q8 81 23 69" stroke="#ffd447" stroke-width="3.2" stroke-linecap="round" fill="none"/>
+    <path d="M-9-36L-5 12M29-36L18 14" stroke="#fff1a8" stroke-width="3" stroke-linecap="round"/>
+    </g>`: '';
+  return `<g class="fit-jnt${cls?' '+cls:''}" data-j="${j}"><g class="fit-bone-art" transform="scale(${r3(sw)} ${r3(sl)}) rotate(${r1(R)}) translate(${-e.a[0]} ${-e.a[1]})"><image href="${e.src}" width="${e.w}" height="${e.h}"/></g>`+
+    peace+(kids?`<g transform="translate(0 ${r1(L)})">${kids}</g>`:'')+`</g>`;
 }
 const r3=n=>Math.round(n*1000)/1000;
 const child=(rel,inner)=>`<g transform="rotate(${r1(rel)})">${inner}</g>`;
@@ -603,28 +610,28 @@ function emote(name,{bpm=112,beats=8}={}){
   const body=[fig.querySelector('.fit-emote')],floor=[fig.querySelector('.fit-floor')],beat=60000/bpm;
   if(name==='spin'){spin();document.dispatchEvent(new CustomEvent('gb:emote',{detail:{name,editorial:true}}));return true}
   if(name==='dance'){
-    const T=beat*beats,n=beats,kf=f=>Array.from({length:n*2+1},(_,i)=>({offset:i/(n*2),...f(i)}));
-    run(body,kf(i=>({transform:`translateY(${i%2?6:0}px) rotate(${i%4===1?1.8:i%4===3?-1.8:0}deg)`})),{duration:T});
-    run(q('head'),kf(i=>({transform:`rotate(${i%2?(i%4===1?7:-7):0}deg)`})),{duration:T});
-    for(const s of[-1,1]){const k=s<0?'L':'R';
-      run(q('sh'+k),kf(i=>({transform:`rotate(${i%2?(((i+1)/2+(s<0?0:1))%2?-s*42:-s*12):-s*6}deg)`})),{duration:T});
-      run(q('el'+k),kf(i=>({transform:`rotate(${i%2?s*-38:s*-10}deg)`})),{duration:T});
-      run(q('wr'+k),kf(i=>({transform:`rotate(${i%2?s*14:-s*8}deg)`})),{duration:T})}
-    run(floor,kf(i=>({transform:`scale(${i%2?.94:1},1)`})),{duration:T});
-    // Footwork apenas com bermuda; calça é foto real plana, sem malha de deformação.
-    if(CAT.bottom[state.bottomId]?.kind==='shorts')for(const side of[-1,1]){
-      const k=side<0?'-1':'1',lift=kf(i=>({transform:`translateY(${i%4===1?-7:i%4===3?-3:0}px)`}));
-      run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${k}"]`)],lift,{duration:T});
-      run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${k}"]`)],lift,{duration:T});
+    // Passinho do Jamal: um, dois, um, dois, três; braços e pés se respondem.
+    // Sem áudio comercial embutido, só a coreografia editorial.
+    const T=Math.max(2450,beat*8),sequence=[0,-1,0,1,0,1,-1,0,0];
+    const frames=f=>sequence.map((v,i)=>({offset:i/8,...f(v,i)}));
+    run(body,frames((v,i)=>({transform:`translate(${v*8}px,${i%2?3:0}px) rotate(${v*1.6}deg)`})),{duration:T});
+    run(q('head'),frames(v=>({transform:`rotate(${v*7}deg)`})),{duration:T});
+    for(const side of[-1,1]){const k=side<0?'L':'R';
+      run(q('sh'+k),frames((v,i)=>({transform:`rotate(${side*(v*19+(i%2?28:-6))}deg)`})),{duration:T});
+      run(q('el'+k),frames((v,i)=>({transform:`rotate(${side*(i%2?-33:14)+v*7}deg)`})),{duration:T});
+      run(q('wr'+k),frames((v,i)=>({transform:`rotate(${side*(i%2?12:-11)}deg)`})),{duration:T});
+      const feet=frames((v,i)=>({transform:`translate(${v*3}px,${(i===1||i===3||i===5)&&((i%4===1&&side<0)||(i%4===3&&side>0))?-6:0}px)`}));
+      run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${side}"]`)],feet,{duration:T});
+      run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${side}"]`)],feet,{duration:T});
     }
+    run(floor,frames((v,i)=>({transform:`translateX(${v*3}px) scale(${i%2?.95:1},1)`})),{duration:T});
   }else if(name==='wave'){
-    const T=2200;
-    const up=q('shR').length?'R':null;
-    if(up){run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-118deg)',offset:.2},{transform:'rotate(-112deg)',offset:.5},{transform:'rotate(-118deg)',offset:.8},{transform:'rotate(0deg)'}],{duration:T});
-      run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(-62deg)',offset:.2},{transform:'rotate(-28deg)',offset:.32},{transform:'rotate(-62deg)',offset:.44},{transform:'rotate(-28deg)',offset:.56},{transform:'rotate(-62deg)',offset:.68},{transform:'rotate(0deg)',offset:.8},{transform:'rotate(0deg)'}],{duration:T})}
-    run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-16deg)',offset:.25},{transform:'rotate(16deg)',offset:.4},{transform:'rotate(-16deg)',offset:.55},{transform:'rotate(16deg)',offset:.7},{transform:'rotate(0deg)'}],{duration:T});
-    run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-6deg)',offset:.3},{transform:'rotate(-6deg)',offset:.7},{transform:'rotate(0deg)'}],{duration:T});
-    run(body,[{transform:'rotate(0deg)'},{transform:'rotate(-1.2deg)',offset:.3},{transform:'rotate(-1.2deg)',offset:.7},{transform:'rotate(0deg)'}],{duration:T});
+    // Tchau real: erguer braço, três oscilações no antebraço/punho, retornar.
+    const T=2350;
+    run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-79deg)',offset:.16},{transform:'rotate(-86deg)',offset:.80},{transform:'rotate(0deg)'}],{duration:T});
+    run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(-41deg)',offset:.17},{transform:'rotate(-19deg)',offset:.30},{transform:'rotate(-48deg)',offset:.43},{transform:'rotate(-16deg)',offset:.56},{transform:'rotate(-44deg)',offset:.69},{transform:'rotate(0deg)'}],{duration:T});
+    run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-27deg)',offset:.18},{transform:'rotate(25deg)',offset:.31},{transform:'rotate(-28deg)',offset:.44},{transform:'rotate(24deg)',offset:.57},{transform:'rotate(-26deg)',offset:.70},{transform:'rotate(0deg)'}],{duration:T});
+    run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-6deg)',offset:.30},{transform:'rotate(-4deg)',offset:.73},{transform:'rotate(0deg)'}],{duration:T});
   }else if(name==='salute'){
     // Salve curto: braço direito na altura da cabeça, a mão saúda e volta.
     const T=1550;
