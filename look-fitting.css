@@ -477,3 +477,10 @@ body[data-gb-theme="origem"] .look-stage.has-fit .fit-led{box-shadow:0 0 13px 2p
   transform-origin:210px 350px;
   transform-box:view-box;
 }
+
+
+/* During the Jamal shuffle, do not let idle breathing compete with the
+   precisely synchronized hip/ankle track. It resumes as soon as PARAR runs. */
+#lookstudio .look-stage.is-awake #gbFitFigure[data-emote="dance"] .fit-rig{
+  animation:none!important;
+}
