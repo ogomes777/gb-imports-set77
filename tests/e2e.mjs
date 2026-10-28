@@ -506,6 +506,29 @@ async function run(w,h,reduced=false){
      scrollWidth:document.documentElement.scrollWidth-innerWidth}));
    check(vp,'fit V22: novo design premium com marcador e sem overflow',v22.knob&&v22.save&&v22.shuffle&&v22.clipped&&v22.scrollWidth<=1,JSON.stringify(v22));
 
+   // V1: SALVE calibrado ao lado da face; a mão em V não deve formar chifres.
+   if(!reduced){
+     const v1=await page.evaluate(async()=>{
+       const sleep=t=>new Promise(r=>setTimeout(r,t)),old=GBFitting.state.topId;
+       GBFitting.set({topId:'gb-crt-005'},{silent:true});await sleep(1400);
+       GBFitting.emote('salute');await sleep(660);
+       const f=document.querySelector('#gbFitFigure'),hand=f.querySelector('.fit-peace-sign');
+       const matrix=hand.getScreenCTM(),finger=new DOMPoint(0,-40).matrixTransform(matrix),palm=new DOMPoint(0,80).matrixTransform(matrix),face=f.querySelector('.fit-head').getBoundingClientRect();
+       const active=document.querySelector('[data-fit-emote="salute"]')?.getAttribute('aria-pressed');
+       const dark=()=>({mix:getComputedStyle(document.querySelector('#lookShuffle')).backgroundImage,
+         kitCount:document.querySelectorAll('#lookstudio .look-kit').length});
+       GBSetTheme(2);const theme=dark();GBSetTheme(0);
+       await sleep(1050);
+       const cleared=document.querySelector('[data-fit-emote="salute"]')?.getAttribute('aria-pressed')==='false';
+       GBFitting.set({topId:old},{silent:true});await sleep(1300);
+       return{active,cleared,dx:Math.round(palm.x-face.right),dy:Math.round(finger.y-palm.y),
+         theme:theme.mix.includes('linear-gradient'),gestures:document.querySelectorAll('#lookstudio [data-fit-emote][aria-pressed]').length};
+     });
+     check(vp,'GB Look Studio V1: SALVE junto à face, dedos para cima e indicador acessível',v1.dx>4&&v1.dy< -15&&v1.active==='true'&&v1.cleared&&v1.gestures===5,JSON.stringify(v1));
+     check(vp,'GB Look Studio V1: controles satin-gold no tema escuro',v1.theme,JSON.stringify(v1));
+   }
+
+
 
 
   // V19.1: o 360 não pode cortar de uma lateral para a outra; é uma rotação
