@@ -712,7 +712,7 @@ function mount(el,initial){
   // arrastar o divisor diretamente sobre o palco (mouse e toque)
   // Só o robô e a plataforma giram; no modo A/B o palco move o divisor.
   let turnDrag=null;
-  if(M)M.drag(scene,{axis:'x',threshold:6,ignore:'button,input,a,.look-option',
+  if(M)M.drag(scene,{axis:'x',threshold:6,ignore:'button,input,a,.look-option,.fit-dial,.fit-turnbar,.fit-emotes',
     onStart(st){turnDrag=stage.classList.contains('is-fit-compare')?null:(st.target?.closest?.('#gbFitFigure,.fit-turn')?turnStart?.():null)},
     onMove(dx,st){if(!turnDrag){if(!stage.classList.contains('is-fit-compare'))return;const r=fig.getBoundingClientRect();const v=Math.max(8,Math.min(92,(st.lx-r.left)/r.width*100));range.value=String(Math.round(v));setSplit(v);return}turnDrag.move(dx)},
     onEnd(v){turnDrag?.end(v);turnDrag=null}});
