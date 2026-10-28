@@ -652,7 +652,15 @@ let spin=()=>{},turnStart=null,emoteAnims=[],emoteName=null,spinAnim=null;
 // Cancelar um emote também limpa suas juntas e impede que uma animação antiga
 // termine por cima de uma nova roupa ou outro gesto.
 function setGestureState(name){stage?.querySelectorAll('[data-fit-emote]').forEach(b=>{const on=b.dataset.fitEmote===name;b.classList.toggle('is-playing',on);b.setAttribute('aria-pressed',String(on))})}
+function setArmForeground(front){
+  if(!fig)return;
+  const rig=fig.querySelector('.fit-rig'),arms=rig?.querySelector('.fit-layer-arms'),
+    top=rig?.querySelector('.fit-layer-top'),sleeves=rig?.querySelector('.fit-layer-sleeves');
+  if(!arms||!top||!sleeves)return;
+  if(front)rig.insertBefore(arms,sleeves);else rig.insertBefore(arms,top);
+}
 function stopEmote(){
+  setArmForeground(false);
   emoteAnims.forEach(a=>a.cancel());emoteAnims=[];setGestureState(null);
   if(fig)delete fig.dataset.salveMode;
   spinAnim?.cancel();spinAnim=null;
@@ -673,7 +681,8 @@ function emote(name,{bpm=138,beats=8}={}){
     // Jamal: duas passadas laterais, 3 marcações, quadril oposto ao pé que pisa.
     // Braços relaxados e elásticos no ritmo, sem reprodução de áudio comercial.
     const T=Math.max(2180,Math.min(3100,beat*5.7));
-    const steps=[0,-1,-1,0,1,1,0,-1,0,1,0],n=steps.length-1;
+    // Base do passo: um para cada lado, seguido por três marcações rápidas de volta.
+    const steps=[0,-.48,-1,-.45,.15,.84,1,.42,-.30,-.78,0],n=steps.length-1;
     const frames=fn=>steps.map((v,i)=>({offset:i/n,...fn(v,i)}));
     run(body,frames((v,i)=>({transform:`translateX(${v*12}px) translateY(${i%2?3.5:0}px) rotate(${-v*2.2}deg)`})),{duration:T});
     run(q('head'),frames((v,i)=>({transform:`rotate(${-v*6+(i%3===0?1.5:0)}deg)`})),{duration:T});
@@ -681,13 +690,15 @@ function emote(name,{bpm=138,beats=8}={}){
       run(q('sh'+k),frames((v,i)=>({transform:`rotate(${side*(v*19+(i%2?12:-6))}deg)`})),{duration:T});
       run(q('el'+k),frames((v,i)=>({transform:`rotate(${side*(i%2?-19:10)+v*7}deg)`})),{duration:T});
       run(q('wr'+k),frames((v,i)=>({transform:`rotate(${side*(i%2?12:-7)}deg)`})),{duration:T});
-      // A canela e o tênis movem juntos; não separa a sola da articulação.
-      const move=frames((v,i)=>({transform:`translate(${v*3}px,${CAT.bottom[state.bottomId]?.kind==='shorts'&&i%2&&((i%4===1&&side<0)||(i%4===3&&side>0))?-7:0}px)`}));
+      // Passada e tênis partilham a MESMA pose, com elevação limitada ao tecido visível.
+      const pants=CAT.bottom[state.bottomId]?.kind==='pants';
+      const move=frames((v,i)=>({transform:`translate(${v*8}px,${!pants&&i%2&&((i%4===1&&side<0)||(i%4===3&&side>0))?-6:0}px)`}));
       run([...fig.querySelectorAll(`.fit-layer-legs .fit-leg[data-side="${side}"]`)],move,{duration:T});
       run([...fig.querySelectorAll(`.fit-layer-shoe .fit-foot[data-side="${side}"]`)],move,{duration:T});
     }
     run(floor,frames((v,i)=>({transform:`translateX(${v*3}px) scale(${i%2?.955:1},1)`})),{duration:T});
   }else if(name==='wave'){
+    setArmForeground(true);
     // Tchau real: erguer braço, três oscilações no antebraço/punho, retornar.
     const T=1840;
     run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-79deg)',offset:.16},{transform:'rotate(-86deg)',offset:.80},{transform:'rotate(0deg)'}],{duration:T});
@@ -695,12 +706,15 @@ function emote(name,{bpm=138,beats=8}={}){
     run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-27deg)',offset:.18},{transform:'rotate(25deg)',offset:.31},{transform:'rotate(-28deg)',offset:.44},{transform:'rotate(24deg)',offset:.57},{transform:'rotate(-26deg)',offset:.70},{transform:'rotate(0deg)'}],{duration:T});
     run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-6deg)',offset:.30},{transform:'rotate(-4deg)',offset:.73},{transform:'rotate(0deg)'}],{duration:T});
   }else if(name==='salute'){
+    setArmForeground(true);
     // Salve curto: braço direito na altura da cabeça, a mão saúda e volta.
-    const T=1470,isShort=['tee','polo','jersey'].includes(CAT.top[state.topId]?.kind);
-    fig.dataset.salveMode=isShort?'full':'soft';
+    const T=1470,isShort=['tee','polo','jersey'].includes(CAT.top[state.topId]?.kind),isLong=isLongSleeve(CAT.top[state.topId]);
+    fig.dataset.salveMode=isShort||isLong?'full':'soft';
     run(body,[{transform:'none'},{transform:'rotate(-.6deg)',offset:.25},{transform:'rotate(-.6deg)',offset:.7},{transform:'none'}],{duration:T});
     if(isShort)run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(86deg)',offset:.15},{transform:'rotate(120deg)',offset:.25},{transform:'rotate(120deg)',offset:.74},{transform:'rotate(0deg)'}],{duration:T});
+    if(isLong)run(q('shR'),[{transform:'rotate(0deg)'},{transform:'rotate(-80deg)',offset:.16},{transform:'rotate(-155deg)',offset:.29},{transform:'rotate(-155deg)',offset:.74},{transform:'rotate(0deg)'}],{duration:T});
     if(isShort)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(105deg)',offset:.17},{transform:'rotate(165deg)',offset:.27},{transform:'rotate(165deg)',offset:.72},{transform:'rotate(0deg)'}],{duration:T});
+    if(isLong)run(q('elR'),[{transform:'rotate(0deg)'},{transform:'rotate(-65deg)',offset:.18},{transform:'rotate(-155deg)',offset:.30},{transform:'rotate(-155deg)',offset:.71},{transform:'rotate(0deg)'}],{duration:T});
     run(q('wrR'),[{transform:'rotate(0deg)'},{transform:'rotate(-7deg)',offset:.36},{transform:'rotate(5deg)',offset:.55},{transform:'rotate(0deg)'}],{duration:T});
     run(q('head'),[{transform:'rotate(0deg)'},{transform:'rotate(-9deg)',offset:.42},{transform:'rotate(0deg)'}],{duration:T});
   }else if(name==='jump'){
