@@ -90,11 +90,11 @@ const HEAD_CHIN=SK?HEAD_TOP+(SK.head.b[1]-SK.head.a[1])*HEAD_S:176;
 function headSVG(pfx){
   if(!SK)return '';
   const e=SK.head,[mx0,my0]=e.mono[0],[mx1,my1]=e.mono[1];
-  return `<g class="fit-head"><g transform="translate(${B.cx} ${r1(HEAD_CHIN)})"><g class="fit-jnt" data-j="head"><g class="fit-face">`+
+  return `<g class="fit-attention"><g class="fit-head"><g transform="translate(${B.cx} ${r1(HEAD_CHIN)})"><g class="fit-jnt" data-j="head"><g class="fit-face">`+
     `<g transform="scale(${HEAD_S}) translate(${-e.b[0]} ${-e.b[1]})"><image href="${e.src}" width="${e.w}" height="${e.h}"/>`+
     `<image href="${MONO}" x="${mx0}" y="${my0}" width="${mx1-mx0}" height="${my1-my0}" preserveAspectRatio="xMidYMid meet" opacity=".9"/>`+
-    e.eyes.map(([x,y])=>`<ellipse class="fit-glow" cx="${x}" cy="${y}" rx="30" ry="15" fill="url(#${pfx}-gl)"/><ellipse class="fit-glow" cx="${x}" cy="${y}" rx="13" ry="4" fill="#fff6d6" opacity=".55"/>`).join('')+
-    `</g></g></g></g></g>`;
+    e.eyes.map(([x,y])=>`<g class="fit-eye"><g class="fit-eye-track"><g class="fit-eye-glare" style="transform-origin:${x}px ${y}px"><ellipse class="fit-glow" cx="${x}" cy="${y}" rx="30" ry="15" fill="url(#${pfx}-gl)"/><ellipse class="fit-glow" cx="${x}" cy="${y}" rx="13" ry="4" fill="#fff6d6" opacity=".55"/></g></g><rect class="fit-eye-lid" x="${x-22}" y="${y-8}" rx="5" width="44" height="16" fill="#08090c" opacity="0"/></g>`).join('')+
+    `</g></g></g></g></g></g>`;
 }
 // pescoço por cima da peça: cobre o forro e as costas da gola e para na gola da frente (medida na foto).
 // Sem medida de gola, o pescoço fica por baixo da peça (corpo).
@@ -466,7 +466,7 @@ const HELIX=(()=>{const P=46,A=13,x0=-16,x1=436,pt=(x,ph)=>`${r1(x)} ${r1(A*Math
 function figureSVG(pfx,label){
   return `<svg class="fit-svg" viewBox="0 0 420 1000" role="img" aria-label="${label}" focusable="false">${defsSVG(pfx)}
   <ellipse class="fit-floor" cx="210" cy="${B.floor}" rx="130" ry="15" fill="url(#${pfx}-floor)"/>
-  <g class="fit-yaw"><g class="fit-emote"><g class="fit-rig">${bodySVG(pfx)}<g class="fit-layer fit-layer-legs"></g><g class="fit-layer fit-layer-bottom"></g><g class="fit-layer fit-layer-shoe"></g><g class="fit-layer fit-layer-arms"></g><g class="fit-layer fit-layer-top"></g><g class="fit-layer fit-layer-sleeves"></g><g class="fit-layer fit-layer-neck"></g><g class="fit-layer fit-layer-hoodback"></g>${headSVG(pfx)}<g class="fit-layer fit-layer-hood"></g><g class="fit-layer fit-layer-cap"></g></g></g></g>
+  <g class="fit-yaw"><g class="fit-emote"><g class="fit-presence"><g class="fit-rig">${bodySVG(pfx)}<g class="fit-layer fit-layer-legs"></g><g class="fit-layer fit-layer-bottom"></g><g class="fit-layer fit-layer-shoe"></g><g class="fit-layer fit-layer-arms"></g><g class="fit-layer fit-layer-top"></g><g class="fit-layer fit-layer-sleeves"></g><g class="fit-layer fit-layer-neck"></g><g class="fit-layer fit-layer-hoodback"></g>${headSVG(pfx)}<g class="fit-layer fit-layer-hood"></g><g class="fit-layer fit-layer-cap"></g></g></g></g></g>
   <g class="fit-scan" aria-hidden="true"><rect x="30" y="-22" width="360" height="44" fill="url(#${pfx}-sc)"/><g class="fit-helix">${HELIX}</g></g></svg>`;
 }
 // coloca as camadas de uma peça na figura
@@ -983,6 +983,41 @@ function mount(el,initial){
   stage.dataset.phase=reduced()?'reduced-motion':'entering';
   const wake=()=>{stage.classList.add('is-awake');scan('boot',500);awake=true;later.splice(0).forEach(([p,i])=>preloadSoon(p,i));setTimeout(()=>{if(stage.dataset.phase==='entering')stage.dataset.phase='idle'},1100)};
   if(reduced()||!M)wake();else{const off=M.onVisible(stage,v=>{if(v){off();wake()}},{threshold:.3})}
+
+  // GB V1.9: o manequim acompanha o cursor/touch com cabeça, olhos e
+  // leve balanço de corpo sem bloquear scroll ou arrasto para girar.
+  if(!reduced()){
+    let reactX=0,reactY=0,targetX=0,targetY=0,tick=0,hold=0;
+    const render=()=>{
+      tick=0;reactX+=(targetX-reactX)*.23;reactY+=(targetY-reactY)*.23;
+      scene.style.setProperty('--gb-look-x',reactX.toFixed(3));
+      scene.style.setProperty('--gb-look-y',reactY.toFixed(3));
+      scene.style.setProperty('--gb-eye-x',(reactX*5.5).toFixed(2)+'px');
+      scene.style.setProperty('--gb-eye-y',(reactY*3.5).toFixed(2)+'px');
+      if(Math.abs(targetX-reactX)+Math.abs(targetY-reactY)>.008)tick=requestAnimationFrame(render);
+    };
+    const update=(x,y)=>{
+      const r=scene.getBoundingClientRect();if(!r.width||!r.height)return;
+      targetX=Math.max(-1,Math.min(1,((x-r.left)/r.width-.5)*2));
+      targetY=Math.max(-1,Math.min(1,((y-r.top)/r.height-.5)*2));
+      if(!tick)tick=requestAnimationFrame(render);
+    };
+    const reset=()=>{targetX=targetY=0;if(!tick)tick=requestAnimationFrame(render)};
+    scene.addEventListener('pointermove',e=>{
+      if(e.pointerType==='touch'&&e.buttons===0)return;
+      update(e.clientX,e.clientY);
+    },{passive:true});
+    scene.addEventListener('pointerdown',e=>{
+      if(e.target.closest?.('button,a,input,.fit-dial,.look-option'))return;
+      clearTimeout(hold);update(e.clientX,e.clientY);
+    },{passive:true});
+    scene.addEventListener('pointerup',e=>{
+      if(e.pointerType==='touch'){clearTimeout(hold);hold=setTimeout(reset,750)}
+    },{passive:true});
+    scene.addEventListener('pointercancel',reset,{passive:true});
+    scene.addEventListener('pointerleave',e=>{if(e.pointerType!=='touch')reset()},{passive:true});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)reset()},{passive:true});
+  }
   // microparallax de luz apenas com ponteiro fino e aparelho capaz
   if(M&&M.Prefs.fine&&!reduced()&&!lite()){let tx=0,ty=0,cx=0,cy=0,on=false;
     const loop=dt=>{const k=1-Math.pow(.002,dt);cx+=(tx-cx)*k;cy+=(ty-cy)*k;scene.style.setProperty('--fx',cx.toFixed(3));scene.style.setProperty('--fy',cy.toFixed(3));if(Math.abs(tx-cx)<.002&&Math.abs(ty-cy)<.002){on=false;return false}};
