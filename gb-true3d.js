@@ -543,7 +543,14 @@ void main(){
     // finish the requested angle rather than leaving the robot half-turned.
     settleTimer=setTimeout(()=>{
       if(!active||drag!==null||target!==destination)return;
-      rotation=destination;tweenStart=0;dirty=true;renderNext()
+      rotation=destination;tweenStart=0;
+      // Sync the approved front projection even if rendering is offscreen.
+      const front=Math.acos(clamp(Math.cos(rotation),-1,1));
+      const progress=clamp((front-.12)/.61,0,1);
+      const frontOpacity=1-progress*progress*(3-2*progress);
+      scene.style.setProperty('--gb-actor-front',frontOpacity.toFixed(4));
+      scene.dataset.actorView=frontOpacity>.999?'reference-front':frontOpacity<.001?'volumetric':'transition';
+      dirty=true;renderNext()
     },duration+75)
   }
   function rotateTo(deg){
