@@ -174,3 +174,60 @@
 @media(prefers-reduced-motion:reduce){
  #gbRibbonBoot .gb-ribbon-glass:after{animation:none!important}
 }
+
+/* V32 | Polished optical glass: pearl substrate, prismatic refraction and soft
+   specular sweeps. No expensive fullscreen backdrop-filter or filter animations. */
+#gbRibbonBoot.is-opening .gb-ribbon-glass,
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-glass{
+ background:
+  radial-gradient(ellipse 58% 65% at 7% 12%,rgba(255,255,255,.92),transparent 90%),
+  radial-gradient(ellipse 62% 63% at 87% 92%,rgba(220,205,171,.25),transparent 89%),
+  radial-gradient(ellipse 37% 42% at 51% 47%,rgba(255,255,255,.74),transparent 97%),
+  linear-gradient(136deg,#fcfcfb 0%,#f8f8f5 29%,#efeee9 68%,#fafaf8 100%);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.96),
+  inset 0 -1px rgba(126,109,80,.12);
+}
+#gbRibbonBoot.is-opening .gb-ribbon-glass:before{
+ content:'';
+ position:absolute;inset:-18%;
+ pointer-events:none;
+ background:
+  linear-gradient(117deg,transparent 25%,rgba(255,255,255,.10) 35%,
+   rgba(255,255,255,.47) 40%,rgba(243,234,215,.08) 43%,transparent 49%),
+  linear-gradient(155deg,transparent 59%,rgba(187,167,133,.06) 62%,
+   rgba(255,255,255,.21) 65%,transparent 71%);
+ opacity:.48;
+ transform:rotate(-3deg);
+}
+#gbRibbonBoot.is-opening .gb-ribbon-glass:after{
+ animation:gbOpticGlass31 7.2s ease-in-out both;
+ opacity:.35;
+}
+#gbRibbonBoot .gb-ribbon-logo-atmosphere{opacity:.50}
+#gbRibbonBoot .gb-ribbon-ink{
+ position:absolute;
+ left:0;top:0;width:100%;height:auto;aspect-ratio:1000/610;
+ overflow:visible;
+ display:block;
+ z-index:7;
+ pointer-events:none;
+ opacity:var(--gb-emerge,0);
+}
+#gbRibbonBoot .gb-ribbon-ink-outline{
+ stroke:rgba(202,153,48,.85);
+ filter:drop-shadow(0 0 7px rgba(229,171,46,.40));
+}
+#gbRibbonBoot .gb-ribbon-ink-glint{
+ stroke:rgba(255,247,206,.96);
+ filter:drop-shadow(0 0 7px rgba(229,178,57,.67));
+}
+#gbRibbonBoot.is-settled .gb-ribbon-ink,
+#gbRibbonBoot.is-gateway .gb-ribbon-ink{display:none}
+@media(max-width:780px){
+ #gbRibbonBoot.is-opening .gb-ribbon-glass:before{opacity:.28}
+ #gbRibbonBoot.is-opening .gb-ribbon-glass:after{animation:none;opacity:.12;transform:none}
+ #gbRibbonBoot .gb-ribbon-ink-outline{filter:none;stroke:rgba(173,113,23,.7)}
+}
+@media(prefers-reduced-motion:reduce){
+ #gbRibbonBoot .gb-ribbon-ink{display:none!important}
+}
