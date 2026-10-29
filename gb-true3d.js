@@ -19,7 +19,7 @@ function mount(){
   surface.className='gb-volume';surface.setAttribute('aria-label','Visualização volumétrica 360 graus do manequim GB');
   surface.setAttribute('aria-hidden','true');
   surface.innerHTML='<canvas class="gb-volume-canvas" aria-label="Manequim tridimensional, arraste para girar"></canvas>'+
-  '<div class="gb-volume-top"><span>GB / VOLUME 360°</span><button type="button" class="gb-volume-exit">VOLTAR À FOTO ×</button></div>'+
+  '<div class="gb-volume-top"><span>GB / VOLUME 360°</span><div class="gb-volume-actions"><button type="button" class="gb-volume-dance" aria-pressed="false">PASSINHO 3D</button><button type="button" class="gb-volume-exit">VOLTAR À FOTO ×</button></div></div>'+
   '<div class="gb-volume-bottom"><strong class="gb-volume-angle">000° · FRENTE</strong><small>MODELO 3D EDITORIAL · VERSO DAS ROUPAS SIMULADO</small></div>'+
   '<nav class="gb-volume-views" aria-label="Ângulo do manequim">'+
   '<button data-volume-angle="0" type="button">FRENTE</button>'+
@@ -30,7 +30,64 @@ function mount(){
   const canvas=surface.querySelector('canvas'),gl=canvas.getContext('webgl',{
     antialias:true,alpha:true,premultipliedAlpha:false,powerPreference:'low-power'});
   if(!gl){surface.remove();stage.classList.add('gb-volume-unsupported');return false}
-  const vs='attribute vec3 position;attribute vec3 normal;attribute vec3 color;uniform float turn;uniform float aspect;varying vec3 N;varying vec3 C;void main(){float co=cos(turn),si=sin(turn);vec3 p=vec3(co*position.x+si*position.z,position.y,-si*position.x+co*position.z);N=vec3(co*normal.x+si*normal.z,normal.y,-si*normal.x+co*normal.z);C=color;float z=6.0-p.z;gl_Position=vec4(p.x*2.85/aspect,(p.y-1.6)*2.85,z*1.026-.20,z);}';
+  const vs=`
+attribute vec3 position;
+attribute vec3 normal;
+attribute vec3 color;
+attribute float bone;
+uniform float turn;
+uniform float aspect;
+uniform float motionTime;
+uniform float motionOn;
+uniform vec2 gaze;
+uniform float eyeBlink;
+varying vec3 N;
+varying vec3 C;
+vec3 rotateX(vec3 p, float a){float c=cos(a),s=sin(a);return vec3(p.x,c*p.y-s*p.z,s*p.y+c*p.z);}
+vec3 rotateZ(vec3 p, float a){float c=cos(a),s=sin(a);return vec3(c*p.x-s*p.y,s*p.x+c*p.y,p.z);}
+void main(){
+  vec3 p=position,n=normal;
+  float phase=motionTime*6.2831853/5.3;
+  float sway=sin(phase*2.0)*0.047*motionOn;
+  float bounce=(sin(phase*6.0)+0.30*sin(phase*12.0))*0.020*motionOn;
+  if(bone>1.5 && bone<3.5){
+    float side=bone<2.5?-1.0:1.0;
+    vec3 pivot=vec3(side*0.412,2.30,0.0);
+    float armX=motionOn*(0.20*sin(phase*3.0+side*1.32)+0.055*sin(phase*6.0-side));
+    float armZ=motionOn*(side*0.095+0.14*sin(phase*2.0+side*1.05));
+    p=pivot+rotateZ(rotateX(p-pivot,armX),armZ);
+    n=rotateZ(rotateX(n,armX),armZ);
+  }
+  if(bone>3.5 && bone<5.5){
+    float side=bone<4.5?-1.0:1.0;
+    vec3 pivot=vec3(side*0.240,1.36,0.0);
+    float legX=motionOn*(0.145*sin(phase*3.0+(side+1.0)*1.57)+0.045*sin(phase*6.0));
+    float legZ=motionOn*(0.085*sin(phase*2.0+side*1.57));
+    p=pivot+rotateZ(rotateX(p-pivot,legX),legZ);
+    n=rotateZ(rotateX(n,legX),legZ);
+  }
+  if(bone>0.5 && bone<1.5 || bone>5.5){
+    if(bone>5.5){
+      p.y=2.94+(p.y-2.94)*(1.0-0.96*eyeBlink);
+      p.x+=gaze.x*0.021;
+      p.y+=gaze.y*0.012;
+    }
+    vec3 pivot=vec3(0.0,2.57,0.0);
+    float headX=-gaze.y*0.090+motionOn*0.055*sin(phase*4.0);
+    float headZ=-gaze.x*0.084+motionOn*0.046*sin(phase*2.0+0.8);
+    p=pivot+rotateZ(rotateX(p-pivot,headX),headZ);
+    n=rotateZ(rotateX(n,headX),headZ);
+  }
+  float upper=smoothstep(0.13,1.45,position.y);
+  p.x+=sway*upper+gaze.x*0.012*upper;
+  p.y+=bounce*upper;
+  float co=cos(turn),si=sin(turn);
+  vec3 rp=vec3(co*p.x+si*p.z,p.y,-si*p.x+co*p.z);
+  N=vec3(co*n.x+si*n.z,n.y,-si*n.x+co*n.z);
+  C=color;
+  float z=6.0-rp.z;
+  gl_Position=vec4(rp.x*2.85/aspect,(rp.y-1.6)*2.85,z*1.026-.20,z);
+}`;
   const fs='precision mediump float;varying vec3 N;varying vec3 C;void main(){vec3 n=normalize(N);vec3 l=normalize(vec3(-.7,.95,1.15));float diffuse=.39+.56*max(dot(n,l),0.0)+.13*max(dot(n,normalize(vec3(.8,.35,-.65))),0.0);float spec=pow(max(dot(reflect(-l,n),vec3(0.,0.,1.)),0.),30.)*.17;gl_FragColor=vec4(clamp(C*diffuse+vec3(1.,.81,.33)*spec,0.,1.),1.);}';
   function shader(kind,body){const s=gl.createShader(kind);gl.shaderSource(s,body);gl.compileShader(s);
     if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}
@@ -44,19 +101,24 @@ function mount(){
   const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
   ['position','normal','color'].forEach((key,i)=>{
     const a=gl.getAttribLocation(prog,key);
-    if(a>=0){gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,3,gl.FLOAT,false,36,i*12)}
+    if(a>=0){gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,3,gl.FLOAT,false,40,i*12)}
   });
-  const yawUniform=gl.getUniformLocation(prog,'turn'),aspectUniform=gl.getUniformLocation(prog,'aspect');
+  const boneAttrib=gl.getAttribLocation(prog,'bone');
+  if(boneAttrib>=0){gl.enableVertexAttribArray(boneAttrib);gl.vertexAttribPointer(boneAttrib,1,gl.FLOAT,false,40,36)}
+  const yawUniform=gl.getUniformLocation(prog,'turn'),aspectUniform=gl.getUniformLocation(prog,'aspect'),
+    timeUniform=gl.getUniformLocation(prog,'motionTime'),motionUniform=gl.getUniformLocation(prog,'motionOn'),
+    gazeUniform=gl.getUniformLocation(prog,'gaze'),blinkUniform=gl.getUniformLocation(prog,'eyeBlink');
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);
-  let triangles=[],nVertices=0,active=false,rotation=0,target=0,velocity=0,lastStamp=0,
+  let triangles=[],bonePart=0,nVertices=0,active=false,rotation=0,target=0,velocity=0,lastStamp=0,
     tweenFrom=0,tweenStart=0,tweenDuration=750,settleTimer=0,
-    frame=0,drag=null,dragX=0,dirty=false,visible=true,lastSelection='',revision=0;
+    frame=0,drag=null,dragX=0,dirty=false,visible=true,lastSelection='',revision=0,
+    dancing=false,danceEpoch=0,blinkStart=0,blinkTimer=0,lookX=0,lookY=0,wantX=0,wantY=0;
   let look={top:C.white,bottom:C.armor,shoe:C.shoe,cap:C.armor,topKind:'hoodie',
     bottomKind:'pants',hasShoe:true,hasCap:false,hoodUp:false};
   const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
   const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
   const norm=a=>{const r=Math.hypot(a[0],a[1],a[2])||1;return a.map(v=>v/r)};
-  function tri(a,b,c,color){const n=norm(cross(sub(b,a),sub(c,a)));for(const p of[a,b,c])triangles.push(...p,...n,...color)}
+  function tri(a,b,c,color){const n=norm(cross(sub(b,a),sub(c,a)));for(const p of[a,b,c])triangles.push(...p,...n,...color,bonePart)}
   function quad(a,b,c,d,color){tri(a,b,c,color);tri(a,c,d,color)}
   function ball(x,y,z,rx,ry,rz,color,steps=12,stacks=8){
     const at=(i,j)=>{const u=i*TAU/steps,v=j*PI/stacks;
@@ -86,14 +148,16 @@ function mount(){
     quad([a,c,f],[b,c,f],[b,c,g],[a,c,g],color)
   }
   function rebuild(){
-    triangles=[];
+    triangles=[];bonePart=0;
     const long=/hood|jacket|sweat|track|zip|long/i.test(look.topKind),
       hood=/hood|jacket/i.test(look.topKind),short=/short|bermuda/i.test(look.bottomKind),
       top=look.top,bottom=look.bottom;
     // Full cyborg skeleton and shell, including actual back and lateral depth.
     body([[0,2.40,0,.32,.205],[0,1.9,0,.29,.18],[0,1.45,0,.28,.19]],C.armor);
+    bonePart=1;
     tube([0,2.52,0],[0,2.68,0],.107,.103,C.armor);
     for(const side of[-1,1]){
+      bonePart=side<0?2:3;
       const sh=[side*.40,2.29,0],el=[side*.52,1.77,0],hand=[side*.54,1.23,.03];
       ball(...sh,.13,.14,.13,C.gold);
       tube(sh,el,.118,.103,C.armor);
@@ -101,23 +165,28 @@ function mount(){
       tube(el,hand,.103,.081,C.armor);
       ball(side*.55,1.17,.03,.086,.111,.075,C.joint);
       tube([side*.52,1.55,.078],[side*.54,1.27,.078],.044,.035,C.gold);
+      bonePart=side<0?4:5;
       tube([side*.235,1.43,0],[side*.24,.90,0],.154,.134,C.armor);
       ball(side*.24,.88,0,.138,.13,.141,C.gold);
       tube([side*.242,.81,0],[side*.253,.22,.01],.124,.099,C.armor);
       tube([side*.254,.68,.105],[side*.255,.40,.10],.028,.021,C.gold);
     }
     // Sculpted GB helmet, faceplate, golden eyes and back panels.
+    bonePart=1;
     ball(0,2.91,0,.206,.252,.191,C.armor,20,14);
     ball(0,3.105,-.018,.214,.102,.188,C.joint);
     box(0,2.93,.171,.307,.17,.027,C.joint);
     box(0,2.92,.192,.025,.19,.016,C.gold);
     for(const side of[-1,1]){
+      bonePart=side<0?6:7;
       ball(side*.083,2.94,.201,.057,.027,.014,C.light);
+      bonePart=1;
       ball(side*.181,2.92,-.07,.037,.095,.096,C.gold);
       box(side*.17,2.87,.08,.024,.19,.15,C.gold)
     }
     box(0,2.789,.175,.19,.024,.02,C.gold);
     // Product clothing: volume has thickness. Colors only estimated from front images.
+    bonePart=0;
     body([[0,2.4,0,.366,.239],[0,2.24,0,.390,.244],
       [0,1.98,0,.348,.245],[0,1.70,0,.305,.226],[0,1.47,0,.309,.232]],top);
     body([[0,1.477,0,.310,.236],[0,1.446,0,.314,.237]],dark(top,.78));
@@ -128,21 +197,25 @@ function mount(){
       ball(0,2.55,-.15,.225,.117,.161,dark(top,.84));
     }
     for(const s of[-1,1]){
+      bonePart=s<0?2:3;
       const sh=[s*.412,2.3,0],el=[s*.52,1.77,0],hand=[s*.54,1.25,.02];
       tube(sh,long?hand:[s*.47,2.00,0],long?.151:.161,long?.093:.152,top);
       if(long)tube([s*.534,1.34,.02],hand,.096,.093,dark(top,.75));
       else tube([s*.47,2.01,0],[s*.48,1.967,0],.154,.156,dark(top,.76))
     }
+    bonePart=0;
     box(0,2.15,-.25,.41,.018,.018,dark(top,.76));
     if(short){
       body([[0,1.48,0,.329,.232],[0,1.32,0,.337,.247]],bottom);
       for(const s of[-1,1]){
+        bonePart=s<0?4:5;
         tube([s*.24,1.34,0],[s*.242,.94,0],.203,.193,bottom,16);
         tube([s*.242,.96,0],[s*.244,.921,0],.196,.196,dark(bottom,.73))
       }
     }else{
       body([[0,1.48,0,.325,.231],[0,1.33,0,.329,.246]],bottom);
       for(const s of[-1,1]){
+        bonePart=s<0?4:5;
         tube([s*.24,1.35,0],[s*.242,.87,0],.194,.143,bottom,16);
         ball(s*.242,.87,0,.146,.103,.144,bottom);
         tube([s*.244,.91,0],[s*.254,.211,.01],.142,.106,bottom,16);
@@ -150,18 +223,20 @@ function mount(){
       }
     }
     for(const s of[-1,1]){
+      bonePart=s<0?4:5;
       const x=s*.254,shoe=look.hasShoe?look.shoe:C.shoe;
       ball(x,.142,.116,.151,.102,.286,shoe,16,10);
       ball(x,.075,.119,.166,.038,.307,dark(shoe,.62),16,8);
       ball(x,.23,-.035,.102,.107,.119,dark(shoe,.85))
     }
+    bonePart=1;
     if(look.hasCap){
       ball(0,3.16,-.018,.229,.086,.226,look.cap,16,10);
       ball(0,3.114,.188,.240,.027,.118,dark(look.cap,.77),16,8)
     }
     gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
     const data=new Float32Array(triangles);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);
-    nVertices=data.length/9;dirty=true;renderNext()
+    nVertices=data.length/10;dirty=true;renderNext()
   }
   const sampled=new Map();
   function imageColor(src,fallback){
@@ -202,8 +277,25 @@ function mount(){
           hasShoe:!!shoe,hasCap:!!cap,hoodUp:!!s.hood};rebuild()
       })
   }
-  let previous=0;
   const label=surface.querySelector('.gb-volume-angle');
+  const danceButton=surface.querySelector('.gb-volume-dance');
+  const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function blinkLater(){
+    clearTimeout(blinkTimer);
+    if(!active)return;
+    blinkTimer=setTimeout(()=>{
+      if(!active)return;
+      blinkStart=performance.now();
+      dirty=true;renderNext();blinkLater();
+    },2700+Math.random()*1800);
+  }
+  function setDancing(on){
+    dancing=!!on&&!reduced();
+    danceEpoch=performance.now();
+    danceButton.textContent=dancing?'PARAR PASSINHO':'PASSINHO 3D';
+    danceButton.setAttribute('aria-pressed',String(dancing));
+    dirty=true;renderNext();
+  }
   function renderNext(){if(active&&!frame&&!document.hidden)frame=requestAnimationFrame(draw)}
   function draw(now){
     frame=0;if(!active||document.hidden)return;
@@ -212,7 +304,16 @@ function mount(){
     if(!w||!h||!nVertices)return;
     const W=Math.round(w*dpr),H=Math.round(h*dpr);
     if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H}
+    const dt=lastStamp?clamp(now-lastStamp,1,45):16;
     lastStamp=now;
+    const follow=1-Math.exp(-dt/115);
+    lookX+=(wantX-lookX)*follow;lookY+=(wantY-lookY)*follow;
+    let blink=0;
+    if(blinkStart){
+      const t=(now-blinkStart)/225;
+      if(t>=1)blinkStart=0;
+      else blink=Math.pow(Math.sin(PI*t),2);
+    }
     if(drag==null&&tweenStart){
       // Duration uses wall-clock time, not per-frame Euler steps.
       // Even a slow GPU catches up instead of freezing at 1° forever.
@@ -223,6 +324,10 @@ function mount(){
     }
     gl.viewport(0,0,W,H);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
     gl.uniform1f(yawUniform,rotation);gl.uniform1f(aspectUniform,W/H);
+    gl.uniform1f(timeUniform,(now-danceEpoch)/1000);
+    gl.uniform1f(motionUniform,dancing?1:0);
+    gl.uniform2f(gazeUniform,lookX,lookY);
+    gl.uniform1f(blinkUniform,blink);
     gl.drawArrays(gl.TRIANGLES,0,nVertices);
     const degrees=((Math.round(rotation*180/PI)%360)+360)%360;
     const name=degrees<35||degrees>325?'FRENTE':degrees>145&&degrees<215?'COSTAS':degrees<=145?'DIREITA':'ESQUERDA';
@@ -233,7 +338,8 @@ function mount(){
       slider.setAttribute('aria-valuetext',name);
       slider.style.setProperty('--orbit-position',(((((degrees+180)%360)-180)/360+.5)*100).toFixed(1)+'%');
     }
-    if(drag!=null||tweenStart!==0||dirty){
+    if(dancing||blinkStart||Math.abs(wantX-lookX)>.006||Math.abs(wantY-lookY)>.006||
+       drag!=null||tweenStart!==0||dirty){
       dirty=false;renderNext()
     }else lastStamp=0
   }
@@ -242,12 +348,15 @@ function mount(){
     if(stage.classList.contains('is-fit-compare'))return false;
     if(window.GBFitting.emoting)window.GBFitting.emote(window.GBFitting.emoting);
     active=true;rotation=0;target=0;velocity=0;lastStamp=0;tweenStart=0;clearTimeout(settleTimer);dirty=true;
+    setDancing(false);wantX=wantY=lookX=lookY=0;blinkLater();
     stage.classList.add('is-true-3d');surface.setAttribute('aria-hidden','false');
     outfit(true);renderNext();return true
   }
   function close(){
     active=false;stage.classList.remove('is-true-3d');surface.setAttribute('aria-hidden','true');
-    cancelAnimationFrame(frame);clearTimeout(settleTimer);frame=0;lastStamp=0;tweenStart=0;drag=null;surface.classList.remove('is-dragging')
+    cancelAnimationFrame(frame);clearTimeout(settleTimer);clearTimeout(blinkTimer);
+    dancing=false;blinkStart=0;wantX=wantY=lookX=lookY=0;
+    frame=0;lastStamp=0;tweenStart=0;drag=null;surface.classList.remove('is-dragging')
   }
   function tweenTo(destination,duration){
     clearTimeout(settleTimer);
@@ -286,6 +395,17 @@ function mount(){
     if(drag!==e.pointerId)return;
     e.stopImmediatePropagation();drag=null;surface.classList.remove('is-dragging');renderNext()
   }
+  danceButton.addEventListener('click',()=>setDancing(!dancing));
+  const aim=e=>{
+    const r=canvas.getBoundingClientRect();
+    if(!r.width||!r.height)return;
+    wantX=clamp((e.clientX-r.left)/r.width*2-1,-1,1);
+    wantY=clamp(1-(e.clientY-r.top)/r.height*2,-1,1);
+    renderNext();
+  };
+  canvas.addEventListener('pointermove',aim,{passive:true});
+  canvas.addEventListener('pointerdown',aim,{passive:true});
+  canvas.addEventListener('pointerleave',()=>{wantX=wantY=0;renderNext()});
   canvas.addEventListener('pointerdown',begin);
   canvas.addEventListener('pointermove',move);
   canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
@@ -358,7 +478,8 @@ function mount(){
   document.addEventListener('visibilitychange',()=>{lastStamp=0;if(!document.hidden)renderNext()});
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();close();stage.classList.add('gb-volume-unsupported')});
   controller={open,close,rotateTo,turnFull,outfit,get active(){return active},
-    get angle(){return rotation},get vertices(){return nVertices},get rendered(){return canvas.width>0},get pending(){return target-rotation}};
+    get angle(){return rotation},get vertices(){return nVertices},get rendered(){return canvas.width>0},
+    get pending(){return target-rotation},get dancing(){return dancing},get gaze(){return [lookX,lookY]}};
   window.GBTrue360=controller;
   installed=true;return true
 }
