@@ -59,7 +59,7 @@ function touch(e){if(e.touches&&e.touches[0])move(e.touches[0])}
 function flash(){pointer.charge=1;pointer.strength=1;request()}
 window.addEventListener('pointermove',move,{passive:true});
 window.addEventListener('touchmove',touch,{passive:true});
-window.addEventListener('pointerdown',flash,{passive:true});
+window.addEventListener('pointerdown',e=>{move(e);flash()},{passive:true});
 window.addEventListener('scroll',request,{passive:true});
 window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{size();request()},110)},{passive:true});
 document.addEventListener('visibilitychange',request,{passive:true});
