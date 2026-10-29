@@ -639,7 +639,9 @@ void main(){
       else {cancelAnimationFrame(frame);frame=0}
     },{rootMargin:'150px'}).observe(stage)
   }else{visible=true;requestAnimationFrame(autoActivate)}
-  document.addEventListener('gb:look-change',()=>{if(active)outfit(true)});
+  const fitWatch=new MutationObserver(()=>{if(active)outfit()});
+  fitWatch.observe(original,{attributes:true,attributeFilter:['data-top','data-bottom','data-shoe','data-cap','data-hood']});
+  document.addEventListener('gb:look-change',()=>{if(active)requestAnimationFrame(()=>outfit())});
   const dial=scene.querySelector('.fit-dial');
   // Keep the slider's accessible range consistent with 360° instead of
   // the old ±45° 2D sprite limit.
@@ -680,7 +682,7 @@ void main(){
     if(e.key==='Home')rotateTo(0);else if(e.key==='End')rotateTo(180);
     else rotateTo(rotation*180/PI+(e.key==='ArrowLeft'?-15:15))
   },true);
-  const refresh=setInterval(()=>{if(!document.body.contains(scene)){clearInterval(refresh);close()}else if(active)outfit()},800);
+  const refresh=setInterval(()=>{if(!document.body.contains(scene)){clearInterval(refresh);fitWatch.disconnect();close()}else if(active)outfit()},2500);
   window.addEventListener('resize',()=>{dirty=true;renderNext()},{passive:true});
   const compareObserver=new MutationObserver(()=>{
     if(stage.classList.contains('is-fit-compare')){if(active)close()}
