@@ -20,6 +20,7 @@ const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});
 if(!ctx)return;
 host.classList.remove('is-boot');
 const logo=host.querySelector('.gb-ribbon-original');
+if(enterAtTop)logo.style.clipPath='inset(0 0 0 100%)';
 const signature=host.querySelector('.gb-ribbon-signature');
 const bloom=host.querySelector('.gb-ribbon-bloom');
 const scan=host.querySelector('.gb-ribbon-scan');
@@ -29,7 +30,9 @@ if(enterAtTop){
  fetch('./assets/brand/gb-monograma-amarelo-preto.svg',{cache:'force-cache'})
   .then(r=>{if(!r.ok)throw new Error('SVG unavailable');return r.text()})
   .then(markup=>{
-   if(settled)return;
+   // A delayed network response must never insert a glowing outline mid-signature.
+   // The original GB SVG remains visible and signed by the moving wipe.
+   if(settled||parked||signatureProgress>.075)return;
    const doc=new DOMParser().parseFromString(markup,'image/svg+xml');
    const sourcePath=doc.querySelector('svg path');
    if(!sourcePath)return;
@@ -65,7 +68,7 @@ let width=1,height=1,pixelRatio=1,raf=0,last=0,t=0,frames=0,paintAvg=0,paintMax=
 // Conservative first frames. Increase detail only when the device proves it can render smoothly.
 const constrained=(navigator.hardwareConcurrency>0&&navigator.hardwareConcurrency<=4) || (navigator.deviceMemory>0&&navigator.deviceMemory<=4) || Boolean(navigator.connection?.saveData);
 let quality=constrained?2:1,rollingGap=16,lastQualityChange=0,lastLogoPaint=0,throttledFrames=0;
-let sweepHead=1.085,sweepX=1.0,signatureProgress=0;
+let sweepHead=1.085,sweepX=1.0,signatureProgress=0,logoRevealed=false;
 const pointer={x:.5,y:.5,targetX:.5,targetY:.5,force:0,tap:0};
 // The film now holds its mark, then opens two glass doors into the existing hero.
 const duration=3950;
@@ -201,27 +204,24 @@ function trace(path,v,samples,head=0){
 }
 function updateLogo(now){
  if(settled||!intro)return;
- // The original SVG is signed by the SAME traveling right-to-left beam.
+ // A single stable masking edge avoids blinking from polygon retessellation
+ // plus animated nested GPU filters in Edge.
  const progress=ease(clamp((.765-sweepHead)/.445,0,1));
  signatureProgress=progress;
- const boundary=104-progress*119;
- const edge=[];
- for(let i=10;i>=0;i--){
-  const y=i*10;
-  const flutter=Math.sin(y*.062+t*.42)*2.7*Math.sin(progress*Math.PI);
-  edge.push((boundary+flutter).toFixed(2)+'% '+y.toFixed(2)+'%');
+ const edge=100-progress*100;
+ if(progress>.998){
+   if(!logoRevealed){logo.style.clipPath='none';logoRevealed=true}
+ }else if(progress>0.003){
+   logo.style.clipPath='inset(0 0 0 '+edge.toFixed(2)+'%)';
  }
- logo.style.clipPath='polygon(110% 0%,110% 100%,'+edge.join(',')+')';
- scan.style.left=boundary.toFixed(2)+'%';
- scan.style.top='12%';
- signature.style.setProperty('--gb-emerge',clamp(progress*2.5,0,1).toFixed(4));
- bloom.style.opacity=(Math.sin(progress*Math.PI)*.44).toFixed(3);
+ scan.style.left=(100-progress*100).toFixed(2)+'%';
+ signature.style.setProperty('--gb-emerge',clamp(progress*2.5,0,1).toFixed(3));
+ // The glow remains static. The thin scan-line and ribbon deliver movement.
  if(signatureReady&&strokeOutline){
    const ink=ease(clamp((progress-.04)/.88,0,1));
-   strokeOutline.style.strokeDashoffset=String(strokeLength*(1-ink));
+   strokeOutline.style.strokeDashoffset=String(Math.round(strokeLength*(1-ink)));
    if(strokeGlint){
-     strokeGlint.style.strokeDashoffset=String(strokeLength*(.93-ink));
-     strokeGlint.style.opacity=String(Math.sin(ink*Math.PI)*.8);
+     strokeGlint.style.strokeDashoffset=String(Math.round(strokeLength*(.93-ink)));
    }
  }
 }
@@ -381,7 +381,7 @@ function draw(now){
    ctx.fillStyle=grad;
    ctx.beginPath();ctx.arc(tip[0],tip[1],radius,0,Math.PI*2);ctx.fill();
  }
- if(intro&&(now-lastLogoPaint>28||frames<2)){updateLogo(now);lastLogoPaint=now}
+ if(intro&&(now-lastLogoPaint>(mobile()?48:33)||frames<2)){updateLogo(now);lastLogoPaint=now}
  const cost=performance.now()-started;
  paintAvg=frames?paintAvg*.93+cost*.07:cost;
  paintMax=Math.max(paintMax,cost);
@@ -418,7 +418,8 @@ window.GBGlassRibbons=Object.freeze({
   if(reduced.matches)return;
   intro=true;settled=false;parked=false;parkAt=0;firstFrame=0;last=0;lastLogoPaint=0;
   signature.style.removeProperty('--gb-emerge');
-  logo.style.clipPath='polygon(110% 0%,110% 100%,110% 100%,110% 0%)';
+  logo.style.clipPath='inset(0 0 0 100%)';
+  logoRevealed=false;
   sweepHead=1.085;signatureProgress=0;
   if(strokeOutline)strokeOutline.style.strokeDashoffset=String(strokeLength);
   if(strokeGlint)strokeGlint.style.strokeDashoffset=String(strokeLength);
