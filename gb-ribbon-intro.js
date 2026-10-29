@@ -68,7 +68,7 @@ let quality=constrained?2:1,rollingGap=16,lastQualityChange=0,lastLogoPaint=0,th
 let sweepHead=1.085,sweepX=1.0,signatureProgress=0;
 const pointer={x:.5,y:.5,targetX:.5,targetY:.5,force:0,tap:0};
 // The film now holds its mark, then opens two glass doors into the existing hero.
-const duration=4950;
+const duration=3950;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,k)=>a+(b-a)*k;
 const ease=k=>k*k*(3-2*k);
@@ -254,7 +254,9 @@ function settle(){
 }
 function draw(now){
  raf=0;if(!alive())return;
- const budget=mobile()?25:16;
+ // Never throttle powerful devices below the display's native cadence.
+ // Budget mode is reserved for low-end hardware or detected sustained jank.
+ const budget=quality>=2?(mobile()?30:24):0;
  if(last&&now-last<budget){request();return}
  const started=performance.now();
  const elapsed=last?now-last:16;
@@ -263,7 +265,9 @@ function draw(now){
  // Quality adapts slowly, so a single camera-recording spike doesn't cause flicker.
  if(frames>8)rollingGap=rollingGap*.91+Math.min(elapsed,250)*.09;
  if(frames>18 && now-lastQualityChange>2000){
-   const next=rollingGap>70?Math.min(2,quality+1):rollingGap>37?Math.max(quality,1):rollingGap<26?Math.max(0,quality-1):quality;
+   const next=rollingGap>72?Math.min(2,quality+1):
+    (rollingGap>40&&paintAvg>3.5)?Math.max(quality,1):
+    (rollingGap<33&&paintAvg<2.8&&!constrained)?Math.max(0,quality-1):quality;
    if(next!==quality){quality=next;measure()}
    lastQualityChange=now;
  }
@@ -277,13 +281,13 @@ function draw(now){
  [flow.twist,flow.twistVelocity]=spring(flow.twist,flow.twistVelocity,twistTarget,dt,3.5);
  buildCurve(t);
  const age=now-firstFrame;
- const travel=intro?ease(clamp((age-380)/3030,0,1)):1;
+ const travel=intro?ease(clamp((age-220)/2460,0,1)):1;
  sweepHead=intro?1.085-travel*1.105:0;
  sweepX=1-travel;
  host.style.setProperty('--gb-sweep',travel.toFixed(4));
- if(intro&&now-firstFrame>3650){
+ if(intro&&now-firstFrame>2990){
   host.classList.add('is-preparing-entry');
-  if(now-firstFrame>3950)window.GB_BOOT_CORE?.();
+  if(now-firstFrame>3120)window.GB_BOOT_CORE?.();
  }
  if(intro&&now-firstFrame>duration)settle();
  const k=1-Math.exp(-dt*3.9);
@@ -320,7 +324,7 @@ function draw(now){
  ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
  for(let i=0;i<n;i++){
   const v=-1+2*i/(n-1);
-  const p=new Path2D();trace(p,v,steps,head);
+  ctx.beginPath();trace(ctx,v,steps,head);
   const core=Math.exp(-v*v*2.2);
   const deep=(i%7===0);
   const light=(i%5===1||i%5===2);
@@ -329,15 +333,15 @@ function draw(now){
     light?'rgba(250,184,31,'+Math.min(.98,1.06*opacity)+')':
     'rgba(161,91,6,'+Math.min(.97,.92*opacity)+')';
   ctx.lineWidth=(compact?.55:.70)+core*.33;
-  ctx.stroke(p);
+  ctx.stroke();
  }
  // Layer 2: the almost-white cores glow against their warm-gold underlay.
  for(let i=0;i<Math.max(5,Math.floor(n/6));i++){
   const v=(i/(Math.max(5,Math.floor(n/6))-1)-.5)*.83;
-  const p=new Path2D();trace(p,v,steps,head);
+  ctx.beginPath();trace(ctx,v,steps,head);
   ctx.strokeStyle='rgba(255,246,177,'+(.82*faint)+')';
   ctx.lineWidth=compact?.85:1.12;
-  ctx.stroke(p);
+  ctx.stroke();
  }
  ctx.restore();
  // A luminous leading tip makes the direction of travel unmistakable.
