@@ -10,7 +10,13 @@ for(const [width,height] of [[1440,900],[390,844]]){
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.GBFitting&&document.querySelector('#lookstudio .look-stage'),null,{timeout:30000});
  await page.evaluate(()=>document.querySelector('#lookstudio .look-stage').scrollIntoView({block:'center',behavior:'instant'}));
- await page.waitForFunction(()=>!!document.getElementById('gbFitFigure'),null,{timeout:30000});
+ for(let attempt=0;attempt<20;attempt++){
+   if(await page.evaluate(()=>!!document.getElementById('gbFitFigure')))break;
+   await page.evaluate(()=>document.querySelector('#lookstudio .look-stage')
+     ?.scrollIntoView({block:'center',behavior:'instant'}));
+   await page.waitForTimeout(350);
+ }
+ await page.waitForFunction(()=>!!document.getElementById('gbFitFigure'),null,{timeout:20000});
  await page.waitForFunction(()=>window.GBTrue360,null,{timeout:30000});
  await page.evaluate(()=>GBTrue360.open());
  await page.waitForFunction(()=>GBTrue360.active&&GBTrue360.vertices>10000,null,{timeout:20000});
