@@ -273,3 +273,49 @@ body[data-gb-theme="sinal"] .gx{--gx-paper:#111419;--gx-card:#1b1e24;--gx-ink:#f
 @media(prefers-reduced-motion:reduce){
  .gx *{transition:none!important;animation:none!important;scroll-behavior:auto!important}
 }
+
+
+/* V40 / GB ACCESS: original avatar and guided district visuals */
+.gx-avatar-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:23px 0}
+.gx-avatar-option{display:flex;align-items:center;flex-direction:column;gap:10px;min-height:290px;padding:17px 10px;border:1px solid var(--gx-line);border-radius:13px;background:var(--gx-paper);color:var(--gx-ink);cursor:pointer}
+.gx-avatar-option.is-selected,.gx-avatar-option:hover{border-color:var(--gx-gold)}
+.gx-avatar-option strong{font-size:13px;letter-spacing:1px}
+.gx-avatar-option small{font-size:9px;color:var(--gx-sub)}
+.gx-avatar-figure{display:flex;align-items:center;justify-content:center;position:relative;width:100%;min-height:206px;overflow:hidden;border-radius:9px;background:radial-gradient(circle at 50% 45%,#7d8589,#21242b)}
+.gx-avatar-figure:before{content:"";position:absolute;top:22px;width:58px;height:66px;border-radius:42% 42% 38% 38%;background:linear-gradient(135deg,#e9d5a5,#8a6b42);box-shadow:0 0 0 5px rgba(0,0,0,.16)}
+.gx-avatar-figure:after{content:"";position:absolute;bottom:-45px;width:150px;height:155px;border-radius:65px 65px 17px 17px;background:linear-gradient(135deg,#33383e,#101114)}
+.gx-avatar-figure i{position:absolute;z-index:2;top:65px;width:42px;height:8px;border-radius:99px;background:linear-gradient(90deg,#181c22,#ffe16d,#181c22)}
+.gx-avatar-figure-1{background:radial-gradient(circle at 50% 45%,#ddd1b4,#83775d)}
+.gx-avatar-figure-1:after{background:linear-gradient(135deg,#ddd7c7,#8c8f8e)}
+.gx-avatar-figure-2{background:radial-gradient(circle at 50% 45%,#f3c53a,#4d4533)}
+.gx-avatar-figure-2:after{background:linear-gradient(135deg,#35322a,#111213)}
+.gx-district{border:1px solid var(--gx-line);border-radius:21px;overflow:hidden;background:#17191e;color:#f4f1e8}
+.gx-district-sky{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-height:400px;padding:clamp(25px,5vw,70px);overflow:hidden;background:radial-gradient(circle at 68% 45%,rgba(255,212,71,.28),transparent 33%),radial-gradient(ellipse at 70% 95%,#45433b,#17191e 70%)}
+.gx-district-sky:before{content:"";position:absolute;inset:0;opacity:.18;background:repeating-linear-gradient(0deg,transparent 0 56px,#f4d67e 57px,transparent 58px),repeating-linear-gradient(90deg,transparent 0 70px,#f4d67e 71px,transparent 72px);transform:perspective(420px) rotateX(62deg) scale(1.45);transform-origin:50% 95%}
+.gx-district-sky>span{position:relative;z-index:2;color:#f8d86b;font-size:10px;letter-spacing:2px;font-weight:900}
+.gx-district-sky>strong{position:relative;z-index:2;font:900 clamp(45px,6.5vw,90px)/.95 'Archivo Black',sans-serif;letter-spacing:-2px;margin:18px 0}
+.gx-district-sky>p{position:relative;z-index:2;color:#e8e1c8;font-size:11px;letter-spacing:1.2px;font-weight:800}
+.gx-district-core{position:absolute;right:10%;top:20%;display:grid;place-items:center;width:clamp(120px,19vw,240px);aspect-ratio:1;border:1px solid rgba(255,224,116,.55);border-radius:50%;box-shadow:0 0 0 26px rgba(255,220,82,.05),0 0 0 51px rgba(255,220,82,.035);transform:rotate(-8deg)}
+.gx-district-core .gx-mark{width:73%;max-height:70%;object-fit:contain}
+.gx-district-portals{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:rgba(255,255,255,.1)}
+.gx-portal{display:flex;align-items:flex-start;flex-direction:column;gap:13px;min-height:155px;padding:19px;background:#23262c;transition:background .25s,transform .25s}
+.gx-portal:hover{background:#373932}
+.gx-portal small{font-size:10px;color:#ffdb73;letter-spacing:1px}
+.gx-portal strong{font-size:clamp(12px,1.5vw,17px);letter-spacing:.5px}
+.gx-portal>span{margin-top:auto;color:#ffdc6e}
+@media(max-width:900px){.gx-district-portals{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:640px){
+ .gx-avatar-grid{gap:7px}
+ .gx-avatar-option{min-height:190px;padding:9px 4px}
+ .gx-avatar-option strong{font-size:9px;letter-spacing:0}
+ .gx-avatar-option small{font-size:8px}
+ .gx-avatar-figure{min-height:120px}
+ .gx-avatar-figure:before{top:14px;width:34px;height:40px}
+ .gx-avatar-figure:after{bottom:-26px;width:86px;height:94px;border-radius:42px 42px 10px 10px}
+ .gx-avatar-figure i{top:39px;width:27px;height:5px}
+ .gx-district-sky{min-height:290px;padding:25px}
+ .gx-district-sky>strong{font-size:clamp(40px,12vw,68px)}
+ .gx-district-core{right:-10px;top:34%;width:110px;opacity:.5}
+ .gx-district-portals{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .gx-portal{min-height:115px;padding:14px}
+}
