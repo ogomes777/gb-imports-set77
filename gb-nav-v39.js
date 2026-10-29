@@ -71,7 +71,14 @@
      panelButton('Favoritos salvos','favorites',String(c.saved).padStart(2,'0'))+
      panelButton('Minha seleção','bag',String(c.bag).padStart(2,'0'))+
      panelButton('Montar look','studio','↗')+
-     panelButton('Explorar o shop','shop','↗');
+     panelButton('Explorar o shop','shop','↗')+
+     '<div class="gb-nav-panel-divider"></div>'+
+     panelButton('Painel Minha GB','dashboard','↗')+
+     panelButton('Pedidos e rastreio','orders','↗')+
+     panelButton('GB ACCESS / Clube','club','↗')+
+     panelButton('Ranking e recompensas','rewards','↗')+
+     panelButton('Comunidade','community','↗')+
+     panelButton('Ajuda e trocas','help','↗');
  };
  const themeState=()=>{
    const actual=document.body.dataset.gbTheme==='sinal'?'dark':'light';
@@ -109,6 +116,8 @@
    if(action){
      closePanels();
      const a=action.dataset.gbAction;
+     const suitePaths={dashboard:'/gb',orders:'/gb/pedidos',club:'/gb/club',rewards:'/gb/club/recompensas',community:'/gb/comunidade',help:'/gb/ajuda'};
+     if(suitePaths[a]){window.GBExperience?.go(suitePaths[a]);return}
      if(a==='favorites')$('#wishlistOpen')?.click();
      if(a==='bag')$('#bagOpen')?.click();
      if(a==='studio'||a==='shop'){
@@ -141,6 +150,12 @@
      panelButton('Minha seleção','bag','↗')+
      panelButton('Favoritos','favorites','♡')+
      panelButton('Look Studio','studio','↗')+
+     panelButton('Minha GB / Painel','dashboard','↗')+
+     panelButton('Pedidos e rastreio','orders','↗')+
+     panelButton('GB ACCESS / Clube','club','↗')+
+     panelButton('Ranking e recompensas','rewards','↗')+
+     panelButton('Comunidade','community','↗')+
+     panelButton('Ajuda e trocas','help','↗')+
      panelButton('Tema claro / escuro','theme','☼')+
      '<div class="gb-nav-settings-lang" aria-label="Idioma da GB">'+
      ['pt','en','es','it'].map(l=>'<button type="button" data-gb-lang="'+l+'">'+l.toUpperCase()+'</button>').join('')+'</div>'+
@@ -157,6 +172,8 @@
    if(a==='favorites')$('#wishlistOpen')?.click();
    if(a==='theme')$('#gbThemeToggle')?.click();
    if(a==='studio')document.getElementById('lookstudio')?.scrollIntoView({behavior:'smooth'});
+   const suitePaths={dashboard:'/gb',orders:'/gb/pedidos',club:'/gb/club',rewards:'/gb/club/recompensas',community:'/gb/comunidade',help:'/gb/ajuda'};
+   if(suitePaths[a])window.GBExperience?.go(suitePaths[a]);
  });
  window.GBNavV39={update:setAmbient,get ambient(){return header.dataset.ambient},get accountOpen(){return!account.hidden},get settingsOpen(){return!settings.hidden}};
 })();
