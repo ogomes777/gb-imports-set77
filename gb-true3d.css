@@ -1,7 +1,17 @@
 /* GB IMPORTS / V23 — canonical actor: one volumetric GB UNIT; legacy photo fallback only */
 .fit-scene .gb-volume{position:absolute;inset:0;z-index:4;visibility:hidden;opacity:0;pointer-events:none;transition:none}
 .look-stage.is-true-3d .gb-volume{visibility:visible;opacity:1;pointer-events:auto}
-.look-stage.is-true-3d .fit-figure{visibility:hidden;opacity:0!important;pointer-events:none!important}
+.look-stage.is-true-3d #gbFitFigure{
+  visibility:visible!important;
+  opacity:var(--gb-actor-front,1)!important;
+  pointer-events:none;
+  z-index:5;
+  transform:none;
+  transition:opacity .08s linear!important;
+}
+.look-stage.is-true-3d #gbFitFigure .look-dock{pointer-events:auto}
+.look-stage.is-true-3d .gb-volume-canvas{z-index:2}
+.look-stage.is-true-3d .gb-volume-top,.look-stage.is-true-3d .gb-volume-bottom{z-index:3}
 .look-stage.is-true-3d .fit-orbit-note,.look-stage.is-true-3d .fit-turn{display:none!important}
 .look-stage.is-true-3d .fit-plat{opacity:.68}
 .gb-volume-canvas{position:absolute;left:50%;bottom:7%;height:85%;max-width:100%;aspect-ratio:420/1000;translate:-50% 0;display:block;cursor:grab;touch-action:none}
