@@ -1,4 +1,4 @@
-name: GB Imports | Cinematic Glass Ribbon
+name: GB Imports | White Glass Cinematic Intro
 on:
   pull_request:
     branches: [main]
@@ -10,6 +10,7 @@ on:
       - 'tests/intro-v25.mjs'
       - 'tests/intro-v26.mjs'
       - 'tests/intro-perf-v27.mjs'
+      - 'tests/intro-v28.mjs'
       - '.github/workflows/gb-intro-v25.yml'
   workflow_dispatch:
 permissions:
@@ -36,3 +37,4 @@ jobs:
           node tests/intro-v25.mjs
           node tests/intro-v26.mjs
           node tests/intro-perf-v27.mjs
+          node tests/intro-v28.mjs
