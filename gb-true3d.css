@@ -1,5 +1,5 @@
 /* GB IMPORTS / V21 — volumetric 360°, independent from 2D outfit compositing */
-.fit-scene .gb-volume{position:absolute;inset:0;z-index:4;visibility:hidden;opacity:0;pointer-events:none;transition:opacity .26s ease,visibility .26s}
+.fit-scene .gb-volume{position:absolute;inset:0;z-index:4;visibility:hidden;opacity:0;pointer-events:none;transition:none}
 .look-stage.is-true-3d .gb-volume{visibility:visible;opacity:1;pointer-events:auto}
 .look-stage.is-true-3d .fit-figure{visibility:hidden;opacity:0!important;pointer-events:none!important}
 .look-stage.is-true-3d .fit-orbit-note,.look-stage.is-true-3d .fit-turn{display:none!important}
