@@ -41,19 +41,19 @@
   "rewrites": [
     {
       "source": "/gb",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/gb/:path*",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/gb-studio",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/gb-studio/:path*",
-      "destination": "/index.html"
+      "destination": "/"
     }
   ]
 }
