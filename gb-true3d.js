@@ -203,9 +203,9 @@ function mount(){
   }
   let previous=0;
   const label=surface.querySelector('.gb-volume-angle');
-  function renderNext(){if(active&&visible&&!frame&&!document.hidden)frame=requestAnimationFrame(draw)}
+  function renderNext(){if(active&&!frame&&!document.hidden)frame=requestAnimationFrame(draw)}
   function draw(now){
-    frame=0;if(!active||!visible||document.hidden)return;
+    frame=0;if(!active||document.hidden)return;
     const w=canvas.clientWidth,h=canvas.clientHeight,
       dpr=clamp(window.devicePixelRatio||1,1,innerWidth<780?1.25:1.7);
     if(!w||!h||!nVertices)return;
@@ -329,15 +329,12 @@ function mount(){
     if(e.key==='Home')rotateTo(0);else if(e.key==='End')rotateTo(180);
     else{target=rotation+(e.key==='ArrowLeft'?-1:1)*PI/12;velocity=0;renderNext()}
   },true);
-  const observer=typeof IntersectionObserver==='function'?
-    new IntersectionObserver(entries=>{visible=entries.some(e=>e.isIntersecting);if(visible)renderNext()}, {threshold:.02}):null;
-  observer?.observe(scene);
   const refresh=setInterval(()=>{if(!document.body.contains(scene)){clearInterval(refresh);close()}else if(active)outfit()},800);
   window.addEventListener('resize',()=>{dirty=true;renderNext()},{passive:true});
   document.addEventListener('visibilitychange',()=>{lastStamp=0;if(!document.hidden)renderNext()});
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();close();stage.classList.add('gb-volume-unsupported')});
   controller={open,close,rotateTo,turnFull,outfit,get active(){return active},
-    get angle(){return rotation},get vertices(){return nVertices},get rendered(){return canvas.width>0}};
+    get angle(){return rotation},get vertices(){return nVertices},get rendered(){return canvas.width>0},get pending(){return target-rotation}};
   window.GBTrue360=controller;
   installed=true;return true
 }
