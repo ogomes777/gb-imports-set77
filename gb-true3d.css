@@ -1,4 +1,4 @@
-/* GB IMPORTS / V21 — volumetric 360°, independent from 2D outfit compositing */
+/* GB IMPORTS / V23 — canonical actor: one volumetric GB UNIT; legacy photo fallback only */
 .fit-scene .gb-volume{position:absolute;inset:0;z-index:4;visibility:hidden;opacity:0;pointer-events:none;transition:none}
 .look-stage.is-true-3d .gb-volume{visibility:visible;opacity:1;pointer-events:auto}
 .look-stage.is-true-3d .fit-figure{visibility:hidden;opacity:0!important;pointer-events:none!important}
@@ -22,7 +22,7 @@
 .gb-volume-bottom small{font:800 8px/1.4 var(--font,system-ui);color:#e3dcc9;letter-spacing:1px}
 .fit-turnbar .gb-volume-open{order:9;width:auto;min-width:58px;height:34px;padding:0 9px;border:1px solid #ffd4479b;background:linear-gradient(140deg,#ffe17c,#eeb733);border-radius:50px;font:900 8px/1 var(--font,system-ui);letter-spacing:.5px;color:#181616;white-space:nowrap}
 .fit-turnbar .gb-volume-open:hover{background:#fff0a3;box-shadow:0 0 13px #ffd4475a}
-.look-stage.is-true-3d .fit-emotes{pointer-events:none;opacity:.35}
+.look-stage.is-true-3d .fit-emotes{pointer-events:auto;opacity:1}
 body[data-gb-theme="origem"] .gb-volume-views button{background:#fffef1ec;color:#302b1b}
 body[data-gb-theme="origem"] .gb-volume-bottom small{color:#373125;text-shadow:none}
 @media(max-width:780px){
@@ -40,3 +40,9 @@ body[data-gb-theme="origem"] .gb-volume-bottom small{color:#373125;text-shadow:n
  .fit-turnbar .gb-volume-open{min-width:50px;font-size:7px;padding:0 5px}
 }
 @media(prefers-reduced-motion:reduce){.fit-scene .gb-volume{transition:none}}
+
+/* User-facing canonical actor never presents a second robot or photo-mode button. */
+.look-stage.is-true-3d .gb-volume{z-index:4}
+.look-stage.is-true-3d .fit-emotes,.look-stage.is-true-3d .fit-turnbar{z-index:8}
+.look-stage.is-true-3d .fit-orbit-note{display:none!important}
+@media(max-width:780px){.gb-volume-top{top:64px}.gb-volume-views{top:57%}.gb-volume-bottom{bottom:18%}}
