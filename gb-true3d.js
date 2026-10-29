@@ -223,6 +223,12 @@ function mount(){
     const degrees=((Math.round(rotation*180/PI)%360)+360)%360;
     const name=degrees<35||degrees>325?'FRENTE':degrees>145&&degrees<215?'COSTAS':degrees<=145?'DIREITA':'ESQUERDA';
     label.textContent=String(degrees).padStart(3,'0')+'° · '+name;
+    const slider=scene.querySelector('.fit-dial');
+    if(slider&&dialPointer==null){
+      slider.setAttribute('aria-valuenow',String(Math.round(((degrees+180)%360)-180)));
+      slider.setAttribute('aria-valuetext',name);
+      slider.style.setProperty('--orbit-position',(((((degrees+180)%360)-180)/360+.5)*100).toFixed(1)+'%');
+    }
     if(drag!=null||Math.abs(target-rotation)>.001||Math.abs(velocity)>.003||dirty){
       dirty=false;renderNext()
     }else lastStamp=0
@@ -288,6 +294,34 @@ function mount(){
   scene.querySelector('.fit-turnbar')?.appendChild(activate);
   activate.addEventListener('click',()=>open());
   const dial=scene.querySelector('.fit-dial');
+  // Physical ORBIT track controls the entire 360° continuously. No CSS
+  // sprite yaw or 3-pose snap while in volumetric mode.
+  let dialPointer=null;
+  const moveDial=e=>{
+    const track=dial.querySelector('.fit-spin-track')||dial;
+    const r=track.getBoundingClientRect();if(!r.width)return;
+    const fraction=clamp((e.clientX-r.left)/r.width,0,1);
+    rotation=(fraction-.5)*TAU;target=rotation;velocity=0;dirty=true;renderNext();
+    dial.style.setProperty('--orbit-position',(fraction*100).toFixed(1)+'%');
+  };
+  dial?.addEventListener('pointerdown',e=>{
+    if(e.button!==0||stage.classList.contains('is-fit-compare'))return;
+    if(!open())return;
+    e.preventDefault();e.stopImmediatePropagation();dialPointer=e.pointerId;
+    try{dial.setPointerCapture(e.pointerId)}catch{}
+    moveDial(e)
+  },true);
+  dial?.addEventListener('pointermove',e=>{
+    if(dialPointer!==e.pointerId)return;
+    e.preventDefault();e.stopImmediatePropagation();moveDial(e)
+  },true);
+  const releaseDial=e=>{
+    if(dialPointer!==e.pointerId)return;
+    e.stopImmediatePropagation();dialPointer=null;renderNext()
+  };
+  dial?.addEventListener('pointerup',releaseDial,true);
+  dial?.addEventListener('pointercancel',releaseDial,true);
+  dial?.addEventListener('lostpointercapture',releaseDial,true);
   dial?.addEventListener('keydown',e=>{
     if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
     if(!open())return;
