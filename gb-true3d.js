@@ -133,7 +133,7 @@ void main(){
   else if(materialSlot>2.5)texel=texture2D(skinHead,UV);
   else if(materialSlot>1.5)texel=texture2D(clothBottom,UV);
   else if(materialSlot>.5)texel=texture2D(clothTop,UV);
-  float weight=materialSlot>4.5?texel.a:texel.a*smoothstep(.045,.22,faceZ);
+  float weight=(materialSlot>4.5||(materialSlot>2.5&&materialSlot<3.5))?texel.a:texel.a*smoothstep(.045,.22,faceZ);
   base=mix(base,texel.rgb,weight);
   gl_FragColor=vec4(clamp(base*shade+vec3(1.,.81,.33)*spec,0.,1.),1.);
 }`;
@@ -188,7 +188,35 @@ void main(){
         const size=innerWidth<780?512:768;
         const c=document.createElement('canvas');c.width=c.height=size;
         const cx=c.getContext('2d',{alpha:true});
-        cx.clearRect(0,0,size,size);cx.drawImage(img,0,0,size,size);
+        cx.clearRect(0,0,size,size);
+        if(slot===2){
+          // Generated helmet lateral/back UV from approved GB UNIT frontal material.
+          // Avoid mirrored eyes on rear; simulate black/gold armor engravings.
+          const metal=cx.createLinearGradient(0,0,size,0);
+          metal.addColorStop(0,'#141318');metal.addColorStop(.20,'#ae7821');
+          metal.addColorStop(.34,'#282124');metal.addColorStop(.50,'#d99b2b');
+          metal.addColorStop(.66,'#1c171a');metal.addColorStop(.81,'#cb8c22');
+          metal.addColorStop(1,'#141318');
+          cx.fillStyle=metal;cx.fillRect(0,0,size,size);
+          cx.lineCap='round';cx.lineJoin='round';
+          for(let band=0;band<2;band++){
+            const bx=band?size*.78:size*.16;
+            cx.strokeStyle=band?'#0b0c12':'#efbc45';
+            cx.lineWidth=size*.027;
+            cx.beginPath();cx.moveTo(bx-size*.08,size*.08);
+            cx.bezierCurveTo(bx+size*.13,size*.26,bx-size*.13,size*.36,bx+size*.03,size*.54);
+            cx.bezierCurveTo(bx+size*.19,size*.69,bx-size*.14,size*.79,bx+size*.07,size*.96);
+            cx.stroke();
+            cx.strokeStyle='#0f1018';cx.lineWidth=size*.012;
+            cx.beginPath();cx.moveTo(bx+size*.035,size*.04);
+            cx.bezierCurveTo(bx-size*.16,size*.23,bx+size*.12,size*.43,bx-size*.035,size*.65);
+            cx.stroke();
+          }
+          cx.drawImage(img,0,0,img.width,img.height,size*.33,0,size*.34,size);
+          cx.strokeStyle='#f4bb3a';cx.lineWidth=size*.010;
+          cx.beginPath();cx.moveTo(size*.015,0);cx.lineTo(size*.015,size);cx.stroke();
+          cx.beginPath();cx.moveTo(size*.985,0);cx.lineTo(size*.985,size);cx.stroke();
+        }else cx.drawImage(img,0,0,size,size);
         gl.activeTexture(gl.TEXTURE0+slot);gl.bindTexture(gl.TEXTURE_2D,textures[slot]);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
         gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,c);
@@ -212,7 +240,7 @@ void main(){
   function texUV(p){
     if(texPart===1)return [clamp(.5+p[0]/1.12,0,1),clamp((p[1]-1.42)/1.16,0,1)];
     if(texPart===2)return [clamp(.5+p[0],0,1),clamp((p[1]-.17)/1.33,0,1)];
-    if(texPart===3)return [clamp(.5+p[0]/.48,0,1),clamp((p[1]-2.65)/.53,0,1)];
+    if(texPart===3)return [clamp(.5+Math.atan2(p[0],p[2])/TAU,0,1),clamp((p[1]-2.65)/.53,0,1)];
     if(texPart===4)return [clamp(.5+(p[0]-(p[0]<0?-.254:.254))/.44,0,1),clamp((p[2]+.20)/.65,0,1)];
     if(texPart===5)return [clamp(.5+p[0]/.15,0,1),clamp((p[1]-3.017)/.091,0,1)];
     return[0,0];
