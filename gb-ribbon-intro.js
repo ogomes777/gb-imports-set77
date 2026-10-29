@@ -10,14 +10,15 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 const mobile=()=>innerWidth<=780;
 const host=document.getElementById('gbRibbonBoot');
 if(!host)return;
-host.classList.remove('is-boot');
+
 // Play on every direct landing load; deep links bypass the cinematic cover.
 const enterAtTop=!reduced.matches&&(!location.hash||location.hash==='#inicio');
 if(enterAtTop)document.body.appendChild(host);
 else {stage.prepend(host);host.classList.remove('is-opening');}
 const canvas=host.querySelector('canvas');
 const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});
-if(!ctx){host.remove();return}
+if(!ctx)return;
+host.classList.remove('is-boot');
 const logo=host.querySelector('.gb-ribbon-original');
 const signature=host.querySelector('.gb-ribbon-signature');
 const bloom=host.querySelector('.gb-ribbon-bloom');
@@ -160,29 +161,29 @@ function draw(now){
  const n=compact?(quality>=2?18:quality===1?26:36):(quality>=2?36:quality===1?54:72);
  const steps=compact?(quality>=2?26:32):(quality>=2?32:quality===1?40:50);
  const faint=settled?.58:1;
- ctx.save();ctx.globalCompositeOperation='screen';
+ ctx.save();ctx.globalCompositeOperation='source-over';
  // A restrained broad spectral body. Hairlines are crisp and not blurred individually.
  for(let g=0;g<(quality>=2?1:2);g++){ 
   const path=new Path2D();trace(path,g?-.22:.25,t,40);
   ctx.lineWidth=height*(g?.12:.25);
-  ctx.strokeStyle=g?'rgba(222,177,68,.057)':'rgba(242,199,95,.035)';
+  ctx.strokeStyle=g?'rgba(164,124,62,.075)':'rgba(196,167,105,.055)';
   ctx.stroke(path);
  }
  ctx.restore();
- ctx.save();ctx.globalCompositeOperation='lighter';
+ ctx.save();ctx.globalCompositeOperation='source-over';
  for(let i=0;i<n;i++){
   const v=-1+2*i/(n-1),abs=Math.abs(v);
   const path=new Path2D();trace(path,v,t,steps);
   const bright=Math.exp(-abs*abs*1.9);
   const gold=i%6<3;
-  const alpha=clamp((gold?.24:.38)+bright*.30+pointer.tap*.12,0,.93)*faint;
-  ctx.strokeStyle=gold?'rgba(242,194,76,'+alpha+')':'rgba(255,248,206,'+alpha+')';
+  const alpha=clamp((gold?.36:.24)+bright*.40+pointer.tap*.08,0,.92)*faint;
+  ctx.strokeStyle=gold?'rgba(145,99,32,'+alpha+')':'rgba(58,62,60,'+alpha+')';
   ctx.lineWidth=compact?.47:.58;
   ctx.lineCap='round';ctx.lineJoin='round';
   ctx.stroke(path);
  }
  const core=new Path2D();trace(core,0,t,62);
- ctx.strokeStyle='rgba(255,253,236,'+(.49*faint)+')';
+ ctx.strokeStyle='rgba(181,130,47,'+(.58*faint)+')';
  ctx.lineWidth=compact?.86:1.1;ctx.stroke(core);
  ctx.restore();
  if(intro&&(now-lastLogoPaint>28||frames<2)){updateLogo(now);lastLogoPaint=now}
@@ -195,7 +196,7 @@ function start(){
  measure();
  if(reduced.matches){logo.style.clipPath='none';host.classList.remove('is-opening');host.classList.add('is-settled');return}
  request();
- if(intro)settleTimeout=setTimeout(settle,7200);
+ if(intro)settleTimeout=setTimeout(settle,7600);
 }
 start();
 window.GBGlassRibbons=Object.freeze({
@@ -217,7 +218,7 @@ window.GBGlassRibbons=Object.freeze({
   document.body.append(host);
   host.classList.add('is-opening','is-visible');
   document.documentElement.classList.add('gb-ribbon-intro-playing');
-  clearTimeout(settleTimeout);settleTimeout=setTimeout(settle,7200);
+  clearTimeout(settleTimeout);settleTimeout=setTimeout(settle,7600);
   measure();request();
  }
 });
