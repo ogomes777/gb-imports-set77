@@ -8,25 +8,13 @@ const stage=document.getElementById('heroStage');
 if(!stage||window.GBGlassRibbons)return;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 const mobile=()=>innerWidth<=780;
-const host=document.createElement('div');
-host.className='gb-ribbon-layer';
-host.setAttribute('aria-hidden','true');
-host.innerHTML=
- '<div class="gb-ribbon-glass"><i class="gb-ribbon-glass-depth"></i><i class="gb-ribbon-glass-specular"></i><i class="gb-ribbon-glass-grain"></i></div>'+
- '<canvas class="gb-ribbon-canvas"></canvas>'+
- '<div class="gb-ribbon-signature">'+
- '<i class="gb-ribbon-logo-atmosphere"></i>'+
- '<span class="gb-ribbon-logo-plate"><img class="gb-ribbon-original" src="./assets/brand/gb-monograma-amarelo-preto.svg" width="1000" height="610" alt="" decoding="async"/></span>'+
- '<span class="gb-ribbon-scan"></span>'+
- '<span class="gb-ribbon-label">GB IMPORTS</span>'+
- '<span class="gb-ribbon-subline">THE GB EDIT</span>'+
- '</div>'+
- '<div class="gb-ribbon-bloom"></div>'+
- '<div class="gb-ribbon-scene-number">GB / 001</div>'+
- '<div class="gb-ribbon-scene-foot">CURATED MOTION <span>•</span> GB IMPORTS</div>';
-const enterAtTop=scrollY<70&&!reduced.matches;
+const host=document.getElementById('gbRibbonBoot');
+if(!host)return;
+host.classList.remove('is-boot');
+// Play on every direct landing load; deep links bypass the cinematic cover.
+const enterAtTop=!reduced.matches&&(!location.hash||location.hash==='#inicio');
 if(enterAtTop)document.body.appendChild(host);
-else stage.prepend(host);
+else {stage.prepend(host);host.classList.remove('is-opening');}
 const canvas=host.querySelector('canvas');
 const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});
 if(!ctx){host.remove();return}
@@ -39,7 +27,8 @@ let width=1,height=1,pixelRatio=1,raf=0,last=0,t=0,frames=0,paintAvg=0,paintMax=
 // Frame-time feedback keeps the same visual language while lowering detail on weak GPUs.
 let quality=0,rollingGap=16,lastQualityChange=0,lastLogoPaint=0,throttledFrames=0;
 const pointer={x:.5,y:.5,targetX:.5,targetY:.5,force:0,tap:0};
-const duration=2750;
+// The film now holds its mark, then opens two glass doors into the existing hero.
+const duration=5450;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,k)=>a+(b-a)*k;
 const ease=k=>k*k*(3-2*k);
@@ -109,7 +98,7 @@ function trace(path,v,phase,samples){
 }
 function updateLogo(now){
  if(settled||!intro)return;
- const progress=clamp((now-firstFrame-510)/1350,0,1);
+ const progress=clamp((now-firstFrame-1000)/2150,0,1);
  const reveal=ease(progress);
  const boundary=115-132*reveal;
  // Non-flat, ribbon-shaped masking boundary reveals the actual original SVG.
@@ -127,16 +116,18 @@ function updateLogo(now){
 function settle(){
  if(settled)return;
  settled=true;intro=false;
- host.classList.remove('is-opening');
- host.classList.add('is-seating');
+ host.classList.remove('is-opening','is-preparing-entry');
+ host.classList.add('is-gateway');
  document.documentElement.classList.remove('gb-ribbon-intro-playing');
  logo.style.clipPath='none';
  clearTimeout(settleTimeout);
+ // The page is revealed through a moving central aperture; not a hard cut.
  settleTimeout=setTimeout(()=>{
-  stage.prepend(host);host.classList.remove('is-seating');
+  stage.prepend(host);
+  host.classList.remove('is-gateway');
   host.classList.add('is-settled');
   measure();last=0;request();
- },370);
+ },1080);
 }
 function draw(now){
  raf=0;if(!alive())return;
@@ -156,6 +147,7 @@ function draw(now){
  last=now;if(!firstFrame)firstFrame=now;
  // Preserve cinematic movement speed when rAF drops frames instead of going into slow motion.
  t+=dt;
+ if(intro&&now-firstFrame>4050)host.classList.add('is-preparing-entry');
  if(intro&&now-firstFrame>duration)settle();
  const k=1-Math.exp(-dt*5.5);
  pointer.x=lerp(pointer.x,pointer.targetX,k);
@@ -203,7 +195,7 @@ function start(){
  measure();
  if(reduced.matches){logo.style.clipPath='none';host.classList.remove('is-opening');host.classList.add('is-settled');return}
  request();
- if(intro)settleTimeout=setTimeout(settle,4100);
+ if(intro)settleTimeout=setTimeout(settle,7200);
 }
 start();
 window.GBGlassRibbons=Object.freeze({
@@ -221,11 +213,11 @@ window.GBGlassRibbons=Object.freeze({
   intro=true;settled=false;firstFrame=0;last=0;lastLogoPaint=0;
   signature.style.removeProperty('--gb-emerge');
   logo.style.clipPath='polygon(0% 110%,100% 110%,100% 110%,0% 110%)';
-  host.classList.remove('is-settled','is-seating');
+  host.classList.remove('is-settled','is-gateway','is-preparing-entry');
   document.body.append(host);
   host.classList.add('is-opening','is-visible');
   document.documentElement.classList.add('gb-ribbon-intro-playing');
-  clearTimeout(settleTimeout);settleTimeout=setTimeout(settle,4100);
+  clearTimeout(settleTimeout);settleTimeout=setTimeout(settle,7200);
   measure();request();
  }
 });
