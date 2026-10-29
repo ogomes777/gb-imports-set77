@@ -37,13 +37,15 @@ for(const cfg of [{w:1440,h:900},{w:390,h:844}]){
   assert(await page.locator('#gbLanguageMenu').isHidden(),'escape should close the language menu');
   await page.screenshot({path:'v39-desktop-navbar.png'});
  }else{
+  assert(await page.locator('#gbSettingsOpen').count()===0,'mobile duplicate preferences remain');
+  await page.locator('#gbLanguageTrigger').click();
+  assert(await page.locator('#gbLanguageMenu').isVisible(),'mobile premium language menu missing');
+  await page.locator('#gbLanguageMenu [data-gb-locale="es"]').click();
+  assert(await page.locator('#gbLanguage').inputValue()==='es','mobile locale not connected');
+  assert(await page.locator('#gbLanguageTrigger .gb-language-current').innerText()==='ES','mobile premium locale not synced');
   await page.locator('#menuOpen').click();
   assert(await page.locator('#navDrawer').isVisible(),'mobile menu missing');
   assert(await page.locator('#navDrawer [data-gb-action="search"]').count()===1,'mobile action missing');
-  assert(await page.locator('#gbSettingsOpen').count()===0,'mobile duplicate preferences remain');
-  await page.locator('#navDrawer [data-gb-lang="es"]').click();
-  assert(await page.locator('#gbLanguage').inputValue()==='es','mobile locale not connected');
-  assert(await page.locator('#gbLanguageTrigger .gb-language-current').innerText()==='ES','mobile premium locale not synced');
   await page.locator('#navDrawer [data-gb-action="search"]').click();
   assert(await page.locator('#searchDrawer').isVisible(),'mobile route to search missing');
  }
