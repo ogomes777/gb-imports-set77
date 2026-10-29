@@ -569,7 +569,7 @@ void main(){
   // The approved GB UNIT has ONE main representation. WebGL 3D is the default.
   // The legacy photographic compositor is retained only for unsupported GPU
   // and split A/B comparison, never as a second user-facing character.
-  const autoActivate=()=>{if(!active&&!stage.classList.contains('is-fit-compare'))open()};
+  const autoActivate=()=>{if(window.__GB_E2E_FORCE_LEGACY)return;if(!active&&!stage.classList.contains('is-fit-compare'))open()};
   if('IntersectionObserver'in window){
     new IntersectionObserver(entries=>{
       visible=entries.some(e=>e.isIntersecting);
