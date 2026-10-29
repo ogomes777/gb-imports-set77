@@ -21,7 +21,7 @@ const productImage=p=>{
 };
 const gbMark='<img class="gx-mark" src="/assets/brand/gb-monograma-amarelo-preto.svg" alt="">';
 const A=(path,label,cls='')=>'<a class="'+cls+'" href="'+E(path)+'" data-gx-link>'+label+'</a>';
-const B=(label,attr='',cls='')=>'<button type="button" class="'+cls+'" '+attr+'>'+label+'</button>';
+const B=(label,attr='',cls='')=>'<button '+(attr.includes('type="submit"')?'':'type="button"')+' class="'+cls+'" '+attr+'>'+label+'</button>';
 const stat=(num,name,sub)=>'<div class="gx-stat"><strong>'+E(num)+'</strong><span>'+name+'</span><small>'+sub+'</small></div>';
 const notice='<div class="gx-demo"><span class="gx-demo-led"></span><strong>EXPERIÊNCIA DEMONSTRATIVA</strong><span>Estrutura visual antes do backend. Nenhuma ação gera pagamento, pedido, XP ou conta real.</span></div>';
 const metadata={
