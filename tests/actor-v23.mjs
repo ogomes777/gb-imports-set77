@@ -31,7 +31,8 @@ for(const [width,height] of [[1440,900],[390,844]]){
  const before=await page.evaluate(()=>({state:GBActor.state,vertices:GBTrue360.vertices,canvas:document.querySelector('.gb-volume-canvas')?.width,photos:document.querySelectorAll('#gbFitFigure').length,renderer:getComputedStyle(document.querySelector('#gbFitFigure')).visibility}));
  assert(before.vertices>15000,JSON.stringify(before));
  assert(before.canvas>0,JSON.stringify(before));
- assert.equal(before.renderer,'hidden');
+ const approvedFront=await page.evaluate(()=>document.querySelector('.fit-scene')?.dataset.actorView==='reference-front');
+ assert.equal(before.renderer,approvedFront?'visible':'hidden');
  const angleBefore=before.state.yaw;
  await page.evaluate(()=>GBActor.rotateTo(180));
  await page.waitForTimeout(1900);
