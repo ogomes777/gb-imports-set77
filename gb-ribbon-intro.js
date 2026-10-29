@@ -1,5 +1,5 @@
 /* GB IMPORTS / SET77 LABS — GLASS RIBBON CINEMATIC V26
- * Original canvas rendering. One loop: fullscreen reveal -> existing hero.
+ * Original Canvas2D film only. GPU work ends permanently after the hero opens.
  * No React Bits Pro source copied or implied; Pro requires a licensed registry.
  */
 (()=>{
@@ -14,7 +14,7 @@ if(!host)return;
 // Play on every direct landing load; deep links bypass the cinematic cover.
 const enterAtTop=!reduced.matches&&(!new URLSearchParams(location.search).has('peca'))&&(!location.hash||location.hash==='#inicio');
 if(enterAtTop)document.body.appendChild(host);
-else {stage.prepend(host);host.classList.remove('is-opening');}
+else {host.classList.remove('is-opening');}
 const canvas=host.querySelector('canvas');
 const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});
 if(!ctx)return;
@@ -68,7 +68,7 @@ let quality=constrained?2:1,rollingGap=16,lastQualityChange=0,lastLogoPaint=0,th
 let sweepHead=1.085,sweepX=1.0,signatureProgress=0;
 const pointer={x:.5,y:.5,targetX:.5,targetY:.5,force:0,tap:0};
 // The film now holds its mark, then opens two glass doors into the existing hero.
-const duration=5450;
+const duration=4950;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,k)=>a+(b-a)*k;
 const ease=k=>k*k*(3-2*k);
@@ -83,15 +83,11 @@ function measure(){
  if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
  ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);
 }
-function isVisible(){
- if(intro)return true;
- const r=stage.getBoundingClientRect();
- return r.bottom>0&&r.top<innerHeight+100;
-}
-function alive(){return!reduced.matches&&!document.hidden&&visibility&&isVisible()}
+function isVisible(){return intro&&host.isConnected}
+function alive(){return intro&&!settled&&!reduced.matches&&!document.hidden&&visibility&&isVisible()}
 function request(){if(alive()&&!raf)raf=requestAnimationFrame(draw)}
 function track(e){
- if(!intro&&!isVisible())return;
+ if(!intro||settled||!host.isConnected)return;
  const r=host.getBoundingClientRect();
  if(!r.width||!r.height)return;
  pointer.targetX=clamp((e.clientX-r.left)/r.width,0,1);
@@ -101,15 +97,30 @@ function track(e){
 }
 function trackTouch(e){if(e.touches?.[0])track(e.touches[0])}
 function touch(e){track(e);pointer.tap=1;pointer.force=1;request()}
-window.addEventListener('pointermove',track,{passive:true});
-window.addEventListener('pointerdown',touch,{passive:true});
-window.addEventListener('touchmove',trackTouch,{passive:true});
-window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{measure();request()},110)},{passive:true});
-window.addEventListener('scroll',request,{passive:true});
-document.addEventListener('visibilitychange',()=>{last=0;request()},{passive:true});
-if('IntersectionObserver'in window){
- new IntersectionObserver(es=>{visibility=intro||!!es[0]?.isIntersecting;request()},{rootMargin:'200px'}).observe(stage);
+// Attach pointer listeners only while the fullscreen cinematic film exists.
+let linked=false;
+const onResize=()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(intro){measure();request()}},110)};
+const onVisibility=()=>{last=0;request()};
+function connect(){
+ if(linked)return;
+ linked=true;
+ window.addEventListener('pointermove',track,{passive:true});
+ window.addEventListener('pointerdown',touch,{passive:true});
+ window.addEventListener('touchmove',trackTouch,{passive:true});
+ window.addEventListener('resize',onResize,{passive:true});
+ document.addEventListener('visibilitychange',onVisibility,{passive:true});
 }
+function disconnect(){
+ if(!linked)return;
+ linked=false;
+ window.removeEventListener('pointermove',track);
+ window.removeEventListener('pointerdown',touch);
+ window.removeEventListener('touchmove',trackTouch);
+ window.removeEventListener('resize',onResize);
+ document.removeEventListener('visibilitychange',onVisibility);
+ clearTimeout(resizeTimer);
+}
+if(intro&&!reduced.matches)connect();
 // V31 | Fluid ribbon: one spring-damped spline and hundreds of hairline lights.
 // Cache curve normals once per frame; strands no longer recompute a spline
 // three times per sample. The result is more organic and cheaper to draw.
@@ -232,15 +243,18 @@ function settle(){
  clearTimeout(settleTimeout);
  // The page is revealed through a moving central aperture; not a hard cut.
  settleTimeout=setTimeout(()=>{
-  stage.prepend(host);
+  // Intro-only: no yellow ribbon behind the products, no background GPU loop.
+  cancelAnimationFrame(raf);raf=0;
+  disconnect();
+  host.remove();
+  canvas.width=0;canvas.height=0;
   host.classList.remove('is-gateway');
-  host.classList.add('is-settled');
-  measure();last=0;request();
+  host.classList.add('is-finished');
  },1080);
 }
 function draw(now){
  raf=0;if(!alive())return;
- const budget=mobile()?30:16;
+ const budget=mobile()?25:16;
  if(last&&now-last<budget){request();return}
  const started=performance.now();
  const elapsed=last?now-last:16;
@@ -267,9 +281,9 @@ function draw(now){
  sweepHead=intro?1.085-travel*1.105:0;
  sweepX=1-travel;
  host.style.setProperty('--gb-sweep',travel.toFixed(4));
- if(intro&&now-firstFrame>4050){
+ if(intro&&now-firstFrame>3650){
   host.classList.add('is-preparing-entry');
-  if(now-firstFrame>4500)window.GB_BOOT_CORE?.();
+  if(now-firstFrame>3950)window.GB_BOOT_CORE?.();
  }
  if(intro&&now-firstFrame>duration)settle();
  const k=1-Math.exp(-dt*3.9);
@@ -344,14 +358,18 @@ function draw(now){
  frames++;request();
 }
 function start(){
- measure();
- if(reduced.matches){logo.style.clipPath='none';host.classList.remove('is-opening');host.classList.add('is-settled');return}
- request();
- if(intro)settleTimeout=setTimeout(settle,11800);
+ if(!intro||reduced.matches){
+  // Deep product links and reduced-motion users have zero intro canvas cost.
+  host.remove();canvas.width=0;canvas.height=0;
+  return;
+ }
+ measure();request();
+ settleTimeout=setTimeout(settle,11800);
 }
 start();
 window.GBGlassRibbons=Object.freeze({
  get active(){return!!raf},get frames(){return frames},
+ get removed(){return!host.isConnected},
  get opening(){return intro},get settled(){return settled},
  get canvasSize(){return[canvas.width,canvas.height]},
  get pointer(){return[pointer.x,pointer.y]},
@@ -371,12 +389,12 @@ window.GBGlassRibbons=Object.freeze({
   sweepHead=1.085;signatureProgress=0;
   if(strokeOutline)strokeOutline.style.strokeDashoffset=String(strokeLength);
   if(strokeGlint)strokeGlint.style.strokeDashoffset=String(strokeLength);
-  host.classList.remove('is-settled','is-gateway','is-preparing-entry');
+  host.classList.remove('is-finished','is-settled','is-gateway','is-preparing-entry');
   document.body.append(host);
   host.classList.add('is-opening','is-visible');
   document.documentElement.classList.add('gb-ribbon-intro-playing');
   clearTimeout(settleTimeout);settleTimeout=setTimeout(settle,11800);
-  measure();request();
+  connect();measure();request();
  }
 });
 })();

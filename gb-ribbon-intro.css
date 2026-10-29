@@ -242,3 +242,7 @@ html.gb-ribbon-intro-playing body > :not(#gbRibbonBoot):not(script) {
   visibility:visible !important;
  }
 }
+
+/* V34: the cinematic is never a hero decoration. Once doors open, retire it. */
+#gbRibbonBoot.is-finished{display:none!important;content-visibility:hidden!important;pointer-events:none!important}
+#heroStage > #gbRibbonBoot{display:none!important}
