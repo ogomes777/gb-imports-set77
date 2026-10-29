@@ -33,12 +33,17 @@ try{
   assert(await page.locator('#gbExperience').isVisible(),'GB hub not visible');
   assert(await page.locator('body').evaluate(el=>el.classList.contains('gb-experience-open')),'hub not activated');
   assert(await page.locator('.gx-card-grid .gx-tile').count()>=6,'hub modules missing');
-  const matrix=['/gb','/gb/entrar','/gb/cadastro','/gb/perfil','/gb/identidade','/gb/pedidos','/gb/pedido','/gb/rastreio','/gb/favoritos','/gb/sacola','/gb/checkout','/gb/comparar','/gb/medidas','/gb/alertas','/gb/colecoes','/gb/drops','/gb/marcas','/gb/busca','/gb/club','/gb/club/armario','/gb/club/recompensas','/gb/club/ranking','/gb/club/amigos','/gb/comunidade','/gb/comunidade/publicar','/gb/ajuda','/gb/trocas','/gb/privacidade','/gb/acessibilidade','/gb/configuracoes','/gb-studio','/gb-studio/pedidos','/gb-studio/produtos','/gb-studio/clientes','/gb-studio/comunidade','/gb-studio/beneficios','/gb-studio/financeiro','/gb-studio/newsletter'];
+  const matrix=['/gb','/gb/entrar','/gb/cadastro','/gb/perfil','/gb/identidade','/gb/pedidos','/gb/pedido','/gb/rastreio','/gb/favoritos','/gb/sacola','/gb/checkout','/gb/comparar','/gb/medidas','/gb/alertas','/gb/colecoes','/gb/drops','/gb/marcas','/gb/busca','/gb/club','/gb/club/avatar','/gb/club/distrito','/gb/club/conquistas','/gb/club/temporada','/gb/club/armario','/gb/club/recompensas','/gb/club/ranking','/gb/club/amigos','/gb/comunidade','/gb/comunidade/publicar','/gb/ajuda','/gb/trocas','/gb/privacidade','/gb/acessibilidade','/gb/configuracoes','/gb-studio','/gb-studio/pedidos','/gb-studio/produtos','/gb-studio/clientes','/gb-studio/comunidade','/gb-studio/beneficios','/gb-studio/financeiro','/gb-studio/newsletter'];
   const found=await page.evaluate(routes=>routes.map(r=>{window.GBExperience.go(r);return{route:r,ok:window.GBExperience.path===r,title:!!document.querySelector('.gx-heading h1')?.textContent,visible:!document.getElementById('gbExperience').hidden}}),matrix);
   assert(found.every(x=>x.ok&&x.title&&x.visible),'missing routed UI '+JSON.stringify(found.filter(x=>!x.ok||!x.title||!x.visible)));
   await page.goto(url+'/gb/club/recompensas',{waitUntil:'domcontentloaded',timeout:35000});
   await page.waitForFunction(()=>window.GB_CORE_READY===true&&window.GBExperience?.path==='/gb/club/recompensas',{timeout:35000});
   assert(await page.locator('.gx-levels>div').count()===7,'7 level visual system missing');
+  await page.evaluate(()=>window.GBExperience.go('/gb/club/avatar'));
+  await page.locator('[data-gx-avatar="GB WAVE"]').click();
+  assert((await page.evaluate(()=>localStorage.getItem('gb-v40-preview'))).includes('GB WAVE'),'avatar base not saved');
+  await page.evaluate(()=>window.GBExperience.go('/gb/club/distrito'));
+  assert(await page.locator('.gx-district-portals .gx-portal').count()===5,'district portals missing');
   await page.evaluate(()=>window.GBExperience.go('/gb/identidade'));
   await page.locator('#gxHandle').fill('test_visual_gb');
   await page.locator('[data-gx-handle] button[type=submit]').click();
