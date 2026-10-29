@@ -71,30 +71,38 @@ document.addEventListener('visibilitychange',()=>{last=0;request()},{passive:tru
 if('IntersectionObserver'in window){
  new IntersectionObserver(es=>{visibility=intro||!!es[0]?.isIntersecting;request()},{rootMargin:'200px'}).observe(stage);
 }
-// Centerline is a smooth S-fold, not a straight sloping stripe.
-// The same shape is shared by the gold threads and their soft ambient reflection.
-function center(u,phase){
- const bend= .93 - .89/(1+Math.exp(-8*(u-.29)));
- const returnFold=.27*Math.exp(-Math.pow((u-.76)/.135,2));
- const upperPull=-.16/(1+Math.exp(-14*(u-.88)));
- return bend+returnFold+upperPull+Math.sin(u*11.8-phase*.68)*.017;
+// Match the recorded reference's concentrated luminous S-curve.
+// The path comes from below the lower-left corner, flattens through the middle,
+// twists into an upper-right ascent. It is ONE continuous bundle of filaments.
+const logistic=x=>1/(1+Math.exp(-x));
+function spine(u,phase){
+ const x=width*(-.145+1.29*u);
+ const a=logistic((u-.18)*23);
+ const b=logistic((u-.72)*21);
+ const breathing=Math.sin(u*7.7+phase*.48)*.018+Math.sin(u*15.2-phase*.22)*.006;
+ const drift=Math.sin(phase*.19)*.016;
+ const y=height*(1.175-.625*a-.77*b+breathing+drift);
+ return [x,y];
 }
 function strand(u,v,phase){
- const x=(-.14+u*1.3)*width;
- const centerY=center(u,phase)*height;
- const twist=u*13.4+phase*.59;
- const pinch=.34+.63*(.5+.5*Math.sin(u*6.9+phase*.14));
- const spread=(mobile()?.095:.14)*height*pinch;
- const pulse=Math.cos(twist)*v*spread;
- const ripple=Math.sin(u*25+phase*.9+v*2.4)*Math.abs(v)*height*.0035;
- const magnet=Math.exp(-Math.pow((u-pointer.x)*3.2,2))*pointer.force*(pointer.y-.5)*height*.06;
- return [x,centerY+pulse+ripple+magnet];
+ // Offsets are measured across the *normal* of the S-curve: no flat fan.
+ const e=.002;
+ const p=spine(u,phase),prev=spine(Math.max(0,u-e),phase),next=spine(Math.min(1,u+e),phase);
+ const dx=next[0]-prev[0],dy=next[1]-prev[1],inv=1/Math.max(1,Math.hypot(dx,dy));
+ const nx=-dy*inv,ny=dx*inv;
+ // Twisting and pinching make multiple light-threads cross without a rigid strip.
+ const twist=Math.sin(u*10.6-phase*.63+v*.23);
+ const separation=.28+.72*Math.pow(Math.abs(twist),.78);
+ const spread=Math.min(width,height)*(mobile()?.038:.049)*separation;
+ const cross=v*spread+v*v*spread*.17*Math.cos(u*14.5+phase*.49);
+ const shimmer=Math.sin(u*29.4+phase*.65+v*1.6)*Math.abs(v)*height*.0013;
+ const magnet=Math.exp(-Math.pow((u-(pointer.x+.145)/1.29)*4.0,2))*pointer.force*(pointer.y-.5)*height*.048;
+ return [p[0]+nx*(cross+shimmer)+ny*magnet*.14,p[1]+ny*(cross+shimmer)+magnet];
 }
 function trace(path,v,phase,samples){
  for(let i=0;i<=samples;i++){
-  const u=i/samples;
-  const p=strand(u,v,phase);
-  if(!i)path.moveTo(p[0],p[1]);else path.lineTo(p[0],p[1]);
+  const q=strand(i/samples,v,phase);
+  if(!i)path.moveTo(q[0],q[1]);else path.lineTo(q[0],q[1]);
  }
 }
 function updateLogo(now){
@@ -158,33 +166,50 @@ function draw(now){
  ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);
  ctx.clearRect(0,0,width,height);
  const compact=mobile();
- const n=compact?(quality>=2?18:quality===1?26:36):(quality>=2?36:quality===1?54:72);
- const steps=compact?(quality>=2?26:32):(quality>=2?32:quality===1?40:50);
- const faint=settled?.58:1;
- ctx.save();ctx.globalCompositeOperation='source-over';
- // A restrained broad spectral body. Hairlines are crisp and not blurred individually.
- for(let g=0;g<(quality>=2?1:2);g++){ 
-  const path=new Path2D();trace(path,g?-.22:.25,t,40);
-  ctx.lineWidth=height*(g?.12:.25);
-  ctx.strokeStyle=g?'rgba(164,124,62,.075)':'rgba(196,167,105,.055)';
-  ctx.stroke(path);
- }
+ const n=compact?(quality>=2?17:quality===1?24:34):(quality>=2?28:quality===1?38:54);
+ const steps=compact?(quality>=2?28:40):(quality>=2?38:52);
+ const faint=settled?.59:1;
+ const minDim=Math.min(width,height);
+ // Ambient golden light. Three broad strokes only; shadows on every thin
+ // filament would burn mobile GPU resources.
+ ctx.save();
+ ctx.lineJoin='round';ctx.lineCap='round';
+ const centre=new Path2D();
+ trace(centre,0,t,44);
+ ctx.shadowColor='rgba(207,143,28,.68)';
+ ctx.shadowBlur=quality>=2?10:compact?19:32;
+ ctx.strokeStyle='rgba(88,61,32,'+(.20*faint)+')';
+ ctx.lineWidth=minDim*.16;
+ ctx.stroke(centre);
+ ctx.shadowBlur=0;
+ ctx.strokeStyle='rgba(216,147,27,'+(.25*faint)+')';
+ ctx.lineWidth=minDim*.095;ctx.stroke(centre);
+ ctx.strokeStyle='rgba(250,200,52,'+(.47*faint)+')';
+ ctx.lineWidth=minDim*.041;ctx.stroke(centre);
  ctx.restore();
- ctx.save();ctx.globalCompositeOperation='source-over';
+ // Layer 1: grouped fine gold wires, not a grey S-shaped sheet.
+ ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
  for(let i=0;i<n;i++){
-  const v=-1+2*i/(n-1),abs=Math.abs(v);
-  const path=new Path2D();trace(path,v,t,steps);
-  const bright=Math.exp(-abs*abs*1.9);
-  const gold=i%6<3;
-  const alpha=clamp((gold?.36:.24)+bright*.40+pointer.tap*.08,0,.92)*faint;
-  ctx.strokeStyle=gold?'rgba(145,99,32,'+alpha+')':'rgba(58,62,60,'+alpha+')';
-  ctx.lineWidth=compact?.47:.58;
-  ctx.lineCap='round';ctx.lineJoin='round';
-  ctx.stroke(path);
+  const v=-1+2*i/(n-1);
+  const p=new Path2D();trace(p,v,t,steps);
+  const core=Math.exp(-v*v*2.2);
+  const deep=(i%7===0);
+  const light=(i%5===1||i%5===2);
+  const opacity=(.48+.49*core)*(1+pointer.tap*.13)*faint;
+  ctx.strokeStyle=deep?'rgba(110,64,10,'+(.75*opacity)+')':
+    light?'rgba(250,184,31,'+Math.min(.98,1.06*opacity)+')':
+    'rgba(161,91,6,'+Math.min(.97,.92*opacity)+')';
+  ctx.lineWidth=(compact?.55:.70)+core*.33;
+  ctx.stroke(p);
  }
- const core=new Path2D();trace(core,0,t,62);
- ctx.strokeStyle='rgba(181,130,47,'+(.58*faint)+')';
- ctx.lineWidth=compact?.86:1.1;ctx.stroke(core);
+ // Layer 2: the almost-white cores glow against their warm-gold underlay.
+ for(let i=0;i<Math.max(5,Math.floor(n/6));i++){
+  const v=(i/(Math.max(5,Math.floor(n/6))-1)-.5)*.83;
+  const p=new Path2D();trace(p,v,t,steps);
+  ctx.strokeStyle='rgba(255,246,177,'+(.82*faint)+')';
+  ctx.lineWidth=compact?.85:1.12;
+  ctx.stroke(p);
+ }
  ctx.restore();
  if(intro&&(now-lastLogoPaint>28||frames<2)){updateLogo(now);lastLogoPaint=now}
  const cost=performance.now()-started;
