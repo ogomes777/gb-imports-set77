@@ -314,6 +314,10 @@ function mount(){
   scene.querySelector('.fit-turnbar')?.appendChild(activate);
   activate.addEventListener('click',()=>open());
   const dial=scene.querySelector('.fit-dial');
+  // Keep the slider's accessible range consistent with 360° instead of
+  // the old ±45° 2D sprite limit.
+  dial?.setAttribute('aria-valuemin','-180');
+  dial?.setAttribute('aria-valuemax','180');
   // Physical ORBIT track controls the entire 360° continuously. No CSS
   // sprite yaw or 3-pose snap while in volumetric mode.
   let dialPointer=null;
