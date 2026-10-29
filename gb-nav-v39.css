@@ -102,3 +102,38 @@ html body #searchDrawer.gb-search-experience[hidden]{display:none!important}
 #navDrawer .gb-nav-mobile-tools .gb-nav-panel-item{margin:2px 0;padding:10px 12px;border-radius:11px;font-size:11px;min-height:41px}
 #navDrawer .gb-nav-mobile-tools .gb-nav-settings-lang{margin-top:7px}
 #navDrawer .gb-nav-mobile-tools .gb-nav-sub{font-size:10px;line-height:1.5;padding:7px 5px 0}
+
+/* V39.1 / monogram-only compact lockup.
+   The official yellow GB remains; IMPORTS is shown only in the expanded island.
+   Preserve the accessible brand label and prevent clipping at 320px. */
+html body .site-header.gb-island .brand{
+  min-width:104px;
+  transition:min-width .45s cubic-bezier(.22,1,.36,1),gap .45s cubic-bezier(.22,1,.36,1);
+}
+html body .site-header.gb-island .brand-lockup{
+  max-width:78px;min-width:0;overflow:hidden;white-space:nowrap;
+  opacity:1;transform:translateX(0);
+  transition:max-width .42s cubic-bezier(.22,1,.36,1),opacity .22s ease,transform .42s cubic-bezier(.22,1,.36,1);
+}
+html body .site-header.gb-island .brand-symbol-v05 img{
+  transition:width .42s cubic-bezier(.22,1,.36,1);
+}
+html body .site-header.gb-island.is-compact .brand{min-width:40px;gap:0}
+html body .site-header.gb-island.is-compact .brand-lockup{
+  max-width:0;opacity:0;transform:translateX(-7px);pointer-events:none;
+}
+html body .site-header.gb-island.is-compact .brand-symbol-v05 img{width:37px}
+@media(max-width:900px){
+  html body .site-header.gb-island .brand{min-width:83px}
+  html body .site-header.gb-island.is-compact .brand{min-width:34px;gap:0}
+  html body .site-header.gb-island.is-compact .brand-symbol-v05 img{width:32px}
+}
+@media(max-width:380px){
+  html body .site-header.gb-island .brand{min-width:35px}
+  html body .site-header.gb-island .brand-lockup{display:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+  html body .site-header.gb-island .brand,
+  html body .site-header.gb-island .brand-lockup,
+  html body .site-header.gb-island .brand-symbol-v05 img{transition:none!important}
+}
