@@ -1,4 +1,4 @@
-name: GB Imports | White Glass Cinematic Intro
+name: GB Imports | Instant Cinema Staged Boot
 on:
   pull_request:
     branches: [main]
@@ -14,6 +14,9 @@ on:
       - 'tests/intro-signature-v30.mjs'
       - 'tests/intro-fluid-v31.mjs'
       - 'tests/intro-vector-v32.mjs'
+      - 'tests/intro-staged-v33.mjs'
+      - 'scripts/build.mjs'
+      - 'tests/e2e.mjs'
       - '.github/workflows/gb-intro-v25.yml'
   workflow_dispatch:
 permissions:
@@ -44,3 +47,4 @@ jobs:
           node tests/intro-signature-v30.mjs
           node tests/intro-fluid-v31.mjs
           node tests/intro-vector-v32.mjs
+          node tests/intro-staged-v33.mjs

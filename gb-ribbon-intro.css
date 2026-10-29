@@ -231,3 +231,14 @@
 @media(prefers-reduced-motion:reduce){
  #gbRibbonBoot .gb-ribbon-ink{display:none!important}
 }
+
+/* V33: prevent rendering/layout compositing behind the fullscreen film.
+   Visibility preserves bounding boxes for store boot while skipping painting. */
+html.gb-ribbon-intro-playing body > :not(#gbRibbonBoot):not(script) {
+ visibility:hidden !important;
+}
+@media(prefers-reduced-motion:reduce){
+ html.gb-ribbon-intro-playing body > :not(#gbRibbonBoot):not(script) {
+  visibility:visible !important;
+ }
+}

@@ -139,7 +139,12 @@ async function run(w,h,reduced=false){
     else errors.push(message);
   }});
   page.on('requestfailed',r=>{const url=r.url();if(optionalCDN(url))optionalFailures.push(url);else if(!url.includes('fonts.g'))errors.push('requestfailed '+url+' '+(r.failure()?.errorText||''))});
-  await page.goto(BASE,{waitUntil:'networkidle'});await page.waitForTimeout(400);
+  const navigate=async(url)=>{
+    await page.goto(url,{waitUntil:'domcontentloaded'});
+    await page.waitForFunction(()=>!window.GB_BOOT_CORE||window.GB_CORE_READY||window.GB_CORE_FAILED,null,{timeout:25000});
+    await page.waitForLoadState('networkidle',{timeout:6000}).catch(()=>{});
+  };
+  await navigate(BASE);await page.waitForTimeout(400);
   if(errors.length){console.error('GB BOOT ERRORS',errors.slice(0,15));throw Error('Page JavaScript failed to initialize: '+errors.slice(0,5).join(' | '))}
   // Mede contra a largura pedida: em modo mobile o Chrome alarga o viewport de layout se algo vaza.
   const overflow=async()=>page.evaluate(w=>Math.max(document.documentElement.scrollWidth,innerWidth)-w,w);
@@ -341,10 +346,10 @@ async function run(w,h,reduced=false){
   // o provador (V16) baixa as fotos reais do look inicial; navegar antes abortaria essas imagens
   await page.evaluate(()=>window.GBFitting?.ready?.()).catch(()=>{});
   // Deep link + voltar
-  await page.goto(BASE+'?peca=gb-sh-02',{waitUntil:'networkidle'});
+  await navigate(BASE+'?peca=gb-sh-02');
   check(vp,'deep link abre peça',(await page.locator('#productModal h2').textContent()).includes('MANCHESTER CITY'));
   // ===== V07 =====
-  await page.goto(BASE,{waitUntil:'networkidle'});await page.waitForTimeout(500);
+  await navigate(BASE);await page.waitForTimeout(500);
   // a entrada do hero (V06) e a abertura em blocos (V12) terminam antes de interagir com o anel
   await page.waitForFunction(()=>!document.body.classList.contains('gb-intro')&&!document.querySelector('.gb-intro'),null,{timeout:6000}).catch(()=>{});
   // Hero: trio persistente, periférica vira protagonista, protagonista abre a peça
