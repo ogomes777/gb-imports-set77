@@ -587,6 +587,38 @@ async function run(w,h,reduced=false){
       shortStable:GBFitting?.RIG?.floor===948};
   });
   check(vp,'fit V21: controles originais, mão em V e barra curta',v21.icons===5&&v21.poses===3&&v21.peace&&v21.ankle===886&&v21.shortStable,JSON.stringify(v21));
+
+  // V22 volumétrico: dança, giro, atenção ao cursor e fallback 2D.
+  if(!reduced&&(w===1440||w===390)){
+    const volume=await page.evaluate(async()=>{
+      const wait=t=>new Promise(r=>setTimeout(r,t)),api=window.GBTrue360;
+      if(!api)return{supported:false,fallback:document.querySelector('#lookstudio .look-stage')?.classList.contains('gb-volume-unsupported')};
+      const started=api.open();
+      if(!started)return{supported:false,fallback:true};
+      await wait(200);
+      const vertices=api.vertices,canvas=document.querySelector('.gb-volume-canvas');
+      const play=document.querySelector('.gb-volume-dance');
+      play.click();await wait(170);
+      const moving=api.dancing&&play.getAttribute('aria-pressed')==='true';
+      const rect=canvas.getBoundingClientRect();
+      canvas.dispatchEvent(new PointerEvent('pointermove',{
+        bubbles:true,clientX:rect.right-2,clientY:rect.top+rect.height*.28,pointerId:42,pointerType:'mouse'
+      }));
+      await wait(250);
+      const gaze=api.gaze,track=Array.isArray(gaze)&&gaze[0]>.18;
+      play.click();const stopped=!api.dancing;
+      api.rotateTo(180);await wait(1700);
+      const back=Math.abs((((api.angle*180/Math.PI)%360)+360)%360-180)<3;
+      api.close();
+      return{supported:true,started,vertices,moving,track,stopped,back,
+        reset:!api.active,photo:!!document.getElementById('gbFitFigure')};
+    });
+    check(vp,'GB volume V22: 3D articulado, dança, atenção ao cursor e giro traseiro',
+      volume.supported?
+        volume.started&&volume.vertices>15000&&volume.moving&&volume.track&&volume.stopped&&volume.back&&volume.reset&&volume.photo:
+        volume.fallback===true,JSON.stringify(volume));
+  }
+
    // V22: controle ORBIT 1:1. Arrasto no slider NÃO deve ser interceptado pelo drag do palco.
    if(!reduced&&!mobile){
      const dial=page.locator('#lookstudio .fit-dial'),r=await dial.boundingBox(),track=await page.locator('.fit-spin-track').boundingBox();
