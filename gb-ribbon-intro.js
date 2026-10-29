@@ -36,6 +36,8 @@ const bloom=host.querySelector('.gb-ribbon-bloom');
 const scan=host.querySelector('.gb-ribbon-scan');
 let intro=enterAtTop,settled=!enterAtTop,visibility=true;
 let width=1,height=1,pixelRatio=1,raf=0,last=0,t=0,frames=0,paintAvg=0,paintMax=0,firstFrame=0,resizeTimer=0,settleTimeout=0;
+// Frame-time feedback keeps the same visual language while lowering detail on weak GPUs.
+let quality=0,rollingGap=16,lastQualityChange=0,lastLogoPaint=0,throttledFrames=0;
 const pointer={x:.5,y:.5,targetX:.5,targetY:.5,force:0,tap:0};
 const duration=2750;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -47,7 +49,7 @@ window.GB_GLASS_RIBBON_INTRO=true;
 function measure(){
  const r=host.getBoundingClientRect();
  width=Math.max(1,Math.round(r.width));height=Math.max(1,Math.round(r.height));
- pixelRatio=Math.min(devicePixelRatio||1,mobile()?1.2:1.5);
+ pixelRatio=Math.min(devicePixelRatio||1,quality>=2?1:mobile()?1.2:1.35);
  const w=Math.round(width*pixelRatio),h=Math.round(height*pixelRatio);
  if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
  ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);
@@ -140,8 +142,19 @@ function draw(now){
  raf=0;if(!alive())return;
  const budget=mobile()?30:16;
  if(last&&now-last<budget){request();return}
- const started=performance.now(),dt=last?Math.min((now-last)/1000,.07):.016;
+ const started=performance.now();
+ const elapsed=last?now-last:16;
+ const dt=Math.min(elapsed/1000,.20);
+ // Frame pacing is a browser/hardware budget, not a fixed artificial animation speed.
+ // Quality adapts slowly, so a single camera-recording spike doesn't cause flicker.
+ if(frames>8)rollingGap=rollingGap*.91+Math.min(elapsed,250)*.09;
+ if(frames>18 && now-lastQualityChange>2000){
+   const next=rollingGap>70?Math.min(2,quality+1):rollingGap>37?Math.max(quality,1):rollingGap<26?Math.max(0,quality-1):quality;
+   if(next!==quality){quality=next;measure()}
+   lastQualityChange=now;
+ }
  last=now;if(!firstFrame)firstFrame=now;
+ // Preserve cinematic movement speed when rAF drops frames instead of going into slow motion.
  t+=dt;
  if(intro&&now-firstFrame>duration)settle();
  const k=1-Math.exp(-dt*5.5);
@@ -151,11 +164,13 @@ function draw(now){
  pointer.tap*=Math.exp(-dt*3.2);
  ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);
  ctx.clearRect(0,0,width,height);
- const compact=mobile(),n=compact?38:84,steps=compact?34:56;
+ const compact=mobile();
+ const n=compact?(quality>=2?18:quality===1?26:36):(quality>=2?36:quality===1?54:72);
+ const steps=compact?(quality>=2?26:32):(quality>=2?32:quality===1?40:50);
  const faint=settled?.58:1;
  ctx.save();ctx.globalCompositeOperation='screen';
  // A restrained broad spectral body. Hairlines are crisp and not blurred individually.
- for(let g=0;g<2;g++){
+ for(let g=0;g<(quality>=2?1:2);g++){ 
   const path=new Path2D();trace(path,g?-.22:.25,t,40);
   ctx.lineWidth=height*(g?.12:.25);
   ctx.strokeStyle=g?'rgba(222,177,68,.057)':'rgba(242,199,95,.035)';
@@ -178,7 +193,7 @@ function draw(now){
  ctx.strokeStyle='rgba(255,253,236,'+(.49*faint)+')';
  ctx.lineWidth=compact?.86:1.1;ctx.stroke(core);
  ctx.restore();
- if(intro)updateLogo(now);
+ if(intro&&(now-lastLogoPaint>28||frames<2)){updateLogo(now);lastLogoPaint=now}
  const cost=performance.now()-started;
  paintAvg=frames?paintAvg*.93+cost*.07:cost;
  paintMax=Math.max(paintMax,cost);
@@ -197,12 +212,13 @@ window.GBGlassRibbons=Object.freeze({
  get canvasSize(){return[canvas.width,canvas.height]},
  get pointer(){return[pointer.x,pointer.y]},
  get paintMs(){return[paintAvg,paintMax]},
+ get quality(){return quality},get frameGapMs(){return +rollingGap.toFixed(1)},
  get fullGlass(){return getComputedStyle(host.querySelector('.gb-ribbon-glass')).inset==='0px'},
  get logoAsset(){return logo.getAttribute('src')},
  finish:settle,
  replay(){
   if(reduced.matches)return;
-  intro=true;settled=false;firstFrame=0;last=0;
+  intro=true;settled=false;firstFrame=0;last=0;lastLogoPaint=0;
   signature.style.removeProperty('--gb-emerge');
   logo.style.clipPath='polygon(0% 110%,100% 110%,100% 110%,0% 110%)';
   host.classList.remove('is-settled','is-seating');
