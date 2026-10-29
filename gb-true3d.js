@@ -57,9 +57,10 @@ void main(){
   }
   if((bone>1.5&&bone<3.5)||(bone>7.5&&bone<11.5)){
     float side=(bone<2.5||(bone>7.5&&bone<8.5)||(bone>9.5&&bone<10.5))?-1.0:1.0;
-    float crossMove=pow(max(0.0,sin(t+0.35)),2.0);
-    float upperRot=side*(0.11*d+0.20*crossMove*d)+0.10*sin(t*2.0+side)*d;
-    float flex=0.22*d+1.06*crossMove*d;
+    float crossMove=pow(max(0.0,sin(t+(side<0.0?.2:1.58))),2.0);
+    float intensity=side<0.0?1.0:.67;
+    float upperRot=-side*(.12+1.25*crossMove*intensity)*d+.07*sin(t*2.0+side)*d;
+    float flex=(.20+1.25*crossMove*intensity)*d;
     if(bone>7.5){
       vec3 wristPivot=vec3(side*.54,1.25,.02);
       if(bone>9.5){
@@ -72,7 +73,7 @@ void main(){
       p=elbow+rz(rx(p-elbow,.12*d*sin(t*2.0)),bend);
       n=rz(rx(n,.12*d*sin(t*2.0)),bend);
     }
-    if(gesture>0.5&&gesture<2.5)upperRot+=side*.60*sin(gesturePhase*3.14159);
+    if(gesture>0.5&&gesture<2.5&&side>0.0)upperRot-=1.16*sin(gesturePhase*3.14159);
     vec3 shoulder=vec3(side*.412,2.30,0.0);
     float armX=.13*d*sin(t*3.0+side);
     p=shoulder+rz(rx(p-shoulder,armX),upperRot);
@@ -176,6 +177,9 @@ void main(){
   function uploadTexture(slot,url){
     if(textureSources[slot]===url)return;
     textureSources[slot]=url;
+    gl.activeTexture(gl.TEXTURE0+slot);gl.bindTexture(gl.TEXTURE_2D,textures[slot]);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array(4));
+    if(!url){dirty=true;renderNext();return}
     const expected=url;
     const img=new Image();img.decoding='async';
     img.onload=()=>{
@@ -473,6 +477,7 @@ void main(){
     }else lastStamp=0
   }
   function open(){
+    if(stage.classList.contains('gb-volume-unsupported'))return false;
     if(active)return true;
     if(stage.classList.contains('is-fit-compare'))return false;
     if(window.GBFitting.emoting)window.GBFitting.emote(window.GBFitting.emoting);
