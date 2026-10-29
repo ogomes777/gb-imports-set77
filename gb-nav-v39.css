@@ -148,3 +148,103 @@ html body .site-header.gb-island .gb-nav-popover{
 html body .site-header.gb-island .gb-nav-popover .gb-nav-panel-item{
   min-height:42px;
 }
+
+/* GB V41 / Premium locale. One real translation control, no duplicate settings. */
+html body .site-header.gb-island .gb-language-control{
+  position:relative;isolation:isolate;display:flex;align-items:center;margin-right:3px;
+}
+html body .site-header.gb-island .gb-language-control .gb-language-native{
+  position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;
+  padding:0!important;border:0!important;opacity:0!important;pointer-events:none!important;
+  clip-path:inset(50%)!important;overflow:hidden!important;
+}
+html body .site-header.gb-island .gb-language-trigger{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  width:55px;min-width:55px;height:34px;padding:0 9px;
+  border-radius:12px;border:1px solid var(--nav-line);
+  background:color-mix(in srgb,var(--nav-ink) 7%,transparent);
+  color:var(--nav-ink);cursor:pointer;
+  font:800 10px/1 Arial,sans-serif;letter-spacing:.7px;
+  transition:background .25s ease,border-color .25s ease,box-shadow .25s ease,transform .25s ease;
+}
+html body .site-header.gb-island .gb-language-trigger:hover,
+html body .site-header.gb-island .gb-language-trigger[aria-expanded="true"]{
+  border-color:color-mix(in srgb,var(--nav-accent) 66%,var(--nav-line));
+  background:color-mix(in srgb,var(--nav-accent) 15%,transparent);
+}
+html body .site-header.gb-island .gb-language-trigger:focus-visible,
+html body .site-header.gb-island .gb-language-option:focus-visible{
+  outline:2px solid #f6ca50;outline-offset:3px;
+}
+html body .site-header.gb-island .gb-language-chevron{
+  width:11px;height:11px;flex:0 0 11px;opacity:.78;
+  transition:transform .22s cubic-bezier(.2,1,.3,1);
+}
+html body .site-header.gb-island .gb-language-trigger[aria-expanded="true"] .gb-language-chevron{transform:rotate(180deg)}
+html body .site-header.gb-island .gb-language-menu{
+  position:absolute;right:0;top:calc(100% + 14px);z-index:125;
+  width:min(244px,calc(100vw - 30px));padding:10px;
+  background:linear-gradient(140deg,rgba(56,58,63,.42),transparent 55%),rgba(20,21,25,.97);
+  color:#f8f7f2;border:1px solid rgba(255,255,255,.18);border-radius:18px;
+  box-shadow:0 25px 65px rgba(0,0,0,.27),0 8px 16px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.09);
+  backdrop-filter:blur(22px) saturate(1.25);-webkit-backdrop-filter:blur(22px) saturate(1.25);
+  transform-origin:90% 0;animation:gb-language-appear .23s cubic-bezier(.22,1,.36,1) both;
+}
+html body .site-header.gb-island .gb-language-menu[hidden]{display:none!important}
+html body .site-header.gb-island .gb-language-menu::before{
+  content:'';position:absolute;left:20px;right:20px;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(249,202,76,.6),transparent);pointer-events:none;
+}
+html body .site-header.gb-island .gb-language-menu-heading{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  margin:3px 6px 10px;padding:5px 1px 10px;border-bottom:1px solid rgba(255,255,255,.11);
+  font:850 9px/1 Arial,sans-serif;letter-spacing:1.5px;
+}
+html body .site-header.gb-island .gb-language-menu-heading span:last-child{
+  color:#e2b83a;font-size:8px;letter-spacing:1.25px;
+}
+html body .site-header.gb-island .gb-language-option{
+  position:relative;display:flex;align-items:center;gap:13px;width:100%;min-height:48px;
+  margin:2px 0;padding:7px 10px;text-align:left;border-radius:11px;
+  border:1px solid transparent;background:transparent;color:#e7e6e1;
+  cursor:pointer;transition:background .2s,border-color .2s,transform .2s;
+}
+html body .site-header.gb-island .gb-language-option:hover,
+html body .site-header.gb-island .gb-language-option:focus-visible{
+  background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.1);
+}
+html body .site-header.gb-island .gb-language-option[aria-checked="true"]{
+  color:#fff;background:linear-gradient(100deg,rgba(248,205,82,.19),rgba(248,205,82,.04));
+  border-color:rgba(245,201,68,.25);
+}
+html body .site-header.gb-island .gb-language-code{
+  flex:0 0 40px;height:30px;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.055);
+  border-radius:8px;color:#bdbbb7;font:850 10px/1 Arial,sans-serif;letter-spacing:1.1px;
+}
+html body .site-header.gb-island .gb-language-option[aria-checked="true"] .gb-language-code{
+  border-color:rgba(240,199,64,.65);background:#f3c945;color:#1b1a18;
+}
+html body .site-header.gb-island .gb-language-name{
+  flex:1;min-width:0;font:650 12px/1.3 Arial,sans-serif;letter-spacing:.1px;
+}
+html body .site-header.gb-island .gb-language-check{font:850 14px/1 Arial,sans-serif;color:#f3c945;opacity:0;transform:scale(.7);transition:opacity .2s,transform .2s}
+html body .site-header.gb-island .gb-language-option[aria-checked="true"] .gb-language-check{opacity:1;transform:scale(1)}
+html body .site-header.gb-island .gb-language-menu-footer{
+  display:flex;align-items:center;justify-content:space-between;margin:10px 5px 2px;padding:12px 2px 3px;
+  border-top:1px solid rgba(255,255,255,.1);font:800 8px/1 Arial,sans-serif;
+  color:#88898d;letter-spacing:1.5px;
+}
+html body .site-header.gb-island .gb-language-menu-footer span{color:#c4a853}
+@keyframes gb-language-appear{from{opacity:0;transform:translate3d(0,-7px,0) scale(.975)}to{opacity:1;transform:none}}
+@media(max-width:510px){
+  html body .site-header.gb-island .gb-language-trigger{width:49px;min-width:49px;height:32px;gap:5px;padding:0 6px;border-radius:10px}
+  html body .site-header.gb-island .gb-language-menu{right:-7px;top:calc(100% + 13px)}
+}
+@media(prefers-reduced-motion:reduce){
+  html body .site-header.gb-island .gb-language-menu{animation:none!important}
+  html body .site-header.gb-island .gb-language-trigger,
+  html body .site-header.gb-island .gb-language-chevron,
+  html body .site-header.gb-island .gb-language-option,
+  html body .site-header.gb-island .gb-language-check{transition:none!important}
+}
