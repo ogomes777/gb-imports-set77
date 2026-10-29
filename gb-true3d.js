@@ -463,6 +463,13 @@ void main(){
     gl.uniform1f(gestureUniform,gesture);
     gl.uniform1f(gesturePhaseUniform,gphase);
     gl.drawArrays(gl.TRIANGLES,0,nVertices);
+    // Keep the approved V19 photographic rig as the canonical frontal surface.
+    // A single actor state drives both front projection and volumetric side/back.
+    const frontDeviation=Math.acos(clamp(Math.cos(rotation),-1,1));
+    const frontT=clamp((frontDeviation-.12)/.61,0,1);
+    const frontFidelity=1-frontT*frontT*(3-2*frontT);
+    scene.style.setProperty('--gb-actor-front',frontFidelity.toFixed(4));
+    scene.dataset.actorView=frontFidelity>.999?'reference-front':frontFidelity<.001?'volumetric':'transition';
     const degrees=((Math.round(rotation*180/PI)%360)+360)%360;
     const name=degrees<35||degrees>325?'FRENTE':degrees>145&&degrees<215?'COSTAS':degrees<=145?'DIREITA':'ESQUERDA';
     label.textContent=String(degrees).padStart(3,'0')+'° · '+name;
@@ -485,11 +492,13 @@ void main(){
     if(window.GBFitting.emoting)window.GBFitting.emote(window.GBFitting.emoting);
     active=true;rotation=0;target=0;velocity=0;lastStamp=0;tweenStart=0;clearTimeout(settleTimer);dirty=true;
     setDancing(false);wantX=wantY=lookX=lookY=0;blinkLater();lastRender=0;
+    scene.style.setProperty('--gb-actor-front','1');
     stage.classList.add('is-true-3d');surface.setAttribute('aria-hidden','false');
     outfit(true);renderNext();return true
   }
   function close(){
     active=false;stage.classList.remove('is-true-3d');surface.setAttribute('aria-hidden','true');
+    scene.style.removeProperty('--gb-actor-front');delete scene.dataset.actorView;
     cancelAnimationFrame(frame);clearTimeout(settleTimer);clearTimeout(blinkTimer);
     dancing=false;gesture=0;blinkStart=0;wantX=wantY=lookX=lookY=0;
     frame=0;lastStamp=0;tweenStart=0;drag=null;surface.classList.remove('is-dragging')
@@ -554,6 +563,12 @@ void main(){
   canvas.addEventListener('pointerdown',begin);
   canvas.addEventListener('pointermove',move);
   canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
+  // Turn the original front surface through the same 3D actor, without breaking
+  // garment drop zones or adding a second selectable character.
+  scene.addEventListener('pointerdown',e=>{
+    if(!active||!original.contains(e.target)||e.target.closest?.('.look-dock'))return;
+    begin(e)
+  },true);
   // Pointer gesture starts directly on the original sprite. Continue receiving
   // its movement from the original scene, with no 2D spin competing.
   scene.addEventListener('pointerdown',e=>{
@@ -639,6 +654,7 @@ void main(){
     get angle(){return rotation},get vertices(){return nVertices},get rendered(){return canvas.width>0},
     get pending(){return target-rotation},get dancing(){return dancing},get gaze(){return [lookX,lookY]},
     get breathing(){return active&&!reduced()},get isPrimary(){return active},
+    get frontFidelity(){return parseFloat(scene.style.getPropertyValue('--gb-actor-front'))||0},
     gesture:playGesture,setDancing};
   window.GBTrue360=controller;
   window.GBActor=Object.freeze({
