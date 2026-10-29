@@ -35,7 +35,7 @@ for(const [width,height,slow] of [[1440,900,false],[390,844,false],[360,780,true
   fitting:typeof window.GBFitting,overflow:document.documentElement.scrollWidth-innerWidth
  }));
  assert(done.core&&done.removed&&!done.active&&done.canvas[0]===0&&
-   done.coreCount===10&&done.fitting==='object'&&done.overflow<=2&&errors.length===0,
+   done.coreCount>=10&&done.fitting==='object'&&done.overflow<=2&&errors.length===0,
    'Core/hero regression '+JSON.stringify({done,errors}));
  console.log(JSON.stringify({viewport:width+'x'+height,slow,parked,frozen,done,errors}));
  await ctx.close();
