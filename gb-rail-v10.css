@@ -126,3 +126,10 @@
   .gb-tag-cord,.gb-tag-card,.r10-caption{transition:none!important}
 }
 .gb-object-tabs[hidden]{display:none!important}
+
+/* ---------- V11 / bug da borda direita: a peça entra em cena só com a foto da roupa pronta ----------
+   Antes, gancho (SVG) e sombra (imagem leve) pintavam antes da foto chegar: na borda por onde as peças
+   entram aparecia uma silhueta cinza "duplicada" e cabides vazios. Agora a figura inteira espera a foto. */
+.r10-item .hg{transition:opacity .26s ease}
+.r10-item:not(.is-ready) .hg{opacity:0}
+@media(prefers-reduced-motion:reduce){.r10-item .hg{transition:none}}

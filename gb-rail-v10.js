@@ -209,16 +209,25 @@ function buildRail(){
 function renderCard(i,html){
   const it=S.list[i],card=cards[i];if(!card)return null;const fig=figure(it,currentVariant(it),'combo');
   card.el.dataset.mode=fig.mode;card.minX=fig.minX;card.maxX=fig.maxX;if(i===target)computeGaps();card.el.style.setProperty('--minx',f4(fig.minX)+'em');card.el.style.setProperty('--maxx',f4(fig.maxX)+'em');card.el.style.setProperty('--maxy',f4(fig.maxY)+'em');
-  if(html!==false){card.turn.innerHTML=fig.html;card.fig=null;card.hydrated=true}
+  if(html!==false){card.turn.innerHTML=fig.html;card.fig=null;card.hydrated=true;arm(card)}
   return fig;
 }
+// a peça só aparece com a foto da roupa decodificada: antes disso, nem gancho nem sombra (sem "cópia" cinza
+// da silhueta nem cabide vazio entrando pela borda enquanto a foto chega — V11, bug da borda direita)
+function arm(card){
+  const imgs=qa('.hg:not(.is-leaving) .hg-fig img',card.el),ok=i=>i.getAttribute('src')&&i.complete&&i.naturalWidth>0;
+  const check=()=>{const on=imgs.length>0&&imgs.every(ok);card.el.classList.toggle('is-ready',on);return on};
+  if(check())return;
+  imgs.forEach(i=>{if(!ok(i))i.addEventListener('load',()=>{if(card.el.contains(i))check()},{once:true})});
+}
 function hydrate(force){
-  const c=Math.round(pos.x),R=G.m?3:6;if(!force&&c===lastWin)return;lastWin=c;
+  // a janela de carga vai além da janela visível (layout mostra até R+.8): a foto chega antes da peça entrar em cena
+  const c=Math.round(pos.x),R=G.m?4.5:8;if(!force&&c===lastWin)return;lastWin=c;
   cards.forEach((card,i)=>{
     const a=Math.abs(i-pos.x);
-    if(a<=R&&!card.hydrated){card.hydrated=true;qa('img[data-src]',card.el).forEach(img=>{img.src=img.dataset.src;img.removeAttribute('data-src')})}
+    if(a<=R&&!card.hydrated){card.hydrated=true;qa('img[data-src]',card.el).forEach(img=>{img.src=img.dataset.src;img.removeAttribute('data-src')});arm(card)}
     // longe do foco libera a memória decodificada; nunca aborta uma imagem que ainda está chegando
-    else if(a>R+5&&card.hydrated){const imgs=qa('img[src]',card.el);if(imgs.every(img=>img.complete)){card.hydrated=false;imgs.forEach(img=>{img.dataset.src=img.getAttribute('src');img.removeAttribute('src')})}}
+    else if(a>R+5&&card.hydrated){const imgs=qa('img[src]',card.el);if(imgs.every(img=>img.complete)){card.hydrated=false;card.el.classList.remove('is-ready');imgs.forEach(img=>{img.dataset.src=img.getAttribute('src');img.removeAttribute('src')})}}
   });
 }
 function layout(){
@@ -307,7 +316,7 @@ async function chooseVariant(it,i,scope){
   const ri=S.list.indexOf(it),card=cards[ri];
   // a ficha responde na hora; a roupa troca quando a foto nova estiver decodificada
   if(railTags&&ri===target)swingTags(railTags,i);
-  if(card){const ok=await swapFigure(card.turn,figure(it,v,'combo').html,{dir});if(!ok){variantSel.set(it.id,prev);if(railTags&&ri===target)swingTags(railTags,prev);return}renderCard(ri,false);card.fig=null;card.hydrated=true;swing.v+=dir*(reduced()?0:22);kick()}
+  if(card){const ok=await swapFigure(card.turn,figure(it,v,'combo').html,{dir});if(!ok){variantSel.set(it.id,prev);if(railTags&&ri===target)swingTags(railTags,prev);return}renderCard(ri,false);card.fig=null;card.hydrated=true;card.el.classList.add('is-ready');swing.v+=dir*(reduced()?0:22);kick()}
   if(ri===target)updateCaptionOnly(it);
   if(S.open&&S.current===it){await drawViewer({dir,variantOnly:true});}
   announce.textContent=`${it.title}: cor ${v.label.toLowerCase()} selecionada.`;
