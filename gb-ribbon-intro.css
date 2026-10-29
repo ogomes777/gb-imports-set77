@@ -131,3 +131,46 @@
 @media(prefers-reduced-motion:reduce){
  #gbRibbonBoot .gb-ribbon-glass-specular{animation:none!important;will-change:auto}
 }
+
+/* GB | V31 Ceramic Glass: sculpted refractions, not a blurred white rectangle.
+   Light layers are precomposited as gradients; only one transform is animated. */
+#gbRibbonBoot.is-opening .gb-ribbon-glass,
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-glass{
+  background:
+    radial-gradient(ellipse 42% 59% at 92% -8%,rgba(255,255,255,.97),transparent 90%),
+    radial-gradient(ellipse 56% 56% at -8% 102%,rgba(218,206,179,.27),transparent 89%),
+    linear-gradient(135deg,#ffffff 0%,#faf9f7 29%,#f3f2ed 64%,#eeece6 100%);
+}
+#gbRibbonBoot.is-opening .gb-ribbon-glass-depth,
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-glass-depth{
+  background:
+    radial-gradient(ellipse 52% 34% at 54% 59%,rgba(255,255,255,.53),transparent 78%),
+    linear-gradient(109deg,rgba(255,255,255,.29),rgba(239,231,214,.04) 47%,rgba(255,255,255,.22));
+}
+#gbRibbonBoot .gb-ribbon-glass:after{
+  content:'';
+  position:absolute;inset:-18% -32%;
+  pointer-events:none;
+  background:linear-gradient(105deg,transparent 28%,rgba(255,255,255,.025) 33%,rgba(255,255,255,.50) 45%,rgba(254,249,235,.09) 51%,transparent 62%);
+  opacity:.40;
+  transform:translate3d(-2%,0,0) rotate(-2deg);
+  animation:gbOpticGlass31 7.2s cubic-bezier(.36,0,.3,1) both;
+}
+#gbRibbonBoot.is-settled .gb-ribbon-glass:after{animation:none;opacity:.05}
+#gbRibbonBoot.is-opening .gb-ribbon-logo-plate:before{
+  opacity:.56;
+  filter:blur(17px);
+}
+@keyframes gbOpticGlass31 {
+  0%{transform:translate3d(-3%,0,0) rotate(-2deg)}
+  50%{transform:translate3d(1.1%,.6%,0) rotate(-1deg)}
+  100%{transform:translate3d(3%,-.3%,0) rotate(-1.8deg)}
+}
+@media(max-width:780px){
+ #gbRibbonBoot .gb-ribbon-glass:after{opacity:.22}
+ #gbRibbonBoot.is-opening .gb-ribbon-logo-plate:before{filter:blur(11px)}
+ #gbRibbonBoot .gb-ribbon-glass:after{animation:none!important;transform:translate3d(0,0,0) rotate(-1deg)}
+}
+@media(prefers-reduced-motion:reduce){
+ #gbRibbonBoot .gb-ribbon-glass:after{animation:none!important}
+}

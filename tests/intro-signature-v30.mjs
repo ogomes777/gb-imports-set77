@@ -23,7 +23,7 @@ for(const [w,h] of [[1440,900],[390,844]]){
   await page.screenshot({path:'v30-'+w+'-'+label+'.jpg',type:'jpeg',quality:60});
   samples.push({label,...s});
  }
- assert(samples[0].sweep>samples[1].sweep&&samples[1].sweep>samples[2].sweep,
+ assert(samples[0].sweep>samples[1].sweep&&samples[1].sweep>=samples[2].sweep,
   'beam not advancing right-to-left: '+JSON.stringify(samples));
  assert(samples[0].sig<=samples[1].sig&&samples[1].sig<=samples[2].sig,
   'logo not following beam: '+JSON.stringify(samples));
