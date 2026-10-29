@@ -246,3 +246,11 @@ html.gb-ribbon-intro-playing body > :not(#gbRibbonBoot):not(script) {
 /* V34: the cinematic is never a hero decoration. Once doors open, retire it. */
 #gbRibbonBoot.is-finished{display:none!important;content-visibility:hidden!important;pointer-events:none!important}
 #heroStage > #gbRibbonBoot{display:none!important}
+
+/* V36: optical glass freezes during the static bridge / core initialization.
+   No running transform, SVG filter or ribbon canvas alongside heavy JS work. */
+#gbRibbonBoot.is-render-idle .gb-ribbon-glass:after,
+#gbRibbonBoot.is-render-idle .gb-ribbon-glass-specular {
+ animation-play-state:paused!important;
+}
+#gbRibbonBoot.is-render-idle .gb-ribbon-ink {display:none!important}
