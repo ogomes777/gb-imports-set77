@@ -59,7 +59,7 @@ if(enterAtTop){
    signatureReady=true;
   }).catch(()=>{signatureReady=false});
 }
-let intro=enterAtTop,settled=!enterAtTop,visibility=true;
+let intro=enterAtTop,settled=!enterAtTop,visibility=true,parked=false,parkTimer=0,parkAt=0;
 let width=1,height=1,pixelRatio=1,raf=0,last=0,t=0,frames=0,paintAvg=0,paintMax=0,firstFrame=0,resizeTimer=0,settleTimeout=0;
 // Frame-time feedback keeps the same visual language while lowering detail on weak GPUs.
 // Conservative first frames. Increase detail only when the device proves it can render smoothly.
@@ -84,7 +84,7 @@ function measure(){
  ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);
 }
 function isVisible(){return intro&&host.isConnected}
-function alive(){return intro&&!settled&&!reduced.matches&&!document.hidden&&visibility&&isVisible()}
+function alive(){return intro&&!parked&&!settled&&!reduced.matches&&!document.hidden&&visibility&&isVisible()}
 function request(){if(alive()&&!raf)raf=requestAnimationFrame(draw)}
 function track(e){
  if(!intro||settled||!host.isConnected)return;
@@ -225,6 +225,32 @@ function updateLogo(now){
    }
  }
 }
+// A V35 regression: gb-core scripts started ~3.1s while the signed ribbon still
+// rendered, producing 70-120ms main-thread stalls in CPU-throttled Chromium.
+// Complete the moving film first, then stop Canvas rAF and show a stable entry
+// title BEFORE evaluating storefront scripts. The doors open once boot is done.
+function parkForStore(){
+ if(parked||settled||!intro)return;
+ parked=true;
+ parkAt=performance.now();
+ host.classList.add('is-preparing-entry','is-render-idle');
+ cancelAnimationFrame(raf);raf=0;
+ // CSS title transition finishes while the main thread is free.
+ parkTimer=setTimeout(()=>{
+  if(settled)return;
+  if(window.GB_BOOT_CORE)window.GB_BOOT_CORE();
+  else settle(); // standalone or source mode has no staged store boot
+ },1100);
+ if(window.GB_CORE_READY||window.GB_CORE_FAILED)
+  parkTimer=setTimeout(settle,1050);
+}
+function onCoreReady(){
+ if(!parked||settled)return;
+ // At this point all 10 core chunks are initialized, so the door animation
+ // never competes with parsing or initializing the shop.
+ settle();
+}
+document.addEventListener('gb:core-ready',onCoreReady);
 function settle(){
  if(settled)return;
  // Do not open the glass doors onto a half-initialized storefront.
@@ -236,7 +262,9 @@ function settle(){
    return;
  }
  settled=true;intro=false;
- host.classList.remove('is-opening','is-preparing-entry');
+ clearTimeout(parkTimer);
+ document.removeEventListener('gb:core-ready',onCoreReady);
+ host.classList.remove('is-opening','is-preparing-entry','is-render-idle');
  host.classList.add('is-gateway');
  document.documentElement.classList.remove('gb-ribbon-intro-playing');
  logo.style.clipPath='none';
@@ -285,11 +313,9 @@ function draw(now){
  sweepHead=intro?1.085-travel*1.105:0;
  sweepX=1-travel;
  host.style.setProperty('--gb-sweep',travel.toFixed(4));
- if(intro&&now-firstFrame>2990){
-  host.classList.add('is-preparing-entry');
-  if(now-firstFrame>3120)window.GB_BOOT_CORE?.();
- }
- if(intro&&now-firstFrame>duration)settle();
+ // Keep ribbon and signature uninterrupted until ~2.85s.
+ // No storefront script is evaluated during the moving/inking frames.
+ if(intro&&age>=2820)host.classList.add('is-preparing-entry');
  const k=1-Math.exp(-dt*3.9);
  pointer.x=lerp(pointer.x,pointer.targetX,k);
  pointer.y=lerp(pointer.y,pointer.targetY,k);
@@ -359,7 +385,9 @@ function draw(now){
  const cost=performance.now()-started;
  paintAvg=frames?paintAvg*.93+cost*.07:cost;
  paintMax=Math.max(paintMax,cost);
- frames++;request();
+ frames++;
+ if(intro&&age>=2820)parkForStore();
+ else request();
 }
 function start(){
  if(!intro||reduced.matches){
@@ -373,6 +401,7 @@ function start(){
 start();
 window.GBGlassRibbons=Object.freeze({
  get active(){return!!raf},get frames(){return frames},
+ get parked(){return parked},get parkAt(){return parkAt},
  get removed(){return!host.isConnected},
  get opening(){return intro},get settled(){return settled},
  get canvasSize(){return[canvas.width,canvas.height]},
@@ -387,7 +416,7 @@ window.GBGlassRibbons=Object.freeze({
  finish:settle,
  replay(){
   if(reduced.matches)return;
-  intro=true;settled=false;firstFrame=0;last=0;lastLogoPaint=0;
+  intro=true;settled=false;parked=false;parkAt=0;firstFrame=0;last=0;lastLogoPaint=0;
   signature.style.removeProperty('--gb-emerge');
   logo.style.clipPath='polygon(110% 0%,110% 100%,110% 100%,110% 0%)';
   sweepHead=1.085;signatureProgress=0;
