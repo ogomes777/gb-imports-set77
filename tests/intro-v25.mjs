@@ -24,7 +24,8 @@ for(const [width,height] of [[1440,900],[390,844]]){
  assert(reveal.overlayParent==='BODY','intro not fullscreen');
  const oldFrames=reveal.frames;
  if(width<600){await page.touchscreen.tap(120,340)}else{await page.mouse.move(800,320);await page.mouse.down();await page.mouse.up()}
- await page.waitForTimeout(1800);
+ await page.waitForFunction(()=>GBGlassRibbons.settled&&document.getElementById('gbRibbonBoot')?.parentElement?.id==='heroStage',null,{timeout:18000});
+ await page.waitForTimeout(400);
  const settled=await page.evaluate(()=>({
   opening:GBGlassRibbons.opening,
   settled:GBGlassRibbons.settled,
