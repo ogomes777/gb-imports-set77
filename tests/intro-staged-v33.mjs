@@ -24,7 +24,7 @@ for(const [w,h,slow] of [[1440,900,false],[390,844,false],[360,780,true]]){
   ink:GBGlassRibbons.signatureProgress
  }));
  assert(during.frame>3,'intro ribbon stopped '+JSON.stringify(during));
- await p.waitForFunction(()=>window.GB_CORE_READY===true&&GBGlassRibbons.settled&&document.querySelector('#gbRibbonBoot').parentElement.id==='heroStage',null,{timeout:22000});
+ await p.waitForFunction(()=>window.GB_CORE_READY===true&&GBGlassRibbons.settled&&GBGlassRibbons.removed,null,{timeout:22000});
  const after=await p.evaluate(()=>({
   ms:Math.round(performance.now()),
   ready:GB_CORE_READY,fit:typeof GBFitting,
@@ -32,9 +32,11 @@ for(const [w,h,slow] of [[1440,900,false],[390,844,false],[360,780,true]]){
   hidden:getComputedStyle(document.querySelector('#top')).visibility,
   logo:GBGlassRibbons.logoAsset,
   overflow:document.documentElement.scrollWidth-innerWidth,
-  modal:!!document.getElementById('productModal')
+  modal:!!document.getElementById('productModal'),
+  active:GBGlassRibbons.active,
+  retired:!document.querySelector('#gbRibbonBoot')
  }));
- assert(after.heavy===10&&after.fit==='object'&&after.hidden==='visible'&&after.overflow<3&&errs.length===0,'Store incomplete '+JSON.stringify({after,errs}));
+ assert(after.retired&&!after.active&&after.heavy===10&&after.fit==='object'&&after.hidden==='visible'&&after.overflow<3&&errs.length===0,'Store incomplete '+JSON.stringify({after,errs}));
  console.log(JSON.stringify({width:w,slow,elapsed:Date.now()-started,atStart,during,after,errors:errs}));
  await c.close();
 }
