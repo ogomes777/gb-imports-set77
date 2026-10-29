@@ -7,7 +7,7 @@
   pointer-events:none;
   z-index:5;
   transform:none;
-  transition:opacity .08s linear!important;
+  transition:none!important;
 }
 .look-stage.is-true-3d #gbFitFigure .look-dock{pointer-events:auto}
 .look-stage.is-true-3d .gb-volume-canvas{z-index:2}
