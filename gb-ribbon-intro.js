@@ -23,6 +23,42 @@ const logo=host.querySelector('.gb-ribbon-original');
 const signature=host.querySelector('.gb-ribbon-signature');
 const bloom=host.querySelector('.gb-ribbon-bloom');
 const scan=host.querySelector('.gb-ribbon-scan');
+// Signature is traced from the EXACT existing vector path, never redrawn.
+let strokeOutline=null,strokeGlint=null,strokeLength=0,signatureReady=false;
+if(enterAtTop){
+ fetch('./assets/brand/gb-monograma-amarelo-preto.svg',{cache:'force-cache'})
+  .then(r=>{if(!r.ok)throw new Error('SVG unavailable');return r.text()})
+  .then(markup=>{
+   if(settled)return;
+   const doc=new DOMParser().parseFromString(markup,'image/svg+xml');
+   const sourcePath=doc.querySelector('svg path');
+   if(!sourcePath)return;
+   const ns='http://www.w3.org/2000/svg';
+   const svg=document.createElementNS(ns,'svg');
+   svg.setAttribute('viewBox','0 0 1000 610');
+   svg.setAttribute('class','gb-ribbon-ink');
+   svg.setAttribute('aria-hidden','true');
+   const d=sourcePath.getAttribute('d');
+   const make=(cls,weight)=>{
+    const el=document.createElementNS(ns,'path');
+    el.setAttribute('d',d);el.setAttribute('class',cls);
+    el.setAttribute('fill','none');el.setAttribute('stroke-width',String(weight));
+    el.setAttribute('stroke-linecap','round');el.setAttribute('stroke-linejoin','round');
+    svg.append(el);return el;
+   };
+   strokeOutline=make('gb-ribbon-ink-outline',8);
+   if(!mobile())strokeGlint=make('gb-ribbon-ink-glint',13);
+   signature.append(svg);
+   strokeLength=strokeOutline.getTotalLength();
+   strokeOutline.style.strokeDasharray=strokeLength+' '+strokeLength;
+   strokeOutline.style.strokeDashoffset=String(strokeLength);
+   if(strokeGlint){
+     strokeGlint.style.strokeDasharray=(strokeLength*.075)+' '+(strokeLength*1.2);
+     strokeGlint.style.strokeDashoffset=String(strokeLength);
+   }
+   signatureReady=true;
+  }).catch(()=>{signatureReady=false});
+}
 let intro=enterAtTop,settled=!enterAtTop,visibility=true;
 let width=1,height=1,pixelRatio=1,raf=0,last=0,t=0,frames=0,paintAvg=0,paintMax=0,firstFrame=0,resizeTimer=0,settleTimeout=0;
 // Frame-time feedback keeps the same visual language while lowering detail on weak GPUs.
@@ -83,12 +119,20 @@ const nxCache=new Float32Array(curveCount+1);
 const nyCache=new Float32Array(curveCount+1);
 const curlCache=new Float32Array(curveCount+1);
 const shimmerCache=new Float32Array(curveCount+1);
+const magnetCache=new Float32Array(curveCount+1);
+const pinchCache=new Float32Array(curveCount+1);
+const ribbonPoint=new Float32Array(2);
+const sampleCurve=(arr,index,next,f)=>arr[index]+(arr[next]-arr[index])*f;
+let compactCurve=false,spreadScale=0;
 const flow={bend:0,velocity:0,twist:0,twistVelocity:0,phase:0};
 function spring(state,velocity,target,dt,freq=3.8){
- const accel=(target-state)*freq*freq-2*freq*velocity;
- velocity+=accel*Math.min(.032,dt);
- state+=velocity*Math.min(.032,dt);
- return [state,velocity];
+ // Analytical critically damped spring. No frame-rate-dependent Euler drift.
+ const h=Math.min(dt,.20);
+ const displacement=state-target;
+ const tangent=velocity+freq*displacement;
+ const decay=Math.exp(-freq*h);
+ return [target+(displacement+tangent*h)*decay,
+   (velocity-freq*tangent*h)*decay];
 }
 function spine(u,phase){
  const a=logistic((u-.183)*21.5);
@@ -104,12 +148,17 @@ function spine(u,phase){
  return [x,y];
 }
 function buildCurve(phase){
+ compactCurve=mobile();
+ spreadScale=Math.min(width,height)*(compactCurve?.036:.049);
  for(let i=0;i<=curveCount;i++){
   const u=i/curveCount;
   const q=spine(u,phase);
   cxCache[i]=q[0];cyCache[i]=q[1];
-  curlCache[i]=Math.sin(u*10.2-phase*.52+flow.twist*.35);
-  shimmerCache[i]=Math.sin(u*17.2+phase*.37);
+  const curl=Math.sin(u*10.2-phase*.52+flow.twist*.35);
+  curlCache[i]=curl;
+  pinchCache[i]=(.22+.78*Math.pow(Math.abs(curl),.76))*(.74+.26*Math.sin(u*Math.PI));
+  shimmerCache[i]=Math.sin(u*17.2+phase*.37)*height*.00065;
+  magnetCache[i]=Math.exp(-Math.pow((u-(pointer.x+.145)/1.29)*3.1,2))*pointer.force*(pointer.y-.5)*height*.024;
  }
  for(let i=0;i<=curveCount;i++){
   const prev=Math.max(0,i-1),next=Math.min(curveCount,i+1);
@@ -118,22 +167,16 @@ function buildCurve(phase){
   nxCache[i]=-dy*inv;nyCache[i]=dx*inv;
  }
 }
-function strand(u,v){
- const pos=clamp(u,0,1)*curveCount;
- const i=Math.min(curveCount-1,pos|0),f=pos-i;
- const mix=(arr)=>arr[i]+(arr[i+1]-arr[i])*f;
- const nx=mix(nxCache),ny=mix(nyCache);
- const curl=mix(curlCache);
- const pinch=.22+.78*Math.pow(Math.abs(curl),.76);
- const envelope=.74+.26*Math.sin(u*Math.PI);
- const spread=Math.min(width,height)*(mobile()?.036:.049)*pinch*envelope;
- const cross=v*spread+v*v*spread*.16*Math.cos(u*12.2+t*.41);
- const flick=mix(shimmerCache)*Math.abs(v)*height*.00065;
- const near=pointer.x;
- const magnet=Math.exp(-Math.pow((u-(near+.145)/1.29)*3.1,2))*pointer.force*(pointer.y-.5)*height*.024;
- const crossDist=cross+flick;
- return [mix(cxCache)+nx*crossDist+ny*magnet*.10,
-         mix(cyCache)+ny*crossDist+magnet];
+function strand(u,v,out=ribbonPoint){
+ const position=clamp(u,0,1)*curveCount;
+ const index=Math.min(curveCount-1,position|0),f=position-index,next=index+1;
+ const nx=sampleCurve(nxCache,index,next,f),ny=sampleCurve(nyCache,index,next,f);
+ const lateral=v*spreadScale*sampleCurve(pinchCache,index,next,f);
+ const cross=lateral+v*v*lateral*.16*Math.cos(u*12.2+t*.41)+sampleCurve(shimmerCache,index,next,f)*Math.abs(v);
+ const magnet=sampleCurve(magnetCache,index,next,f);
+ out[0]=sampleCurve(cxCache,index,next,f)+nx*cross+ny*magnet*.10;
+ out[1]=sampleCurve(cyCache,index,next,f)+ny*cross+magnet;
+ return out;
 }
 function trace(path,v,samples,head=0){
  if(head>=1)return;
@@ -160,6 +203,14 @@ function updateLogo(now){
  scan.style.top='12%';
  signature.style.setProperty('--gb-emerge',clamp(progress*2.5,0,1).toFixed(4));
  bloom.style.opacity=(Math.sin(progress*Math.PI)*.44).toFixed(3);
+ if(signatureReady&&strokeOutline){
+   const ink=ease(clamp((progress-.04)/.88,0,1));
+   strokeOutline.style.strokeDashoffset=String(strokeLength*(1-ink));
+   if(strokeGlint){
+     strokeGlint.style.strokeDashoffset=String(strokeLength*(.93-ink));
+     strokeGlint.style.opacity=String(Math.sin(ink*Math.PI)*.8);
+   }
+ }
 }
 function settle(){
  if(settled)return;
@@ -297,6 +348,7 @@ window.GBGlassRibbons=Object.freeze({
  get logoAsset(){return logo.getAttribute('src')},
  get sweep(){return sweepX},get signatureProgress(){return signatureProgress},
  get flowBend(){return +flow.bend.toFixed(4)},get flowTwist(){return +flow.twist.toFixed(4)},
+ get signatureInkReady(){return signatureReady},
  finish:settle,
  replay(){
   if(reduced.matches)return;
@@ -304,6 +356,8 @@ window.GBGlassRibbons=Object.freeze({
   signature.style.removeProperty('--gb-emerge');
   logo.style.clipPath='polygon(110% 0%,110% 100%,110% 100%,110% 0%)';
   sweepHead=1.085;signatureProgress=0;
+  if(strokeOutline)strokeOutline.style.strokeDashoffset=String(strokeLength);
+  if(strokeGlint)strokeGlint.style.strokeDashoffset=String(strokeLength);
   host.classList.remove('is-settled','is-gateway','is-preparing-entry');
   document.body.append(host);
   host.classList.add('is-opening','is-visible');
