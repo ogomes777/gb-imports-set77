@@ -8,7 +8,7 @@ for(const [width,height] of [[1280,720],[390,844]]){
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:8080/',{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.GBGlassRibbons?.frames>0,null,{timeout:30000});
- await page.waitForTimeout(4300);
+ await page.waitForFunction(()=>GBGlassRibbons.settled&&document.getElementById('gbRibbonBoot')?.parentElement?.id==='heroStage',null,{timeout:18000});
  const before=await page.evaluate(()=>({
    quality:GBGlassRibbons.quality,
    frameGapMs:GBGlassRibbons.frameGapMs,
