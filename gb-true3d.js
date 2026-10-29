@@ -477,6 +477,7 @@ void main(){
     }else lastStamp=0
   }
   function open(){
+    if(window.__GB_E2E_FORCE_LEGACY)return false;
     if(stage.classList.contains('gb-volume-unsupported'))return false;
     if(active)return true;
     if(stage.classList.contains('is-fit-compare'))return false;
