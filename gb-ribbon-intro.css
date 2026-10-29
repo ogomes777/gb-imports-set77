@@ -1,0 +1,348 @@
+/* GB IMPORTS | Cinematic full-bleed Glass + motion-woven GB reveal.
+   Full-surface glass, zero inset borders or rounded-card framing. */
+.gb-ribbon-layer{position:absolute;inset:0;z-index:3;overflow:hidden;isolation:isolate;pointer-events:none;opacity:.62;transition:opacity .6s ease;contain:paint}
+.gb-ribbon-glass{position:absolute;inset:0!important;border:0!important;border-radius:0!important;background:linear-gradient(120deg,rgba(255,255,255,.055) 0%,rgba(245,238,213,.018) 15%,transparent 31%),radial-gradient(ellipse 90% 70% at 57% 44%,rgba(178,122,30,.12),transparent 70%),linear-gradient(155deg,#131316 0%,#07080b 42%,#0e0d0e 75%,#030405 100%);box-shadow:inset 0 1px rgba(255,255,255,.12),inset 0 -1px rgba(255,255,255,.04);overflow:hidden}
+.gb-ribbon-glass-depth{position:absolute;inset:0;background:radial-gradient(ellipse 60% 70% at 50% 48%,transparent 18%,rgba(0,0,0,.12) 80%,rgba(0,0,0,.46) 100%),linear-gradient(105deg,transparent 0 34%,rgba(255,255,255,.018) 40%,transparent 51%);pointer-events:none}
+.gb-ribbon-glass-specular{position:absolute;left:-28%;top:-36%;width:160%;height:90%;background:linear-gradient(170deg,transparent 38%,rgba(255,255,255,.067) 49%,rgba(251,234,185,.013) 53%,transparent 65%);transform:rotate(-8deg);pointer-events:none}
+.gb-ribbon-glass-grain{position:absolute;inset:0;opacity:.16;pointer-events:none;background-image:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,.006) 4px)}
+.gb-ribbon-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.gb-ribbon-signature{position:absolute;left:50%;top:48%;width:clamp(220px,30vw,470px);translate:-50% -50%;display:flex;align-items:center;flex-direction:column;justify-content:center;gap:10px;z-index:5;pointer-events:none;opacity:var(--gb-emerge,0);filter:drop-shadow(0 0 9px rgba(236,190,70,.16))}
+.gb-ribbon-logo-atmosphere{position:absolute;top:8%;left:50%;translate:-50%;width:150%;aspect-ratio:1.4;background:radial-gradient(ellipse,rgba(255,241,183,.19),rgba(194,140,38,.086) 38%,transparent 69%);pointer-events:none}
+.gb-ribbon-logo-plate{position:relative;display:grid;place-items:center;width:100%;height:auto;aspect-ratio:1000/610;isolation:isolate}
+.gb-ribbon-logo-plate:before{content:'';position:absolute;inset:7% 12%;background:radial-gradient(ellipse,rgba(244,232,198,.68),rgba(250,241,205,.29) 37%,transparent 77%);filter:blur(23px);z-index:-1}
+.gb-ribbon-original{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 12px rgba(255,221,123,.40));clip-path:polygon(0% 110%,100% 110%,100% 110%,0% 110%);will-change:clip-path}
+.gb-ribbon-scan{position:absolute;left:7%;top:110%;width:86%;height:2px;pointer-events:none;background:linear-gradient(90deg,transparent 0%,rgba(251,192,68,.38) 13%,#fffce5 52%,rgba(225,173,63,.35) 85%,transparent 100%);filter:drop-shadow(0 0 9px #ffe1a1) drop-shadow(0 0 26px rgba(232,173,60,.85));opacity:var(--gb-emerge,0);transform:rotate(-4deg)}
+.gb-ribbon-label{font:700 clamp(9px,1.15vw,14px)/1.2 'DM Sans',sans-serif;letter-spacing:.49em;color:#fff9e5;text-shadow:0 0 18px rgba(239,185,67,.36);white-space:nowrap}
+.gb-ribbon-subline{font:500 clamp(7px,.7vw,10px)/1.2 'DM Sans',sans-serif;letter-spacing:.52em;color:rgba(230,217,190,.58)}
+.gb-ribbon-bloom{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:0;background:radial-gradient(ellipse 42% 48% at 50% 48%,rgba(255,240,197,.17),rgba(221,159,46,.11) 34%,transparent 75%)}
+.gb-ribbon-scene-number,.gb-ribbon-scene-foot{position:absolute;z-index:5;color:rgba(244,237,211,.43);font:500 9px/1.2 'DM Sans',sans-serif;letter-spacing:.26em}
+.gb-ribbon-scene-number{top:6.3%;left:5.2%}.gb-ribbon-scene-foot{bottom:6%;right:5.2%}.gb-ribbon-scene-foot span{padding:0 9px;color:#dcb052}
+.gb-ribbon-layer.is-opening{position:fixed;inset:0;z-index:9999;opacity:1;pointer-events:auto;touch-action:pan-y;transition:none;contain:paint}
+.gb-ribbon-layer.is-seating{position:fixed;inset:0;z-index:9999;opacity:0;pointer-events:auto;transition:opacity .35s ease}
+.gb-ribbon-layer.is-settled{position:absolute;inset:0;z-index:3;opacity:.43;pointer-events:none;contain:paint}
+.gb-ribbon-layer.is-settled .gb-ribbon-signature,.gb-ribbon-layer.is-settled .gb-ribbon-bloom,.gb-ribbon-layer.is-settled .gb-ribbon-scene-number,.gb-ribbon-layer.is-settled .gb-ribbon-scene-foot{display:none}
+.gb-ribbon-layer.is-settled .gb-ribbon-glass{background:radial-gradient(ellipse 95% 77% at 72% 35%,rgba(193,143,49,.11),transparent 70%),linear-gradient(145deg,rgba(37,34,31,.6),rgba(8,9,12,.34))}
+.gb-ribbon-intro-playing{scroll-behavior:auto}
+@media(max-width:780px){
+ .gb-ribbon-signature{width:min(75vw,340px);top:47%}
+ .gb-ribbon-glass{background:linear-gradient(128deg,rgba(255,255,255,.053),transparent 37%),radial-gradient(ellipse 85% 68% at 50% 50%,rgba(188,140,48,.11),transparent 72%),linear-gradient(160deg,#171517,#09090b 65%,#050506)}
+ .gb-ribbon-glass-specular{top:-15%;height:65%}
+ .gb-ribbon-scene-number{top:7%;left:6%}.gb-ribbon-scene-foot{bottom:9%;right:6%;font-size:8px}
+ .gb-ribbon-logo-plate:before{filter:blur(15px)}
+ .gb-ribbon-layer.is-settled{opacity:.28}
+}
+@media(prefers-reduced-motion:reduce){
+ .gb-ribbon-layer{opacity:.14!important}
+ .gb-ribbon-layer.is-opening,.gb-ribbon-layer.is-seating{position:absolute;z-index:3;opacity:.14;pointer-events:none}
+ .gb-ribbon-signature,.gb-ribbon-bloom{display:none!important}
+ .gb-ribbon-glass-specular{transform:none}
+}
+
+/* V28: Apple-style full-frame frosted WHITE glass, no cards and no landing flash. */
+#gbRibbonBoot.is-opening,#gbRibbonBoot.is-preparing-entry{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;z-index:2147483000;opacity:1;pointer-events:auto;background:#f6f6f3}
+#gbRibbonBoot .gb-ribbon-glass{position:absolute;inset:0!important;border:0;border-radius:0;opacity:1;background:radial-gradient(ellipse 80% 58% at 44% 27%,rgba(255,255,255,.98),rgba(250,250,247,.93) 58%,rgba(233,232,226,.94) 100%),linear-gradient(138deg,#fff 0%,#f4f3ef 54%,#e7e5df 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.96),inset 0 -1px 0 rgba(109,100,78,.10)}
+#gbRibbonBoot .gb-ribbon-glass-depth{background:radial-gradient(ellipse 70% 65% at 50% 45%,transparent 35%,rgba(141,125,90,.08) 100%),linear-gradient(112deg,rgba(255,255,255,.14),transparent 28%,rgba(224,217,205,.09) 72%,transparent)}
+#gbRibbonBoot .gb-ribbon-glass-specular{background:linear-gradient(170deg,transparent 34%,rgba(255,255,255,.84) 48%,rgba(233,219,194,.10) 55%,transparent 71%);opacity:.75;transform:rotate(-9deg)}
+#gbRibbonBoot .gb-ribbon-glass-grain{opacity:.28;background-image:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(87,77,57,.009) 4px)}
+#gbRibbonBoot .gb-ribbon-logo-atmosphere{background:radial-gradient(ellipse,rgba(229,181,71,.17),rgba(245,221,159,.09) 34%,transparent 70%)}
+#gbRibbonBoot .gb-ribbon-logo-plate:before{background:radial-gradient(ellipse,rgba(253,232,182,.54),rgba(255,250,231,.28) 42%,transparent 77%)}
+#gbRibbonBoot .gb-ribbon-original{filter:drop-shadow(0 12px 25px rgba(116,89,35,.13)) drop-shadow(0 0 14px rgba(212,159,48,.2))}
+#gbRibbonBoot .gb-ribbon-label{color:#191919;text-shadow:none;font-weight:800;letter-spacing:.42em}
+#gbRibbonBoot .gb-ribbon-subline{color:rgba(55,51,43,.60);letter-spacing:.49em}
+#gbRibbonBoot .gb-ribbon-bloom{background:radial-gradient(ellipse 40% 47% at 50% 47%,rgba(232,186,88,.27),rgba(246,216,145,.11) 42%,transparent 76%)}
+#gbRibbonBoot .gb-ribbon-scan{background:linear-gradient(90deg,transparent,rgba(169,119,30,.48) 13%,#fff9e1 50%,rgba(185,132,32,.58) 85%,transparent);filter:drop-shadow(0 0 5px #dfb15a) drop-shadow(0 0 20px rgba(182,129,36,.48))}
+#gbRibbonBoot .gb-ribbon-scene-number,#gbRibbonBoot .gb-ribbon-scene-foot{color:rgba(69,59,40,.47)}
+#gbRibbonBoot .gb-ribbon-scene-foot span{color:#a47b2e}
+#gbRibbonBoot .gb-ribbon-canvas{z-index:2}
+#gbRibbonBoot .gb-ribbon-signature{z-index:5}
+#gbRibbonBoot .gb-ribbon-bloom{z-index:4}
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-signature{opacity:0!important;transform:translateY(-18px) scale(.97);transition:opacity .55s ease,transform .7s cubic-bezier(.22,1,.36,1)}
+#gbRibbonBoot .gb-ribbon-entry{position:absolute;top:50%;left:50%;translate:-50% -50%;width:min(90vw,700px);display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;z-index:12;opacity:0;transform:translateY(24px);pointer-events:none;transition:opacity .7s ease,transform .8s cubic-bezier(.22,1,.36,1)}
+#gbRibbonBoot .gb-ribbon-entry-kicker{font:600 clamp(9px,1vw,12px)/1.3 'DM Sans',sans-serif;letter-spacing:.40em;color:#8c783f}
+#gbRibbonBoot .gb-ribbon-entry strong{font:800 clamp(36px,6.6vw,100px)/.98 'Archivo Black','DM Sans',sans-serif;color:#111214;letter-spacing:-.065em;text-wrap:balance}
+#gbRibbonBoot .gb-ribbon-entry-sub{font:600 clamp(10px,1.15vw,13px)/1.5 'DM Sans',sans-serif;letter-spacing:.26em;color:rgba(33,33,33,.62)}
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-entry{opacity:1;transform:translateY(0)}
+#gbRibbonBoot .gb-ribbon-door{position:absolute;top:0;bottom:0;width:50.1%;z-index:8;opacity:0;transform:translateX(0);pointer-events:none;background:linear-gradient(132deg,rgba(255,255,255,.96),rgba(248,247,242,.97) 55%,rgba(232,229,219,.98));box-shadow:inset -1px 0 rgba(185,166,127,.15);transition:opacity .48s ease,transform 1.03s cubic-bezier(.68,0,.14,1)}
+#gbRibbonBoot .gb-ribbon-door-left{left:0;border-right:1px solid rgba(196,173,121,.22)}
+#gbRibbonBoot .gb-ribbon-door-right{right:0;border-left:1px solid rgba(255,255,255,.9)}
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-door{opacity:1}
+#gbRibbonBoot.is-gateway{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;z-index:2147483000;pointer-events:auto;opacity:1;background:transparent!important}
+#gbRibbonBoot.is-gateway .gb-ribbon-glass,#gbRibbonBoot.is-gateway .gb-ribbon-canvas,#gbRibbonBoot.is-gateway .gb-ribbon-signature,#gbRibbonBoot.is-gateway .gb-ribbon-bloom{opacity:0;transition:opacity .46s ease}
+#gbRibbonBoot.is-gateway .gb-ribbon-scene-number,#gbRibbonBoot.is-gateway .gb-ribbon-scene-foot{opacity:0}
+#gbRibbonBoot.is-gateway .gb-ribbon-door{opacity:1}
+#gbRibbonBoot.is-gateway .gb-ribbon-door-left{transform:translateX(-104%)}
+#gbRibbonBoot.is-gateway .gb-ribbon-door-right{transform:translateX(104%)}
+#gbRibbonBoot.is-gateway .gb-ribbon-entry{opacity:0;transform:translateY(-25px) scale(.94);transition:opacity .50s ease,transform .75s ease}
+#gbRibbonBoot.is-settled{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;opacity:.25;background:transparent;transition:none}
+#gbRibbonBoot.is-settled .gb-ribbon-entry,#gbRibbonBoot.is-settled .gb-ribbon-door{display:none}
+#gbRibbonBoot.is-settled .gb-ribbon-glass{background:radial-gradient(ellipse 100% 80% at 65% 30%,rgba(249,247,240,.25),rgba(236,229,212,.07) 63%,transparent 90%);box-shadow:none}
+@media(max-width:780px){
+ #gbRibbonBoot .gb-ribbon-glass{background:radial-gradient(ellipse 80% 65% at 40% 29%,#fff,#f7f7f4 69%,#e8e6df)}
+ #gbRibbonBoot .gb-ribbon-entry{gap:12px}
+ #gbRibbonBoot .gb-ribbon-entry strong{font-size:clamp(34px,10vw,58px)}
+ #gbRibbonBoot .gb-ribbon-entry-sub{font-size:9px;letter-spacing:.13em}
+ #gbRibbonBoot .gb-ribbon-glass-specular{opacity:.38}
+ #gbRibbonBoot.is-settled{opacity:.16}
+}
+@media(prefers-reduced-motion:reduce){
+ #gbRibbonBoot.is-opening,#gbRibbonBoot.is-gateway{display:none!important}
+ #gbRibbonBoot.is-settled{opacity:.08!important}
+ #gbRibbonBoot .gb-ribbon-door,#gbRibbonBoot .gb-ribbon-entry{display:none!important}
+}
+
+/* V30 | A refined pearl/glass optical material, lightweight compositing. */
+#gbRibbonBoot.is-opening .gb-ribbon-glass,
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-glass{
+  background:
+    radial-gradient(ellipse 61% 46% at 74% 16%,rgba(255,255,255,.98),transparent 80%),
+    radial-gradient(ellipse 96% 65% at 22% 80%,rgba(225,219,205,.42),transparent 78%),
+    linear-gradient(124deg,#fffefd 0%,#f7f7f4 37%,#efeee9 74%,#f9f9f5 100%);
+}
+#gbRibbonBoot.is-opening .gb-ribbon-glass-depth,
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-glass-depth{
+  background:
+    radial-gradient(ellipse 56% 48% at 55% 48%,rgba(255,255,255,.64),transparent 75%),
+    linear-gradient(113deg,rgba(255,255,255,.68),rgba(219,211,194,.09) 49%,rgba(255,255,255,.47) 90%);
+}
+#gbRibbonBoot.is-opening .gb-ribbon-glass-specular{
+  opacity:.42;
+  will-change:transform;
+  animation:gbGlassOpticDrift 6.6s ease-in-out both;
+}
+#gbRibbonBoot .gb-ribbon-logo-atmosphere{
+  opacity:.68;
+}
+#gbRibbonBoot .gb-ribbon-scan{
+  width:2px!important;height:76%!important;
+  left:104%;top:12%;
+  background:linear-gradient(180deg,transparent,rgba(179,121,27,.27) 17%,rgba(255,250,200,.96) 47%,rgba(179,121,27,.29) 83%,transparent)!important;
+  transform:rotate(3deg);
+  opacity:calc(var(--gb-emerge,0) * .78);
+  filter:drop-shadow(0 0 10px rgba(208,151,44,.42));
+  pointer-events:none;
+}
+@keyframes gbGlassOpticDrift{
+  0%{transform:translate3d(-1.2%,0,0) rotate(-9deg)}
+  100%{transform:translate3d(2.6%,0,0) rotate(-7deg)}
+}
+@media(max-width:780px){
+ #gbRibbonBoot.is-opening .gb-ribbon-glass-specular{opacity:.24}
+}
+@media(prefers-reduced-motion:reduce){
+ #gbRibbonBoot .gb-ribbon-glass-specular{animation:none!important;will-change:auto}
+}
+
+/* GB | V31 Ceramic Glass: sculpted refractions, not a blurred white rectangle.
+   Light layers are precomposited as gradients; only one transform is animated. */
+#gbRibbonBoot.is-opening .gb-ribbon-glass,
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-glass{
+  background:
+    radial-gradient(ellipse 42% 59% at 92% -8%,rgba(255,255,255,.97),transparent 90%),
+    radial-gradient(ellipse 56% 56% at -8% 102%,rgba(218,206,179,.27),transparent 89%),
+    linear-gradient(135deg,#ffffff 0%,#faf9f7 29%,#f3f2ed 64%,#eeece6 100%);
+}
+#gbRibbonBoot.is-opening .gb-ribbon-glass-depth,
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-glass-depth{
+  background:
+    radial-gradient(ellipse 52% 34% at 54% 59%,rgba(255,255,255,.53),transparent 78%),
+    linear-gradient(109deg,rgba(255,255,255,.29),rgba(239,231,214,.04) 47%,rgba(255,255,255,.22));
+}
+#gbRibbonBoot .gb-ribbon-glass:after{
+  content:'';
+  position:absolute;inset:-18% -32%;
+  pointer-events:none;
+  background:linear-gradient(105deg,transparent 28%,rgba(255,255,255,.025) 33%,rgba(255,255,255,.50) 45%,rgba(254,249,235,.09) 51%,transparent 62%);
+  opacity:.40;
+  transform:translate3d(-2%,0,0) rotate(-2deg);
+  animation:gbOpticGlass31 7.2s cubic-bezier(.36,0,.3,1) both;
+}
+#gbRibbonBoot.is-settled .gb-ribbon-glass:after{animation:none;opacity:.05}
+#gbRibbonBoot.is-opening .gb-ribbon-logo-plate:before{
+  opacity:.56;
+  filter:blur(17px);
+}
+@keyframes gbOpticGlass31 {
+  0%{transform:translate3d(-3%,0,0) rotate(-2deg)}
+  50%{transform:translate3d(1.1%,.6%,0) rotate(-1deg)}
+  100%{transform:translate3d(3%,-.3%,0) rotate(-1.8deg)}
+}
+@media(max-width:780px){
+ #gbRibbonBoot .gb-ribbon-glass:after{opacity:.22}
+ #gbRibbonBoot.is-opening .gb-ribbon-logo-plate:before{filter:blur(11px)}
+ #gbRibbonBoot .gb-ribbon-glass:after{animation:none!important;transform:translate3d(0,0,0) rotate(-1deg)}
+}
+@media(prefers-reduced-motion:reduce){
+ #gbRibbonBoot .gb-ribbon-glass:after{animation:none!important}
+}
+
+/* V32 | Polished optical glass: pearl substrate, prismatic refraction and soft
+   specular sweeps. No expensive fullscreen backdrop-filter or filter animations. */
+#gbRibbonBoot.is-opening .gb-ribbon-glass,
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-glass{
+ background:
+  radial-gradient(ellipse 58% 65% at 7% 12%,rgba(255,255,255,.92),transparent 90%),
+  radial-gradient(ellipse 62% 63% at 87% 92%,rgba(220,205,171,.25),transparent 89%),
+  radial-gradient(ellipse 37% 42% at 51% 47%,rgba(255,255,255,.74),transparent 97%),
+  linear-gradient(136deg,#fcfcfb 0%,#f8f8f5 29%,#efeee9 68%,#fafaf8 100%);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.96),
+  inset 0 -1px rgba(126,109,80,.12);
+}
+#gbRibbonBoot.is-opening .gb-ribbon-glass:before{
+ content:'';
+ position:absolute;inset:-18%;
+ pointer-events:none;
+ background:
+  linear-gradient(117deg,transparent 25%,rgba(255,255,255,.10) 35%,
+   rgba(255,255,255,.47) 40%,rgba(243,234,215,.08) 43%,transparent 49%),
+  linear-gradient(155deg,transparent 59%,rgba(187,167,133,.06) 62%,
+   rgba(255,255,255,.21) 65%,transparent 71%);
+ opacity:.48;
+ transform:rotate(-3deg);
+}
+#gbRibbonBoot.is-opening .gb-ribbon-glass:after{
+ animation:gbOpticGlass31 7.2s ease-in-out both;
+ opacity:.35;
+}
+#gbRibbonBoot .gb-ribbon-logo-atmosphere{opacity:.50}
+#gbRibbonBoot .gb-ribbon-ink{
+ position:absolute;
+ left:0;top:0;width:100%;height:auto;aspect-ratio:1000/610;
+ overflow:visible;
+ display:block;
+ z-index:7;
+ pointer-events:none;
+ opacity:var(--gb-emerge,0);
+}
+#gbRibbonBoot .gb-ribbon-ink-outline{
+ stroke:rgba(202,153,48,.85);
+ filter:drop-shadow(0 0 7px rgba(229,171,46,.40));
+}
+#gbRibbonBoot .gb-ribbon-ink-glint{
+ stroke:rgba(255,247,206,.96);
+ filter:drop-shadow(0 0 7px rgba(229,178,57,.67));
+}
+#gbRibbonBoot.is-settled .gb-ribbon-ink,
+#gbRibbonBoot.is-gateway .gb-ribbon-ink{display:none}
+@media(max-width:780px){
+ #gbRibbonBoot.is-opening .gb-ribbon-glass:before{opacity:.28}
+ #gbRibbonBoot.is-opening .gb-ribbon-glass:after{animation:none;opacity:.12;transform:none}
+ #gbRibbonBoot .gb-ribbon-ink-outline{filter:none;stroke:rgba(173,113,23,.7)}
+}
+@media(prefers-reduced-motion:reduce){
+ #gbRibbonBoot .gb-ribbon-ink{display:none!important}
+}
+
+/* V33: prevent rendering/layout compositing behind the fullscreen film.
+   Visibility preserves bounding boxes for store boot while skipping painting. */
+html.gb-ribbon-intro-playing body > :not(#gbRibbonBoot):not(script) {
+ visibility:hidden !important;
+}
+@media(prefers-reduced-motion:reduce){
+ html.gb-ribbon-intro-playing body > :not(#gbRibbonBoot):not(script) {
+  visibility:visible !important;
+ }
+}
+
+/* V34: the cinematic is never a hero decoration. Once doors open, retire it. */
+#gbRibbonBoot.is-finished{display:none!important;content-visibility:hidden!important;pointer-events:none!important}
+#heroStage > #gbRibbonBoot{display:none!important}
+
+/* V36: optical glass freezes during the static bridge / core initialization.
+   No running transform, SVG filter or ribbon canvas alongside heavy JS work. */
+#gbRibbonBoot.is-render-idle .gb-ribbon-glass:after,
+#gbRibbonBoot.is-render-idle .gb-ribbon-glass-specular {
+ animation-play-state:paused!important;
+}
+#gbRibbonBoot.is-render-idle .gb-ribbon-ink {display:none!important}
+
+/* V37 | STATIC, PRE-FROSTED OPTICAL GLASS.
+   The SVG background contains a pre-blurred refraction: no live backdrop-filter,
+   no animated blur and no large animated GPU layers behind the ribbon. */
+#gbRibbonBoot.is-opening .gb-ribbon-glass,
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-glass,
+#gbRibbonBoot.is-render-idle .gb-ribbon-glass{
+  background:#f7f7f4 url('../assets/brand/gb-glass-pearl-v37.webp') center center / cover no-repeat!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.96),inset 0 -1px 0 rgba(151,136,115,.20)!important;
+}
+#gbRibbonBoot .gb-ribbon-glass:before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 57% 43% at 51% 42%,rgba(255,255,255,.20),transparent 78%),
+    linear-gradient(116deg,rgba(255,255,255,.12),transparent 29%,rgba(248,242,231,.07) 58%,transparent 87%)!important;
+  opacity:1!important;transform:none!important;animation:none!important;
+}
+#gbRibbonBoot .gb-ribbon-glass:after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 33%,rgba(255,255,255,.21) 46%,rgba(255,255,255,.09) 49%,transparent 63%)!important;
+  opacity:.55!important;transform:none!important;animation:none!important;
+}
+#gbRibbonBoot .gb-ribbon-glass-depth{
+  background:radial-gradient(ellipse 61% 50% at 53% 48%,rgba(255,255,255,.14),transparent 86%),
+    radial-gradient(ellipse 109% 87% at 50% 48%,transparent 51%,rgba(192,177,149,.11) 100%)!important;
+  box-shadow:inset 0 0 52px rgba(255,255,255,.26);
+}
+#gbRibbonBoot .gb-ribbon-glass-specular{
+  background:linear-gradient(167deg,transparent 32%,rgba(255,255,255,.24) 49%,transparent 57%)!important;
+  opacity:.25!important;transform:none!important;animation:none!important;
+  will-change:auto!important;
+}
+#gbRibbonBoot .gb-ribbon-original,
+#gbRibbonBoot .gb-ribbon-signature,
+#gbRibbonBoot .gb-ribbon-scan,
+#gbRibbonBoot .gb-ribbon-ink-outline,
+#gbRibbonBoot .gb-ribbon-ink-glint,
+#gbRibbonBoot .gb-ribbon-logo-plate:before{
+  filter:none!important;
+}
+#gbRibbonBoot .gb-ribbon-signature{isolation:isolate}
+#gbRibbonBoot .gb-ribbon-logo-atmosphere{
+  background:radial-gradient(ellipse,rgba(253,241,208,.32),rgba(240,218,176,.12) 41%,transparent 74%)!important;
+  opacity:.85!important;
+}
+#gbRibbonBoot .gb-ribbon-ink-outline{stroke:rgba(187,129,32,.72)!important}
+#gbRibbonBoot .gb-ribbon-ink-glint{stroke:rgba(255,250,221,.75)!important}
+#gbRibbonBoot .gb-ribbon-scan{
+  box-shadow:0 0 5px rgba(211,157,56,.39),0 0 12px rgba(232,195,106,.23)!important;
+}
+#gbRibbonBoot.is-render-idle .gb-ribbon-ink{
+  display:block!important;opacity:1;
+}
+/* A seamless cross-fade rather than hiding the signed outline in a single frame. */
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-signature{
+  transition:opacity .72s cubic-bezier(.36,0,.2,1),transform .74s cubic-bezier(.22,1,.36,1)!important;
+}
+@media(max-width:780px){
+  #gbRibbonBoot .gb-ribbon-glass-specular{display:none!important}
+  #gbRibbonBoot .gb-ribbon-ink-glint{display:none!important}
+}
+
+/* Prevent the very first paint from using a different clip geometry. */
+#gbRibbonBoot.is-opening .gb-ribbon-original {clip-path:inset(0 0 0 100%)}
+
+/* V38 | Stable luminous pearl glass on every OS theme and display mode.
+   Keep a LIGHT fallback even when the WebP is unavailable, delayed or the
+   browser swaps into dark/forced-colors mode. */
+#gbRibbonBoot:not(.is-gateway){
+  background-color:#f6f5f1!important;
+  background-image:radial-gradient(ellipse 78% 63% at 48% 29%,#fff 0%,#f6f5f1 68%,#e7e4da 100%)!important;
+  color-scheme:only light;
+}
+#gbRibbonBoot:not(.is-gateway) .gb-ribbon-glass{
+  background-color:#f7f7f3!important;
+  background-image:
+    linear-gradient(150deg,rgba(255,255,255,.23),rgba(250,248,243,.10) 65%,rgba(255,255,255,.16)),
+    url('../assets/brand/gb-glass-pearl-v37.webp')!important;
+  background-size:cover,cover!important;
+  background-position:center,center!important;
+  background-repeat:no-repeat,no-repeat!important;
+}
+#gbRibbonBoot .gb-ribbon-glass,
+#gbRibbonBoot .gb-ribbon-glass-depth,
+#gbRibbonBoot .gb-ribbon-glass-specular{
+  mix-blend-mode:normal!important;
+}
+@media (forced-colors:active){
+  #gbRibbonBoot:not(.is-gateway),#gbRibbonBoot:not(.is-gateway) .gb-ribbon-glass{
+    forced-color-adjust:none;
+    background-color:#f8f7f3!important;
+  }
+}

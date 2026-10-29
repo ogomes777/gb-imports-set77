@@ -1,0 +1,54 @@
+name: GB Imports | Ribbon Tail + Light Glass V38
+on:
+  pull_request:
+    branches: [main, 'fix/gb-intro-reveal-stutter-v36', 'fix/gb-glass-no-flicker-v37']
+    paths:
+      - 'gb-ribbon-intro.js'
+      - 'gb-ribbon-intro.css'
+      - 'gb-edit-v12.js'
+      - 'index.html'
+      - 'tests/intro-v25.mjs'
+      - 'tests/intro-v26.mjs'
+      - 'tests/intro-perf-v27.mjs'
+      - 'tests/intro-v28.mjs'
+      - 'tests/intro-signature-v30.mjs'
+      - 'tests/intro-fluid-v31.mjs'
+      - 'tests/intro-vector-v32.mjs'
+      - 'tests/intro-staged-v33.mjs'
+      - 'tests/intro-retire-v34.mjs'
+      - 'tests/intro-fast-v35.mjs'
+      - 'tests/intro-no-stutter-v36.mjs'
+      - 'tests/intro-no-flicker-v37.mjs'
+      - 'tests/intro-tail-glass-v38.mjs'
+      - 'assets/brand/gb-glass-pearl-v37.webp'
+      - 'scripts/build.mjs'
+      - 'tests/e2e.mjs'
+      - '.github/workflows/gb-intro-v25.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  intro-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build existing GB flagship
+        run: node scripts/build.mjs
+      - name: Chromium for desktop and mobile tests
+        run: |
+          npm install --no-save playwright
+          npx playwright install chromium
+      - name: Verify first-paint intro, removal of all ribbon GPU work, and intact storefront
+        run: |
+          python3 -m http.server 8080 --directory dist > /tmp/gb-ribbon-http.log 2>&1 &
+          sleep 2
+          node tests/intro-staged-v33.mjs
+          node tests/intro-retire-v34.mjs
+          node tests/intro-fast-v35.mjs
+          node tests/intro-no-stutter-v36.mjs
+          node tests/intro-no-flicker-v37.mjs
+          node tests/intro-tail-glass-v38.mjs

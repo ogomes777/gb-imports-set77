@@ -27,22 +27,67 @@ for(const f of scripts){
 
 // CSS: remove só comentários e linhas vazias (sem minificador agressivo, para não alterar seletores).
 const css=styles.map(f=>`/* ${f} */\n`+read(f).replace(/\/\*[\s\S]*?\*\//g,'').replace(/\n\s*\n/g,'\n').trim()).join('\n');
-// JS: cada camada isolada por ';' — as camadas já são IIFEs ou declarações globais intencionais.
-const js=scripts.map(f=>`/* ${f} */\n${read(f).trim()}\n;`).join('\n');
+// The intro is an independent render entrypoint: it begins before the heavy store JS.
+const introScript='gb-ribbon-intro.js';
+if(!scripts.includes(introScript))throw new Error('Intro JS missing');
+const introJs=read(introScript).trim();
+const restScripts=scripts.filter(f=>f!==introScript);
 const hash=s=>createHash('sha1').update(s).digest('hex').slice(0,10);
-const cssName=`_gb/gb.${hash(css)}.css`,jsName=`_gb/gb.${hash(js)}.js`;
+const cssName='_gb/gb.'+hash(css)+'.css';
+const introName='_gb/gb-intro.'+hash(introJs)+'.js';
+// One ordered script per group, not a single half-megabyte blocking evaluation.
+const coreGroups=[];
+let group=[],size=0;
+for(const f of restScripts){
+  const bytes=Buffer.byteLength(read(f));
+  if(group.length&&size+bytes>72000){
+    coreGroups.push(group);
+    group=[];size=0;
+  }
+  group.push(f);size+=bytes;
+}
+if(group.length)coreGroups.push(group);
+const coreFiles=coreGroups.map((files,i)=>{
+ const content=files.map(f=>'/* '+f+' */\n'+read(f).trim()+'\n;').join('\n');
+ return {name:'_gb/gb-core-'+(i+1)+'.'+hash(content)+'.js',content,files};
+});
+const coreNames=coreFiles.map(part=>'./'+part.name);
 
 rmSync(DIST,{recursive:true,force:true});
 mkdirSync(join(DIST,'_gb'),{recursive:true});
 writeFileSync(join(DIST,cssName),css);
-writeFileSync(join(DIST,jsName),js);
+for(const part of coreFiles)writeFileSync(join(DIST,part.name),part.content);
+writeFileSync(join(DIST,introName),introJs);
 for(const d of ['assets','data'])cpSync(join(ROOT,d),join(DIST,d),{recursive:true});
 if(existsSync(join(ROOT,'robots.txt')))cpSync(join(ROOT,'robots.txt'),join(DIST,'robots.txt'));
 
 const stripLocal=h=>h
   .replace(/<link href="\.\/[^"]+\.css" rel="stylesheet"\/>/g,'')
   .replace(/<script defer="[^"]*" src="\.\/[^"]+\.js"><\/script>/g,'');
-let out=stripLocal(html).replace('</head>',()=>`<link href="./${cssName}" rel="stylesheet"/>\n<script defer src="./${jsName}"></script>\n</head>`);
+const coreBoot = [
+'<script>',
+'(()=>{',
+' let started=false,index=0;',
+' const groups='+JSON.stringify(coreNames)+';',
+' window.GB_CORE_READY=false;window.GB_CORE_FAILED=false;',
+' const next=()=>{',
+'  if(index>=groups.length){window.GB_CORE_READY=true;document.dispatchEvent(new Event("gb:core-ready"));return;}',
+'  const sc=document.createElement("script");sc.src=groups[index];sc.async=false;',
+'  sc.onload=()=>{index++;if(index>=groups.length)next();else if(window.requestIdleCallback)requestIdleCallback(next,{timeout:90});else setTimeout(next,24)};',
+'  sc.onerror=()=>{window.GB_CORE_FAILED=true;document.dispatchEvent(new Event("gb:core-ready"))};',
+'  document.head.append(sc);',
+' };',
+' window.GB_BOOT_CORE=()=>{if(started)return;started=true;next()};',
+' if(window.GBGlassRibbons?.opening){',
+'  setTimeout(()=>{const pre=document.createElement("link");pre.rel="prefetch";pre.href=groups[0];document.head.append(pre)},750);',
+'  setTimeout(window.GB_BOOT_CORE,9000);',
+' }else window.GB_BOOT_CORE();',
+'})();',
+'</script>'
+].join('\n');
+let out=stripLocal(html)
+ .replace('</head>',()=>'<link href="./'+cssName+'" rel="stylesheet"/>\n</head>')
+ .replace('</body>',()=>'<script src="./'+introName+'"></script>\n'+coreBoot+'\n</body>');
 writeFileSync(join(DIST,'index.html'),out);
 
 // Standalone: CSS/JS inline e ativos ./assets/... como data URI.
@@ -51,7 +96,8 @@ const inlineAssets=s=>s.replace(/(?:\.\/|\/)assets\/[A-Za-z0-9_\-./]+\.(svg|png|
   const rel=p.startsWith('./')?p.slice(2):p.replace(/^\/+/, '');
   const f=join(ROOT,rel);if(!existsSync(f))return p;
   return `data:${MIME[extname(f).toLowerCase()]};base64,${readFileSync(f).toString('base64')}`});
-const safeJs=js.replace(/<\/script/gi,'<\\/script');
+const fullJs=scripts.map(f=>'/* '+f+' */\n'+read(f).trim()+'\n;').join('\n');
+const safeJs=fullJs.replace(/<\/script/gi,'<\\/script');
 // Replacer em função: o código contém sequências como $' que String.replace interpretaria.
 let standalone=stripLocal(html).replace('</head>',()=>`<style>\n${inlineAssets(css)}\n</style>\n</head>`).replace('</body>',()=>`<script>\n${inlineAssets(safeJs)}\n</script>\n</body>`);
 writeFileSync(join(DIST,'gb-standalone.html'),inlineAssets(standalone));
@@ -59,6 +105,8 @@ writeFileSync(join(DIST,'gb-standalone.html'),inlineAssets(standalone));
 const kb=f=>(statSync(join(DIST,f)).size/1024).toFixed(1)+' KB';
 console.log('✓ build GB concluído em dist/');
 console.log(`  ${cssName}  ${kb(cssName)}  (${styles.length} camadas)`);
-console.log(`  ${jsName}  ${kb(jsName)}  (${scripts.length} camadas)`);
+console.log('  '+introName+'  '+kb(introName)+' (cinema primeiro)');
+console.log('  '+coreFiles.length+' blocos JS da loja, '+restScripts.length+' camadas sequenciais');
+for(const part of coreFiles)console.log('    '+part.name+'  '+kb(part.name)+'  '+part.files.join(', '));
 console.log(`  index.html  ${kb('index.html')}`);
 console.log(`  gb-standalone.html  ${kb('gb-standalone.html')}  (abre offline)`);
