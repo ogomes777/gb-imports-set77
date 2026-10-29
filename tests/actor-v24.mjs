@@ -14,7 +14,11 @@ for(const [width,height] of [[1440,900],[390,844]]){
  await page.waitForFunction(()=>window.GBTrue360,null,{timeout:30000});
  await page.evaluate(()=>GBTrue360.open());
  await page.waitForFunction(()=>GBTrue360.active&&GBTrue360.vertices>10000,null,{timeout:20000});
- await page.waitForTimeout(1100);
+ await page.waitForFunction(()=>{
+   const f=document.getElementById('gbFitFigure');
+   return document.querySelector('#lookstudio .look-stage')?.classList.contains('is-awake') &&
+     f && getComputedStyle(f).visibility==='visible' && +getComputedStyle(f).opacity>.99;
+ },null,{timeout:18000});
  let getState=()=>page.evaluate(()=>{
    const f=document.getElementById('gbFitFigure'),st=GBFitting.state;
    const part=n=>f.querySelector('.fit-layer-'+n+' .fit-garment')?.dataset.product||null;
