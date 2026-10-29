@@ -1,0 +1,32 @@
+name: GB UNIT / Canonical 3D actor QA
+on:
+  pull_request:
+    paths:
+      - 'gb-true3d.js'
+      - 'gb-true3d.css'
+      - 'tests/actor-v23.mjs'
+      - 'look-fitting.js'
+      - '.github/workflows/gb-actor-3d.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actor-3d:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build static bundle and verify JavaScript syntax
+        run: node scripts/build.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install chromium
+      - name: Assert canonical GB actor, 360 degree rotation and gestures
+        run: |
+          python3 -m http.server 8080 --directory dist > /tmp/gb-actor-http.log 2>&1 &
+          sleep 2
+          node tests/actor-v23.mjs http://127.0.0.1:8080/
