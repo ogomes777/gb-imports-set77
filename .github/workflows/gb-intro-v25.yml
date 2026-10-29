@@ -1,7 +1,7 @@
-name: GB Imports | Stable Glass and Signature V37
+name: GB Imports | Ribbon Tail + Light Glass V38
 on:
   pull_request:
-    branches: [main, 'fix/gb-intro-reveal-stutter-v36']
+    branches: [main, 'fix/gb-intro-reveal-stutter-v36', 'fix/gb-glass-no-flicker-v37']
     paths:
       - 'gb-ribbon-intro.js'
       - 'gb-ribbon-intro.css'
@@ -19,6 +19,7 @@ on:
       - 'tests/intro-fast-v35.mjs'
       - 'tests/intro-no-stutter-v36.mjs'
       - 'tests/intro-no-flicker-v37.mjs'
+      - 'tests/intro-tail-glass-v38.mjs'
       - 'assets/brand/gb-glass-pearl-v37.webp'
       - 'scripts/build.mjs'
       - 'tests/e2e.mjs'
@@ -50,3 +51,4 @@ jobs:
           node tests/intro-fast-v35.mjs
           node tests/intro-no-stutter-v36.mjs
           node tests/intro-no-flicker-v37.mjs
+          node tests/intro-tail-glass-v38.mjs

@@ -67,6 +67,8 @@ let width=1,height=1,pixelRatio=1,raf=0,last=0,t=0,frames=0,paintAvg=0,paintMax=
 // Frame-time feedback keeps the same visual language while lowering detail on weak GPUs.
 // Conservative first frames. Increase detail only when the device proves it can render smoothly.
 const constrained=(navigator.hardwareConcurrency>0&&navigator.hardwareConcurrency<=4) || (navigator.deviceMemory>0&&navigator.deviceMemory<=4) || Boolean(navigator.connection?.saveData);
+// Keep the same renderer resolution from first frame to final signature:
+ // changing canvas.width on a slow Edge GPU forces a fresh graphics buffer.
 let quality=constrained?2:1,rollingGap=16,lastQualityChange=0,lastLogoPaint=0,throttledFrames=0;
 let sweepHead=1.085,sweepX=1.0,signatureProgress=0,logoRevealed=false;
 const pointer={x:.5,y:.5,targetX:.5,targetY:.5,force:0,tap:0};
@@ -81,7 +83,9 @@ window.GB_GLASS_RIBBON_INTRO=true;
 function measure(){
  const r=host.getBoundingClientRect();
  width=Math.max(1,Math.round(r.width));height=Math.max(1,Math.round(r.height));
- pixelRatio=Math.min(devicePixelRatio||1,quality>=2?1:mobile()?1.2:1.35);
+ // A full-viewport canvas at 1.35x DPR can fill ~1.8x the pixels.
+ // Thin filaments are still visually crisp at <=1.05 DPR.
+ pixelRatio=Math.min(devicePixelRatio||1,quality>=2?.85:mobile()?1:1.05);
  const w=Math.round(width*pixelRatio),h=Math.round(height*pixelRatio);
  if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
  ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);
@@ -292,11 +296,13 @@ function draw(now){
  // Frame pacing is a browser/hardware budget, not a fixed artificial animation speed.
  // Quality adapts slowly, so a single camera-recording spike doesn't cause flicker.
  if(frames>8)rollingGap=rollingGap*.91+Math.min(elapsed,250)*.09;
- if(frames>18 && now-lastQualityChange>2000){
-   const next=rollingGap>72?Math.min(2,quality+1):
-    (rollingGap>40&&paintAvg>3.5)?Math.max(quality,1):
-    (rollingGap<33&&paintAvg<2.8&&!constrained)?Math.max(0,quality-1):quality;
-   if(next!==quality){quality=next;measure()}
+ // Adapt only at the very beginning. Switching quality after the ribbon
+ // covers half the display caused a costly Canvas backing-store reallocation
+ // at exactly the time users observed the end-of-sweep freeze.
+ const frameAge=firstFrame?now-firstFrame:0;
+ if(frames>12&&frameAge<950&&now-lastQualityChange>500){
+   const next=(rollingGap>53||paintAvg>5.5)?2:quality;
+   if(next>quality){quality=next;measure()}
    lastQualityChange=now;
  }
  last=now;if(!firstFrame)firstFrame=now;
@@ -335,12 +341,13 @@ function draw(now){
  ctx.lineJoin='round';ctx.lineCap='round';
  const centre=new Path2D();
  trace(centre,0,44,head);
- ctx.shadowColor='rgba(207,143,28,.68)';
- ctx.shadowBlur=quality>=2?10:compact?19:32;
- ctx.strokeStyle='rgba(88,61,32,'+(.20*faint)+')';
- ctx.lineWidth=minDim*.16;
- ctx.stroke(centre);
+ // The fat ambient halo now uses translucent strokes, not shadowBlur.
+ // Blurring a 100+ pixel-wide path whose visible length grows to full screen
+ // makes some integrated GPUs stall near the lower-left end of the sweep.
  ctx.shadowBlur=0;
+ ctx.strokeStyle='rgba(183,135,48,'+(.16*faint)+')';
+ ctx.lineWidth=minDim*.15;
+ ctx.stroke(centre);
  ctx.strokeStyle='rgba(216,147,27,'+(.25*faint)+')';
  ctx.lineWidth=minDim*.095;ctx.stroke(centre);
  ctx.strokeStyle='rgba(250,200,52,'+(.47*faint)+')';
