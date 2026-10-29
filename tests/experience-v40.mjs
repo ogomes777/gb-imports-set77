@@ -13,7 +13,7 @@ const server=createServer(async(req,res)=>{
  try{
   const path=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
   const route=/^\/(?:gb(?:\/|$)|gb-studio(?:\/|$))/.test(path);
-  name=resolve(ROOT,route?'index.html':path.slice(1)||'index.html');
+  name=resolve(ROOT,route?path.slice(1).replace(/\/$/,'')+'.html':path.slice(1)||'index.html');
   if(!name.startsWith(ROOT+'/')&&name!==ROOT)throw Error('outside dist');
   const body=await readFile(name);
   res.writeHead(200,{'content-type':MIME[extname(name)]||'application/octet-stream','cache-control':'no-store'});
@@ -36,6 +36,12 @@ try{
   const matrix=['/gb','/gb/entrar','/gb/cadastro','/gb/perfil','/gb/identidade','/gb/pedidos','/gb/pedido','/gb/rastreio','/gb/favoritos','/gb/sacola','/gb/checkout','/gb/comparar','/gb/medidas','/gb/alertas','/gb/colecoes','/gb/drops','/gb/marcas','/gb/busca','/gb/club','/gb/club/avatar','/gb/club/distrito','/gb/club/conquistas','/gb/club/temporada','/gb/club/armario','/gb/club/recompensas','/gb/club/ranking','/gb/club/amigos','/gb/comunidade','/gb/comunidade/publicar','/gb/ajuda','/gb/trocas','/gb/privacidade','/gb/acessibilidade','/gb/configuracoes','/gb-studio','/gb-studio/pedidos','/gb-studio/produtos','/gb-studio/clientes','/gb-studio/comunidade','/gb-studio/beneficios','/gb-studio/financeiro','/gb-studio/newsletter'];
   const found=await page.evaluate(routes=>routes.map(r=>{window.GBExperience.go(r);return{route:r,ok:window.GBExperience.path===r,title:!!document.querySelector('.gx-heading h1')?.textContent,visible:!document.getElementById('gbExperience').hidden}}),matrix);
   assert(found.every(x=>x.ok&&x.title&&x.visible),'missing routed UI '+JSON.stringify(found.filter(x=>!x.ok||!x.title||!x.visible)));
+  // Direct links now resolve their own static clean URL entrypoints (no test-only SPA rewrite).
+  for(const route of ['/gb','/gb/club','/gb/club/avatar','/gb/club/recompensas','/gb-studio']){
+    const response=await page.request.get(url+route);
+    assert(response.status()===200,'missing static deep link: '+route+' HTTP '+response.status());
+    assert((await response.text()).includes('gb-core-'),'broken core boot in '+route);
+  }
   await page.goto(url+'/gb/club/recompensas',{waitUntil:'domcontentloaded',timeout:35000});
   await page.waitForFunction(()=>window.GB_CORE_READY===true&&window.GBExperience?.path==='/gb/club/recompensas',{timeout:35000});
   assert(await page.locator('.gx-levels>div').count()===7,'7 level visual system missing');
