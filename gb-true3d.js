@@ -121,14 +121,17 @@ void main(){
 varying vec3 N,C;
 varying vec2 UV;
 varying float materialSlot,faceZ;
-uniform sampler2D clothTop,clothBottom,skinHead,shoePhoto,brandLogo;
+uniform sampler2D clothTop,clothBottom,skinHead,shoePhoto,brandLogo,skinHand,skinForearm,skinShin;
 void main(){
   vec3 n=normalize(N),light=normalize(vec3(-.7,.95,1.15));
   float shade=.40+.54*max(dot(n,light),0.0)+.13*max(dot(n,normalize(vec3(.8,.35,-.65))),0.0);
   float spec=pow(max(dot(reflect(-light,n),vec3(0.,0.,1.)),0.),30.)*.14;
   vec3 base=C;
   vec4 texel=vec4(0.);
-  if(materialSlot>4.5)texel=texture2D(brandLogo,UV);
+  if(materialSlot>7.5)texel=texture2D(skinShin,UV);
+  else if(materialSlot>6.5)texel=texture2D(skinForearm,UV);
+  else if(materialSlot>5.5)texel=texture2D(skinHand,UV);
+  else if(materialSlot>4.5)texel=texture2D(brandLogo,UV);
   else if(materialSlot>3.5)texel=texture2D(shoePhoto,UV);
   else if(materialSlot>2.5)texel=texture2D(skinHead,UV);
   else if(materialSlot>1.5)texel=texture2D(clothBottom,UV);
@@ -162,7 +165,7 @@ void main(){
     breathUniform=gl.getUniformLocation(prog,'breathTime'),
     gestureUniform=gl.getUniformLocation(prog,'gesture'),gesturePhaseUniform=gl.getUniformLocation(prog,'gesturePhase');
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);
-  const textureSamplers=['clothTop','clothBottom','skinHead','shoePhoto','brandLogo'];
+  const textureSamplers=['clothTop','clothBottom','skinHead','shoePhoto','brandLogo','skinHand','skinForearm','skinShin'];
   const textures=textureSamplers.map((key,i)=>{
     const t=gl.createTexture();gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,t);
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
@@ -173,7 +176,7 @@ void main(){
     gl.uniform1i(gl.getUniformLocation(prog,key),i);
     return t;
   });
-  const textureSources=['','','','',''];
+  const textureSources=textureSamplers.map(()=>'');
   function uploadTexture(slot,url){
     if(textureSources[slot]===url)return;
     textureSources[slot]=url;
@@ -228,6 +231,9 @@ void main(){
   }
   uploadTexture(2,window.GB_SKIN?.pieces?.head?.src||'');
   uploadTexture(4,'./assets/brand/gb-monograma-preto.svg');
+  uploadTexture(5,window.GB_SKIN?.pieces?.haL?.src||'');
+  uploadTexture(6,window.GB_SKIN?.pieces?.foL?.src||'');
+  uploadTexture(7,window.GB_SKIN?.pieces?.shinL?.src||'');
   let triangles=[],bonePart=0,texPart=0,nVertices=0,active=false,rotation=0,target=0,velocity=0,lastStamp=0,
     tweenFrom=0,tweenStart=0,tweenDuration=750,settleTimer=0,
     frame=0,drag=null,dragX=0,dirty=false,visible=true,lastSelection='',revision=0,lastRender=0,
@@ -243,6 +249,9 @@ void main(){
     if(texPart===3)return [clamp(.5+Math.atan2(p[0],p[2])/TAU,0,1),clamp((p[1]-2.65)/.53,0,1)];
     if(texPart===4)return [clamp(1-(p[2]+.19)/.62,0,1),clamp((p[1]-.02)/.31,0,1)];
     if(texPart===5)return [clamp(.5+p[0]/.15,0,1),clamp((p[1]-3.017)/.091,0,1)];
+    if(texPart===6)return [clamp(.5+(p[0]-(p[0]<0?-.55:.55))/.21,0,1),clamp((p[1]-1.01)/.27,0,1)];
+    if(texPart===7)return [clamp(.5+(p[0]-(p[0]<0?-.53:.53))/.27,0,1),clamp((p[1]-1.24)/.55,0,1)];
+    if(texPart===8)return [clamp(.5+(p[0]-(p[0]<0?-.253:.253))/.34,0,1),clamp((p[1]-.19)/.66,0,1)];
     return[0,0];
   }
   function tri(a,b,c,color){const n=norm(cross(sub(b,a),sub(c,a)));for(const p of[a,b,c])triangles.push(...p,...n,...color,bonePart,texPart,...texUV(p))}
