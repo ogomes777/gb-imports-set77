@@ -22,7 +22,8 @@ for(const cfg of configs){
   const g=getComputedStyle(glass),cs=getComputedStyle(host);
   return {bg:g.backgroundColor,image:g.backgroundImage,hostbg:cs.backgroundColor,can:GBGlassRibbons.canvasSize,quality:GBGlassRibbons.quality,progress:GBGlassRibbons.sweep,frames:GBGlassRibbons.frames,animation:GBGlassRibbons.opening};
  });
- await p.screenshot({path:'/vercel/gb-imports-set77/v38-'+cfg.name+'.png',type:'png'});
+ // CI must never assume a Vercel sandbox filesystem path.
+ // Visual capture is not needed for this layout/animation regression.
  assert(mid.image.includes('gb-glass-pearl-v37.webp'),'The optical glass asset was lost '+JSON.stringify(mid));
  assert(['rgb(247, 247, 243)','rgb(248, 247, 243)'].includes(mid.bg)&&['rgb(246, 245, 241)','rgb(248, 247, 243)'].includes(mid.hostbg),'Dark theme/failure did not get a light fallback '+JSON.stringify(mid));
  await p.waitForFunction(()=>GBGlassRibbons.parked===true,null,{timeout:18000});
