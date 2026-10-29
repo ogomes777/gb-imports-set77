@@ -38,4 +38,15 @@ for(const [w,h,slow] of [[1440,900,false],[390,844,false],[360,780,true]]){
  console.log(JSON.stringify({width:w,slow,elapsed:Date.now()-started,atStart,during,after,errors:errs}));
  await c.close();
 }
+// Direct product links must load the product immediately, without holding the lead in a film.
+const deepCtx=await b.newContext({viewport:{width:390,height:844}});
+const deep=await deepCtx.newPage();const deepe=[];
+deep.on('pageerror',e=>deepe.push(e.message));
+await deep.goto('http://127.0.0.1:8080/?peca=gb-sh-02',{waitUntil:'domcontentloaded'});
+await deep.waitForFunction(()=>window.GB_CORE_READY===true,null,{timeout:25000});
+await deep.waitForFunction(()=>document.querySelector('#productModal h2')?.textContent?.length>3,null,{timeout:10000});
+const direct=await deep.evaluate(()=>({opening:GBGlassRibbons.opening,ready:GB_CORE_READY,product:document.querySelector('#productModal h2')?.textContent,hidden:getComputedStyle(document.querySelector('#top')).visibility}));
+assert(!direct.opening&&direct.ready&&direct.hidden==='visible'&&deepe.length===0,'direct product URL regressed '+JSON.stringify({direct,deepe}));
+console.log('DIRECT_PRODUCT',direct);
+await deepCtx.close();
 await b.close();
