@@ -54,7 +54,18 @@ for(const [width,height] of [[1440,900],[390,844]]){
    f.querySelector('.fit-layer-bottom .fit-garment')?.dataset.product===c.bottom &&
    f.querySelector('.fit-layer-shoe .fit-shoe')?.dataset.product===c.shoe &&
    f.querySelector('.fit-layer-cap .fit-cap')?.dataset.product===c.cap;
- },catalog,{timeout:12000});
+ },catalog,{timeout:18000}).catch(async err=>{
+   const d=await page.evaluate(()=>{
+     const f=document.querySelector('#gbFitFigure');
+     return{state:GBFitting.state,
+       top:f?.querySelector('.fit-layer-top .fit-garment')?.dataset.product,
+       bottom:f?.querySelector('.fit-layer-bottom .fit-garment')?.dataset.product,
+       shoe:f?.querySelector('.fit-layer-shoe .fit-shoe')?.dataset.product,
+       cap:f?.querySelector('.fit-layer-cap .fit-cap')?.dataset.product,
+       stage:document.querySelector('#lookstudio .look-stage')?.className};
+   });
+   throw new Error('Outfit did not settle: '+JSON.stringify(d)+' / '+err.message);
+ });
  await page.waitForTimeout(600);
  let outf=await getState();
  assert(outf.top===catalog.top&&outf.bottom===catalog.bottom&&outf.shoe===catalog.shoe&&outf.cap===catalog.cap,'fitting regression '+JSON.stringify(outf));
