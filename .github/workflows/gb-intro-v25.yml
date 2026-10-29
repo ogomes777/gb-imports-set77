@@ -1,7 +1,7 @@
-name: GB Imports | Stutter-Free Logo Reveal V36
+name: GB Imports | Stable Glass and Signature V37
 on:
   pull_request:
-    branches: [main]
+    branches: [main, 'fix/gb-intro-reveal-stutter-v36']
     paths:
       - 'gb-ribbon-intro.js'
       - 'gb-ribbon-intro.css'
@@ -18,6 +18,8 @@ on:
       - 'tests/intro-retire-v34.mjs'
       - 'tests/intro-fast-v35.mjs'
       - 'tests/intro-no-stutter-v36.mjs'
+      - 'tests/intro-no-flicker-v37.mjs'
+      - 'assets/brand/gb-glass-pearl-v37.webp'
       - 'scripts/build.mjs'
       - 'tests/e2e.mjs'
       - '.github/workflows/gb-intro-v25.yml'
@@ -47,3 +49,4 @@ jobs:
           node tests/intro-retire-v34.mjs
           node tests/intro-fast-v35.mjs
           node tests/intro-no-stutter-v36.mjs
+          node tests/intro-no-flicker-v37.mjs
