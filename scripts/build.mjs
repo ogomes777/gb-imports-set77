@@ -90,6 +90,20 @@ let out=stripLocal(html)
  .replace('</body>',()=>'<script src="./'+introName+'"></script>\n'+coreBoot+'\n</body>');
 writeFileSync(join(DIST,'index.html'),out);
 
+// V40 route entrypoints: emit real clean-URL HTML files for every visual route.
+// This avoids relying solely on platform SPA rewrites for direct links / refresh.
+// Each page shares the same hashed chunks and original storefront source of truth.
+const experienceRoutes=[...read('gb-experience-v40.js').matchAll(/^\s*'(\/(?:gb|gb-studio)(?:\/[^']*)?)':\[/gm)]
+  .map(match=>match[1]);
+if(new Set(experienceRoutes).size!==experienceRoutes.length)throw new Error('Duplicate V40 route paths');
+for(const route of experienceRoutes){
+  const rel=route.slice(1)+'.html';
+  mkdirSync(dirname(join(DIST,rel)),{recursive:true});
+  writeFileSync(join(DIST,rel),out);
+}
+console.log('  GB V40 clean-route entrypoints: '+experienceRoutes.length);
+
+
 // Standalone: CSS/JS inline e ativos ./assets/... como data URI.
 const MIME={'.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'image/jpeg','.avif':'image/avif'};
 const inlineAssets=s=>s.replace(/(?:\.\/|\/)assets\/[A-Za-z0-9_\-./]+\.(svg|png|webp|jpe?g|avif)/g,p=>{
