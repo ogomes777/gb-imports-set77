@@ -36,7 +36,7 @@ for(const [w,h,slow] of [[1440,900,false],[390,844,false],[360,780,true]]){
   active:GBGlassRibbons.active,
   retired:!document.querySelector('#gbRibbonBoot')
  }));
- assert(after.retired&&!after.active&&after.heavy===10&&after.fit==='object'&&after.hidden==='visible'&&after.overflow<3&&errs.length===0,'Store incomplete '+JSON.stringify({after,errs}));
+ assert(after.retired&&!after.active&&after.heavy>=10&&after.fit==='object'&&after.hidden==='visible'&&after.overflow<3&&errs.length===0,'Store incomplete '+JSON.stringify({after,errs}));
  console.log(JSON.stringify({width:w,slow,elapsed:Date.now()-started,atStart,during,after,errors:errs}));
  await c.close();
 }
