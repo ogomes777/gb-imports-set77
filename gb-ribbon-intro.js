@@ -72,41 +72,74 @@ document.addEventListener('visibilitychange',()=>{last=0;request()},{passive:tru
 if('IntersectionObserver'in window){
  new IntersectionObserver(es=>{visibility=intro||!!es[0]?.isIntersecting;request()},{rootMargin:'200px'}).observe(stage);
 }
-// Match the recorded reference's concentrated luminous S-curve.
-// The path comes from below the lower-left corner, flattens through the middle,
-// twists into an upper-right ascent. It is ONE continuous bundle of filaments.
+// V31 | Fluid ribbon: one spring-damped spline and hundreds of hairline lights.
+// Cache curve normals once per frame; strands no longer recompute a spline
+// three times per sample. The result is more organic and cheaper to draw.
 const logistic=x=>1/(1+Math.exp(-x));
+const curveCount=100;
+const cxCache=new Float32Array(curveCount+1);
+const cyCache=new Float32Array(curveCount+1);
+const nxCache=new Float32Array(curveCount+1);
+const nyCache=new Float32Array(curveCount+1);
+const curlCache=new Float32Array(curveCount+1);
+const shimmerCache=new Float32Array(curveCount+1);
+const flow={bend:0,velocity:0,twist:0,twistVelocity:0,phase:0};
+function spring(state,velocity,target,dt,freq=3.8){
+ const accel=(target-state)*freq*freq-2*freq*velocity;
+ velocity+=accel*Math.min(.032,dt);
+ state+=velocity*Math.min(.032,dt);
+ return [state,velocity];
+}
 function spine(u,phase){
- const x=width*(-.145+1.29*u);
- const a=logistic((u-.18)*23);
- const b=logistic((u-.72)*21);
- const breathing=Math.sin(u*7.7+phase*.31)*.013+Math.sin(u*13.0-phase*.16)*.003;
- const drift=Math.sin(phase*.19)*.016;
- const y=height*(1.175-.625*a-.77*b+breathing+drift);
+ const a=logistic((u-.183)*21.5);
+ const b=logistic((u-.735)*19.4);
+ const taper=Math.sin(u*Math.PI);
+ // A living Bezier-like wave, not a wobbling cutout. Endpoints remain outside
+ // screen, while middle sections bend with a smooth travelling deformation.
+ const longWave=Math.sin(phase*.43+u*5.3)*.027;
+ const fineWave=Math.sin(phase*.29-u*8.1)*.010;
+ const lift=flow.bend*taper*.052;
+ const x=width*(-.145+1.29*u+Math.sin(phase*.30+u*4.3)*taper*.010);
+ const y=height*(1.175-.625*a-.77*b+longWave+fineWave*taper+lift);
  return [x,y];
 }
-function strand(u,v,phase){
- // Offsets are measured across the *normal* of the S-curve: no flat fan.
- const e=.002;
- const p=spine(u,phase),prev=spine(Math.max(0,u-e),phase),next=spine(Math.min(1,u+e),phase);
- const dx=next[0]-prev[0],dy=next[1]-prev[1],inv=1/Math.max(1,Math.hypot(dx,dy));
- const nx=-dy*inv,ny=dx*inv;
- // Twisting and pinching make multiple light-threads cross without a rigid strip.
- const twist=Math.sin(u*10.0-phase*.43+v*.20);
- const separation=.28+.72*Math.pow(Math.abs(twist),.78);
- const spread=Math.min(width,height)*(mobile()?.038:.049)*separation;
- const cross=v*spread+v*v*spread*.17*Math.cos(u*14.5+phase*.49);
- const shimmer=Math.sin(u*19.2+phase*.38+v*1.25)*Math.abs(v)*height*.00075;
- const magnet=Math.exp(-Math.pow((u-(pointer.x+.145)/1.29)*3.2,2))*pointer.force*(pointer.y-.5)*height*.031;
- return [p[0]+nx*(cross+shimmer)+ny*magnet*.14,p[1]+ny*(cross+shimmer)+magnet];
+function buildCurve(phase){
+ for(let i=0;i<=curveCount;i++){
+  const u=i/curveCount;
+  const q=spine(u,phase);
+  cxCache[i]=q[0];cyCache[i]=q[1];
+  curlCache[i]=Math.sin(u*10.2-phase*.52+flow.twist*.35);
+  shimmerCache[i]=Math.sin(u*17.2+phase*.37);
+ }
+ for(let i=0;i<=curveCount;i++){
+  const prev=Math.max(0,i-1),next=Math.min(curveCount,i+1);
+  const dx=cxCache[next]-cxCache[prev],dy=cyCache[next]-cyCache[prev];
+  const inv=1/Math.max(1,Math.hypot(dx,dy));
+  nxCache[i]=-dy*inv;nyCache[i]=dx*inv;
+ }
 }
-function trace(path,v,phase,samples,head=0){
- // From right to left, progressive and naturally flexible.
+function strand(u,v){
+ const pos=clamp(u,0,1)*curveCount;
+ const i=Math.min(curveCount-1,pos|0),f=pos-i;
+ const mix=(arr)=>arr[i]+(arr[i+1]-arr[i])*f;
+ const nx=mix(nxCache),ny=mix(nyCache);
+ const curl=mix(curlCache);
+ const pinch=.22+.78*Math.pow(Math.abs(curl),.76);
+ const envelope=.74+.26*Math.sin(u*Math.PI);
+ const spread=Math.min(width,height)*(mobile()?.036:.049)*pinch*envelope;
+ const cross=v*spread+v*v*spread*.16*Math.cos(u*12.2+t*.41);
+ const flick=mix(shimmerCache)*Math.abs(v)*height*.00065;
+ const near=pointer.x;
+ const magnet=Math.exp(-Math.pow((u-(near+.145)/1.29)*3.1,2))*pointer.force*(pointer.y-.5)*height*.024;
+ const crossDist=cross+flick;
+ return [mix(cxCache)+nx*crossDist+ny*magnet*.10,
+         mix(cyCache)+ny*crossDist+magnet];
+}
+function trace(path,v,samples,head=0){
  if(head>=1)return;
- const start=Math.max(0,head);
+ const beginning=Math.max(0,head);
  for(let i=0;i<=samples;i++){
-  const u=start+(1-start)*(i/samples);
-  const q=strand(u,v,phase);
+  const q=strand(beginning+(1-beginning)*(i/samples),v);
   if(!i)path.moveTo(q[0],q[1]);else path.lineTo(q[0],q[1]);
  }
 }
@@ -162,6 +195,12 @@ function draw(now){
  last=now;if(!firstFrame)firstFrame=now;
  // Preserve cinematic movement speed when rAF drops frames instead of going into slow motion.
  t+=dt;
+ flow.phase=t;
+ const pull=pointer.force*(pointer.y-.5)*1.1;
+ const twistTarget=pointer.force*(pointer.x-.5)*.9;
+ [flow.bend,flow.velocity]=spring(flow.bend,flow.velocity,pull,dt,4.1);
+ [flow.twist,flow.twistVelocity]=spring(flow.twist,flow.twistVelocity,twistTarget,dt,3.5);
+ buildCurve(t);
  const age=now-firstFrame;
  const travel=intro?ease(clamp((age-380)/3030,0,1)):1;
  sweepHead=intro?1.085-travel*1.105:0;
@@ -187,7 +226,7 @@ function draw(now){
  ctx.save();
  ctx.lineJoin='round';ctx.lineCap='round';
  const centre=new Path2D();
- trace(centre,0,t,44,head);
+ trace(centre,0,44,head);
  ctx.shadowColor='rgba(207,143,28,.68)';
  ctx.shadowBlur=quality>=2?10:compact?19:32;
  ctx.strokeStyle='rgba(88,61,32,'+(.20*faint)+')';
@@ -203,7 +242,7 @@ function draw(now){
  ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
  for(let i=0;i<n;i++){
   const v=-1+2*i/(n-1);
-  const p=new Path2D();trace(p,v,t,steps,head);
+  const p=new Path2D();trace(p,v,steps,head);
   const core=Math.exp(-v*v*2.2);
   const deep=(i%7===0);
   const light=(i%5===1||i%5===2);
@@ -217,7 +256,7 @@ function draw(now){
  // Layer 2: the almost-white cores glow against their warm-gold underlay.
  for(let i=0;i<Math.max(5,Math.floor(n/6));i++){
   const v=(i/(Math.max(5,Math.floor(n/6))-1)-.5)*.83;
-  const p=new Path2D();trace(p,v,t,steps,head);
+  const p=new Path2D();trace(p,v,steps,head);
   ctx.strokeStyle='rgba(255,246,177,'+(.82*faint)+')';
   ctx.lineWidth=compact?.85:1.12;
   ctx.stroke(p);
@@ -225,7 +264,7 @@ function draw(now){
  ctx.restore();
  // A luminous leading tip makes the direction of travel unmistakable.
  if(intro&&head>0.015&&head<.995){
-   const tip=strand(head,0,t);
+   const tip=strand(head,0);
    const radius=Math.min(width,height)*(quality>=2?.038:.063);
    const grad=ctx.createRadialGradient(tip[0],tip[1],0,tip[0],tip[1],radius);
    grad.addColorStop(0,'rgba(255,250,203,.85)');
@@ -257,6 +296,7 @@ window.GBGlassRibbons=Object.freeze({
  get fullGlass(){return getComputedStyle(host.querySelector('.gb-ribbon-glass')).inset==='0px'},
  get logoAsset(){return logo.getAttribute('src')},
  get sweep(){return sweepX},get signatureProgress(){return signatureProgress},
+ get flowBend(){return +flow.bend.toFixed(4)},get flowTwist(){return +flow.twist.toFixed(4)},
  finish:settle,
  replay(){
   if(reduced.matches)return;
