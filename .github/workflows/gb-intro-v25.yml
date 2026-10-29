@@ -12,6 +12,7 @@ on:
       - 'tests/intro-perf-v27.mjs'
       - 'tests/intro-v28.mjs'
       - 'tests/intro-signature-v30.mjs'
+      - 'tests/intro-fluid-v31.mjs'
       - '.github/workflows/gb-intro-v25.yml'
   workflow_dispatch:
 permissions:
@@ -40,3 +41,4 @@ jobs:
           node tests/intro-perf-v27.mjs
           node tests/intro-v28.mjs
           node tests/intro-signature-v30.mjs
+          node tests/intro-fluid-v31.mjs
