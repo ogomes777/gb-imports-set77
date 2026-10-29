@@ -49,7 +49,7 @@ function mount(){
   const yawUniform=gl.getUniformLocation(prog,'turn'),aspectUniform=gl.getUniformLocation(prog,'aspect');
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);
   let triangles=[],nVertices=0,active=false,rotation=0,target=0,velocity=0,lastStamp=0,
-    tweenFrom=0,tweenStart=0,tweenDuration=750,
+    tweenFrom=0,tweenStart=0,tweenDuration=750,settleTimer=0,
     frame=0,drag=null,dragX=0,dirty=false,visible=true,lastSelection='',revision=0;
   let look={top:C.white,bottom:C.armor,shoe:C.shoe,cap:C.armor,topKind:'hoodie',
     bottomKind:'pants',hasShoe:true,hasCap:false,hoodUp:false};
@@ -241,17 +241,24 @@ function mount(){
     if(active)return true;
     if(stage.classList.contains('is-fit-compare'))return false;
     if(window.GBFitting.emoting)window.GBFitting.emote(window.GBFitting.emoting);
-    active=true;rotation=0;target=0;velocity=0;lastStamp=0;tweenStart=0;dirty=true;
+    active=true;rotation=0;target=0;velocity=0;lastStamp=0;tweenStart=0;clearTimeout(settleTimer);dirty=true;
     stage.classList.add('is-true-3d');surface.setAttribute('aria-hidden','false');
     outfit(true);renderNext();return true
   }
   function close(){
     active=false;stage.classList.remove('is-true-3d');surface.setAttribute('aria-hidden','true');
-    cancelAnimationFrame(frame);frame=0;lastStamp=0;tweenStart=0;drag=null;surface.classList.remove('is-dragging')
+    cancelAnimationFrame(frame);clearTimeout(settleTimer);frame=0;lastStamp=0;tweenStart=0;drag=null;surface.classList.remove('is-dragging')
   }
   function tweenTo(destination,duration){
+    clearTimeout(settleTimer);
     tweenFrom=rotation;target=destination;tweenStart=performance.now();
-    tweenDuration=duration;dirty=true;renderNext()
+    tweenDuration=duration;dirty=true;renderNext();
+    // Safety deadline for browsers that throttle rAF under heavy compositing:
+    // finish the requested angle rather than leaving the robot half-turned.
+    settleTimer=setTimeout(()=>{
+      if(!active||drag!==null||target!==destination)return;
+      rotation=destination;tweenStart=0;dirty=true;renderNext()
+    },duration+75)
   }
   function rotateTo(deg){
     if(!open())return;
@@ -266,7 +273,7 @@ function mount(){
   function begin(e){
     if(e.button!==0||!open())return;
     e.preventDefault();e.stopImmediatePropagation();drag=e.pointerId;dragX=e.clientX;
-    velocity=0;tweenStart=0;surface.classList.add('is-dragging');renderNext();
+    velocity=0;tweenStart=0;clearTimeout(settleTimer);surface.classList.add('is-dragging');renderNext();
     try{e.target.setPointerCapture(e.pointerId)}catch{}
   }
   function move(e){
@@ -314,7 +321,7 @@ function mount(){
     const track=dial.querySelector('.fit-spin-track')||dial;
     const r=track.getBoundingClientRect();if(!r.width)return;
     const fraction=clamp((e.clientX-r.left)/r.width,0,1);
-    rotation=(fraction-.5)*TAU;target=rotation;velocity=0;tweenStart=0;dirty=true;renderNext();
+    rotation=(fraction-.5)*TAU;target=rotation;velocity=0;tweenStart=0;clearTimeout(settleTimer);dirty=true;renderNext();
     dial.style.setProperty('--orbit-position',(fraction*100).toFixed(1)+'%');
   };
   dial?.addEventListener('pointerdown',e=>{
