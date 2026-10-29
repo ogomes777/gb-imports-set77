@@ -11,7 +11,16 @@ for(const [width,height] of [[1440,900],[390,844]]){
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.GBFitting&&document.querySelector('#lookstudio .look-stage'),null,{timeout:15000});
  await page.evaluate(()=>{document.querySelector('#lookstudio .look-stage').scrollIntoView({block:'center',behavior:'instant'})});
- await page.waitForFunction(()=>window.GBActor&&window.GBTrue360,null,{timeout:15000});
+ await page.waitForFunction(()=>window.GBActor&&window.GBTrue360,null,{timeout:45000}).catch(async err=>{
+    const diagnostic=await page.evaluate(()=>({
+      fit:!!window.GBFitting,actor:!!window.GBActor,volume:!!window.GBTrue360,
+      scene:!!document.querySelector('#lookstudio .fit-scene'),
+      canvas:!!document.querySelector('#lookstudio .gb-volume-canvas'),
+      stage:document.querySelector('#lookstudio .look-stage')?.className,
+      scroll:scrollY
+    }));
+    throw new Error('Actor mount not ready: '+JSON.stringify({diagnostic,errors,reason:err.message}));
+  });
  await page.waitForTimeout(600);
  const beforeActivation=await page.evaluate(()=>({active:GBTrue360.active,visible:document.querySelector('#lookstudio .look-stage').getBoundingClientRect().top,scroll:scrollY,compare:document.querySelector('#lookstudio .look-stage').className}));
  console.log('ACTIVATION',width,beforeActivation);
