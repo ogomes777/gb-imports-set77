@@ -49,6 +49,7 @@ function mount(){
   const yawUniform=gl.getUniformLocation(prog,'turn'),aspectUniform=gl.getUniformLocation(prog,'aspect');
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);
   let triangles=[],nVertices=0,active=false,rotation=0,target=0,velocity=0,lastStamp=0,
+    tweenFrom=0,tweenStart=0,tweenDuration=750,
     frame=0,drag=null,dragX=0,dirty=false,visible=true,lastSelection='',revision=0;
   let look={top:C.white,bottom:C.armor,shoe:C.shoe,cap:C.armor,topKind:'hoodie',
     bottomKind:'pants',hasShoe:true,hasCap:false,hoodUp:false};
@@ -211,11 +212,14 @@ function mount(){
     if(!w||!h||!nVertices)return;
     const W=Math.round(w*dpr),H=Math.round(h*dpr);
     if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H}
-    const dt=lastStamp?clamp((now-lastStamp)/1000,.008,.05):.016;lastStamp=now;
-    if(drag==null){
-      velocity=clamp(velocity+clamp((target-rotation)*52-velocity*13,-80,80)*dt,-8,8);
-      rotation+=velocity*dt;
-      if(Math.abs(target-rotation)<.001&&Math.abs(velocity)<.003){rotation=target;velocity=0}
+    lastStamp=now;
+    if(drag==null&&tweenStart){
+      // Duration uses wall-clock time, not per-frame Euler steps.
+      // Even a slow GPU catches up instead of freezing at 1° forever.
+      const t=clamp((now-tweenStart)/tweenDuration,0,1);
+      const eased=1-Math.pow(1-t,3.3);
+      rotation=tweenFrom+(target-tweenFrom)*eased;
+      if(t>=1){rotation=target;tweenStart=0;velocity=0}
     }
     gl.viewport(0,0,W,H);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
     gl.uniform1f(yawUniform,rotation);gl.uniform1f(aspectUniform,W/H);
@@ -229,7 +233,7 @@ function mount(){
       slider.setAttribute('aria-valuetext',name);
       slider.style.setProperty('--orbit-position',(((((degrees+180)%360)-180)/360+.5)*100).toFixed(1)+'%');
     }
-    if(drag!=null||Math.abs(target-rotation)>.001||Math.abs(velocity)>.003||dirty){
+    if(drag!=null||tweenStart!==0||dirty){
       dirty=false;renderNext()
     }else lastStamp=0
   }
@@ -237,30 +241,39 @@ function mount(){
     if(active)return true;
     if(stage.classList.contains('is-fit-compare'))return false;
     if(window.GBFitting.emoting)window.GBFitting.emote(window.GBFitting.emoting);
-    active=true;rotation=0;target=0;velocity=0;lastStamp=0;dirty=true;
+    active=true;rotation=0;target=0;velocity=0;lastStamp=0;tweenStart=0;dirty=true;
     stage.classList.add('is-true-3d');surface.setAttribute('aria-hidden','false');
     outfit(true);renderNext();return true
   }
   function close(){
     active=false;stage.classList.remove('is-true-3d');surface.setAttribute('aria-hidden','true');
-    cancelAnimationFrame(frame);frame=0;lastStamp=0;drag=null;surface.classList.remove('is-dragging')
+    cancelAnimationFrame(frame);frame=0;lastStamp=0;tweenStart=0;drag=null;surface.classList.remove('is-dragging')
+  }
+  function tweenTo(destination,duration){
+    tweenFrom=rotation;target=destination;tweenStart=performance.now();
+    tweenDuration=duration;dirty=true;renderNext()
   }
   function rotateTo(deg){
     if(!open())return;
-    const rad=deg*PI/180;target=rad+Math.round((rotation-rad)/TAU)*TAU;velocity=0;renderNext()
+    const rad=deg*PI/180,dest=rad+Math.round((rotation-rad)/TAU)*TAU;
+    const duration=clamp(420+Math.abs(dest-rotation)*340,430,1550);
+    tweenTo(dest,matchMedia('(prefers-reduced-motion: reduce)').matches?1:duration)
   }
-  function turnFull(){if(!open())return;target=rotation+TAU;velocity=0;renderNext()}
+  function turnFull(){
+    if(!open())return;
+    tweenTo(rotation+TAU,matchMedia('(prefers-reduced-motion: reduce)').matches?1:1800)
+  }
   function begin(e){
     if(e.button!==0||!open())return;
     e.preventDefault();e.stopImmediatePropagation();drag=e.pointerId;dragX=e.clientX;
-    velocity=0;surface.classList.add('is-dragging');renderNext();
+    velocity=0;tweenStart=0;surface.classList.add('is-dragging');renderNext();
     try{e.target.setPointerCapture(e.pointerId)}catch{}
   }
   function move(e){
     if(drag!==e.pointerId)return;
     e.preventDefault();e.stopImmediatePropagation();
     rotation+=(e.clientX-dragX)*PI/Math.max(180,canvas.clientWidth*.7);
-    dragX=e.clientX;target=rotation;velocity=0;dirty=true;renderNext()
+    dragX=e.clientX;target=rotation;velocity=0;tweenStart=0;dirty=true;renderNext()
   }
   function end(e){
     if(drag!==e.pointerId)return;
@@ -301,7 +314,7 @@ function mount(){
     const track=dial.querySelector('.fit-spin-track')||dial;
     const r=track.getBoundingClientRect();if(!r.width)return;
     const fraction=clamp((e.clientX-r.left)/r.width,0,1);
-    rotation=(fraction-.5)*TAU;target=rotation;velocity=0;dirty=true;renderNext();
+    rotation=(fraction-.5)*TAU;target=rotation;velocity=0;tweenStart=0;dirty=true;renderNext();
     dial.style.setProperty('--orbit-position',(fraction*100).toFixed(1)+'%');
   };
   dial?.addEventListener('pointerdown',e=>{
@@ -327,7 +340,7 @@ function mount(){
     if(!open())return;
     e.preventDefault();e.stopImmediatePropagation();
     if(e.key==='Home')rotateTo(0);else if(e.key==='End')rotateTo(180);
-    else{target=rotation+(e.key==='ArrowLeft'?-1:1)*PI/12;velocity=0;renderNext()}
+    else rotateTo(rotation*180/PI+(e.key==='ArrowLeft'?-15:15))
   },true);
   const refresh=setInterval(()=>{if(!document.body.contains(scene)){clearInterval(refresh);close()}else if(active)outfit()},800);
   window.addEventListener('resize',()=>{dirty=true;renderNext()},{passive:true});
