@@ -133,7 +133,7 @@ void main(){
   else if(materialSlot>2.5)texel=texture2D(skinHead,UV);
   else if(materialSlot>1.5)texel=texture2D(clothBottom,UV);
   else if(materialSlot>.5)texel=texture2D(clothTop,UV);
-  float weight=(materialSlot>4.5||(materialSlot>2.5&&materialSlot<3.5))?texel.a:texel.a*smoothstep(.045,.22,faceZ);
+  float weight=(materialSlot>2.5)?texel.a:texel.a*smoothstep(.045,.22,faceZ);
   base=mix(base,texel.rgb,weight);
   gl_FragColor=vec4(clamp(base*shade+vec3(1.,.81,.33)*spec,0.,1.),1.);
 }`;
@@ -241,7 +241,7 @@ void main(){
     if(texPart===1)return [clamp(.5+p[0]/1.12,0,1),clamp((p[1]-1.42)/1.16,0,1)];
     if(texPart===2)return [clamp(.5+p[0],0,1),clamp((p[1]-.17)/1.33,0,1)];
     if(texPart===3)return [clamp(.5+Math.atan2(p[0],p[2])/TAU,0,1),clamp((p[1]-2.65)/.53,0,1)];
-    if(texPart===4)return [clamp(.5+(p[0]-(p[0]<0?-.254:.254))/.44,0,1),clamp((p[2]+.20)/.65,0,1)];
+    if(texPart===4)return [clamp(1-(p[2]+.19)/.62,0,1),clamp((p[1]-.02)/.31,0,1)];
     if(texPart===5)return [clamp(.5+p[0]/.15,0,1),clamp((p[1]-3.017)/.091,0,1)];
     return[0,0];
   }
