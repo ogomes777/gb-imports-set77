@@ -1,4 +1,4 @@
-name: GB Imports | Cinematic Intro Smooth V35
+name: GB Imports | Stutter-Free Logo Reveal V36
 on:
   pull_request:
     branches: [main]
@@ -17,6 +17,7 @@ on:
       - 'tests/intro-staged-v33.mjs'
       - 'tests/intro-retire-v34.mjs'
       - 'tests/intro-fast-v35.mjs'
+      - 'tests/intro-no-stutter-v36.mjs'
       - 'scripts/build.mjs'
       - 'tests/e2e.mjs'
       - '.github/workflows/gb-intro-v25.yml'
@@ -45,3 +46,4 @@ jobs:
           node tests/intro-staged-v33.mjs
           node tests/intro-retire-v34.mjs
           node tests/intro-fast-v35.mjs
+          node tests/intro-no-stutter-v36.mjs

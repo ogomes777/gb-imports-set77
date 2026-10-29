@@ -80,7 +80,7 @@ const coreBoot = [
 ' window.GB_BOOT_CORE=()=>{if(started)return;started=true;next()};',
 ' if(window.GBGlassRibbons?.opening){',
 '  setTimeout(()=>{const pre=document.createElement("link");pre.rel="prefetch";pre.href=groups[0];document.head.append(pre)},750);',
-'  setTimeout(window.GB_BOOT_CORE,3120);',
+'  setTimeout(window.GB_BOOT_CORE,9000);',
 ' }else window.GB_BOOT_CORE();',
 '})();',
 '</script>'
