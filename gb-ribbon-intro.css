@@ -254,3 +254,66 @@ html.gb-ribbon-intro-playing body > :not(#gbRibbonBoot):not(script) {
  animation-play-state:paused!important;
 }
 #gbRibbonBoot.is-render-idle .gb-ribbon-ink {display:none!important}
+
+/* V37 | STATIC, PRE-FROSTED OPTICAL GLASS.
+   The SVG background contains a pre-blurred refraction: no live backdrop-filter,
+   no animated blur and no large animated GPU layers behind the ribbon. */
+#gbRibbonBoot.is-opening .gb-ribbon-glass,
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-glass,
+#gbRibbonBoot.is-render-idle .gb-ribbon-glass{
+  background:#f7f7f4 url('../assets/brand/gb-glass-pearl-v37.webp') center center / cover no-repeat!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.96),inset 0 -1px 0 rgba(151,136,115,.20)!important;
+}
+#gbRibbonBoot .gb-ribbon-glass:before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 57% 43% at 51% 42%,rgba(255,255,255,.20),transparent 78%),
+    linear-gradient(116deg,rgba(255,255,255,.12),transparent 29%,rgba(248,242,231,.07) 58%,transparent 87%)!important;
+  opacity:1!important;transform:none!important;animation:none!important;
+}
+#gbRibbonBoot .gb-ribbon-glass:after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 33%,rgba(255,255,255,.21) 46%,rgba(255,255,255,.09) 49%,transparent 63%)!important;
+  opacity:.55!important;transform:none!important;animation:none!important;
+}
+#gbRibbonBoot .gb-ribbon-glass-depth{
+  background:radial-gradient(ellipse 61% 50% at 53% 48%,rgba(255,255,255,.14),transparent 86%),
+    radial-gradient(ellipse 109% 87% at 50% 48%,transparent 51%,rgba(192,177,149,.11) 100%)!important;
+  box-shadow:inset 0 0 52px rgba(255,255,255,.26);
+}
+#gbRibbonBoot .gb-ribbon-glass-specular{
+  background:linear-gradient(167deg,transparent 32%,rgba(255,255,255,.24) 49%,transparent 57%)!important;
+  opacity:.25!important;transform:none!important;animation:none!important;
+  will-change:auto!important;
+}
+#gbRibbonBoot .gb-ribbon-original,
+#gbRibbonBoot .gb-ribbon-signature,
+#gbRibbonBoot .gb-ribbon-scan,
+#gbRibbonBoot .gb-ribbon-ink-outline,
+#gbRibbonBoot .gb-ribbon-ink-glint,
+#gbRibbonBoot .gb-ribbon-logo-plate:before{
+  filter:none!important;
+}
+#gbRibbonBoot .gb-ribbon-signature{isolation:isolate}
+#gbRibbonBoot .gb-ribbon-logo-atmosphere{
+  background:radial-gradient(ellipse,rgba(253,241,208,.32),rgba(240,218,176,.12) 41%,transparent 74%)!important;
+  opacity:.85!important;
+}
+#gbRibbonBoot .gb-ribbon-ink-outline{stroke:rgba(187,129,32,.72)!important}
+#gbRibbonBoot .gb-ribbon-ink-glint{stroke:rgba(255,250,221,.75)!important}
+#gbRibbonBoot .gb-ribbon-scan{
+  box-shadow:0 0 5px rgba(211,157,56,.39),0 0 12px rgba(232,195,106,.23)!important;
+}
+#gbRibbonBoot.is-render-idle .gb-ribbon-ink{
+  display:block!important;opacity:1;
+}
+/* A seamless cross-fade rather than hiding the signed outline in a single frame. */
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-signature{
+  transition:opacity .72s cubic-bezier(.36,0,.2,1),transform .74s cubic-bezier(.22,1,.36,1)!important;
+}
+@media(max-width:780px){
+  #gbRibbonBoot .gb-ribbon-glass-specular{display:none!important}
+  #gbRibbonBoot .gb-ribbon-ink-glint{display:none!important}
+}
+
+/* Prevent the very first paint from using a different clip geometry. */
+#gbRibbonBoot.is-opening .gb-ribbon-original {clip-path:inset(0 0 0 100%)}
