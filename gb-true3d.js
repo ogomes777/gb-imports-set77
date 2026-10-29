@@ -423,8 +423,12 @@ void main(){
   }
   function draw(now){
     frame=0;if(!active||document.hidden||!visible)return;
-    // Target 60 FPS when the device can deliver it; rAF naturally backs off on slower GPUs.
-    if(!reduced()&&!dirty&&now-lastRender<15.5){
+    // Preserve up to 60 FPS when orbiting, dancing or tracking input.
+    // Low-frequency breathing uses a lighter idle budget on mobile.
+    const busy=dancing||drag!==null||tweenStart!==0||gesture!==0||
+      blinkStart!==0||Math.abs(wantX-lookX)>.01||Math.abs(wantY-lookY)>.01;
+    const budget=busy?15.5:(innerWidth<780?32:23);
+    if(!reduced()&&!dirty&&now-lastRender<budget){
       renderNext();return
     }
     lastRender=now;
