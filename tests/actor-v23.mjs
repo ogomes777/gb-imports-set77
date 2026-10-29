@@ -10,7 +10,17 @@ for(const [width,height] of [[1440,900],[390,844]]){
  page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text())});
  await page.goto(BASE,{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.GBFitting&&document.querySelector('#lookstudio .look-stage'),null,{timeout:15000});
- await page.evaluate(()=>{document.querySelector('#lookstudio .look-stage').scrollIntoView({block:'center',behavior:'instant'})});
+ // The mobile flagship may restore scroll after DOMContentLoaded. Bring the
+ // lazy-mounted fitting scene into view repeatedly until its observer fires.
+ for(let attempt=0;attempt<18;attempt++){
+   const mounted=await page.evaluate(()=>!!document.querySelector('#lookstudio .fit-scene'));
+   if(mounted)break;
+   await page.evaluate(()=>document.querySelector('#lookstudio .look-stage')
+     ?.scrollIntoView({block:'center',behavior:'instant'}));
+   await page.waitForTimeout(350);
+ }
+ await page.evaluate(()=>document.querySelector('#lookstudio .look-stage')
+   ?.scrollIntoView({block:'center',behavior:'instant'}));
  await page.waitForFunction(()=>window.GBActor&&window.GBTrue360,null,{timeout:45000}).catch(async err=>{
     const diagnostic=await page.evaluate(()=>({
       fit:!!window.GBFitting,actor:!!window.GBActor,volume:!!window.GBTrue360,
