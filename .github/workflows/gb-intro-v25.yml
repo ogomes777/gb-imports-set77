@@ -1,0 +1,34 @@
+name: GB Imports | Glass Ribbon Intro
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'gb-ribbon-intro.js'
+      - 'gb-ribbon-intro.css'
+      - 'gb-edit-v12.js'
+      - 'index.html'
+      - 'tests/intro-v25.mjs'
+      - '.github/workflows/gb-intro-v25.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  intro-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build existing GB flagship
+        run: node scripts/build.mjs
+      - name: Chromium for desktop and mobile tests
+        run: |
+          npm install --no-save playwright
+          npx playwright install chromium
+      - name: Verify ribbon reveal and infinite loop, logo, glass, touch and intact landing
+        run: |
+          python3 -m http.server 8080 --directory dist > /tmp/gb-ribbon-http.log 2>&1 &
+          sleep 2
+          node tests/intro-v25.mjs

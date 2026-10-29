@@ -10,7 +10,7 @@ const O=['0 0','100% 0','0 100%','100% 100%','50% 0','50% 100%'];
 const blocks=(n=24,cols=6)=>Array.from({length:n},(_,i)=>{const r=Math.floor(i/cols),c=i%cols;return `<i style="--d:${(r+c)*45}ms;--o:${O[(r*5+c*3)%O.length]}"></i>`}).join('');
 
 /* abertura: muro de tinta + monograma (SVG) + GB IMPORTS → blocos abrem o hero. Toque/rolagem pula. */
-if(document.readyState!=='complete'||scrollY<40){
+if(!window.GB_GLASS_RIBBON_INTRO&&(document.readyState!=='complete'||scrollY<40)){
   const intro=document.createElement('div');intro.className='gb-intro';intro.setAttribute('aria-hidden','true');
   intro.innerHTML=`<div class="gb-intro-grid">${blocks()}</div><div class="gb-intro-mark"><img alt="" src="./assets/brand/gb-monograma-amarelo-preto.svg" width="190" height="127"/><span class="gb-intro-word">${[...'GB IMPORTS'].map((c,i)=>`<span style="--i:${i}">${c===' '?'&nbsp;':c}</span>`).join('')}</span></div>`;
   document.body.append(intro);
