@@ -298,9 +298,9 @@ void main(){
       ball(...sh,.13,.14,.13,C.gold);
       tube(sh,el,.118,.103,C.armor);
       ball(...el,.11,.11,.105,C.gold);
-      bonePart=side<0?8:9;
+      bonePart=side<0?8:9;texPart=7;
       tube(el,hand,.103,.081,C.armor);
-      bonePart=side<0?10:11;
+      bonePart=side<0?10:11;texPart=6;
       ball(side*.55,1.17,.03,.086,.111,.075,C.joint);
       for(let finger=0;finger<4;finger++){
         const z=.007+(finger-1.5)*.031;
@@ -308,13 +308,15 @@ void main(){
           [side*(.503+finger*.023),1.045+(finger===3?.018:0),z],
           .016,.009,C.armor,8);
       }
-      bonePart=side<0?8:9;
+      bonePart=side<0?8:9;texPart=0;
       tube([side*.52,1.55,.078],[side*.54,1.27,.078],.044,.035,C.gold);
       bonePart=side<0?4:5;
       tube([side*.235,1.43,0],[side*.24,.90,0],.154,.134,C.armor);
       bonePart=side<0?14:15;
       ball(side*.24,.88,0,.138,.13,.141,C.gold);
+      texPart=8;
       tube([side*.242,.81,0],[side*.253,.22,.01],.124,.099,C.armor);
+      texPart=0;
       tube([side*.254,.68,.105],[side*.255,.40,.10],.028,.021,C.gold);
     }
     // GB UNIT helmet texture belongs to the SAME volumetric head, not another robot.
