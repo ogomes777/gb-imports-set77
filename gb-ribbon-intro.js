@@ -12,7 +12,7 @@ const host=document.getElementById('gbRibbonBoot');
 if(!host)return;
 
 // Play on every direct landing load; deep links bypass the cinematic cover.
-const enterAtTop=!reduced.matches&&(!location.hash||location.hash==='#inicio');
+const enterAtTop=!reduced.matches&&(!new URLSearchParams(location.search).has('peca'))&&(!location.hash||location.hash==='#inicio');
 if(enterAtTop)document.body.appendChild(host);
 else {stage.prepend(host);host.classList.remove('is-opening');}
 const canvas=host.querySelector('canvas');
@@ -269,7 +269,7 @@ function draw(now){
  host.style.setProperty('--gb-sweep',travel.toFixed(4));
  if(intro&&now-firstFrame>4050){
   host.classList.add('is-preparing-entry');
-  window.GB_BOOT_CORE?.();
+  if(now-firstFrame>4500)window.GB_BOOT_CORE?.();
  }
  if(intro&&now-firstFrame>duration)settle();
  const k=1-Math.exp(-dt*3.9);
