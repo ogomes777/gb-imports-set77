@@ -19,7 +19,7 @@ function mount(){
   surface.className='gb-volume';surface.setAttribute('aria-label','Visualização volumétrica 360 graus do manequim GB');
   surface.setAttribute('aria-hidden','true');
   surface.innerHTML='<canvas class="gb-volume-canvas" aria-label="Manequim tridimensional, arraste para girar"></canvas>'+
-  '<div class="gb-volume-top"><span>GB / VOLUME 360°</span><div class="gb-volume-actions"><button type="button" class="gb-volume-dance" aria-pressed="false">PASSINHO 3D</button><button type="button" class="gb-volume-exit">VOLTAR À FOTO ×</button></div></div>'+
+  '<div class="gb-volume-top"><span>GB UNIT / ATOR 360°</span></div>'+
   '<div class="gb-volume-bottom"><strong class="gb-volume-angle">000° · FRENTE</strong><small>MODELO 3D EDITORIAL · VERSO DAS ROUPAS SIMULADO</small></div>'+
   '<nav class="gb-volume-views" aria-label="Ângulo do manequim">'+
   '<button data-volume-angle="0" type="button">FRENTE</button>'+
@@ -35,60 +35,107 @@ attribute vec3 position;
 attribute vec3 normal;
 attribute vec3 color;
 attribute float bone;
-uniform float turn;
-uniform float aspect;
-uniform float motionTime;
-uniform float motionOn;
+attribute float texkind;
+attribute vec2 uv;
+uniform float turn,aspect,motionTime,motionOn,breathTime,eyeBlink,gesture,gesturePhase;
 uniform vec2 gaze;
-uniform float eyeBlink;
-varying vec3 N;
-varying vec3 C;
-vec3 rotateX(vec3 p, float a){float c=cos(a),s=sin(a);return vec3(p.x,c*p.y-s*p.z,s*p.y+c*p.z);}
-vec3 rotateZ(vec3 p, float a){float c=cos(a),s=sin(a);return vec3(c*p.x-s*p.y,s*p.x+c*p.y,p.z);}
+varying vec3 N,C;
+varying vec2 UV;
+varying float materialSlot,faceZ;
+vec3 rx(vec3 p,float a){float c=cos(a),s=sin(a);return vec3(p.x,c*p.y-s*p.z,s*p.y+c*p.z);}
+vec3 rz(vec3 p,float a){float c=cos(a),s=sin(a);return vec3(c*p.x-s*p.y,s*p.x+c*p.y,p.z);}
 void main(){
   vec3 p=position,n=normal;
-  float phase=motionTime*6.2831853/5.3;
-  float sway=sin(phase*2.0)*0.047*motionOn;
-  float bounce=(sin(phase*6.0)+0.30*sin(phase*12.0))*0.020*motionOn;
-  if(bone>1.5 && bone<3.5){
-    float side=bone<2.5?-1.0:1.0;
-    vec3 pivot=vec3(side*0.412,2.30,0.0);
-    float armX=motionOn*(0.20*sin(phase*3.0+side*1.32)+0.055*sin(phase*6.0-side));
-    float armZ=motionOn*(side*0.095+0.14*sin(phase*2.0+side*1.05));
-    p=pivot+rotateZ(rotateX(p-pivot,armX),armZ);
-    n=rotateZ(rotateX(n,armX),armZ);
+  float t=motionTime*6.2831853/5.3;
+  float d=motionOn;
+  float breath=sin(breathTime*1.15)*0.5+0.5;
+  float upper=smoothstep(1.38,2.22,position.y)*(1.0-smoothstep(2.48,2.75,position.y));
+  if(bone<0.5){
+    p.x*=1.0+0.014*breath*upper;
+    p.z*=1.0+0.026*breath*upper;
+    p.y+=0.011*breath*upper;
   }
-  if(bone>3.5 && bone<5.5){
-    float side=bone<4.5?-1.0:1.0;
-    vec3 pivot=vec3(side*0.240,1.36,0.0);
-    float legX=motionOn*(0.145*sin(phase*3.0+(side+1.0)*1.57)+0.045*sin(phase*6.0));
-    float legZ=motionOn*(0.085*sin(phase*2.0+side*1.57));
-    p=pivot+rotateZ(rotateX(p-pivot,legX),legZ);
-    n=rotateZ(rotateX(n,legX),legZ);
-  }
-  if(bone>0.5 && bone<1.5 || bone>5.5){
-    if(bone>5.5){
-      p.y=2.94+(p.y-2.94)*(1.0-0.96*eyeBlink);
-      p.x+=gaze.x*0.021;
-      p.y+=gaze.y*0.012;
+  if((bone>1.5&&bone<3.5)||(bone>7.5&&bone<11.5)){
+    float side=(bone<2.5||(bone>7.5&&bone<8.5)||(bone>9.5&&bone<10.5))?-1.0:1.0;
+    float crossMove=pow(max(0.0,sin(t+0.35)),2.0);
+    float upperRot=side*(0.11*d+0.20*crossMove*d)+0.10*sin(t*2.0+side)*d;
+    float flex=0.22*d+1.06*crossMove*d;
+    if(bone>7.5){
+      vec3 wristPivot=vec3(side*.54,1.25,.02);
+      if(bone>9.5){
+        float wrist=-side*(.14+.34*crossMove)*d;
+        p=wristPivot+rz(p-wristPivot,wrist);
+        n=rz(n,wrist);
+      }
+      vec3 elbow=vec3(side*.52,1.77,0.0);
+      float bend=-side*flex;
+      p=elbow+rz(rx(p-elbow,.12*d*sin(t*2.0)),bend);
+      n=rz(rx(n,.12*d*sin(t*2.0)),bend);
     }
-    vec3 pivot=vec3(0.0,2.57,0.0);
-    float headX=-gaze.y*0.090+motionOn*0.055*sin(phase*4.0);
-    float headZ=-gaze.x*0.084+motionOn*0.046*sin(phase*2.0+0.8);
-    p=pivot+rotateZ(rotateX(p-pivot,headX),headZ);
-    n=rotateZ(rotateX(n,headX),headZ);
+    if(gesture>0.5&&gesture<2.5)upperRot+=side*.60*sin(gesturePhase*3.14159);
+    vec3 shoulder=vec3(side*.412,2.30,0.0);
+    float armX=.13*d*sin(t*3.0+side);
+    p=shoulder+rz(rx(p-shoulder,armX),upperRot);
+    n=rz(rx(n,armX),upperRot);
   }
-  float upper=smoothstep(0.13,1.45,position.y);
-  p.x+=sway*upper+gaze.x*0.012*upper;
-  p.y+=bounce*upper;
+  if((bone>3.5&&bone<5.5)||(bone>11.5&&bone<17.5)){
+    float side=(bone<4.5||(bone>11.5&&bone<12.5)||(bone>13.5&&bone<14.5)||(bone>15.5&&bone<16.5))?-1.0:1.0;
+    if(bone>13.5){
+      vec3 knee=vec3(side*.242,.88,0.0);
+      float kneeBend=.11*d*(1.0+sin(t*3.0+side*1.57));
+      p=knee+rx(p-knee,kneeBend);
+      n=rx(n,kneeBend);
+    }
+    vec3 hip=vec3(side*.24,1.36,0.0);
+    float legX=d*.085*sin(t*3.0+(side+1.0)*1.57);
+    float legZ=d*.045*sin(t*2.0+side);
+    p=hip+rz(rx(p-hip,legX),legZ);
+    n=rz(rx(n,legX),legZ);
+  }
+  if((bone>.5&&bone<1.5)||(bone>5.5&&bone<7.5)){
+    if(bone>5.5){
+      p.y=2.94+(p.y-2.94)*(1.0-.96*eyeBlink);
+      p.x+=gaze.x*.022;
+      p.y+=gaze.y*.012;
+    }
+    vec3 neck=vec3(0.0,2.57,0.0);
+    float pitch=-gaze.y*.09+d*.05*sin(t*3.0);
+    float roll=-gaze.x*.09+d*.052*sin(t*2.0+.8);
+    p=neck+rz(rx(p-neck,pitch),roll);
+    n=rz(rx(n,pitch),roll);
+  }
+  float sway=d*.043*sin(t*2.0);
+  float bob=d*.021*(sin(t*6.0)+.24*sin(t*12.0));
+  p.x+=sway*smoothstep(.10,1.7,position.y)+gaze.x*.014*smoothstep(1.,2.3,position.y);
+  p.y+=bob*smoothstep(.11,1.8,position.y)+breath*.004*smoothstep(1.3,2.3,position.y);
+  if(gesture>2.5)p.y+=.22*max(0.,sin(gesturePhase*3.14159));
   float co=cos(turn),si=sin(turn);
   vec3 rp=vec3(co*p.x+si*p.z,p.y,-si*p.x+co*p.z);
   N=vec3(co*n.x+si*n.z,n.y,-si*n.x+co*n.z);
-  C=color;
-  float z=6.0-rp.z;
-  gl_Position=vec4(rp.x*2.85/aspect,(rp.y-1.6)*2.85,z*1.026-.20,z);
+  C=color;UV=uv;materialSlot=texkind;faceZ=position.z;
+  float depth=6.0-rp.z;
+  gl_Position=vec4(rp.x*2.85/aspect,(rp.y-1.6)*2.85,depth*1.026-.20,depth);
 }`;
-  const fs='precision mediump float;varying vec3 N;varying vec3 C;void main(){vec3 n=normalize(N);vec3 l=normalize(vec3(-.7,.95,1.15));float diffuse=.39+.56*max(dot(n,l),0.0)+.13*max(dot(n,normalize(vec3(.8,.35,-.65))),0.0);float spec=pow(max(dot(reflect(-l,n),vec3(0.,0.,1.)),0.),30.)*.17;gl_FragColor=vec4(clamp(C*diffuse+vec3(1.,.81,.33)*spec,0.,1.),1.);}';
+  const fs=`precision mediump float;
+varying vec3 N,C;
+varying vec2 UV;
+varying float materialSlot,faceZ;
+uniform sampler2D clothTop,clothBottom,skinHead,shoePhoto,brandLogo;
+void main(){
+  vec3 n=normalize(N),light=normalize(vec3(-.7,.95,1.15));
+  float shade=.40+.54*max(dot(n,light),0.0)+.13*max(dot(n,normalize(vec3(.8,.35,-.65))),0.0);
+  float spec=pow(max(dot(reflect(-light,n),vec3(0.,0.,1.)),0.),30.)*.14;
+  vec3 base=C;
+  vec4 texel=vec4(0.);
+  if(materialSlot>4.5)texel=texture2D(brandLogo,UV);
+  else if(materialSlot>3.5)texel=texture2D(shoePhoto,UV);
+  else if(materialSlot>2.5)texel=texture2D(skinHead,UV);
+  else if(materialSlot>1.5)texel=texture2D(clothBottom,UV);
+  else if(materialSlot>.5)texel=texture2D(clothTop,UV);
+  float weight=materialSlot>4.5?texel.a:texel.a*smoothstep(.045,.22,faceZ);
+  base=mix(base,texel.rgb,weight);
+  gl_FragColor=vec4(clamp(base*shade+vec3(1.,.81,.33)*spec,0.,1.),1.);
+}`;
   function shader(kind,body){const s=gl.createShader(kind);gl.shaderSource(s,body);gl.compileShader(s);
     if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}
   let prog;
@@ -101,24 +148,72 @@ void main(){
   const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
   ['position','normal','color'].forEach((key,i)=>{
     const a=gl.getAttribLocation(prog,key);
-    if(a>=0){gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,3,gl.FLOAT,false,40,i*12)}
+    if(a>=0){gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,3,gl.FLOAT,false,52,i*12)}
   });
   const boneAttrib=gl.getAttribLocation(prog,'bone');
-  if(boneAttrib>=0){gl.enableVertexAttribArray(boneAttrib);gl.vertexAttribPointer(boneAttrib,1,gl.FLOAT,false,40,36)}
+  if(boneAttrib>=0){gl.enableVertexAttribArray(boneAttrib);gl.vertexAttribPointer(boneAttrib,1,gl.FLOAT,false,52,36)}
+  const slotAttrib=gl.getAttribLocation(prog,'texkind'),uvAttrib=gl.getAttribLocation(prog,'uv');
+  if(slotAttrib>=0){gl.enableVertexAttribArray(slotAttrib);gl.vertexAttribPointer(slotAttrib,1,gl.FLOAT,false,52,40)}
+  if(uvAttrib>=0){gl.enableVertexAttribArray(uvAttrib);gl.vertexAttribPointer(uvAttrib,2,gl.FLOAT,false,52,44)}
   const yawUniform=gl.getUniformLocation(prog,'turn'),aspectUniform=gl.getUniformLocation(prog,'aspect'),
     timeUniform=gl.getUniformLocation(prog,'motionTime'),motionUniform=gl.getUniformLocation(prog,'motionOn'),
-    gazeUniform=gl.getUniformLocation(prog,'gaze'),blinkUniform=gl.getUniformLocation(prog,'eyeBlink');
+    gazeUniform=gl.getUniformLocation(prog,'gaze'),blinkUniform=gl.getUniformLocation(prog,'eyeBlink'),
+    breathUniform=gl.getUniformLocation(prog,'breathTime'),
+    gestureUniform=gl.getUniformLocation(prog,'gesture'),gesturePhaseUniform=gl.getUniformLocation(prog,'gesturePhase');
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);
-  let triangles=[],bonePart=0,nVertices=0,active=false,rotation=0,target=0,velocity=0,lastStamp=0,
+  const textureSamplers=['clothTop','clothBottom','skinHead','shoePhoto','brandLogo'];
+  const textures=textureSamplers.map((key,i)=>{
+    const t=gl.createTexture();gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,t);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array(4));
+    gl.uniform1i(gl.getUniformLocation(prog,key),i);
+    return t;
+  });
+  const textureSources=['','','','',''];
+  function uploadTexture(slot,url){
+    if(textureSources[slot]===url)return;
+    textureSources[slot]=url;
+    const expected=url;
+    const img=new Image();img.decoding='async';
+    img.onload=()=>{
+      if(textureSources[slot]!==expected||!document.body.contains(scene))return;
+      try{
+        const size=innerWidth<780?512:768;
+        const c=document.createElement('canvas');c.width=c.height=size;
+        const cx=c.getContext('2d',{alpha:true});
+        cx.clearRect(0,0,size,size);cx.drawImage(img,0,0,size,size);
+        gl.activeTexture(gl.TEXTURE0+slot);gl.bindTexture(gl.TEXTURE_2D,textures[slot]);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
+        gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,c);
+        dirty=true;renderNext();
+      }catch(err){console.warn('[GB actor] texture omitted',url,err)}
+    };
+    img.onerror=()=>{if(expected===textureSources[slot]){textureSources[slot]='';}};
+    if(url)img.src=url;
+  }
+  uploadTexture(2,window.GB_SKIN?.pieces?.head?.src||'');
+  uploadTexture(4,'./assets/brand/gb-monograma-preto.svg');
+  let triangles=[],bonePart=0,texPart=0,nVertices=0,active=false,rotation=0,target=0,velocity=0,lastStamp=0,
     tweenFrom=0,tweenStart=0,tweenDuration=750,settleTimer=0,
-    frame=0,drag=null,dragX=0,dirty=false,visible=true,lastSelection='',revision=0,
-    dancing=false,danceEpoch=0,blinkStart=0,blinkTimer=0,lookX=0,lookY=0,wantX=0,wantY=0;
+    frame=0,drag=null,dragX=0,dirty=false,visible=true,lastSelection='',revision=0,lastRender=0,
+    dancing=false,danceEpoch=0,blinkStart=0,blinkTimer=0,lookX=0,lookY=0,wantX=0,wantY=0,gesture=0,gestureEpoch=0;
   let look={top:C.white,bottom:C.armor,shoe:C.shoe,cap:C.armor,topKind:'hoodie',
     bottomKind:'pants',hasShoe:true,hasCap:false,hoodUp:false};
   const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
   const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
   const norm=a=>{const r=Math.hypot(a[0],a[1],a[2])||1;return a.map(v=>v/r)};
-  function tri(a,b,c,color){const n=norm(cross(sub(b,a),sub(c,a)));for(const p of[a,b,c])triangles.push(...p,...n,...color,bonePart)}
+  function texUV(p){
+    if(texPart===1)return [clamp(.5+p[0]/1.12,0,1),clamp((p[1]-1.42)/1.16,0,1)];
+    if(texPart===2)return [clamp(.5+p[0],0,1),clamp((p[1]-.17)/1.33,0,1)];
+    if(texPart===3)return [clamp(.5+p[0]/.48,0,1),clamp((p[1]-2.65)/.53,0,1)];
+    if(texPart===4)return [clamp(.5+(p[0]-(p[0]<0?-.254:.254))/.44,0,1),clamp((p[2]+.20)/.65,0,1)];
+    if(texPart===5)return [clamp(.5+p[0]/.15,0,1),clamp((p[1]-3.017)/.091,0,1)];
+    return[0,0];
+  }
+  function tri(a,b,c,color){const n=norm(cross(sub(b,a),sub(c,a)));for(const p of[a,b,c])triangles.push(...p,...n,...color,bonePart,texPart,...texUV(p))}
   function quad(a,b,c,d,color){tri(a,b,c,color);tri(a,c,d,color)}
   function ball(x,y,z,rx,ry,rz,color,steps=12,stacks=8){
     const at=(i,j)=>{const u=i*TAU/steps,v=j*PI/stacks;
@@ -148,7 +243,7 @@ void main(){
     quad([a,c,f],[b,c,f],[b,c,g],[a,c,g],color)
   }
   function rebuild(){
-    triangles=[];bonePart=0;
+    triangles=[];bonePart=0;texPart=0;
     const long=/hood|jacket|sweat|track|zip|long/i.test(look.topKind),
       hood=/hood|jacket/i.test(look.topKind),short=/short|bermuda/i.test(look.bottomKind),
       top=look.top,bottom=look.bottom;
@@ -162,20 +257,31 @@ void main(){
       ball(...sh,.13,.14,.13,C.gold);
       tube(sh,el,.118,.103,C.armor);
       ball(...el,.11,.11,.105,C.gold);
+      bonePart=side<0?8:9;
       tube(el,hand,.103,.081,C.armor);
+      bonePart=side<0?10:11;
       ball(side*.55,1.17,.03,.086,.111,.075,C.joint);
+      for(let finger=0;finger<4;finger++){
+        const z=.007+(finger-1.5)*.031;
+        tube([side*(.505+finger*.023),1.12,z],
+          [side*(.503+finger*.023),1.045+(finger===3?.018:0),z],
+          .016,.009,C.armor,8);
+      }
+      bonePart=side<0?8:9;
       tube([side*.52,1.55,.078],[side*.54,1.27,.078],.044,.035,C.gold);
       bonePart=side<0?4:5;
       tube([side*.235,1.43,0],[side*.24,.90,0],.154,.134,C.armor);
+      bonePart=side<0?14:15;
       ball(side*.24,.88,0,.138,.13,.141,C.gold);
       tube([side*.242,.81,0],[side*.253,.22,.01],.124,.099,C.armor);
       tube([side*.254,.68,.105],[side*.255,.40,.10],.028,.021,C.gold);
     }
-    // Sculpted GB helmet, faceplate, golden eyes and back panels.
-    bonePart=1;
+    // GB UNIT helmet texture belongs to the SAME volumetric head, not another robot.
+    texPart=3;bonePart=1;
     ball(0,2.91,0,.206,.252,.191,C.armor,20,14);
     ball(0,3.105,-.018,.214,.102,.188,C.joint);
     box(0,2.93,.171,.307,.17,.027,C.joint);
+    texPart=0;
     box(0,2.92,.192,.025,.19,.016,C.gold);
     for(const side of[-1,1]){
       bonePart=side<0?6:7;
@@ -185,10 +291,12 @@ void main(){
       box(side*.17,2.87,.08,.024,.19,.15,C.gold)
     }
     box(0,2.789,.175,.19,.024,.02,C.gold);
-    // Product clothing: volume has thickness. Colors only estimated from front images.
-    bonePart=0;
+    texPart=5;box(0,3.061,.199,.149,.091,.008,C.gold);texPart=0;
+    // Photographic front projected onto 3D garment; simulated back remains labeled.
+    texPart=1;bonePart=0;
     body([[0,2.4,0,.366,.239],[0,2.24,0,.390,.244],
       [0,1.98,0,.348,.245],[0,1.70,0,.305,.226],[0,1.47,0,.309,.232]],top);
+    texPart=0;
     body([[0,1.477,0,.310,.236],[0,1.446,0,.314,.237]],dark(top,.78));
     ball(0,2.405,0,.147,.033,.125,dark(top,.65));
     if(hood){
@@ -197,46 +305,51 @@ void main(){
       ball(0,2.55,-.15,.225,.117,.161,dark(top,.84));
     }
     for(const s of[-1,1]){
-      bonePart=s<0?2:3;
+      texPart=1;bonePart=s<0?2:3;
       const sh=[s*.412,2.3,0],el=[s*.52,1.77,0],hand=[s*.54,1.25,.02];
-      tube(sh,long?hand:[s*.47,2.00,0],long?.151:.161,long?.093:.152,top);
+      tube(sh,long?el:[s*.47,2.00,0],long?.151:.161,long?.124:.152,top);
+      if(long){bonePart=s<0?8:9;tube(el,hand,.124,.093,top)}
+      texPart=0;
       if(long)tube([s*.534,1.34,.02],hand,.096,.093,dark(top,.75));
       else tube([s*.47,2.01,0],[s*.48,1.967,0],.154,.156,dark(top,.76))
     }
-    bonePart=0;
+    bonePart=0;texPart=0;
     box(0,2.15,-.25,.41,.018,.018,dark(top,.76));
+    texPart=2;
     if(short){
       body([[0,1.48,0,.329,.232],[0,1.32,0,.337,.247]],bottom);
       for(const s of[-1,1]){
         bonePart=s<0?4:5;
         tube([s*.24,1.34,0],[s*.242,.94,0],.203,.193,bottom,16);
-        tube([s*.242,.96,0],[s*.244,.921,0],.196,.196,dark(bottom,.73))
+        texPart=0;tube([s*.242,.96,0],[s*.244,.921,0],.196,.196,dark(bottom,.73));texPart=2
       }
     }else{
       body([[0,1.48,0,.325,.231],[0,1.33,0,.329,.246]],bottom);
       for(const s of[-1,1]){
         bonePart=s<0?4:5;
         tube([s*.24,1.35,0],[s*.242,.87,0],.194,.143,bottom,16);
+        bonePart=s<0?14:15;
         ball(s*.242,.87,0,.146,.103,.144,bottom);
         tube([s*.244,.91,0],[s*.254,.211,.01],.142,.106,bottom,16);
         tube([s*.254,.225,.01],[s*.255,.203,.01],.107,.107,dark(bottom,.75))
       }
     }
+    texPart=4;
     for(const s of[-1,1]){
-      bonePart=s<0?4:5;
+      bonePart=s<0?16:17;
       const x=s*.254,shoe=look.hasShoe?look.shoe:C.shoe;
       ball(x,.142,.116,.151,.102,.286,shoe,16,10);
       ball(x,.075,.119,.166,.038,.307,dark(shoe,.62),16,8);
       ball(x,.23,-.035,.102,.107,.119,dark(shoe,.85))
     }
-    bonePart=1;
+    texPart=0;bonePart=1;
     if(look.hasCap){
       ball(0,3.16,-.018,.229,.086,.226,look.cap,16,10);
       ball(0,3.114,.188,.240,.027,.118,dark(look.cap,.77),16,8)
     }
     gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
     const data=new Float32Array(triangles);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);
-    nVertices=data.length/10;dirty=true;renderNext()
+    nVertices=data.length/13;dirty=true;renderNext()
   }
   const sampled=new Map();
   function imageColor(src,fallback){
@@ -269,6 +382,9 @@ void main(){
     lastSelection=key;const rev=++revision;
     const top=catalog.top?.[s.topId],bottom=catalog.bottom?.[s.bottomId],
       shoe=catalog.shoe?.[s.shoeId],cap=catalog.cap?.[s.capId];
+    uploadTexture(0,top?.src||'');
+    uploadTexture(1,bottom?.src||'');
+    uploadTexture(3,shoe?.src||'');
     Promise.all([imageColor(top?.src,C.white),imageColor(bottom?.src,C.armor),
       imageColor(shoe?.src,C.shoe),imageColor(cap?.src,C.armor)]).then(colors=>{
         if(rev!==revision)return;
@@ -278,7 +394,7 @@ void main(){
       })
   }
   const label=surface.querySelector('.gb-volume-angle');
-  const danceButton=surface.querySelector('.gb-volume-dance');
+  const danceButton=scene.querySelector('[data-fit-emote="dance"]');
   const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
   function blinkLater(){
     clearTimeout(blinkTimer);
@@ -292,13 +408,21 @@ void main(){
   function setDancing(on){
     dancing=!!on&&!reduced();
     danceEpoch=performance.now();
-    danceButton.textContent=dancing?'PARAR PASSINHO':'PASSINHO 3D';
-    danceButton.setAttribute('aria-pressed',String(dancing));
+    const caption=danceButton?.querySelector('b');if(caption)caption.textContent=dancing?'PARAR':'PASSINHO';
+    danceButton?.setAttribute('aria-pressed',String(dancing));
     dirty=true;renderNext();
   }
-  function renderNext(){if(active&&!frame&&!document.hidden)frame=requestAnimationFrame(draw)}
+  function renderNext(){if(active&&visible&&!frame&&!document.hidden)frame=requestAnimationFrame(draw)}
+  function playGesture(name){
+    const id=name==='wave'?1:name==='salute'?2:name==='jump'?3:0;
+    gesture=id;gestureEpoch=performance.now();dirty=true;renderNext()
+  }
   function draw(now){
-    frame=0;if(!active||document.hidden)return;
+    frame=0;if(!active||document.hidden||!visible)return;
+    if(!reduced()&&!dirty&&now-lastRender<(innerWidth<780?33:23)){
+      renderNext();return
+    }
+    lastRender=now;
     const w=canvas.clientWidth,h=canvas.clientHeight,
       dpr=clamp(window.devicePixelRatio||1,1,innerWidth<780?1.25:1.7);
     if(!w||!h||!nVertices)return;
@@ -328,6 +452,11 @@ void main(){
     gl.uniform1f(motionUniform,dancing?1:0);
     gl.uniform2f(gazeUniform,lookX,lookY);
     gl.uniform1f(blinkUniform,blink);
+    gl.uniform1f(breathUniform,reduced()?0:now/1000);
+    let gphase=gesture?(now-gestureEpoch)/1100:0;
+    if(gphase>=1){gesture=0;gphase=0}
+    gl.uniform1f(gestureUniform,gesture);
+    gl.uniform1f(gesturePhaseUniform,gphase);
     gl.drawArrays(gl.TRIANGLES,0,nVertices);
     const degrees=((Math.round(rotation*180/PI)%360)+360)%360;
     const name=degrees<35||degrees>325?'FRENTE':degrees>145&&degrees<215?'COSTAS':degrees<=145?'DIREITA':'ESQUERDA';
@@ -338,7 +467,7 @@ void main(){
       slider.setAttribute('aria-valuetext',name);
       slider.style.setProperty('--orbit-position',(((((degrees+180)%360)-180)/360+.5)*100).toFixed(1)+'%');
     }
-    if(dancing||blinkStart||Math.abs(wantX-lookX)>.006||Math.abs(wantY-lookY)>.006||
+    if((!reduced()&&visible)||gesture||dancing||blinkStart||Math.abs(wantX-lookX)>.006||Math.abs(wantY-lookY)>.006||
        drag!=null||tweenStart!==0||dirty){
       dirty=false;renderNext()
     }else lastStamp=0
@@ -348,14 +477,14 @@ void main(){
     if(stage.classList.contains('is-fit-compare'))return false;
     if(window.GBFitting.emoting)window.GBFitting.emote(window.GBFitting.emoting);
     active=true;rotation=0;target=0;velocity=0;lastStamp=0;tweenStart=0;clearTimeout(settleTimer);dirty=true;
-    setDancing(false);wantX=wantY=lookX=lookY=0;blinkLater();
+    setDancing(false);wantX=wantY=lookX=lookY=0;blinkLater();lastRender=0;
     stage.classList.add('is-true-3d');surface.setAttribute('aria-hidden','false');
     outfit(true);renderNext();return true
   }
   function close(){
     active=false;stage.classList.remove('is-true-3d');surface.setAttribute('aria-hidden','true');
     cancelAnimationFrame(frame);clearTimeout(settleTimer);clearTimeout(blinkTimer);
-    dancing=false;blinkStart=0;wantX=wantY=lookX=lookY=0;
+    dancing=false;gesture=0;blinkStart=0;wantX=wantY=lookX=lookY=0;
     frame=0;lastStamp=0;tweenStart=0;drag=null;surface.classList.remove('is-dragging')
   }
   function tweenTo(destination,duration){
@@ -395,7 +524,16 @@ void main(){
     if(drag!==e.pointerId)return;
     e.stopImmediatePropagation();drag=null;surface.classList.remove('is-dragging');renderNext()
   }
-  danceButton.addEventListener('click',()=>setDancing(!dancing));
+  // Existing emote dock controls the same actor; no second robot control panel.
+  scene.addEventListener('click',e=>{
+    const button=e.target.closest?.('[data-fit-emote]');
+    if(!button||stage.classList.contains('is-fit-compare')||!active)return;
+    const name=button.dataset.fitEmote;
+    if(name==='spin')return;
+    e.preventDefault();e.stopImmediatePropagation();
+    if(name==='dance')setDancing(!dancing);
+    else playGesture(name);
+  },true);
   const aim=e=>{
     const r=canvas.getBoundingClientRect();
     if(!r.width||!r.height)return;
@@ -418,7 +556,7 @@ void main(){
   scene.addEventListener('pointermove',move,true);
   scene.addEventListener('pointerup',end,true);
   scene.addEventListener('pointercancel',end,true);
-  surface.querySelector('.gb-volume-exit').addEventListener('click',close);
+  // No secondary photo/volume switch: only one GB actor exists.
   surface.querySelectorAll('[data-volume-angle]').forEach(b=>b.addEventListener('click',()=>rotateTo(+b.dataset.volumeAngle)));
   // Convert the existing emote 360° and orbit buttons to actual volumetric rotation.
   scene.addEventListener('click',e=>{
@@ -428,11 +566,19 @@ void main(){
     if(b.matches('[data-fit-emote="spin"]'))turnFull();
     else rotateTo(+b.dataset.fitTurn*90)
   },true);
-  const activate=document.createElement('button');
-  activate.type='button';activate.className='gb-volume-open';activate.textContent='VOLUME 3D';
-  activate.title='Visualizar o manequim em 360 graus com volume real';
-  scene.querySelector('.fit-turnbar')?.appendChild(activate);
-  activate.addEventListener('click',()=>open());
+  // The approved GB UNIT has ONE main representation. WebGL 3D is the default.
+  // The legacy photographic compositor is retained only for unsupported GPU
+  // and split A/B comparison, never as a second user-facing character.
+  const autoActivate=()=>{if(!active&&!stage.classList.contains('is-fit-compare'))open()};
+  if('IntersectionObserver'in window){
+    new IntersectionObserver(entries=>{
+      visible=entries.some(e=>e.isIntersecting);
+      if(visible)autoActivate();
+      if(visible)renderNext();
+      else {cancelAnimationFrame(frame);frame=0}
+    },{rootMargin:'150px'}).observe(stage)
+  }else{visible=true;requestAnimationFrame(autoActivate)}
+  document.addEventListener('gb:look-change',()=>{if(active)outfit(true)});
   const dial=scene.querySelector('.fit-dial');
   // Keep the slider's accessible range consistent with 360° instead of
   // the old ±45° 2D sprite limit.
@@ -475,12 +621,26 @@ void main(){
   },true);
   const refresh=setInterval(()=>{if(!document.body.contains(scene)){clearInterval(refresh);close()}else if(active)outfit()},800);
   window.addEventListener('resize',()=>{dirty=true;renderNext()},{passive:true});
+  const compareObserver=new MutationObserver(()=>{
+    if(stage.classList.contains('is-fit-compare')){if(active)close()}
+    else if(visible&&!active)autoActivate()
+  });
+  compareObserver.observe(stage,{attributes:true,attributeFilter:['class']});
   document.addEventListener('visibilitychange',()=>{lastStamp=0;if(!document.hidden)renderNext()});
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();close();stage.classList.add('gb-volume-unsupported')});
   controller={open,close,rotateTo,turnFull,outfit,get active(){return active},
     get angle(){return rotation},get vertices(){return nVertices},get rendered(){return canvas.width>0},
-    get pending(){return target-rotation},get dancing(){return dancing},get gaze(){return [lookX,lookY]}};
+    get pending(){return target-rotation},get dancing(){return dancing},get gaze(){return [lookX,lookY]},
+    get breathing(){return active&&!reduced()},get isPrimary(){return active},
+    gesture:playGesture,setDancing};
   window.GBTrue360=controller;
+  window.GBActor=Object.freeze({
+    get state(){return{outfit:window.GBFitting.state,yaw:controller.angle,
+      dancing:controller.dancing,breathing:controller.breathing,renderer:controller.active?'webgl':'fallback-2d'}},
+    setOutfit(selection){return window.GBFitting.set(selection)},
+    rotateTo:controller.rotateTo,turnFull:controller.turnFull,
+    dance:controller.setDancing,gesture:controller.gesture
+  });
   installed=true;return true
 }
 const watch=new MutationObserver(()=>{if(mount())watch.disconnect()});
