@@ -1,0 +1,36 @@
+name: GB Imports | Adaptive Navigation V39
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'main.js'
+      - 'gb-nav-v39.js'
+      - 'gb-nav-v39.css'
+      - 'tests/nav-adaptive-v39.mjs'
+      - 'scripts/build.mjs'
+  push:
+    branches: [feat/gb-adaptive-navigation-v39]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  navigation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build static GB
+        run: node scripts/build.mjs
+      - name: Setup Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install chromium
+      - name: Desktop/mobile navbar, search, settings and theme
+        run: |
+          python3 -m http.server 8080 --directory dist > /tmp/gb-nav-v39-http.log 2>&1 &
+          sleep 2
+          node tests/nav-adaptive-v39.mjs
