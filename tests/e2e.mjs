@@ -130,6 +130,7 @@ async function run(w,h,reduced=false){
   const mobile=w<600;
   const ctx=await browser.newContext({viewport:{width:w,height:h},isMobile:mobile,hasTouch:mobile,reducedMotion:reduced?'reduce':'no-preference'});
   const page=await ctx.newPage();
+  await page.addInitScript(()=>{window.__GB_E2E_FORCE_LEGACY=true});
   const optionalCDN=s=>/cdn\.jsdelivr\.net\/npm\/(?:gsap@3\.15\.0|three@0\.186\.1)/.test(s||'');
   const errors=[],optionalFailures=[];
   page.on('pageerror',e=>errors.push(e.message));
@@ -597,7 +598,7 @@ async function run(w,h,reduced=false){
       if(!started)return{supported:false,fallback:true};
       await wait(200);
       const vertices=api.vertices,canvas=document.querySelector('.gb-volume-canvas');
-      const play=document.querySelector('.gb-volume-dance');
+      const play=document.querySelector('#lookstudio [data-fit-emote="dance"]');
       play.click();await wait(170);
       const moving=api.dancing&&play.getAttribute('aria-pressed')==='true';
       const rect=canvas.getBoundingClientRect();
