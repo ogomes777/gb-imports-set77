@@ -137,3 +137,14 @@ html body .site-header.gb-island.is-compact .brand-symbol-v05 img{width:37px}
   html body .site-header.gb-island .brand-lockup,
   html body .site-header.gb-island .brand-symbol-v05 img{transition:none!important}
 }
+
+/* V40 / A larger account map must remain usable without clipping. */
+html body .site-header.gb-island .gb-nav-popover{
+  max-height:min(76dvh,660px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+}
+html body .site-header.gb-island .gb-nav-popover .gb-nav-panel-item{
+  min-height:42px;
+}
