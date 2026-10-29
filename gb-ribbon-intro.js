@@ -27,6 +27,7 @@ let intro=enterAtTop,settled=!enterAtTop,visibility=true;
 let width=1,height=1,pixelRatio=1,raf=0,last=0,t=0,frames=0,paintAvg=0,paintMax=0,firstFrame=0,resizeTimer=0,settleTimeout=0;
 // Frame-time feedback keeps the same visual language while lowering detail on weak GPUs.
 let quality=0,rollingGap=16,lastQualityChange=0,lastLogoPaint=0,throttledFrames=0;
+let sweepHead=1.085,sweepX=1.0,signatureProgress=0;
 const pointer={x:.5,y:.5,targetX:.5,targetY:.5,force:0,tap:0};
 // The film now holds its mark, then opens two glass doors into the existing hero.
 const duration=5450;
@@ -79,7 +80,7 @@ function spine(u,phase){
  const x=width*(-.145+1.29*u);
  const a=logistic((u-.18)*23);
  const b=logistic((u-.72)*21);
- const breathing=Math.sin(u*7.7+phase*.48)*.018+Math.sin(u*15.2-phase*.22)*.006;
+ const breathing=Math.sin(u*7.7+phase*.31)*.013+Math.sin(u*13.0-phase*.16)*.003;
  const drift=Math.sin(phase*.19)*.016;
  const y=height*(1.175-.625*a-.77*b+breathing+drift);
  return [x,y];
@@ -91,36 +92,41 @@ function strand(u,v,phase){
  const dx=next[0]-prev[0],dy=next[1]-prev[1],inv=1/Math.max(1,Math.hypot(dx,dy));
  const nx=-dy*inv,ny=dx*inv;
  // Twisting and pinching make multiple light-threads cross without a rigid strip.
- const twist=Math.sin(u*10.6-phase*.63+v*.23);
+ const twist=Math.sin(u*10.0-phase*.43+v*.20);
  const separation=.28+.72*Math.pow(Math.abs(twist),.78);
  const spread=Math.min(width,height)*(mobile()?.038:.049)*separation;
  const cross=v*spread+v*v*spread*.17*Math.cos(u*14.5+phase*.49);
- const shimmer=Math.sin(u*29.4+phase*.65+v*1.6)*Math.abs(v)*height*.0013;
- const magnet=Math.exp(-Math.pow((u-(pointer.x+.145)/1.29)*4.0,2))*pointer.force*(pointer.y-.5)*height*.048;
+ const shimmer=Math.sin(u*19.2+phase*.38+v*1.25)*Math.abs(v)*height*.00075;
+ const magnet=Math.exp(-Math.pow((u-(pointer.x+.145)/1.29)*3.2,2))*pointer.force*(pointer.y-.5)*height*.031;
  return [p[0]+nx*(cross+shimmer)+ny*magnet*.14,p[1]+ny*(cross+shimmer)+magnet];
 }
-function trace(path,v,phase,samples){
+function trace(path,v,phase,samples,head=0){
+ // From right to left, progressive and naturally flexible.
+ if(head>=1)return;
+ const start=Math.max(0,head);
  for(let i=0;i<=samples;i++){
-  const q=strand(i/samples,v,phase);
+  const u=start+(1-start)*(i/samples);
+  const q=strand(u,v,phase);
   if(!i)path.moveTo(q[0],q[1]);else path.lineTo(q[0],q[1]);
  }
 }
 function updateLogo(now){
  if(settled||!intro)return;
- const progress=clamp((now-firstFrame-1000)/2150,0,1);
- const reveal=ease(progress);
- const boundary=115-132*reveal;
- // Non-flat, ribbon-shaped masking boundary reveals the actual original SVG.
+ // The original SVG is signed by the SAME traveling right-to-left beam.
+ const progress=ease(clamp((.765-sweepHead)/.445,0,1));
+ signatureProgress=progress;
+ const boundary=104-progress*119;
  const edge=[];
- for(let i=8;i>=0;i--){
-  const x=i*12.5;
-  const displacement=Math.sin((i/8)*6.28+t*.9)*4*Math.sin(progress*Math.PI);
-  edge.push(x.toFixed(2)+'% '+(boundary+displacement).toFixed(2)+'%');
+ for(let i=10;i>=0;i--){
+  const y=i*10;
+  const flutter=Math.sin(y*.062+t*.42)*2.7*Math.sin(progress*Math.PI);
+  edge.push((boundary+flutter).toFixed(2)+'% '+y.toFixed(2)+'%');
  }
- logo.style.clipPath='polygon(0% 110%,100% 110%,'+edge.join(',')+')';
- scan.style.top=boundary.toFixed(2)+'%';
- signature.style.setProperty('--gb-emerge',reveal.toFixed(4));
- bloom.style.opacity=(Math.sin(progress*Math.PI)*.6).toFixed(3);
+ logo.style.clipPath='polygon(110% 0%,110% 100%,'+edge.join(',')+')';
+ scan.style.left=boundary.toFixed(2)+'%';
+ scan.style.top='12%';
+ signature.style.setProperty('--gb-emerge',clamp(progress*2.5,0,1).toFixed(4));
+ bloom.style.opacity=(Math.sin(progress*Math.PI)*.44).toFixed(3);
 }
 function settle(){
  if(settled)return;
@@ -156,9 +162,14 @@ function draw(now){
  last=now;if(!firstFrame)firstFrame=now;
  // Preserve cinematic movement speed when rAF drops frames instead of going into slow motion.
  t+=dt;
+ const age=now-firstFrame;
+ const travel=intro?ease(clamp((age-380)/3030,0,1)):1;
+ sweepHead=intro?1.085-travel*1.105:0;
+ sweepX=1-travel;
+ host.style.setProperty('--gb-sweep',travel.toFixed(4));
  if(intro&&now-firstFrame>4050)host.classList.add('is-preparing-entry');
  if(intro&&now-firstFrame>duration)settle();
- const k=1-Math.exp(-dt*5.5);
+ const k=1-Math.exp(-dt*3.9);
  pointer.x=lerp(pointer.x,pointer.targetX,k);
  pointer.y=lerp(pointer.y,pointer.targetY,k);
  pointer.force*=Math.exp(-dt*1.65);
@@ -169,13 +180,14 @@ function draw(now){
  const n=compact?(quality>=2?17:quality===1?24:34):(quality>=2?28:quality===1?38:54);
  const steps=compact?(quality>=2?28:40):(quality>=2?38:52);
  const faint=settled?.59:1;
+ const head=intro?sweepHead:0;
  const minDim=Math.min(width,height);
  // Ambient golden light. Three broad strokes only; shadows on every thin
  // filament would burn mobile GPU resources.
  ctx.save();
  ctx.lineJoin='round';ctx.lineCap='round';
  const centre=new Path2D();
- trace(centre,0,t,44);
+ trace(centre,0,t,44,head);
  ctx.shadowColor='rgba(207,143,28,.68)';
  ctx.shadowBlur=quality>=2?10:compact?19:32;
  ctx.strokeStyle='rgba(88,61,32,'+(.20*faint)+')';
@@ -191,7 +203,7 @@ function draw(now){
  ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
  for(let i=0;i<n;i++){
   const v=-1+2*i/(n-1);
-  const p=new Path2D();trace(p,v,t,steps);
+  const p=new Path2D();trace(p,v,t,steps,head);
   const core=Math.exp(-v*v*2.2);
   const deep=(i%7===0);
   const light=(i%5===1||i%5===2);
@@ -205,12 +217,23 @@ function draw(now){
  // Layer 2: the almost-white cores glow against their warm-gold underlay.
  for(let i=0;i<Math.max(5,Math.floor(n/6));i++){
   const v=(i/(Math.max(5,Math.floor(n/6))-1)-.5)*.83;
-  const p=new Path2D();trace(p,v,t,steps);
+  const p=new Path2D();trace(p,v,t,steps,head);
   ctx.strokeStyle='rgba(255,246,177,'+(.82*faint)+')';
   ctx.lineWidth=compact?.85:1.12;
   ctx.stroke(p);
  }
  ctx.restore();
+ // A luminous leading tip makes the direction of travel unmistakable.
+ if(intro&&head>0.015&&head<.995){
+   const tip=strand(head,0,t);
+   const radius=Math.min(width,height)*(quality>=2?.038:.063);
+   const grad=ctx.createRadialGradient(tip[0],tip[1],0,tip[0],tip[1],radius);
+   grad.addColorStop(0,'rgba(255,250,203,.85)');
+   grad.addColorStop(.18,'rgba(250,199,64,.43)');
+   grad.addColorStop(1,'rgba(234,174,51,0)');
+   ctx.fillStyle=grad;
+   ctx.beginPath();ctx.arc(tip[0],tip[1],radius,0,Math.PI*2);ctx.fill();
+ }
  if(intro&&(now-lastLogoPaint>28||frames<2)){updateLogo(now);lastLogoPaint=now}
  const cost=performance.now()-started;
  paintAvg=frames?paintAvg*.93+cost*.07:cost;
@@ -233,12 +256,14 @@ window.GBGlassRibbons=Object.freeze({
  get quality(){return quality},get frameGapMs(){return +rollingGap.toFixed(1)},
  get fullGlass(){return getComputedStyle(host.querySelector('.gb-ribbon-glass')).inset==='0px'},
  get logoAsset(){return logo.getAttribute('src')},
+ get sweep(){return sweepX},get signatureProgress(){return signatureProgress},
  finish:settle,
  replay(){
   if(reduced.matches)return;
   intro=true;settled=false;firstFrame=0;last=0;lastLogoPaint=0;
   signature.style.removeProperty('--gb-emerge');
-  logo.style.clipPath='polygon(0% 110%,100% 110%,100% 110%,0% 110%)';
+  logo.style.clipPath='polygon(110% 0%,110% 100%,110% 100%,110% 0%)';
+  sweepHead=1.085;signatureProgress=0;
   host.classList.remove('is-settled','is-gateway','is-preparing-entry');
   document.body.append(host);
   host.classList.add('is-opening','is-visible');

@@ -89,3 +89,45 @@
  #gbRibbonBoot.is-settled{opacity:.08!important}
  #gbRibbonBoot .gb-ribbon-door,#gbRibbonBoot .gb-ribbon-entry{display:none!important}
 }
+
+/* V30 | A refined pearl/glass optical material, lightweight compositing. */
+#gbRibbonBoot.is-opening .gb-ribbon-glass,
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-glass{
+  background:
+    radial-gradient(ellipse 61% 46% at 74% 16%,rgba(255,255,255,.98),transparent 80%),
+    radial-gradient(ellipse 96% 65% at 22% 80%,rgba(225,219,205,.42),transparent 78%),
+    linear-gradient(124deg,#fffefd 0%,#f7f7f4 37%,#efeee9 74%,#f9f9f5 100%);
+}
+#gbRibbonBoot.is-opening .gb-ribbon-glass-depth,
+#gbRibbonBoot.is-preparing-entry .gb-ribbon-glass-depth{
+  background:
+    radial-gradient(ellipse 56% 48% at 55% 48%,rgba(255,255,255,.64),transparent 75%),
+    linear-gradient(113deg,rgba(255,255,255,.68),rgba(219,211,194,.09) 49%,rgba(255,255,255,.47) 90%);
+}
+#gbRibbonBoot.is-opening .gb-ribbon-glass-specular{
+  opacity:.42;
+  will-change:transform;
+  animation:gbGlassOpticDrift 6.6s ease-in-out both;
+}
+#gbRibbonBoot .gb-ribbon-logo-atmosphere{
+  opacity:.68;
+}
+#gbRibbonBoot .gb-ribbon-scan{
+  width:2px!important;height:76%!important;
+  left:104%;top:12%;
+  background:linear-gradient(180deg,transparent,rgba(179,121,27,.27) 17%,rgba(255,250,200,.96) 47%,rgba(179,121,27,.29) 83%,transparent)!important;
+  transform:rotate(3deg);
+  opacity:calc(var(--gb-emerge,0) * .78);
+  filter:drop-shadow(0 0 10px rgba(208,151,44,.42));
+  pointer-events:none;
+}
+@keyframes gbGlassOpticDrift{
+  0%{transform:translate3d(-1.2%,0,0) rotate(-9deg)}
+  100%{transform:translate3d(2.6%,0,0) rotate(-7deg)}
+}
+@media(max-width:780px){
+ #gbRibbonBoot.is-opening .gb-ribbon-glass-specular{opacity:.24}
+}
+@media(prefers-reduced-motion:reduce){
+ #gbRibbonBoot .gb-ribbon-glass-specular{animation:none!important;will-change:auto}
+}
