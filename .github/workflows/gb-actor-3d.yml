@@ -5,6 +5,7 @@ on:
       - 'gb-true3d.js'
       - 'gb-true3d.css'
       - 'tests/actor-v23.mjs'
+      - 'tests/actor-v24.mjs'
       - 'look-fitting.js'
       - '.github/workflows/gb-actor-3d.yml'
   workflow_dispatch:
@@ -30,3 +31,4 @@ jobs:
           python3 -m http.server 8080 --directory dist > /tmp/gb-actor-http.log 2>&1 &
           sleep 2
           node tests/actor-v23.mjs http://127.0.0.1:8080/
+          node tests/actor-v24.mjs http://127.0.0.1:8080/
