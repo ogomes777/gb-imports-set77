@@ -1,4 +1,4 @@
-name: GB Imports | Glass Ribbon Intro
+name: GB Imports | Cinematic Glass Ribbon
 on:
   pull_request:
     branches: [main]
@@ -8,6 +8,7 @@ on:
       - 'gb-edit-v12.js'
       - 'index.html'
       - 'tests/intro-v25.mjs'
+      - 'tests/intro-v26.mjs'
       - '.github/workflows/gb-intro-v25.yml'
   workflow_dispatch:
 permissions:
@@ -32,3 +33,4 @@ jobs:
           python3 -m http.server 8080 --directory dist > /tmp/gb-ribbon-http.log 2>&1 &
           sleep 2
           node tests/intro-v25.mjs
+          node tests/intro-v26.mjs
