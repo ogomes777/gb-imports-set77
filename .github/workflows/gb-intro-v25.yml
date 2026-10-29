@@ -9,6 +9,7 @@ on:
       - 'index.html'
       - 'tests/intro-v25.mjs'
       - 'tests/intro-v26.mjs'
+      - 'tests/intro-perf-v27.mjs'
       - '.github/workflows/gb-intro-v25.yml'
   workflow_dispatch:
 permissions:
@@ -34,3 +35,4 @@ jobs:
           sleep 2
           node tests/intro-v25.mjs
           node tests/intro-v26.mjs
+          node tests/intro-perf-v27.mjs
