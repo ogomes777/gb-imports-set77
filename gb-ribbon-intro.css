@@ -317,3 +317,32 @@ html.gb-ribbon-intro-playing body > :not(#gbRibbonBoot):not(script) {
 
 /* Prevent the very first paint from using a different clip geometry. */
 #gbRibbonBoot.is-opening .gb-ribbon-original {clip-path:inset(0 0 0 100%)}
+
+/* V38 | Stable luminous pearl glass on every OS theme and display mode.
+   Keep a LIGHT fallback even when the WebP is unavailable, delayed or the
+   browser swaps into dark/forced-colors mode. */
+#gbRibbonBoot:not(.is-gateway){
+  background-color:#f6f5f1!important;
+  background-image:radial-gradient(ellipse 78% 63% at 48% 29%,#fff 0%,#f6f5f1 68%,#e7e4da 100%)!important;
+  color-scheme:only light;
+}
+#gbRibbonBoot:not(.is-gateway) .gb-ribbon-glass{
+  background-color:#f7f7f3!important;
+  background-image:
+    linear-gradient(150deg,rgba(255,255,255,.23),rgba(250,248,243,.10) 65%,rgba(255,255,255,.16)),
+    url('../assets/brand/gb-glass-pearl-v37.webp')!important;
+  background-size:cover,cover!important;
+  background-position:center,center!important;
+  background-repeat:no-repeat,no-repeat!important;
+}
+#gbRibbonBoot .gb-ribbon-glass,
+#gbRibbonBoot .gb-ribbon-glass-depth,
+#gbRibbonBoot .gb-ribbon-glass-specular{
+  mix-blend-mode:normal!important;
+}
+@media (forced-colors:active){
+  #gbRibbonBoot:not(.is-gateway),#gbRibbonBoot:not(.is-gateway) .gb-ribbon-glass{
+    forced-color-adjust:none;
+    background-color:#f8f7f3!important;
+  }
+}
