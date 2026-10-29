@@ -423,7 +423,8 @@ void main(){
   }
   function draw(now){
     frame=0;if(!active||document.hidden||!visible)return;
-    if(!reduced()&&!dirty&&now-lastRender<(innerWidth<780?33:23)){
+    // Target 60 FPS when the device can deliver it; rAF naturally backs off on slower GPUs.
+    if(!reduced()&&!dirty&&now-lastRender<15.5){
       renderNext();return
     }
     lastRender=now;
