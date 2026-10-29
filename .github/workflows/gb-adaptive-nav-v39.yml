@@ -9,6 +9,9 @@ on:
       - 'gb-nav-v39.css'
       - 'tests/nav-adaptive-v39.mjs'
       - 'scripts/build.mjs'
+      - 'gb-experience-v40.js'
+      - 'gb-experience-v40.css'
+      - 'tests/experience-v40.mjs'
   push:
     branches: [feat/gb-adaptive-navigation-v39]
   workflow_dispatch:
@@ -34,3 +37,5 @@ jobs:
           python3 -m http.server 8080 --directory dist > /tmp/gb-nav-v39-http.log 2>&1 &
           sleep 2
           node tests/nav-adaptive-v39.mjs
+      - name: Routed experience, commerce, club, studio (desktop/mobile)
+        run: node tests/experience-v40.mjs
