@@ -1,4 +1,4 @@
-name: GB Imports | Intro Only and Clean Hero
+name: GB Imports | Cinematic Intro Smooth V35
 on:
   pull_request:
     branches: [main]
@@ -16,6 +16,7 @@ on:
       - 'tests/intro-vector-v32.mjs'
       - 'tests/intro-staged-v33.mjs'
       - 'tests/intro-retire-v34.mjs'
+      - 'tests/intro-fast-v35.mjs'
       - 'scripts/build.mjs'
       - 'tests/e2e.mjs'
       - '.github/workflows/gb-intro-v25.yml'
@@ -43,3 +44,4 @@ jobs:
           sleep 2
           node tests/intro-staged-v33.mjs
           node tests/intro-retire-v34.mjs
+          node tests/intro-fast-v35.mjs
