@@ -1,4 +1,4 @@
-name: GB Imports | Instant Cinema Staged Boot
+name: GB Imports | Intro Only and Clean Hero
 on:
   pull_request:
     branches: [main]
@@ -15,6 +15,7 @@ on:
       - 'tests/intro-fluid-v31.mjs'
       - 'tests/intro-vector-v32.mjs'
       - 'tests/intro-staged-v33.mjs'
+      - 'tests/intro-retire-v34.mjs'
       - 'scripts/build.mjs'
       - 'tests/e2e.mjs'
       - '.github/workflows/gb-intro-v25.yml'
@@ -36,15 +37,9 @@ jobs:
         run: |
           npm install --no-save playwright
           npx playwright install chromium
-      - name: Verify ribbon reveal and infinite loop, logo, glass, touch and intact landing
+      - name: Verify first-paint intro, removal of all ribbon GPU work, and intact storefront
         run: |
           python3 -m http.server 8080 --directory dist > /tmp/gb-ribbon-http.log 2>&1 &
           sleep 2
-          node tests/intro-v25.mjs
-          node tests/intro-v26.mjs
-          node tests/intro-perf-v27.mjs
-          node tests/intro-v28.mjs
-          node tests/intro-signature-v30.mjs
-          node tests/intro-fluid-v31.mjs
-          node tests/intro-vector-v32.mjs
           node tests/intro-staged-v33.mjs
+          node tests/intro-retire-v34.mjs
