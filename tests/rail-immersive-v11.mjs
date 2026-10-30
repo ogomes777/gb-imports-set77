@@ -43,9 +43,12 @@ async function film(browser,w,h){
     items:document.querySelectorAll('#railItems .r10-item').length,perspective:getComputedStyle(document.querySelector('.r11-room')).perspective}));
   check(vp,'V11: capítulo EM MOVIMENTO preservado e loja montada sob a mesma arara',pre.chap&&pre.layers&&pre.items===63&&pre.perspective!=='none',JSON.stringify(pre));
   check(vp,'V11: antes do capítulo a câmera está no plano aberto (arara ao fundo)',pre.phase==='far'&&pre.cam.scale<.72,JSON.stringify(pre.cam));
+  const hid=await page.evaluate(()=>({entering:GBRail.entering,shown:[...document.querySelectorAll('#railItems .r10-item:not([hidden])')].filter(c=>+getComputedStyle(c).opacity>0).length}));
+  check(vp,'V11: antes do filme a barra está vazia (cabides ainda não pousaram)',hid.entering===63&&hid.shown===0,JSON.stringify(hid));
   // 2. rola: grava a câmera por quadro (rAF) desde o capítulo até assentar
   await page.evaluate(()=>{window.__cam=[];const t0=performance.now();let lt=0;const f=t=>{const c=GBRailScene.camera,ch=document.querySelector('#rail>.gb-chap');
-    window.__cam.push({t:t-t0,dt:lt?t-lt:0,s:c.scale,light:c.light,phase:GBRailScene.phase,chap:ch?ch.className:''});lt=t;if(t-t0<7000)requestAnimationFrame(f)};requestAnimationFrame(f);
+    const op=[...document.querySelectorAll('#railItems .r10-item:not([hidden])')].map(c=>+c.style.opacity||(c.style.opacity===''?1:0));
+    window.__cam.push({t:t-t0,dt:lt?t-lt:0,s:c.scale,light:c.light,phase:GBRailScene.phase,chap:ch?ch.className:'',shown:op.filter(o=>o>.98).length,partial:op.filter(o=>o>.02&&o<.98).length,entering:GBRail.entering});lt=t;if(t-t0<7000)requestAnimationFrame(f)};requestAnimationFrame(f);
     window.__lt=0;try{new PerformanceObserver(l=>{window.__lt+=l.getEntries().length}).observe({type:'longtask',buffered:false})}catch{}});
   await toRail(page,mobile?60:40);
   await page.waitForFunction(()=>window.__cam.length&&performance.now()&&window.__cam.at(-1).t>6900,null,{timeout:12000}).catch(()=>{});
@@ -54,8 +57,12 @@ async function film(browser,w,h){
   check(vp,'V11: a câmera só anda depois que os blocos do capítulo abrem (sem intro concorrente)',firstOut>=0&&firstMove>firstOut,`out@${c[firstOut]?.t|0}ms move@${c[firstMove]?.t|0}ms`);
     // salto = variação de escala por milissegundo acima do dobro do pico do easing (independe da taxa de quadros)
   const dolly=c.slice(firstMove,live>0?live:undefined),jumps=dolly.slice(1).map((x,i)=>(x.s-dolly[i].s)/Math.max(1,x.dt));
-  check(vp,'V11: dolly contínuo até o plano final (escala só cresce, sem salto)',live>0&&dolly.length>20&&Math.min(...jumps)>-1e-6&&Math.max(...jumps)<.0012&&Math.abs(c[live].s-1)<1e-3,`frames ${dolly.length} maior passo ${(Math.max(...jumps)*1000).toFixed(3)}/s`);
+  // ao chegar, a câmera passa 1–2% e assenta (sem degrau): o repouso exato é conferido no plano final
+  check(vp,'V11: dolly contínuo até o plano final (escala só cresce, sem salto)',live>0&&dolly.length>20&&Math.min(...jumps)>-1e-6&&Math.max(...jumps)<.0012&&c[live].s>.995&&c[live].s<1.02,`frames ${dolly.length} maior passo ${(Math.max(...jumps)*1000).toFixed(3)}/s`);
   const dur=live>0?c[live].t-c[firstMove].t:0;
+  // a arara surge: cabides pousam um a um (vários instantes com peças a meio caminho), todos antes da câmera assentar
+  const firstShown=c.findIndex(x=>x.shown>0),cascade=c.filter(x=>x.partial>0).length,landed=c.findIndex(x=>x.entering===0&&x.phase!=='far');
+  check(vp,'V11: cabides surgem em cascata depois dos blocos e pousam antes de a câmera chegar',firstShown>firstOut&&cascade>=6&&landed>0&&landed<=live+2,`primeiro@${c[firstShown]?.t|0}ms cascata ${cascade} quadros, pousados@${c[landed]?.t|0}ms, câmera@${c[live]?.t|0}ms`);
   const mid=c[Math.floor((firstMove+live)/2)]||{},lp=(mid.light-c[0].light)/(1-c[0].light),sp=(mid.s-c[0].s)/(1-c[0].s);
   check(vp,'V11: travelling de cinema (1,2–2,4 s), luz chega antes da câmera',dur>1200&&dur<2400&&lp>sp,`${dur|0}ms luz ${lp.toFixed(2)} câmera ${sp.toFixed(2)}`);
   const dts=dolly.map(x=>x.dt).filter(Boolean).sort((a,b)=>a-b),p95=dts[Math.floor(dts.length*.95)]||0,mean=dts.reduce((a,b)=>a+b,0)/(dts.length||1);
@@ -83,7 +90,7 @@ async function film(browser,w,h){
       return{wind:GBRail.state.wind,moving:GBRail.state.moving,ang,rig:document.querySelectorAll('.r10-item.is-rig').length,focusRig:document.querySelector('.r10-item.is-focus').classList.contains('is-rig'),
         hem:getComputedStyle(document.querySelector('.r10-item.is-focus .hg-bone-b')).display}});
     if(s.wind>.2)wind=s;else await page.waitForTimeout(150)}
-  check(vp,'V11: vento ambiente chega depois da câmera',!!wind,JSON.stringify(wind));
+  check(vp,'V11: vento ambiente chega depois da câmera',!!wind,JSON.stringify(wind||await page.evaluate(()=>({air:GBRailScene.air,st:GBRail.state}))));
   if(wind){
     const distinct=new Set(wind.ang.map(a=>a.toFixed(2))).size;
     check(vp,'V11: cabides balançam fora de sincronia (ângulos distintos, pequenos)',distinct>=Math.min(3,wind.ang.length)&&Math.max(...wind.ang.map(Math.abs))<4,JSON.stringify(wind.ang));
@@ -122,6 +129,28 @@ async function film(browser,w,h){
   const ov=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
   check(vp,'V11: sem overflow horizontal',ov<=0,String(ov));
   check(vp,'V11: zero erro de JavaScript',errors.length===0,errors.join(' | '));
+  await ctx.close();
+}
+
+// Toque: arrastar para o lado com o dedo navega 1:1 (durante e depois do filme), sem prender a rolagem
+async function touch(browser,w,h){
+  const vp=`${w}x${h} toque`;const {ctx,page,errors}=await open(browser,w,h);
+  const cdp=await ctx.newCDPSession(page);
+  const swipe=async(dx)=>{const b=await page.locator('#railViewport').boundingBox(),y=b.y+b.height*.42,x0=b.x+b.width*(dx<0?.78:.22);
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:x0,y}]});
+    for(let i=1;i<=12;i++){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x0+dx*i/12,y:y+i*.4}]});await page.waitForTimeout(16)}
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]})};
+  await toRail(page,60);
+  await page.waitForFunction(()=>GBRailScene.phase==='dolly',null,{timeout:8000}).catch(()=>{});
+  const i0=(await page.evaluate(()=>GBRail.state)).index,y0=await page.evaluate(()=>scrollY);
+  await swipe(-w*.5);await page.waitForTimeout(700);
+  const a=await settle(page),ph=await page.evaluate(()=>({phase:GBRailScene.phase,y:scrollY}));
+  check(vp,'V11 toque: arrastar durante o filme encurta a câmera e troca de peça',a.index>i0&&ph.phase==='live'&&Math.abs(ph.y-y0)<4,JSON.stringify({i0,a:a.index,...ph,y0}));
+  await swipe(w*.5);await page.waitForTimeout(700);const b=await settle(page);
+  check(vp,'V11 toque: arrastar para o outro lado volta',b.index<a.index,`${a.index} → ${b.index}`);
+  const fly=await page.evaluate(()=>({moving:GBRail.state.moving,pos:GBRail.state.pos,index:GBRail.state.index}));
+  check(vp,'V11 toque: assenta numa peça inteira',Math.abs(fly.pos-fly.index)<.01&&!fly.moving,JSON.stringify(fly));
+  check(vp,'V11 toque: zero erro de JavaScript',errors.length===0,errors.join(' | '));
   await ctx.close();
 }
 
@@ -199,6 +228,7 @@ try{
   await views(browser);
   for(const [w,h] of VIEWPORTS){console.log(`→ ${w}x${h}`);await film(browser,w,h);await edge(browser,w,h)}
   await interrupt(browser,1440,900);await interrupt(browser,390,844);
+  await touch(browser,390,844);await touch(browser,320,720);
   await reducedRun(browser,1440,900);await reducedRun(browser,390,844);
 }finally{await browser.close()}
 console.log('\nMÉTRICAS DO DOLLY (medidas neste ambiente headless, sem GPU dedicada):');

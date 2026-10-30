@@ -79,6 +79,8 @@ const Scene={
     const J=g.barTop+g.gw*1.5;                 // encontro parede/piso logo abaixo da barra das roupas mais longas
     const Yf=Oy+(J-Oy)/f,Yc=Oy-(Oy+14)/f,Xr=W/2*.97/f,L=Dn+Dw;
     Object.assign(this,{W,H,P,Oy,Dw,Dn,Zp,C0,f,Yf,Yc,Xr,L});
+    // linha do piso no plano da arara: a V10 pousa ali a sombra de contato de cada peça
+    Stage.floorY=Yf;
     room.style.perspective=P+'px';room.style.perspectiveOrigin=`50% ${Oy.toFixed(1)}px`;
     const box=(n,l,t,w,h)=>Object.assign(n.style,{left:l.toFixed(1)+'px',top:t.toFixed(1)+'px',width:w.toFixed(1)+'px',height:h.toFixed(1)+'px'});
     box(wall,W/2-Xr,Yc,2*Xr,Yf-Yc);
@@ -104,16 +106,20 @@ const Camera={
   // molas de reação (parallax do ponteiro, impulso de navegação, push/pull do Object View)
   px:new M.Spring(0,{k:38,z:.9}),py:new M.Spring(0,{k:38,z:.9}),cz:new M.Spring(0,{k:46,z:.92}),
   shot:null,running:false,
-  far(){const S=Scene;this.c=S.C0;this.cx=-.035*S.W;this.cy=-.07*S.H;this.light=.38;vp.dataset.scene='far';this.apply()},
-  live(){this.shot=null;this.c=0;this.cx=this.cy=0;this.light=1;vp.dataset.scene='live';this.apply()},
+  far(){const S=Scene;this.c=S.C0;this.cx=-.035*S.W;this.cy=-.07*S.H;this.light=.38;this.scene('far');R.stageHide();this.apply()},
+  live(){this.shot=null;this.c=0;this.cx=this.cy=0;this.light=1;this.scene('live');this.apply()},
+  scene(n){vp.dataset.scene=n;vp.classList.toggle('r11-film',n!=='live')},
   // dolly: avanço com crane e pequeno arco lateral; interrompível — o gesto encurta o resto do plano
   dolly({hold=760,dur=Perf.tier==='touch'?1650:1900}={}){
     const from={c:this.c,cx:this.cx,cy:this.cy,light:this.light};
-    this.shot={t0:now()+hold,dur,from};vp.dataset.scene='dolly';this.run();
+    this.shot={t0:now()+hold,dur,from};this.scene('dolly');this.run();
+    // a arara surge: os cabides são pousados na barra enquanto a câmera ainda está na porta
+    R.stageEnter(520);
   },
   hurry(){
     if(!this.shot)return;
     this.shot={t0:now(),dur:340,from:{c:this.c,cx:this.cx,cy:this.cy,light:this.light},hurried:true};this.run();
+    R.stageEnter(0,{step:18});
   },
   run(){if(this.running)return;this.running=true;M.Ticker.add(dt=>this.step(dt))},
   step(dt){
@@ -121,10 +127,12 @@ const Camera={
     if(s){
       const u=clamp((now()-s.t0)/s.dur,0,1),e=s.hurried?1-Math.pow(1-u,3):ease(u);
       if(u>0&&!s.hurried)Perf.sample(dt);
-      this.c=lerp(s.from.c,0,e);this.cx=lerp(s.from.cx,0,e);this.cy=lerp(s.from.cy,0,e);
+      // primeira pessoa: três passos curtos (a câmera sobe e desce poucos px), que somem ao chegar
+      const walk=s.hurried?0:Math.sin(e*Math.PI*6)*Math.sin(e*Math.PI)*Scene.H*(Perf.tier==='touch'?.004:.005);
+      this.c=lerp(s.from.c,0,e);this.cx=lerp(s.from.cx,0,e);this.cy=lerp(s.from.cy,0,e)+walk;
       // a luz chega um pouco antes da câmera: "a luz revela as peças"
       this.light=lerp(s.from.light,1,clamp(e*1.35,0,1));
-      if(u>=1){this.shot=null;vp.dataset.scene='live';Reveal.arrived()}
+      if(u>=1){this.shot=null;this.scene('live');if(!s.hurried)this.cz.v=-.16*Scene.P;Reveal.arrived()}
     }
     this.px.step(dt);this.py.step(dt);this.cz.step(dt);this.apply();
     const busy=!!this.shot||!(this.px.settled&&this.py.settled&&this.cz.settled);
@@ -172,6 +180,7 @@ const Stage=window.GBRailScene={
   wind:t=>Wind.level(t),
   get phase(){return vp.dataset.scene},
   get tier(){return Perf.tier+(Perf.low?'-low':'')},
+  get air(){return{on:Wind.on,gust:!!Wind.g,inView,done:Reveal.done}},
   camera:{},
 };
 
@@ -205,8 +214,11 @@ let inView=false;
 // qualquer intenção do visitante encurta o filme (nunca bloqueia arrasto, setas, teclado ou clique)
 const hurry=()=>{if(!Reveal.started)Reveal.start();if(Camera.shot)Camera.hurry()};
 ['pointerdown','wheel','keydown'].forEach(e=>vp.addEventListener(e,hurry,{passive:true,capture:true}));
+vp.addEventListener('gb:rail:intent',hurry);
+// arrasto (mouse ou toque): a sala gira levemente contra o gesto, a arara segue 1:1 sob o dedo
+vp.addEventListener('gb:rail:drag',e=>{if(Perf.tier==='static'||!Reveal.done)return;Camera.px.set(clamp(-(e.detail?.v||0)*Scene.W*.006,-Scene.W*.035,Scene.W*.035));Camera.run()});
 vp.addEventListener('gb:rail:navigate',e=>{
-  hurry();
+  hurry();if(Perf.tier!=='static'&&!vp.matches(':hover'))Camera.px.set(0);
   // câmera quase ancorada: acompanha o deslocamento com um respiro e volta ao eixo
   const d=Math.sign((e.detail?.index??0)-(e.detail?.from??e.detail?.index??0));
   if(d&&Perf.tier!=='static'){Camera.px.v+=d*(Perf.tier==='touch'?70:110);Camera.run()}

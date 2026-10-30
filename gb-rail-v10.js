@@ -204,10 +204,10 @@ function buildRail(){
   track.innerHTML=S.list.map((it,i)=>{
     const v=currentVariant(it),fig=figure(it,v,'combo',{lazy:true});
     const n=it.variants.length>1?`, ${it.variants.length} cores fotografadas`:'';
-    return `<div class="r10-item" data-rail-item="${i}" data-mode="${fig.mode}" style="--minx:${f4(fig.minX)}em;--maxx:${f4(fig.maxX)}em;--maxy:${f4(fig.maxY)}em"><button type="button" class="r10-hit" data-rail-hit="${i}" tabindex="-1" aria-label="${esc(it.title)} — ${fmt(i)} de ${S.list.length}, ${esc(it.label.toLowerCase())}${n}"></button><span class="r10-swing"><span class="r10-turn">${fig.html}</span></span></div>`;
+    return `<div class="r10-item" data-rail-item="${i}" data-mode="${fig.mode}" style="--minx:${f4(fig.minX)}em;--maxx:${f4(fig.maxX)}em;--maxy:${f4(fig.maxY)}em"><i class="r10-floor" aria-hidden="true"></i><button type="button" class="r10-hit" data-rail-hit="${i}" tabindex="-1" aria-label="${esc(it.title)} — ${fmt(i)} de ${S.list.length}, ${esc(it.label.toLowerCase())}${n}"></button><span class="r10-swing"><span class="r10-turn">${fig.html}</span></span></div>`;
   }).join('');
-  cards=qa('.r10-item',track).map(el=>({el,swing:el.querySelector('.r10-swing'),turn:el.querySelector('.r10-turn'),hit:el.querySelector('.r10-hit'),h:0,hydrated:false,vis:true,minX:parseFloat(el.style.getPropertyValue('--minx')),maxX:parseFloat(el.style.getPropertyValue('--maxx'))}));
-  lastWin=-99;
+  cards=qa('.r10-item',track).map(el=>({el,floor:el.querySelector('.r10-floor'),swing:el.querySelector('.r10-swing'),turn:el.querySelector('.r10-turn'),hit:el.querySelector('.r10-hit'),h:0,hydrated:false,vis:true,minX:parseFloat(el.style.getPropertyValue('--minx')),maxX:parseFloat(el.style.getPropertyValue('--maxx'))}));
+  lastWin=-99;entering=0;
 }
 function renderCard(i,html){
   const it=S.list[i],card=cards[i];if(!card)return null;const fig=figure(it,currentVariant(it),'combo');
@@ -263,23 +263,47 @@ function physics(dt,t){
   });
   return busy;
 }
+/* ---------- V11: entrada dos cabides (o palco chama na hora do filme) ----------
+   Cada cabide é pousado na barra: sobe um pouco, desce com mola curta e o tecido balança no contato. Do centro
+   para fora, um por vez. Fora do filme (movimento reduzido, aparelho modesto) nada fica escondido. */
+const backOut=u=>{const c=1.7;return 1+(c+1)*Math.pow(u-1,3)+c*Math.pow(u-1,2)};
+let entering=0;
+function stageHide(){if(reduced()||lite())return;cards.forEach(c=>{c.en={t:Infinity,d:560,side:1}});entering=cards.length;layout()}
+function stageEnter(delay=0,{step=75}={}){
+  if(!entering)return;const t=performance.now()+delay,order=cards.map((c,i)=>i).filter(i=>cards[i].en).sort((a,b)=>Math.abs(a-target)-Math.abs(b-target));
+  order.forEach((i,k)=>{const c=cards[i];if(!c.en)return;const vis=Math.abs(i-pos.x)<(G.m?3.2:6);
+    // peças fora de quadro entram já pousadas; as em cena, em cascata a partir da peça em foco
+    if(!vis){c.en=null;entering--;return}
+    c.en.t=Math.min(c.en.t,t+Math.ceil(k/2)*step);c.en.side=i<target?-1:1});
+  kick();
+}
+function landing(card,i,now){
+  const en=card.en;if(!en)return null;const u=(now-en.t)/en.d;
+  if(u>=1){card.en=null;entering--;if(!reduced()){const P=physOf(i);P.th.v+=en.side*34;P.fi.v+=en.side*18;P.he.v-=en.side*22}return null}
+  if(u<0)return{lift:1,alpha:0};
+  return{lift:1-backOut(u),alpha:clamp(u*2.6,0,1)};
+}
 function layout(){
-  const p=pos.x,m=G.m,R=m?2.4:5.2,rig=rigOn(),rigR=m?0:1;
+  const p=pos.x,m=G.m,R=m?2.4:5.2,rig=rigOn(),rigR=m?0:1,tnow=performance.now(),floorY=window.GBRailScene?.floorY;
   cards.forEach((card,i)=>{
     const d=i-p,a=Math.abs(d);
     const vis=a<R+.8;if(vis!==card.vis){card.vis=vis;card.el.hidden=!vis}
-    if(!vis)return;
+    // peça que saiu de quadro antes de pousar entra já pousada (nunca fica presa no ar)
+    if(!vis){if(card.en&&card.en.t!==Infinity){card.en=null;entering--}return}
     const h=card.h,x=xOf(d);
     const s=(Math.max(.6,1-Math.min(a,1)*(m?.16:.2)-Math.max(a-1,0)*.05)+h*.035)*(i===target?1-(1-fScale)*spread.x:1);
     // foto só de frente: inclinação 3/4 contida (sem "papelão" girando); a profundidade real vem do palco V11
     const ry=-Math.sign(d)*Math.min(a,1)*(m?11:15)*(1-h)-Math.sign(d)*Math.max(a-1,0)*2.5*(1-h);
-    const y=barY(x)-h*5;
+    const ld=landing(card,i,tnow),y=barY(x)-h*5-(ld?ld.lift*G.gw*.16:0);
     card.el.style.transform=`translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) scale(${s.toFixed(4)})`;
     card.el.style.zIndex=String(200-Math.round(a*12)+(h>.05?30:0));
-    card.el.style.opacity=a>R-.6?clamp((R+.6-a)/1.2,0,1).toFixed(3):'1';
+    const op=(a>R-.6?clamp((R+.6-a)/1.2,0,1):1)*(ld?ld.alpha:1);
+    card.el.style.opacity=op<1?op.toFixed(3):'1';
     // o cabide balança a partir do gancho; o tecido acompanha com atraso (inércia do pano); a barra atrasa mais
     const P=physOf(i),th=P.th.x,fi=P.fi.x-th,he=P.he.x-P.fi.x;
     card.swing.style.transform=Math.abs(th)>.01?`rotate(${th.toFixed(3)}deg)`:'';
+    // sombra de contato no piso (V11): fica no chão sob a peça, acompanha o balanço e some com ela no ar
+    if(floorY&&card.floor){const fy=(floorY-y)/s,fx=-th*.012*G.gw;card.floor.style.transform=`translate3d(calc(-50% + ${fx.toFixed(1)}px),${fy.toFixed(1)}px,0)`}
     card.turn.style.transform=`perspective(${m?700:950}px) rotateY(${ry.toFixed(2)}deg)`;
     const fig=card.fig||(card.fig=qa('.hg-fig,.hg-shadow',card.el));
     const tr=Math.abs(fi)>.01?`rotate(${(fi*.9).toFixed(3)}deg)`:'';fig.forEach(f=>f.style.transform=tr);
@@ -291,7 +315,7 @@ function layout(){
 function loop(dt,tms){
   if(!dragging)pos.step(dt);
   swing.set(clamp(-pos.v*5.2,-14,14));swing.step(dt);lag.set(swing.x);lag.step(dt);
-  const alive=physics(dt,(tms||performance.now())/1000);
+  const alive=physics(dt,(tms||performance.now())/1000)||entering>0;
   const rest=!dragging&&Math.abs(pos.target-pos.x)<=.02;spread.set(rest?1:0);spread.step(dt);
   // recentramento da composição só em repouso: sob o dedo a arara anda 1:1, sem deriva
   if(rest)shift.set(shiftX);shift.step(dt);
@@ -301,8 +325,8 @@ function loop(dt,tms){
   // a peça chegou: fichas descem enquanto o tecido ainda termina de balançar
   if(!dragging&&Math.abs(pos.target-pos.x)<.02&&Math.abs(pos.v)<.35&&S.phase!=='focused'&&S.phase!=='viewer')onSettled();
   const railIdle=!dragging&&pos.settled&&shift.settled&&Math.abs(swing.x)<.02&&Math.abs(swing.v)<.04&&Math.abs(lag.x)<.02&&Math.abs(lag.v)<.04&&spread.settled&&!hovering;
-  // vento ambiente não é "arara em movimento": o estado só conta gesto, mola da arara e o tecido assentando
-  railMoving=!railIdle||(alive&&windLevel===0);
+  // vento ambiente e o tecido assentando não são "arara em movimento": o estado conta gesto, mola da arara e entrada
+  railMoving=!railIdle||entering>0;
   const idle=railIdle&&!alive;
   if(idle){pos.jump(target);swing.jump(0);lag.jump(0);cards.forEach(c=>{if(c.ph){c.ph.th.jump(0);c.ph.fi.jump(0);c.ph.he.jump(0)}});layout();running=false;track.classList.remove('is-moving');onSettled();return false}
 }
@@ -317,7 +341,7 @@ function kick(){
 }
 function setPhase(p){S.phase=p;viewport.dataset.phase=p}
 function navigate(i,{input}={}){
-  if(!S.list.length)return;const n=clamp(i,0,S.list.length-1);
+  if(!S.list.length)return;if(viewport.dataset.ready)emit('intent',{});const n=clamp(i,0,S.list.length-1);
   if(input)S.input=input;
   if(n===target){if(i!==n){pos.v+=(i>n?1:-1)*1.4;kick()}return}
   const from=target;target=n;settledAt=-1;pos.set(n);setPhase('settling');computeGaps();updateInfo();kick();emit('navigate',{index:n,from});
@@ -345,6 +369,7 @@ function mountRailTags(it){
 }
 function prefetch(i){[i-2,i-1,i+1,i+2].forEach(k=>{const it=S.list[k];if(!it)return;const v=currentVariant(it);Object.values(v.media).forEach(ref=>{const src=srcOf(ref);if(!src)return;const im=new Image();im.decoding='async';im.src=src;im.decode?.().catch(()=>{})})})}
 function setFilter(f){
+  if(viewport.dataset.ready)emit('intent',{});
   S.filter=FILTERS[f]?f:'all';S.list=ITEMS.filter(FILTERS[S.filter]);buildRail();
   target=Math.min(S.filter==='all'?2:1,S.list.length-1);pos.jump(target);swing.jump(0);lag.jump(0);spread.jump(reduced()?1:0);
   computeGaps();hydrate(true);layout();updateInfo();kick();
@@ -390,7 +415,7 @@ viewport.addEventListener('keydown',e=>{
 // arrasto 1:1 na área livre; fichas, botões e legenda não iniciam arrasto; gesto vertical libera a rolagem
 M.drag(viewport,{axis:'x',ignore:'.rail-controls,.gb-tags,.r10-caption,.rail-bottom button',
   onStart(){dragging=true;dragStart=pos.x;setPhase('drag');settledAt=-1;if(railTags){retractTags(railTags);railTags=null}kick();emit('dragstart',{})},
-  onMove(dx){const max=S.list.length-1,step=G.S0;let p=dragStart-dx/step;if(p<0)p*=.3;else if(p>max)p=max+(p-max)*.3;pos.v=(p-pos.x)*60;pos.x=p;pos.target=p;if(reduced()){hydrate();layout()}},
+  onMove(dx){const max=S.list.length-1,step=G.S0;let p=dragStart-dx/step;if(p<0)p*=.3;else if(p>max)p=max+(p-max)*.3;pos.v=(p-pos.x)*60;pos.x=p;pos.target=p;emit('drag',{v:pos.v});if(reduced()){hydrate();layout()}},
   onEnd(v){dragging=false;const step=G.S0,proj=pos.x-clamp(v/step*.18,-2.2,2.2);target=clamp(Math.round(proj),0,S.list.length-1);pos.set(target);pos.v=-v/step*.35;setPhase('settling');computeGaps();updateInfo();kick();emit('navigate',{index:target,input:'drag'})}
 });
 viewport.addEventListener('wheel',e=>{
@@ -542,7 +567,7 @@ window.GBRail={get state(){const it=S.list[target],v=it&&currentVariant(it);retu
   items:()=>S.list.map(it=>({id:it.id,title:it.title,family:it.family,variants:it.variants.map(v=>({id:v.id,label:v.label,productId:v.sourceId})),capabilities:it.capabilities})),
   navigate:i=>navigate(i),setFilter,
   // V11: o palco acorda o mesmo relógio da arara (rajada de vento) em vez de rodar um segundo loop
-  wake:()=>{if(!reduced()&&!lite())kick()},get geometry(){return{...G}},chooseVariant:i=>chooseVariant(S.open?S.current:S.list[target],i,'api'),open:()=>openViewer(S.list[target],{from:cards[target]}),close:closeViewer,counts:CAT.counts};
+  wake:()=>{if(!reduced()&&!lite())kick()},stageHide,stageEnter,get entering(){return entering},get geometry(){return{...G}},chooseVariant:i=>chooseVariant(S.open?S.current:S.list[target],i,'api'),open:()=>openViewer(S.list[target],{from:cards[target]}),close:closeViewer,counts:CAT.counts};
 
 /* ============================== MONTAGEM ============================== */
 viewport.classList.add('r10');
