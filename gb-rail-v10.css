@@ -126,3 +126,23 @@
   .gb-tag-cord,.gb-tag-card,.r10-caption{transition:none!important}
 }
 .gb-object-tabs[hidden]{display:none!important}
+
+/* ---------- V11 / bug da borda direita: a peça entra em cena só com a foto da roupa pronta ----------
+   Antes, gancho (SVG) e sombra (imagem leve) pintavam antes da foto chegar: na borda por onde as peças
+   entram aparecia uma silhueta cinza "duplicada" e cabides vazios. Agora a figura inteira espera a foto. */
+.r10-item .hg{transition:opacity .26s ease}
+.r10-item:not(.is-ready) .hg{opacity:0}
+@media(prefers-reduced-motion:reduce){.r10-item .hg{transition:none}}
+
+/* ---------- V11 / rig 2.5D do tecido: dois ossos da MESMA foto ----------
+   Osso A (corpo, preso ao cabide) fica opaco até 64% e some até 70%; osso B (barra) aparece de 50% a 58% e
+   gira sobre o meio da peça. Na faixa de troca A continua opaco por baixo: sem faixa translúcida, sem
+   duplicar contorno. Só peças "vivas" (foco e vizinhas) ligam o osso B; no resto é uma imagem só. */
+.hg-bone{position:absolute;inset:0;display:block}
+.hg-bone-b{display:none;transform-origin:50% 50%}
+.is-rig .hg-bone-a{-webkit-mask-image:linear-gradient(180deg,#000 58%,transparent 62%);mask-image:linear-gradient(180deg,#000 58%,transparent 62%)}
+.is-rig .hg-bone-b{display:block;-webkit-mask-image:linear-gradient(180deg,transparent 50%,#000 56%);mask-image:linear-gradient(180deg,transparent 50%,#000 56%)}
+
+/* ---------- V11 / troca de cor em onda: faixa de luz feita da própria foto nova (só onde há tecido) ---------- */
+.hg-glow{pointer-events:none;filter:brightness(1.55) saturate(1.25) contrast(.9)}
+.hg-glow :is(.hg-shadow,.hg-hook,.hg-bar,.hg-clip,.hg-neckshade){display:none}

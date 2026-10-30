@@ -1,0 +1,174 @@
+/* GB IMPORTS / RAIL V11 — IMMERSIVE STAGE. Loja-conceito clara em perspectiva real (ver gb-rail-v11.js).
+   Geometria (posição/tamanho dos planos) vem do JS; aqui só material, luz e camadas. Só transform/opacity animam. */
+
+/* ---------- Material da sala (claro = ORIGEM; escuro = SINAL, mais abaixo) ---------- */
+.r11{--r11-wall:#f7f6f2;--r11-wall-low:#ecebe5;--r11-floor-near:#cfcac0;--r11-floor-far:#e7e4dc;--r11-floor-shine:#f3f1ec;--r11-floor-out:#dcdcd6;
+  --r11-seam:rgba(17,18,20,.07);--r11-ceil:#fdfcfa;--r11-ceil-far:#f2f0eb;
+  --r11-sky-top:#dbe5ec;--r11-sky:#eaf0f1;--r11-haze:#f3f2ec;--r11-sunc:255,244,218;--r11-bld:96,110,122;--r11-win:255,255,255;--r11-wina:.22;--r11-leaf:120,140,112;
+  --r11-glass:226,236,234;--r11-alu-l:#d9dbda;--r11-alu-d:#9a9d9f;--r11-hazec:243,242,236;
+  --r11-lamp:255,252,244;--r11-shade:34,30,24;--r11-jamb:#ebe8e1;--r11-jamb-edge:#d6d2c8;--r11-ui:240,238,233;background:var(--r11-wall)}
+.r11 .rail-wall,.r11 .rail-pipe{display:none}
+.rail-viewport.r11::before,.rail-viewport.r11::after{content:none}
+
+/* ---------- Sala: um contêiner com perspectiva; cada plano é projetado por ela ---------- */
+.r11-room{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:visible}
+.r11-plane{position:absolute;display:block;transform-origin:50% 0;backface-visibility:visible}
+.r11-plane>i,.r11-plane>span{position:absolute;display:block;pointer-events:none}
+
+/* ---------- A rua lá fora (vista pelo vidro): céu claro, sol baixo, cidade fora de foco, árvores ---------- */
+.r11-out{transform-origin:50% 0;background:linear-gradient(180deg,var(--r11-sky-top) 0%,var(--r11-sky) 42%,var(--r11-haze) 78%,var(--r11-haze) 100%)}
+.r11-sky{inset:0;background:radial-gradient(ellipse 60% 40% at 50% 100%,rgba(var(--r11-lamp),.55),rgba(var(--r11-lamp),0) 70%)}
+.r11-sun{left:58%;top:8%;width:30%;height:46%;background:radial-gradient(closest-side,rgba(var(--r11-sunc),.75),rgba(var(--r11-sunc),.18) 45%,rgba(var(--r11-sunc),0))}
+.r11-city{left:0;right:0;bottom:calc(100% - var(--ground,80%));height:60%}
+.r11-city b{position:absolute;bottom:0;display:block;background:linear-gradient(180deg,rgba(var(--r11-bld),calc(.12 + var(--t)*.12)),rgba(var(--r11-bld),calc(.18 + var(--t)*.1)))}
+.r11-city b::after{content:'';position:absolute;inset:10% 18% 8%;opacity:calc(.35 + var(--t)*.4);background:repeating-linear-gradient(180deg,rgba(var(--r11-win),var(--r11-wina)) 0 1px,transparent 1px 11px)}
+/* perspectiva aérea: a base da cidade some na névoa do chão, como uma rua vista a distância */
+.r11-out::after{content:'';position:absolute;left:0;right:0;top:calc(var(--ground,80%) - 26%);height:34%;background:linear-gradient(180deg,rgba(var(--r11-hazec),0),rgba(var(--r11-hazec),.85) 70%,rgba(var(--r11-hazec),1));pointer-events:none}
+.r11-near{transform-origin:50% 0}
+.r11-near .r11-trees{left:0;right:0;bottom:0;height:30%}
+.r11-trees b{position:absolute;bottom:-4%;display:block;border-radius:50% 50% 40% 40%;background:radial-gradient(ellipse at 50% 35%,rgba(var(--r11-leaf),.42),rgba(var(--r11-leaf),.18) 60%,rgba(var(--r11-leaf),0) 72%)}
+
+/* ---------- Vidro: fundo e laterais em caixilhos de alumínio. O vidro só tinge e reflete; a rua aparece ---------- */
+.r11-glass{background:linear-gradient(180deg,rgba(var(--r11-glass),.30) 0%,rgba(var(--r11-glass),.10) 38%,rgba(var(--r11-glass),.16) 82%,rgba(var(--r11-glass),.34) 100%)}
+.r11-sheen{inset:0;background:linear-gradient(112deg,transparent 0 16%,rgba(255,255,255,.34) 19%,rgba(255,255,255,.06) 23%,transparent 26%,transparent 57%,rgba(255,255,255,.2) 59%,transparent 62%)}
+.r11-mullions{inset:0}
+.r11-mullions b{position:absolute;top:0;bottom:0;width:9px;margin-left:-4.5px;display:block;background:linear-gradient(90deg,var(--r11-alu-d),var(--r11-alu-l) 45%,var(--r11-alu-d));box-shadow:2px 0 6px rgba(var(--r11-shade),.12)}
+.r11-head{left:0;right:0;top:0;height:14px;background:linear-gradient(180deg,var(--r11-alu-d),var(--r11-alu-l) 60%,var(--r11-alu-d))}
+.r11-base{left:0;right:0;bottom:0;height:10px;background:linear-gradient(180deg,var(--r11-alu-l),var(--r11-alu-d))}
+/* luz de foco: o reflexo do spot interno no vidro atrás da peça escolhida (acende quando a arara assenta) */
+.r11-focus-light{left:30%;right:30%;top:6%;height:78%;background:radial-gradient(ellipse 50% 52% at 50% 46%,rgba(var(--r11-lamp),.5),rgba(var(--r11-lamp),0) 72%);opacity:.4;transition:opacity .8s ease}
+.r11[data-phase="focused"] .r11-focus-light,.r11[data-phase="viewer"] .r11-focus-light{opacity:.9}
+/* monograma GB gravado no vidro (jateado), visível ao entrar e saindo de quadro quando a câmera chega */
+.r11-sign{left:50%;top:var(--sign-y,40px);width:84px;transform:translate(-50%,-50%);opacity:.18}
+.r11-sign img{display:block;width:100%;height:auto}
+/* laterais: o mesmo vidro em perspectiva (os montantes convergem), com a rua pintada atrás e mais reflexo */
+.r11-side{transform-origin:0 50%;background:
+  linear-gradient(90deg,rgba(255,255,255,.34),rgba(255,255,255,.12) 60%,rgba(255,255,255,.2)),
+  linear-gradient(0deg,var(--r11-floor-out) 0 7%,var(--r11-haze) 7% 34%,var(--r11-sky) 70%,var(--r11-sky-top) 100%)}
+.r11-side .r11-sheen{background:linear-gradient(100deg,transparent 0 30%,rgba(255,255,255,.3) 34%,transparent 40%)}
+
+/* ---------- A loja acorda: spots no teto, cones de luz entre o vidro e a arara, poças no piso ----------
+   Acendem da porta para o fundo (fileira por fileira) quando a câmera começa a andar; só opacidade. */
+.r11-lights{inset:0}
+.r11-lights b{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:radial-gradient(circle,#9c9c98 0 34%,#d7d6d1 36% 52%,transparent 54%)}
+.r11-lights b::after{content:'';position:absolute;inset:-60%;border-radius:50%;background:radial-gradient(circle,#fff 0 18%,rgba(var(--r11-lamp),.9) 26%,rgba(var(--r11-lamp),0) 70%);opacity:0;transition:opacity .5s ease calc(var(--r)*.17s)}
+.r11-lit .r11-lights b::after{opacity:1}
+.r11-pools{inset:0}
+.r11-pools b{position:absolute;width:300px;height:260px;margin:-130px 0 0 -150px;border-radius:50%;background:radial-gradient(closest-side,rgba(var(--r11-lamp),.6),rgba(var(--r11-lamp),.18) 55%,rgba(var(--r11-lamp),0));opacity:0;transition:opacity .7s ease calc(var(--r)*.17s + .08s)}
+.r11-lit .r11-pools b{opacity:1}
+.r11-cones{position:absolute;inset:0;pointer-events:none}
+.r11-cone-row{position:absolute;transform-origin:50% 0}
+.r11-cone-row b{position:absolute;top:0;bottom:0;width:20%;margin-left:-10%;background:linear-gradient(180deg,rgba(var(--r11-lamp),.26),rgba(var(--r11-lamp),.07) 65%,rgba(var(--r11-lamp),0));
+  clip-path:polygon(45% 0,55% 0,100% 100%,0 100%);opacity:0;transition:opacity .8s ease calc(var(--r)*.17s)}
+.r11-lit .r11-cone-row b{opacity:.5}
+/* sombras longas dos montantes: a luz do dia entra pelo vidro e deita no piso em direção à câmera */
+.r11-floor-mull{left:0;right:0;top:calc(var(--glass,60%) * .42);height:calc(var(--glass,60%) * .58)}
+.r11-floor-mull b{position:absolute;top:0;bottom:0;width:22px;margin-left:-11px;background:linear-gradient(0deg,rgba(var(--r11-shade),.17),rgba(var(--r11-shade),.06) 55%,rgba(var(--r11-shade),0));transform:skewX(-9deg);transform-origin:50% 100%}
+/* faixa jateada no vidro, à altura do olhar de quem passa na calçada */
+.r11-frost{left:0;right:0;top:64%;height:7%;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.42) 18%,rgba(255,255,255,.36) 82%,rgba(255,255,255,0))}
+
+/* ---------- Piso contínuo: cimento polido dentro, o mesmo piso lá fora depois do trilho do vidro ---------- */
+.r11-floor{background:
+  repeating-linear-gradient(90deg,transparent 0 calc(240px - 1px),var(--r11-seam) calc(240px - 1px) 240px) 50% 0/auto,
+  repeating-linear-gradient(180deg,transparent 0 calc(300px - 1px),var(--r11-seam) calc(300px - 1px) 300px),
+  linear-gradient(180deg,var(--r11-floor-near) 0%,var(--r11-floor-far) calc(var(--glass,60%) * .7),var(--r11-floor-shine) calc(var(--glass,60%) - .6%),
+    var(--r11-alu-d) calc(var(--glass,60%) - .6%),var(--r11-alu-d) var(--glass,60%),var(--r11-floor-out) var(--glass,60%),var(--r11-haze) 100%)}
+/* soleira da loja: o fio amarelo GB que a câmera atravessa ao entrar */
+.r11-floor::before{content:'';position:absolute;left:0;right:0;top:var(--sill,0);height:6px;background:#FFD447;opacity:.9;transition:opacity .7s ease}
+/* já dentro da loja a soleira ficou para trás (no celular ela ainda cairia no quadro) */
+.r11:not(.r11-film) .r11-floor::before{opacity:0}
+.r11-floor-pool{left:18%;right:18%;top:calc(var(--rack,50%) - 18%);height:36%;background:radial-gradient(closest-side,rgba(var(--r11-lamp),.5),rgba(var(--r11-lamp),0))}
+/* luz do dia entrando pelo vidro e deitando no piso logo antes do trilho */
+.r11-floor-sun{left:6%;right:6%;top:calc(var(--glass,60%) - 16%);height:16%;background:linear-gradient(180deg,rgba(var(--r11-sunc),0),rgba(var(--r11-sunc),.42))}
+
+/* teto com dois trilhos de luz correndo até o vidro */
+.r11-ceil{background:linear-gradient(180deg,var(--r11-ceil) 0%,var(--r11-ceil-far) 100%)}
+.r11-track{top:0;bottom:0;width:7px;background:linear-gradient(90deg,#2b2c2f,#626367 50%,#2b2c2f)}
+.r11-track-l{left:30%}.r11-track-r{right:30%}
+
+/* reflexo da peça em foco no piso polido: a própria foto espelhada sobre a linha do piso (posição pelo JS),
+   esmaecendo para longe do chão. Uma peça só: a arara inteira refletida custava ~45 ms por quadro. */
+.r10-refl{display:none}
+.r11 .r10-refl.on{display:block;position:absolute;left:var(--minx);top:0;width:calc(var(--maxx) - var(--minx));height:var(--maxy);transform-origin:calc(var(--minx) * -1) 0;pointer-events:none;
+  opacity:var(--r11-refl,.32);-webkit-mask-image:linear-gradient(180deg,transparent 38%,#000 100%);mask-image:linear-gradient(180deg,transparent 38%,#000 100%)}
+.r11 .r10-refl-in{position:absolute;left:calc(var(--minx) * -1);top:0}
+.r11 .r10-refl :is(.hg-bone-a){-webkit-mask-image:none!important;mask-image:none!important}
+.r11 .r10-refl .hg-bone-b{display:none!important}
+.r11 .r10-item:not(.is-ready) .r10-refl{opacity:0}
+.r11 .hg-shadow{opacity:.07}
+
+/* ---------- Arara: plano z=0, mesma caixa do palco; hastes até o teto (sem corda solta) ---------- */
+.r11-rack{position:absolute;inset:0;z-index:1;pointer-events:auto}
+.r11-rods{position:absolute;inset:0;pointer-events:none}
+.r11-rod{position:absolute;top:var(--ceil,-120px);height:var(--rod-h,200px);width:3px;background:linear-gradient(90deg,#55565a,#b0b0ac 45%,#4b4c50);border-radius:2px;box-shadow:4px 0 7px rgba(0,0,0,.08)}
+.r11-rod-l{left:calc(50% - var(--rod-x,40%) - 1.5px)}.r11-rod-r{left:calc(50% + var(--rod-x,40%) - 1.5px)}
+.r11 .rail-bar{left:var(--r11-bar-l,1.5%);width:var(--r11-bar-w,97%)}
+.r11 .rail-bar-metal{stroke-width:4.2px}
+.r11 .rail-bar-shadow{stroke:rgba(0,0,0,.12);stroke-width:7px;transform:translateY(14px);filter:blur(3px)}
+/* a arara esmaece só na faixa da borda (máscara estática da camada inteira): peças cortadas pelo quadro não
+   viram fatias de estampa empilhadas, e a faixa dos letreiros laterais fica limpa — sem opacidade por peça */
+.r11:not(.r11-film) #railItems{-webkit-mask-image:linear-gradient(90deg,transparent 0,transparent 36px,#000 76px,#000 calc(100% - 76px),transparent calc(100% - 36px));mask-image:linear-gradient(90deg,transparent 0,transparent 36px,#000 76px,#000 calc(100% - 76px),transparent calc(100% - 36px))}
+
+/* ---------- Sombra de contato de cada peça no piso (posição y vem do JS: a linha do piso no plano da arara) ---------- */
+.r10-floor{display:none}
+.r11 .r10-floor{display:block;position:absolute;left:calc((var(--minx) + var(--maxx)) / 2);top:0;width:calc((var(--maxx) - var(--minx)) * .8);height:.24em;margin-top:-.05em;border-radius:50%;pointer-events:none;
+  background:radial-gradient(ellipse 50% 42% at 50% 24%,rgba(var(--r11-shade),.26),rgba(var(--r11-shade),.1) 52%,rgba(var(--r11-shade),0) 100%)}
+.r11 .r10-item:not(.is-ready) .r10-floor{opacity:0}
+
+/* ---------- Batente da porta (à frente da arara; só existe enquanto a câmera está do lado de fora) ---------- */
+.r11-portal{position:absolute;inset:0;z-index:2;pointer-events:none}
+.r11-portal[hidden]{display:none}
+.r11-portal>i{position:absolute;display:block;background:var(--r11-jamb)}
+.r11-jamb-l{left:-80%;right:calc(50% + var(--xp,400px));top:-120%;bottom:-120%;box-shadow:inset -14px 0 0 var(--r11-jamb-edge),inset -15px 0 0 rgba(var(--r11-shade),.12)}
+.r11-jamb-r{left:calc(50% + var(--xp,400px));right:-80%;top:-120%;bottom:-120%;box-shadow:inset 14px 0 0 var(--r11-jamb-edge),inset 15px 0 0 rgba(var(--r11-shade),.12)}
+.r11-lintel{left:-80%;right:-80%;top:-120%;height:calc(var(--yl,0px) + 120%);box-shadow:inset 0 -14px 0 var(--r11-jamb-edge),inset 0 -15px 0 rgba(var(--r11-shade),.12)}
+.r11-sill{display:none!important}
+
+/* ---------- Atmosfera: queda de luz nas bordas + sala acendendo na chegada ---------- */
+.r11-atmo{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 80% 90% at 50% 40%,rgba(var(--r11-shade),0) 60%,rgba(var(--r11-shade),.08) 100%)}
+.r11-dim{position:absolute;inset:0;display:block;background:rgb(var(--r11-shade));opacity:0}
+
+/* ---------- UI acessível por cima da sala (não se curva com o ambiente) ---------- */
+.r11 .rail-side-stamp{z-index:13}
+.r11 .rail-side-left{left:14px}.r11 .rail-side-right{right:14px}
+.r11 .rail-bottom{background:linear-gradient(0deg,rgba(var(--r11-ui),.5) 0%,rgba(var(--r11-ui),0) 70%)}
+
+/* ---------- Celular: mesma sala, menos borda e menos luxo ---------- */
+@media(max-width:599px){
+  .r11:not(.r11-film) #railItems{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 12px,#000 calc(100% - 12px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 12px,#000 calc(100% - 12px),transparent 100%)}
+  .r11-sign{width:58px}
+  .r11-track{width:5px}
+}
+/* quadros lentos medidos no dolly: sem sombra desfocada da barra */
+.r11-low .rail-bar-shadow{filter:none}
+
+/* ---------- Tema escuro (SINAL): a loja à noite — cidade acesa lá fora, piso escuro e espelhado ---------- */
+body[data-gb-theme="sinal"] .r11{--r11-wall:#111317;--r11-wall-low:#0d0e10;--r11-floor-near:#0a0b0c;--r11-floor-far:#15161a;--r11-floor-shine:#1c1d22;--r11-floor-out:#14161b;
+  --r11-seam:rgba(255,255,255,.04);--r11-ceil:#141518;--r11-ceil-far:#18191d;
+  --r11-sky-top:#070a12;--r11-sky:#0e1420;--r11-haze:#1a1f2b;--r11-sunc:255,196,120;--r11-bld:8,11,18;--r11-win:255,206,120;--r11-wina:.55;--r11-leaf:20,26,22;
+  --r11-glass:40,52,60;--r11-alu-l:#3a3d42;--r11-alu-d:#1b1d20;--r11-hazec:26,31,43;
+  --r11-lamp:255,226,160;--r11-shade:0,0,0;--r11-jamb:#0b0c0d;--r11-jamb-edge:#1d1e21;--r11-ui:14,15,16;--r11-refl:.42;background:var(--r11-wall)!important}
+body[data-gb-theme="sinal"] .r11 .r11-sun{opacity:.35}
+body[data-gb-theme="sinal"] .r11.r11-lit .r11-cone-row b{opacity:1}
+body[data-gb-theme="sinal"] .r11 .r11-frost{opacity:.12}
+body[data-gb-theme="sinal"] .r11 .r11-floor-mull{opacity:.4}
+body[data-gb-theme="sinal"] .r11 .r11-lights b{background:radial-gradient(circle,#2a2b2e 0 34%,#3a3b3f 36% 52%,transparent 54%)}
+body[data-gb-theme="sinal"] .r11 .r11-city b{background:linear-gradient(180deg,rgba(18,22,32,.92),rgba(10,12,18,.96))}
+body[data-gb-theme="sinal"] .r11 .r11-sheen{opacity:.35}
+body[data-gb-theme="sinal"] .r11 .r11-floor-pool{opacity:.3}
+body[data-gb-theme="sinal"] .r11 .r11-floor-sun{opacity:.25}
+body[data-gb-theme="sinal"] .r11 .r11-sign{filter:invert(1);opacity:.16}
+/* legenda e pílula legíveis sobre o piso escuro */
+body[data-gb-theme="sinal"] .r11 .r10-caption b{color:#f4f1e8}
+body[data-gb-theme="sinal"] .r11 .r10-caption [data-cap-color]{color:#a9aaa5}
+body[data-gb-theme="sinal"] .r11 .r10-pill{border-color:#f4f1e8;color:#f4f1e8}
+body[data-gb-theme="sinal"] .r11 .r10-pill i.on{background:#f4f1e8;color:#111214}
+body[data-gb-theme="sinal"] .r11 .r10-pill i:not(.on){color:#8f908b}
+body[data-gb-theme="sinal"] .r11 .rail-controls button{border-color:#ffffff59;color:#f4f1e8}
+body[data-gb-theme="sinal"] .r11 .r11-side{background:linear-gradient(90deg,rgba(255,255,255,.06),rgba(255,255,255,.02)),linear-gradient(0deg,var(--r11-floor-out) 0 7%,var(--r11-haze) 7% 34%,var(--r11-sky) 70%,var(--r11-sky-top) 100%)}
+
+@media(prefers-reduced-motion:reduce){.r11-focus-light,.r11-lights b::after,.r11-pools b,.r11-cone-row b{transition:none}}
+
+/* ---------- Desempenho: durante o filme os planos são rasterizados uma vez e só reprojetados (sem re-rasterizar a
+   cada mudança de escala); ao chegar, will-change sai e o navegador redesenha tudo nítido no plano final ---------- */
+.r11-film :is(.r11-plane,.r11-cone-row,.r11-rack,.r11-portal){will-change:transform}
