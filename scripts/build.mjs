@@ -30,8 +30,8 @@ const css=styles.map(f=>`/* ${f} */\n`+read(f).replace(/\/\*[\s\S]*?\*\//g,'').r
 // The intro is an independent render entrypoint: it begins before the heavy store JS.
 const introScript='gb-ribbon-intro.js';
 if(!scripts.includes(introScript))throw new Error('Intro JS missing');
-const introJs=read(introScript).trim();
-const restScripts=scripts.filter(f=>f!==introScript);
+const introJs=[read(introScript).trim(),read('gb-material-v42.js').trim()].join('\n;\n');
+const restScripts=scripts.filter(f=>f!==introScript&&f!=='gb-material-v42.js');
 const hash=s=>createHash('sha1').update(s).digest('hex').slice(0,10);
 const cssName='_gb/gb.'+hash(css)+'.css';
 const introName='_gb/gb-intro.'+hash(introJs)+'.js';
@@ -58,6 +58,26 @@ mkdirSync(join(DIST,'_gb'),{recursive:true});
 writeFileSync(join(DIST,cssName),css);
 for(const part of coreFiles)writeFileSync(join(DIST,part.name),part.content);
 writeFileSync(join(DIST,introName),introJs);
+// User's original PlushTile is compiled separately to avoid blocking the
+// independent, safety-critical storefront boot. Runtime has no external CDN.
+let plushBundle=null;
+try{
+ const {createRequire}=await import('node:module');
+ const require=createRequire(import.meta.url);
+ const esbuild=require('esbuild');
+ const compiled=esbuild.buildSync({
+  entryPoints:[join(ROOT,'src/plush/gb-plush-entry-v43.jsx')],
+  bundle:true,write:false,platform:'browser',format:'iife',
+  jsx:'automatic',target:['es2020'],minify:true,logLevel:'silent'
+ });
+ const text=compiled.outputFiles[0].text;
+ plushBundle='_gb/gb-plush-v43.'+hash(text)+'.js';
+ writeFileSync(join(DIST,plushBundle),text);
+ console.log('  ✓ original PlushTile GPU renderer:',plushBundle);
+}catch(err){
+ console.warn('  ! No PlushTile bundle available; retained official GB visual fallback:',err.message);
+}
+
 for(const d of ['assets','data'])cpSync(join(ROOT,d),join(DIST,d),{recursive:true});
 if(existsSync(join(ROOT,'robots.txt')))cpSync(join(ROOT,'robots.txt'),join(DIST,'robots.txt'));
 
@@ -87,7 +107,7 @@ const coreBoot = [
 ].join('\n');
 let out=stripLocal(html)
  .replace('</head>',()=>'<link href="./'+cssName+'" rel="stylesheet"/>\n</head>')
- .replace('</body>',()=>'<script src="./'+introName+'"></script>\n'+coreBoot+'\n</body>');
+ .replace('</body>',()=>'<script>window.GB_PLUSH_BUNDLE_SRC='+JSON.stringify(plushBundle?'./'+plushBundle:null)+'</script>\n<script src="./'+introName+'"></script>\n'+coreBoot+'\n</body>');
 writeFileSync(join(DIST,'index.html'),out);
 
 // V40 route entrypoints: emit real clean-URL HTML files for every visual route.

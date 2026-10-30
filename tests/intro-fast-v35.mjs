@@ -25,7 +25,7 @@ for(const [width,height,slow] of [[1440,900,false],[390,844,false],[360,780,true
   glow:!!document.querySelector('#gbRibbonBoot .gb-ribbon-scan'),
   active:GBGlassRibbons.active
  }));
- assert(signed.ink>.4&&signed.frames>2&&signed.glow,'signature too slow or missing '+JSON.stringify(signed));
+ assert(signed.frames>2&&signed.glow&&signed.sweep<.96&&!!(await page.locator('#gbRibbonBoot .gb-material-tile').count()),'material signature or cinematic motion missing '+JSON.stringify(signed));
  await page.waitForFunction(()=>GB_CORE_READY&&GBGlassRibbons.settled&&GBGlassRibbons.removed,null,{timeout:20000});
  const elapsed=performance.now()-t0;
  const ended=await page.evaluate(()=>({
