@@ -1,6 +1,9 @@
 # GB Flagship / Changelog
 
 ## V11 — 30/10/2026 · "GB RAIL IMMERSIVE"
+- V11.3 — roupas vivas: vizinhas em 3/4 e a peça em foco de frente; ao arrastar, cada peça gira no gancho contra o movimento e volta ao parar; a barra do tecido flexiona sem abrir costura; brisa mais presente com a arara em tela.
+- V11.3 — a loja acorda: spots do teto, cones de luz e poças no piso acendem fileira por fileira enquanto a câmera entra; sombras longas dos montantes no piso; faixa jateada no vidro; árvores num plano mais próximo da rua (parallax pelo vidro).
+- V11.3 — câmera em primeira pessoa: segurar o dedo ou o mouse inclina a câmera para a arara e o olhar segue o toque; soltar devolve.
 - V11.2 — vitrine de vidro: fundo e laterais em caixilhos de alumínio com vidro; lá fora, a rua em luz de dia (à noite no tema escuro); o piso atravessa o vidro e continua do lado de fora. A peça em foco aparece espelhada no piso polido.
 - V11.2 — troca de cor em onda: ao escolher outra cor na ficha, a foto nova sobe da barra até a gola numa frente ondulada com uma faixa de luz na própria peça.
 - V11.2 — arrasto mais calmo: inclinação limitada a ~4,5° com limite suave, kits em dois cabides giram quase rígidos e a barra do tecido trava enquanto a arara está sendo arrastada (as peças não parecem mais cortadas ao meio).
