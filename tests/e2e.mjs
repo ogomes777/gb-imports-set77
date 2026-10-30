@@ -404,7 +404,10 @@ async function run(w,h,reduced=false){
     return{figs:document.querySelectorAll('#lookstudio .fit-figure:not(.fit-figure-b)').length,top:live('top').map(g=>g.dataset.product),bottom:live('bottom').map(g=>g.dataset.product),
       sel:{top:document.querySelector('#lookTops [aria-pressed="true"]')?.dataset.lookId,bottom:document.querySelector('#lookBottoms [aria-pressed="true"]')?.dataset.lookId},
       state:window.GBFitting?.state,phase:st.dataset.phase,label:f?.querySelector('.fit-svg')?.getAttribute('aria-label'),anims:f?f.getAnimations({subtree:true}).filter(a=>a.playState==='running'&&!/^(fitBreath|gbEye)/.test(a.animationName||'')).length:-1}});
-  const settled=async()=>{await page.waitForTimeout(reduced?120:1700);return fit()};  // V18: a peça é arremessada do seletor antes de vestir
+  // a peça só entra com a foto decodificada: com movimento reduzido não há animação, mas a foto ainda baixa
+  const settled=async()=>{if(!reduced){await page.waitForTimeout(1700);return fit()}
+    await page.waitForFunction(()=>{const f=document.querySelector('#gbFitFigure'),s=window.GBFitting?.state,id=p=>f?.querySelector(`.fit-layer-${p} .fit-garment`)?.dataset.product;return s&&id('top')===s.topId&&id('bottom')===s.bottomId},null,{timeout:3000}).catch(()=>{});
+    await page.waitForTimeout(120);return fit()};  // V18: a peça é arremessada do seletor antes de vestir
   const one1=s=>s.figs===1&&s.top.length===1&&s.bottom.length===1;
   const events=[];await page.exposeFunction('__gbLook',d=>events.push(d)).catch(()=>{});
   await page.evaluate(()=>addEventListener('gb:look-change',e=>window.__gbLook(e.detail)));
