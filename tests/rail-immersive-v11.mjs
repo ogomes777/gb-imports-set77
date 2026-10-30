@@ -145,7 +145,8 @@ async function film(browser,w,h){
     const by=fb.y+fb.height*.82;await page.mouse.move(fb.x+fb.width*.05,by);await page.mouse.move(fb.x+fb.width*.93,by,{steps:10});
     await page.waitForTimeout(700);const br=await page.evaluate(()=>__br);await page.mouse.move(2,2);
     const bh=Math.max(0,...br.map(x=>x.h)),ba=Math.max(0,...br.map(x=>x.a));
-    check(vp,'V11: roçar a ponta da peça com o cursor dobra o tecido, inteiro (barra 0,3–3,2°, cabide < 4,5°)',bh>.3&&bh<=3.21&&ba<4.5,`barra ${bh.toFixed(2)}° · cabide ${ba.toFixed(2)}°`);
+    const lowB=await page.evaluate(()=>GBRailScene.tier.endsWith('-low'));
+    check(vp,`V11: roçar a ponta da peça com o cursor dobra o tecido, inteiro (barra 0,3–3,2°, cabide < 4,5°)${lowB?' — nível low: sem rig, o cabide balança (≥ 0,3°)':''}`,(lowB?ba>=.3:bh>.3&&bh<=3.21)&&ba<4.5,`barra ${bh.toFixed(2)}° · cabide ${ba.toFixed(2)}°`);
     await settle(page);
     // troca de cor em onda: a foto nova sobe da barra até a gola, a antiga sai só no fim
     const iv=await page.evaluate(()=>GBRail.items().findIndex(i=>i.id==='gb-v10-tech-fleece'));await page.evaluate(i=>GBRail.navigate(i),iv);await settle(page);await page.waitForTimeout(900);

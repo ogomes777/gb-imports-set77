@@ -492,7 +492,8 @@ track.addEventListener('pointermove',e=>{
   const r=(c.hit||c.el).getBoundingClientRect();if(!r.width)return;
   const rx=clamp((e.clientX-r.left)/r.width-.5,-.5,.5),ry=clamp((e.clientY-r.top)/r.height,0,1);
   const edge=.45+Math.abs(rx)*1.1,f=clamp(vx,-2.4,2.4),P=physOf(i);
-  P.th.v+=f*2.2*edge;P.fi.v+=f*3*edge;P.he.v+=f*(13+ry*15)*edge;P.yw.v+=-f*rx*26;
+  // sem o osso da barra (aparelho modesto), o cabide leva o empurrão: a peça inteira balança
+  P.th.v+=f*(rigOn()?2.2:7)*edge;P.fi.v+=f*3*edge;P.he.v+=f*(13+ry*15)*edge;P.yw.v+=-f*rx*26;
   [i-1,i+1].forEach(j=>{const n=cards[j];if(n?.vis){const Q=physOf(j);Q.he.v+=f*2.4;Q.fi.v+=f*1.2}});
   kick();
 },{passive:true});
