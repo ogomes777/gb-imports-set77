@@ -197,7 +197,7 @@ body[data-gb-theme="sinal"] #lookstudio .look-controls-eyebrow,body[data-gb-them
 
 /* ---------- V18 mobile: robô um pouco acima, giro logo abaixo dos pés, aviso legal no rodapé ---------- */
 @media(max-width:780px){
-  .fit-figure,.fit-geom,.fit-split-line{height:81%;bottom:13.5%}
+  .fit-figure,.fit-geom,.fit-split-line{height:79%;bottom:13.5%}
   .look-stage.has-fit .look-stage-foot{display:none}
   .fit-legal{bottom:10px;font-size:7.5px;line-height:1.45}
   .fit-turnbar{top:auto;bottom:40px;padding:0 2px}
@@ -327,14 +327,14 @@ body[data-gb-theme="origem"] .look-stage.has-fit .fit-turnbar .fit-dial{color:#5
 .look-stage.has-fit .fit-plat i{box-shadow:0 0 0 1px #ffd4473d,inset 0 10px 25px #ffd4470b}
 .look-stage.has-fit .fit-legal{max-width:66%;left:50%;translate:-50% 0;text-align:center;letter-spacing:1.1px}
 @media(max-width:780px){
-  .fit-figure,.fit-geom,.fit-split-line{height:77%;bottom:15%}
+  .fit-figure,.fit-geom,.fit-split-line{height:79%;bottom:15%}
   .fit-emotes{top:18%;right:7px;translate:none;gap:6px;padding:7px 5px;min-width:0;border-radius:19px}
   .fit-emotes-title{display:none}
-  .fit-emotes button{width:43px;min-width:43px;height:43px;padding:3px;justify-content:center;border-radius:999px}
+  .fit-emotes button{width:44px;min-width:44px;height:44px;padding:3px;justify-content:center;border-radius:999px}
   .fit-emotes button i{width:35px;height:35px;font-size:18px}
   .fit-emotes button b{display:none}
   .fit-turnbar{top:auto;bottom:43px;min-height:48px;padding:2px 7px;gap:1px}
-  .fit-turnbar button{width:43px;min-width:43px;height:43px}
+  .fit-turnbar button{width:44px;min-width:44px;height:44px}
   .fit-turnbar .fit-dial{min-width:35px;padding:0}
   .look-stage.has-fit .look-cycle{z-index:6}
   .look-stage.has-fit .look-cycle-top{top:39%!important;left:8px!important}
