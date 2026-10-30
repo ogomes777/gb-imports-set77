@@ -38,3 +38,28 @@ body[data-gb-theme="sinal"] .gb-loupe{background:#17181a}
   ::view-transition-new(root){animation:none}}
 /* a troca em círculo não segura cliques: os toques atravessam a camada da transição */
 :root::view-transition{pointer-events:none}
+
+/* V41 / SHOP CINEMATIC WAVE
+   The grid remains an actual grid; only a damped optical response is applied
+   while scrolling. Product visuals and media stay untouched. */
+#productGrid.gb-wave-live{
+  transform-origin:50% 42%;
+  transform-style:preserve-3d;
+  backface-visibility:hidden;
+  will-change:transform;
+}
+#productGrid .product-card{
+  translate:0 var(--gb-wave-y,0px);
+  rotate:var(--gb-wave-rot,0deg);
+}
+#productGrid.gb-wave-live .product-card{
+  backface-visibility:hidden;
+  will-change:translate,rotate;
+}
+@media(prefers-reduced-motion:reduce){
+  #productGrid{transform:none!important;will-change:auto!important}
+  #productGrid .product-card{translate:none!important;rotate:none!important;will-change:auto!important}
+}
+@media(hover:none) and (pointer:coarse){
+  #productGrid.gb-wave-live{transform-origin:50% 38%}
+}
