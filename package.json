@@ -7,6 +7,12 @@
     "dev": "npx http-server . -p 8080 -c-1",
     "preview": "node scripts/build.mjs && npx http-server dist -p 8081 -c-1",
     "test:e2e": "node tests/e2e.mjs",
-    "fotos": "python3 scripts/importar_produtos.py"
+    "fotos": "python3 scripts/importar_produtos.py",
+    "test:puff": "node tests/puff-v43.mjs"
+  },
+  "dependencies": {
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "esbuild": "0.25.12"
   }
 }
