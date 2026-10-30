@@ -30,8 +30,8 @@ const css=styles.map(f=>`/* ${f} */\n`+read(f).replace(/\/\*[\s\S]*?\*\//g,'').r
 // The intro is an independent render entrypoint: it begins before the heavy store JS.
 const introScript='gb-ribbon-intro.js';
 if(!scripts.includes(introScript))throw new Error('Intro JS missing');
-const introJs=read(introScript).trim();
-const restScripts=scripts.filter(f=>f!==introScript);
+const introJs=[read(introScript).trim(),read('gb-material-v42.js').trim()].join('\n;\n');
+const restScripts=scripts.filter(f=>f!==introScript&&f!=='gb-material-v42.js');
 const hash=s=>createHash('sha1').update(s).digest('hex').slice(0,10);
 const cssName='_gb/gb.'+hash(css)+'.css';
 const introName='_gb/gb-intro.'+hash(introJs)+'.js';
