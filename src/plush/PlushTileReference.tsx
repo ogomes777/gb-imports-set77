@@ -915,6 +915,16 @@ function __OriginkitBase_PlushTile({
         const root: HTMLDivElement = rootEl
         const canvas: HTMLCanvasElement = canvasEl
         const gl: WebGL2RenderingContext = ctx
+        const rendererInfo = gl.getExtension('WEBGL_debug_renderer_info')
+        const gpuName = String(rendererInfo ? gl.getParameter(rendererInfo.UNMASKED_RENDERER_WEBGL) : '')
+        const softwareGpu = /swiftshader|llvmpipe|software/i.test(gpuName)
+        // SwiftShader can spend seconds per frame with six-digit strand counts,
+        // preventing the original storefront from booting. Use the safe GB image.
+        if (softwareGpu) return
+        const deviceCap = window.innerWidth < 720 ? 8500 :
+          (navigator as Navigator & { deviceMemory?: number }).deviceMemory &&
+          (navigator as Navigator & { deviceMemory?: number }).deviceMemory! <= 4 ? 16000 : 44000
+
 
         const shaders: WebGLShader[] = []
         const programs: WebGLProgram[] = []
@@ -1367,7 +1377,8 @@ function __OriginkitBase_PlushTile({
             const tileCss = aFull * minCss
             // A device still slow at the resolution floor also thins the coat; wider hairs keep it covered.
             const thin = Math.min(1, quality / 0.75)
-            const count = Math.min(MAX_STRANDS, Math.round((density / 5) * tileCss * tileCss * STRANDS_PER_PX * thin))
+            const requestedCount = Math.min(MAX_STRANDS, Math.round((density / 5) * tileCss * tileCss * STRANDS_PER_PX * thin))
+            const count = Math.min(deviceCap, requestedCount)
             const reach = clampN(c.rs.reach, 0, 10, DEFAULT_RESPONSE.reach)
 
             gl.viewport(0, 0, canvas.width, canvas.height)
