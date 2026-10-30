@@ -132,8 +132,10 @@ const Camera={
   },
   apply(){
     const S=Scene;if(!S.W)return;
-    const c=this.c+this.cz.x,x=this.cx+this.px.x,y=this.cy+this.py.x;
-    const t=z=>`translate3d(${(-x).toFixed(2)}px,${(-y).toFixed(2)}px,${(z-c).toFixed(2)}px)`;
+    // dolly/crane movem a câmera inteira; parallax do ponteiro e respiro de navegação giram em torno do plano
+    // focal (a arara): cada plano desloca px·z/P — a arara (z=0) fica parada, a sala ao redor desliza
+    const c=this.c+this.cz.x,x=this.cx,y=this.cy,ox=this.px.x/S.P,oy=this.py.x/S.P;
+    const t=z=>`translate3d(${(-x-ox*z).toFixed(2)}px,${(-y-oy*z).toFixed(2)}px,${(z-c).toFixed(2)}px)`;
     wall.style.transform=t(-S.Dw);
     floor.style.transform=ceil.style.transform=t(S.Dn)+' rotateX(-90deg)';
     sideL.style.transform=sideR.style.transform=t(S.Dn)+' rotateY(90deg)';
@@ -143,7 +145,7 @@ const Camera={
     const pv=c>S.Zp*.25;if(pv!==!portal.hidden)portal.hidden=!pv;
     if(pv)portal.style.transform=t(S.Zp);
     vp.style.setProperty('--r11-light',this.light.toFixed(3));
-    window.GBRailScene.camera={c:+c.toFixed(2),x:+x.toFixed(2),y:+y.toFixed(2),scale:+(S.P/(S.P+c)).toFixed(4),light:+this.light.toFixed(3)};
+    window.GBRailScene.camera={c:+c.toFixed(2),x:+x.toFixed(2),y:+y.toFixed(2),orbit:[+this.px.x.toFixed(2),+this.py.x.toFixed(2)],scale:+(S.P/(S.P+c)).toFixed(4),light:+this.light.toFixed(3)};
   },
 };
 
@@ -207,7 +209,7 @@ vp.addEventListener('gb:rail:navigate',e=>{
   hurry();
   // câmera quase ancorada: acompanha o deslocamento com um respiro e volta ao eixo
   const d=Math.sign((e.detail?.index??0)-(e.detail?.from??e.detail?.index??0));
-  if(d&&Perf.tier!=='static'){Camera.px.v+=d*(Perf.tier==='touch'?28:46);Camera.run()}
+  if(d&&Perf.tier!=='static'){Camera.px.v+=d*(Perf.tier==='touch'?70:110);Camera.run()}
 });
 vp.addEventListener('gb:rail:open',()=>{if(Perf.tier==='static')return;Camera.cz.set(-.06*Scene.P);Camera.run()});
 vp.addEventListener('gb:rail:close',()=>{if(Perf.tier==='static')return;
@@ -218,7 +220,7 @@ if(Perf.tier==='full'&&M.Prefs.fine){
   vp.addEventListener('pointermove',e=>{
     if(e.pointerType!=='mouse'||vp.classList.contains('is-dragging')||!Reveal.done)return;
     const r=vp.getBoundingClientRect(),nx=(e.clientX-r.left)/r.width-.5,ny=(e.clientY-r.top)/r.height-.5;
-    Camera.px.set(nx*Scene.W*.012);Camera.py.set(ny*Scene.H*.01);Camera.run();
+    Camera.px.set(nx*Scene.W*.03);Camera.py.set(ny*Scene.H*.025);Camera.run();
     const t=now();if(lt){Wind.poke(Math.abs(e.clientX-lx)/Math.max(8,t-lt))}lx=e.clientX;lt=t;
   },{passive:true});
   vp.addEventListener('pointerleave',()=>{Camera.px.set(0);Camera.py.set(0);Camera.run()});

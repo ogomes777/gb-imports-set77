@@ -67,6 +67,13 @@ async function film(browser,w,h){
       junction:wl.bottom-v.top,floorTop:fl.top-v.top,hem:hem-v.top,h:v.height,floor3d:/matrix3d/.test(getComputedStyle(document.querySelector('.r11-floor')).transform)}});
   check(vp,'V11: câmera assentada = plano da arara idêntico à V10 (identidade, porta fora de quadro)',fin.rack===''&&fin.cam.scale===1&&fin.portal,JSON.stringify(fin.cam));
   check(vp,'V11: piso em perspectiva real encontra a parede abaixo das roupas e dentro do palco',fin.floor3d&&fin.junction>fin.hem-6&&fin.junction<fin.h-40,JSON.stringify(fin));
+  if(!mobile){
+    const vb=await page.locator('#railViewport').boundingBox();
+    await page.mouse.move(vb.x+vb.width*.85,vb.y+vb.height*.3,{steps:4});await page.waitForTimeout(700);
+    const par=await page.evaluate(()=>({rack:document.querySelector('.r11-rack').style.transform,wall:document.querySelector('.r11-wall').style.transform,orbit:GBRailScene.camera.orbit}));
+    check(vp,'V11: parallax do mouse gira a sala em torno da arara (plano da arara intocado)',par.rack===''&&Math.abs(par.orbit[0])>2,JSON.stringify(par));
+    await page.mouse.move(2,2);
+  }
   // 4. a arara ganha vida: rajada de vento ambiente, peças fora de sincronia, a arara não conta como "movendo"
   let wind=null;
   // rajadas a cada 4,5–8 s (2,4–3,8 s cada): espera a próxima por até 16 s, sem depender da taxa de quadros
