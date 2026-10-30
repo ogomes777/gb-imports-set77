@@ -101,3 +101,85 @@
 @media(prefers-reduced-motion:reduce){
  #gbRibbonBoot .gb-material-stage{display:none!important;animation:none!important}
 }
+
+
+/* GB V43 | Exact Originkit PlushTile presentation; remove ALL old gold cues. */
+#gbRibbonBoot.gb-puff-v43,
+#gbRibbonBoot.gb-puff-v43:not(.is-gateway),
+#gbRibbonBoot.gb-puff-v43 .gb-ribbon-glass {
+ background:#050506!important;
+ background-image:radial-gradient(ellipse 55% 53% at 50% 45%,#151517 0%,#09090b 42%,#050506 80%,#020203 100%)!important;
+}
+#gbRibbonBoot.gb-puff-v43 .gb-ribbon-canvas,
+#gbRibbonBoot.gb-puff-v43 .gb-ribbon-signature,
+#gbRibbonBoot.gb-puff-v43 .gb-ribbon-bloom,
+#gbRibbonBoot.gb-puff-v43 .gb-ribbon-entry,
+#gbRibbonBoot.gb-puff-v43 .gb-ribbon-door,
+#gbRibbonBoot.gb-puff-v43 .gb-ribbon-scene-number,
+#gbRibbonBoot.gb-puff-v43 .gb-ribbon-scene-foot,
+#gbRibbonBoot.gb-puff-v43 .gb-ribbon-glass-specular,
+#gbRibbonBoot.gb-puff-v43 .gb-ribbon-glass-depth {
+ display:none!important;
+}
+#gbRibbonBoot.gb-puff-v43 .gb-ribbon-glass-grain {opacity:.055!important}
+#gbRibbonBoot.gb-puff-v43 .gb-material-stage,
+#gbRibbonBoot.gb-puff-v43.is-preparing-entry .gb-material-stage {
+ position:absolute;inset:0;z-index:7;display:block;
+ opacity:1!important;visibility:visible;
+ animation:none!important;transition:none!important;
+ transform:none!important;pointer-events:auto;
+ overflow:hidden;touch-action:pan-y;
+}
+#gbRibbonBoot.gb-puff-v43 .gb-material-aura{
+ position:absolute;left:50%;top:50%;width:min(75vw,750px);aspect-ratio:1;
+ transform:translate(-50%,-50%);
+ background:radial-gradient(ellipse,rgba(241,227,198,.035),transparent 68%);
+ pointer-events:none;
+}
+#gbRibbonBoot.gb-puff-v43 .gb-plush-react-root{
+ position:absolute;inset:0;z-index:2;
+ opacity:0;transition:opacity .20s cubic-bezier(.2,.8,.2,1);
+ will-change:opacity;pointer-events:auto;
+}
+#gbRibbonBoot.gb-puff-v43 .gb-material-stage.gb-plush-ready .gb-plush-react-root{opacity:1}
+#gbRibbonBoot.gb-puff-v43 .gb-plush-fallback{
+ position:absolute;left:50%;top:50%;z-index:1;
+ width:clamp(245px,48vmin,510px);aspect-ratio:1;
+ transform:translate(-50%,-50%) perspective(900px) rotateX(3deg);
+ border-radius:28%;display:grid;place-items:center;
+ background:linear-gradient(150deg,#fffefa 2%,#eeeae1 49%,#d6d0c3 100%);
+ box-shadow:inset 0 7px 13px rgba(255,255,255,.8),
+ inset -9px -17px 25px rgba(74,62,42,.16),
+ 0 3px 0 rgba(197,188,170,.35),
+ 0 25px 60px rgba(0,0,0,.52),
+ 0 48px 95px rgba(0,0,0,.26);
+ opacity:1;transition:opacity .2s;
+ pointer-events:none;
+}
+#gbRibbonBoot.gb-puff-v43 .gb-plush-fallback::after{
+ content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+ background-image:repeating-radial-gradient(ellipse at 30% 30%,
+ rgba(255,255,255,.12) 0 1px,rgba(108,96,77,.033) 2px 3px,transparent 4px 6px);
+ mix-blend-mode:multiply;opacity:.6;
+}
+#gbRibbonBoot.gb-puff-v43 .gb-plush-fallback img{
+ width:85%;height:70%;object-fit:contain;
+ filter:drop-shadow(1px 2px 1px rgba(60,43,10,.20));
+}
+#gbRibbonBoot.gb-puff-v43 .gb-material-stage.gb-plush-ready .gb-plush-fallback{
+ opacity:0;
+}
+#gbRibbonBoot.gb-puff-v43.is-gateway{
+ opacity:0!important;
+ transition:opacity .4s ease-out!important;
+ pointer-events:none!important;
+}
+#gbRibbonBoot.gb-puff-v43.is-gateway .gb-material-stage{
+ pointer-events:none!important;
+}
+@media(max-width:700px){
+ #gbRibbonBoot.gb-puff-v43 .gb-plush-fallback{width:clamp(240px,77vw,390px)}
+}
+@media(prefers-reduced-motion:reduce){
+ #gbRibbonBoot.gb-puff-v43 .gb-material-stage{display:none!important}
+}
