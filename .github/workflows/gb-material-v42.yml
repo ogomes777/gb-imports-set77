@@ -1,0 +1,35 @@
+name: GB Imports | Black Gold Material V42
+on:
+  push:
+    branches: [feat/gb-material-intro-v42]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'gb-material-v42.js'
+      - 'gb-material-v42.css'
+      - 'gb-ribbon-intro.js'
+      - 'index.html'
+      - 'scripts/build.mjs'
+      - 'tests/material-intro-v42.mjs'
+permissions:
+  contents: read
+jobs:
+  material:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build GB static with material in early film chunk
+        run: node scripts/build.mjs
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install chromium
+      - name: Run cinematic Black Gold desktop/mobile/reduced tests
+        run: |
+          python3 -m http.server 8080 --directory dist > /tmp/gb-intro-v42-http.log 2>&1 &
+          sleep 2
+          node tests/material-intro-v42.mjs
