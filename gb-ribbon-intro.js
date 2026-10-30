@@ -74,7 +74,9 @@ let sweepHead=1.085,sweepX=1.0,signatureProgress=0,logoRevealed=false;
 const pointer={x:.5,y:.5,targetX:.5,targetY:.5,force:0,tap:0};
 // The film now holds its mark, then opens two glass doors into the existing hero.
 const duration=2200;
- const puffOnly=true; // V43: reference plush without the golden ribbons
+ const puffOnly=true;
+ let visiblePuffAt=0,handoffTimer=0;
+ window.addEventListener('gb:plush-first-visible',()=>{visiblePuffAt=performance.now()},{once:true}); // V43: reference plush without the golden ribbons
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,k)=>a+(b-a)*k;
 const ease=k=>k*k*(3-2*k);
@@ -241,7 +243,7 @@ function parkForStore(){
   host.classList.add('is-preparing-entry','is-render-idle');
   // Boot starts; puff remains visible while the original storefront initializes.
   if(window.GB_BOOT_CORE)window.GB_BOOT_CORE();else settle(true);
-  if(window.GB_CORE_READY||window.GB_CORE_FAILED)settle(true);
+  if(window.GB_CORE_READY||window.GB_CORE_FAILED)onCoreReady();
   return;
  }
  parked=true;
@@ -259,9 +261,15 @@ function parkForStore(){
 }
 function onCoreReady(){
  if(!parked||settled)return;
- // At this point all 10 core chunks are initialized, so the door animation
- // never competes with parsing or initializing the shop.
- settle();
+ // The store is ready. Allow enough screen time to perceive real fur; never
+ // wait forever for a device which cannot draw WebGL.
+ const now=performance.now();
+ const age=now-firstFrame;
+ const wait=visiblePuffAt?Math.max(0,990-(now-visiblePuffAt)):Math.max(0,2900-age);
+ clearTimeout(handoffTimer);
+ if(wait>0&&age<4550){
+  handoffTimer=setTimeout(()=>settle(true),Math.min(wait,4550-age));
+ }else settle(true);
 }
 document.addEventListener('gb:core-ready',onCoreReady);
 function settle(force=false){
@@ -275,7 +283,7 @@ function settle(force=false){
    return;
  }
  settled=true;intro=false;
- clearTimeout(parkTimer);
+ clearTimeout(parkTimer);clearTimeout(handoffTimer);
  document.removeEventListener('gb:core-ready',onCoreReady);
  host.classList.remove('is-opening','is-preparing-entry','is-render-idle');
  host.classList.add('is-gateway');
@@ -292,7 +300,7 @@ function settle(force=false){
   canvas.width=0;canvas.height=0;
   host.classList.remove('is-gateway');
   host.classList.add('is-finished');
- },420);
+ },600);
 }
 function draw(now){
  raf=0;if(!alive())return;
@@ -441,7 +449,7 @@ window.GBGlassRibbons=Object.freeze({
  get sweep(){return sweepX},get signatureProgress(){return signatureProgress},
  get flowBend(){return +flow.bend.toFixed(4)},get flowTwist(){return +flow.twist.toFixed(4)},
  get signatureInkReady(){return signatureReady},get puffOnly(){return puffOnly},
- finish:settle,
+ finish:()=>{window.GB_BOOT_CORE?.();settle(true)},
  replay(){
   if(reduced.matches)return;
   intro=true;settled=false;parked=false;parkAt=0;firstFrame=0;last=0;lastLogoPaint=0;
