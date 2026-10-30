@@ -267,7 +267,8 @@ const seedOf=str=>{let h=2166136261;for(const c of String(str))h=Math.imul(h^c.c
 function physOf(i){
   const card=cards[i];if(card.ph)return card.ph;
   const it=S.list[i],f=FAM[it?.family]||FAM.top,r=seedOf(it?.id||i),r2=seedOf((it?.id||i)+'~'),k=f.k*(.88+r*.24);
-  return card.ph={f,th:new M.Spring(0,{k,z:.56+r2*.08}),fi:new M.Spring(0,{k:k*.58,z:.64}),he:new M.Spring(0,{k:k*.38,z:.7}),
+  // yw: giro da peça em torno do gancho (rotateY) — vira de lado quando a arara corre e volta de frente no foco
+  return card.ph={f,th:new M.Spring(0,{k,z:.56+r2*.08}),fi:new M.Spring(0,{k:k*.58,z:.64}),he:new M.Spring(0,{k:k*.38,z:.7}),yw:new M.Spring(0,{k:k*.45,z:.62+r2*.06}),
     w1:1.05+r*.55,w2:2.2+r2*.8,w3:4.6+r*1.4,p1:r*6.283,p2:r2*6.283,p3:(r+r2)*3.14};
 }
 const rigOn=()=>!reduced()&&!lite()&&window.GBRailScene?.rig!==false;
@@ -282,8 +283,11 @@ function physics(dt,t){
     const w=wl?wl*P.f.amp*(Math.sin(P.w1*t+P.p1-x*.0017)*.62+Math.sin(P.w2*t+P.p2-x*.0012)*.28+Math.sin(P.w3*t+P.p3)*.1):0;
     P.th.set(sw*k+w*.8);P.th.step(dt);
     P.fi.set(P.th.x+w*.45);P.fi.step(dt);
-    P.he.set(P.fi.x+w*.85+(wl?wl*.25*Math.sin(P.w3*1.7*t+P.p2):0));P.he.step(dt);
-    if(!(P.th.settled&&P.fi.settled&&P.he.settled))busy=true;
+    P.he.set(P.fi.x+w*1.25+(wl?wl*.4*Math.sin(P.w3*1.7*t+P.p2):0));P.he.step(dt);
+    // a arara correndo empurra o ar: cada peça gira um pouco no gancho contra o movimento (com o próprio atraso);
+    // o vento também torce de leve. Parada, volta de frente
+    P.yw.set(clamp(-pos.v*6.5,-14,14)*(1-Math.min(a,3)*.12)+w*1.6);P.yw.step(dt);
+    if(!(P.th.settled&&P.fi.settled&&P.he.settled&&P.yw.settled))busy=true;
   });
   return busy;
 }
@@ -317,7 +321,10 @@ function layout(){
     const h=card.h,x=xOf(d);
     const s=(Math.max(.6,1-Math.min(a,1)*(m?.16:.2)-Math.max(a-1,0)*.05)+h*.035)*(i===target?1-(1-fScale)*spread.x:1);
     // foto só de frente: inclinação 3/4 contida (sem "papelão" girando); a profundidade real vem do palco V11
-    const ry=-Math.sign(d)*Math.min(a,1)*(m?11:15)*(1-h)-Math.sign(d)*Math.max(a-1,0)*2.5*(1-h);
+    // vizinhas em 3/4 (a foto continua sendo a frente, só em perspectiva), a peça em foco de frente; em movimento
+    // cada peça ainda gira no gancho (yw). Limite suave abaixo de 40°: nunca mostra um verso que não foi fotografado
+    const P0=physOf(i),ryBase=-Math.sign(d)*Math.min(a,1)*(m?20:26)-Math.sign(d)*Math.max(a-1,0)*3;
+    const ry=38*Math.tanh(((ryBase+P0.yw.x)*(1-h*.85))/38);
     const ld=landing(card,i,tnow),y=barY(x)-h*5-(ld?ld.lift*G.gw*.16:0);
     card.el.style.transform=`translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) scale(${s.toFixed(4)})`;
     card.el.style.zIndex=String(200-Math.round(a*12)+(h>.05?30:0));
@@ -329,8 +336,10 @@ function layout(){
     // acompanha o corpo, para a peça nunca parecer cortada ao meio
     const P=physOf(i),kit=card.el.dataset.mode==='kit',lim=kit?1.4:4.5;
     // limite suave (tanh): o pano desacelera perto do máximo em vez de bater num batente
-    const soft=(v,l)=>l*Math.tanh(v/l),calm=dragging?0:1-clamp(Math.abs(pos.v)/.5,0,1);
-    const th=soft(P.th.x*(kit?.32:1),lim),fi=soft(P.fi.x-P.th.x,2)*(kit?.4:1),he=soft((P.he.x-P.fi.x)*.7,1.1)*calm;
+    // barra do tecido: cisalhamento (skewX) a partir do meio da peça — o pano flexiona sem abrir costura; no
+    // arrasto ela continua viva, só mais contida
+    const soft=(v,l)=>l*Math.tanh(v/l),calm=dragging?.55:1-clamp(Math.abs(pos.v)/.8,0,1)*.45;
+    const th=soft(P.th.x*(kit?.32:1),lim),fi=soft(P.fi.x-P.th.x,2)*(kit?.4:1),he=soft((P.he.x-P.fi.x)*1.1,3.2)*calm*(kit?.6:1);
     card.swing.style.transform=Math.abs(th)>.01?`rotate(${th.toFixed(3)}deg)`:'';
     // sombra de contato no piso (V11): fica no chão sob a peça, acompanha o balanço e some com ela no ar
     if(floorY&&card.floor){const fy=(floorY-y)/s,fx=-th*.012*G.gw;card.floor.style.transform=`translate3d(calc(-50% + ${fx.toFixed(1)}px),${fy.toFixed(1)}px,0)`;
@@ -341,7 +350,7 @@ function layout(){
     const fig=card.fig||(card.fig=qa('.hg-fig,.hg-shadow',card.el));
     const tr=Math.abs(fi)>.01?`rotate(${(fi*.9).toFixed(3)}deg)`:'';fig.forEach(f=>f.style.transform=tr);
     const live=rig&&a<=rigR+.5;if(live!==!!card.rig){card.rig=live;card.el.classList.toggle('is-rig',live)}
-    if(live){const hem=card.hem||(card.hem=qa('.hg-bone-b',card.turn)),ht=Math.abs(he)>.01?`rotate(${he.toFixed(3)}deg)`:'';hem.forEach(b=>b.style.transform=ht)}
+    if(live){const hem=card.hem||(card.hem=qa('.hg-bone-b',card.turn)),ht=Math.abs(he)>.01?`skewX(${he.toFixed(3)}deg) scaleY(${(1+Math.abs(he)*.0018).toFixed(4)})`:'';hem.forEach(b=>b.style.transform=ht)}
   });
   const bar=q('#railProgress');if(bar)bar.style.transform=`scaleX(${((clamp(p,0,S.list.length-1)+1)/S.list.length).toFixed(4)})`;
 }

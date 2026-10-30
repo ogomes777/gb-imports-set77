@@ -81,6 +81,9 @@ async function film(browser,w,h){
   const glass=await page.evaluate(()=>{const fl=document.querySelector('.r11-floor'),rf=document.querySelector('.r10-item.is-focus .r10-refl.on'),r=rf&&rf.querySelector('img')&&rf.getBoundingClientRect().top>=GBRailScene.floorY+document.querySelector('#railViewport').getBoundingClientRect().top-2?'below':'none';
     return{out:!!document.querySelector('.r11-out .r11-city b'),panes:document.querySelectorAll('.r11-glass').length,mullions:document.querySelectorAll('.r11-wall .r11-mullions b').length,
       sideMullions:document.querySelectorAll('.r11-side-l .r11-mullions b').length,floorOut:parseFloat(fl.style.getPropertyValue('--glass'))<100,reflect:r&&r!=='none'?r.slice(0,12):r}});
+  const lit=await page.evaluate(()=>({lit:document.querySelector('#railViewport').classList.contains('r11-lit'),spots:document.querySelectorAll('.r11-lights b').length,pools:document.querySelectorAll('.r11-pools b').length,
+    cones:document.querySelectorAll('.r11-cone-row b').length,poolOn:+getComputedStyle(document.querySelector('.r11-pools b')).opacity,mull:document.querySelectorAll('.r11-floor-mull b').length,near:!!document.querySelector('.r11-near .r11-trees b')}));
+  check(vp,'V11: a loja acorda — spots, cones e poças de luz acesos; sombras dos montantes no piso; rua com plano próximo',lit.lit&&lit.spots===8&&lit.pools===8&&lit.cones>=2&&lit.poolOn>.9&&lit.mull>=3&&lit.near,JSON.stringify(lit));
   check(vp,'V11: vitrine de vidro — fundo e laterais em caixilhos, rua lá fora, piso que continua depois do vidro, reflexo no piso',
     glass.out&&glass.panes===3&&glass.mullions>=1&&glass.sideMullions>=1&&glass.floorOut&&/^below/.test(glass.reflect||''),JSON.stringify(glass));
   // piso do plano da arara logo abaixo das barras das roupas; o trilho do vidro do fundo encontra o piso mais acima
@@ -121,12 +124,17 @@ async function film(browser,w,h){
     const vb=await page.locator('#railViewport').boundingBox(),y=vb.y+vb.height*.5;
     await page.evaluate(()=>{window.__sw=[];const f=()=>{const cs=[...document.querySelectorAll('#railItems .r10-item:not([hidden])')];
       const ang=cs.map(c=>{const m=/rotate\((-?[\d.]+)deg/.exec(c.querySelector('.r10-swing').style.transform);return m?Math.abs(+m[1]):0});
-      const hem=[...document.querySelectorAll('#railItems .r10-item.is-rig .r10-turn .hg-bone-b')].map(b=>{const m=/rotate\((-?[\d.]+)deg/.exec(b.style.transform);return m?Math.abs(+m[1]):0});
-      __sw.push({a:Math.max(0,...ang),h:Math.max(0,...hem),drag:document.querySelector('#railViewport').classList.contains('is-dragging')});if(__sw.length<150)requestAnimationFrame(f)};requestAnimationFrame(f)});
+      const hem=[...document.querySelectorAll('#railItems .r10-item.is-rig .r10-turn .hg-bone-b')].map(b=>{const m=/(?:skewX|rotate)\((-?[\d.]+)deg/.exec(b.style.transform);return m?Math.abs(+m[1]):0});
+      const yaw=cs.map(c=>{const m=/rotateY\((-?[\d.]+)deg/.exec(c.querySelector('.r10-turn').style.transform);return m?Math.abs(+m[1]):0});
+      const ft=document.querySelector('.r10-item.is-focus .r10-turn'),fy=ft?Math.abs(+(/rotateY\((-?[\d.]+)deg/.exec(ft.style.transform)||[0,0])[1]):0;
+      __sw.push({a:Math.max(0,...ang),h:Math.max(0,...hem),y:Math.max(0,...yaw),fy,drag:document.querySelector('#railViewport').classList.contains('is-dragging')});if(__sw.length<150)requestAnimationFrame(f)};requestAnimationFrame(f)});
     for(const d of [-1,1]){await page.mouse.move(vb.x+vb.width*(d<0?.72:.28),y);await page.mouse.down();for(let k=1;k<=10;k++){await page.mouse.move(vb.x+vb.width*(d<0?.72:.28)+d*k*34,y);await page.waitForTimeout(12)}await page.mouse.up();await page.waitForTimeout(700)}
     const sw=await page.evaluate(()=>__sw);await page.mouse.move(2,2);await settle(page);
-    const maxA=Math.max(...sw.map(x=>x.a)),hemDrag=Math.max(0,...sw.filter(x=>x.drag).map(x=>x.h));
-    check(vp,'V11: arrasto rápido com balanço contido (cabide < 4,5°) e peça inteira (barra do tecido presa no arrasto)',maxA<4.5&&hemDrag<.05,`cabide máx ${maxA.toFixed(2)}° · barra no arrasto ${hemDrag.toFixed(3)}°`);
+    const maxA=Math.max(...sw.map(x=>x.a)),hemDrag=Math.max(0,...sw.filter(x=>x.drag).map(x=>x.h)),maxY=Math.max(...sw.map(x=>x.y));
+    // a barra do tecido flexiona por cisalhamento (sem costura); no arrasto, contida
+    check(vp,'V11: arrasto rápido com balanço contido (cabide < 4,5°) e tecido flexível sem abrir (barra ≤ 2° no arrasto)',maxA<4.5&&hemDrag<=2,`cabide máx ${maxA.toFixed(2)}° · barra no arrasto ${hemDrag.toFixed(3)}°`);
+    const rest=await page.evaluate(()=>{const f=document.querySelector('.r10-item.is-focus .r10-turn'),n=document.querySelector(`.r10-item[data-rail-item="${GBRail.state.index+1}"] .r10-turn`);const g=e=>e?Math.abs(+(/rotateY\((-?[\d.]+)deg/.exec(e.style.transform)||[0,0])[1]):null;return{focus:g(f),next:g(n)}});
+    check(vp,'V11: peças viram de lado em 3/4 (vizinhas) e a peça em foco fica de frente; nunca passam de 38° (sem verso)',rest.focus<1.5&&rest.next>15&&maxY<38.01,JSON.stringify({...rest,maxY:+maxY.toFixed(2)}));
     // troca de cor em onda: a foto nova sobe da barra até a gola, a antiga sai só no fim
     const iv=await page.evaluate(()=>GBRail.items().findIndex(i=>i.id==='gb-v10-tech-fleece'));await page.evaluate(i=>GBRail.navigate(i),iv);await settle(page);await page.waitForTimeout(900);
     await page.locator('.r10-item.is-focus .gb-tag[data-variant="2"]').click();
@@ -187,6 +195,16 @@ async function touch(browser,w,h){
   await swipe(w*.5);await page.waitForTimeout(700);const b=await settle(page);
   check(vp,'V11 toque: arrastar para o outro lado volta',b.index<a.index,`${a.index} → ${b.index}`);
   const fly=await page.evaluate(()=>({moving:GBRail.state.moving,pos:GBRail.state.pos,index:GBRail.state.index}));
+  // primeira pessoa: segurar o dedo na arara inclina a câmera para ela; soltar devolve
+  {const b=await page.locator('#railViewport').boundingBox(),x=b.x+b.width*.5,y=b.y+b.height*.3;
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});await page.waitForTimeout(450);
+    const held=await page.evaluate(()=>GBRailScene.camera);
+    // o dedo escorrega na vertical antes de soltar: não é toque de abrir peça nem arrasto da arara
+    for(let k=1;k<=3;k++){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:y+k*6}]});await page.waitForTimeout(16)}
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    await page.waitForFunction(()=>Math.abs(GBRailScene.camera.c)<.05&&Math.abs(GBRailScene.camera.orbit[1])<.05,null,{timeout:4000}).catch(()=>{});
+    const back=await page.evaluate(()=>GBRailScene.camera);
+    check(vp,'V11 toque: a câmera reage ao dedo (inclina e olha) e volta ao soltar',held.c<-2&&Math.abs(held.orbit[1])>1&&Math.abs(back.c)<.05,JSON.stringify({held,back}))}
   check(vp,'V11 toque: assenta numa peça inteira',Math.abs(fly.pos-fly.index)<.01&&!fly.moving,JSON.stringify(fly));
   check(vp,'V11 toque: zero erro de JavaScript',errors.length===0,errors.join(' | '));
   await ctx.close();

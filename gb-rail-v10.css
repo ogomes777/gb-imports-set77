@@ -139,9 +139,9 @@
    gira sobre o meio da peça. Na faixa de troca A continua opaco por baixo: sem faixa translúcida, sem
    duplicar contorno. Só peças "vivas" (foco e vizinhas) ligam o osso B; no resto é uma imagem só. */
 .hg-bone{position:absolute;inset:0;display:block}
-.hg-bone-b{display:none;transform-origin:50% 57%}
-.is-rig .hg-bone-a{-webkit-mask-image:linear-gradient(180deg,#000 64%,transparent 70%);mask-image:linear-gradient(180deg,#000 64%,transparent 70%)}
-.is-rig .hg-bone-b{display:block;-webkit-mask-image:linear-gradient(180deg,transparent 50%,#000 58%);mask-image:linear-gradient(180deg,transparent 50%,#000 58%)}
+.hg-bone-b{display:none;transform-origin:50% 50%}
+.is-rig .hg-bone-a{-webkit-mask-image:linear-gradient(180deg,#000 58%,transparent 62%);mask-image:linear-gradient(180deg,#000 58%,transparent 62%)}
+.is-rig .hg-bone-b{display:block;-webkit-mask-image:linear-gradient(180deg,transparent 50%,#000 56%);mask-image:linear-gradient(180deg,transparent 50%,#000 56%)}
 
 /* ---------- V11 / troca de cor em onda: faixa de luz feita da própria foto nova (só onde há tecido) ---------- */
 .hg-glow{pointer-events:none;filter:brightness(1.55) saturate(1.25) contrast(.9)}

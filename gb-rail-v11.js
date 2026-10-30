@@ -56,17 +56,21 @@ const el=(cls,html='')=>{const d=document.createElement('div');d.className=cls;d
 const room=el('r11-room');
 // V11.2 vitrine de vidro: o fundo e as laterais são caixilhos de vidro; atrás deles, a rua em luz de dia
 // (cidade fora de foco, sol baixo). O piso atravessa o vidro e continua lá fora — a câmera vê o chão seguir.
-const out=el('r11-plane r11-out','<i class="r11-sky"></i><i class="r11-sun"></i><i class="r11-city"></i><i class="r11-trees"></i>');
+const out=el('r11-plane r11-out','<i class="r11-sky"></i><i class="r11-sun"></i><i class="r11-city"></i>');
+// rua mais perto (árvores e postes na calçada): outro plano, outra profundidade — parallax real através do vidro
+const near=el('r11-plane r11-near','<i class="r11-trees"></i>');
+// a loja acorda: fileiras de spots no teto, cones de luz e poças no piso acendem da porta para o fundo
+const cones=el('r11-cones');
 const glassKids='<i class="r11-mullions"></i><i class="r11-sheen"></i><i class="r11-head"></i><i class="r11-base"></i>';
-const wall=el('r11-plane r11-wall r11-glass',`${glassKids}<i class="r11-focus-light"></i><span class="r11-sign"><img src="./assets/brand/gb-monograma-preto.svg" alt="" width="120" height="80" decoding="async"></span>`);
+const wall=el('r11-plane r11-wall r11-glass',`${glassKids}<i class="r11-frost"></i><i class="r11-focus-light"></i><span class="r11-sign"><img src="./assets/brand/gb-monograma-preto.svg" alt="" width="120" height="80" decoding="async"></span>`);
 const ceil=el('r11-plane r11-ceil','<i class="r11-track r11-track-l"></i><i class="r11-track r11-track-r"></i>');
 const sideL=el('r11-plane r11-side r11-glass r11-side-l',glassKids),sideR=el('r11-plane r11-side r11-glass r11-side-r',glassKids);
-const floor=el('r11-plane r11-floor','<i class="r11-floor-pool"></i><i class="r11-floor-sun"></i>');
+const floor=el('r11-plane r11-floor','<i class="r11-floor-pool"></i><i class="r11-floor-sun"></i><i class="r11-floor-mull"></i><i class="r11-pools"></i>');
 // silhuetas da cidade lá fora: blocos determinísticos, baixo contraste (fora de foco), alturas e larguras variadas
 (()=>{const city=out.querySelector('.r11-city');let r=7;const rnd=()=>(r=(r*9301+49297)%233280)/233280;let x=0,html='';
   while(x<100){const w=3+rnd()*7,h=12+rnd()*30,tone=rnd();html+=`<b style="left:${x.toFixed(2)}%;width:${w.toFixed(2)}%;height:${h.toFixed(1)}%;--t:${tone.toFixed(2)}"></b>`;x+=w+rnd()*1.6}
   city.innerHTML=html;
-  const trees=out.querySelector('.r11-trees');let t='';for(let k=0;k<9;k++){const l=rnd()*96,w=4+rnd()*6;t+=`<b style="left:${l.toFixed(1)}%;width:${w.toFixed(1)}%;height:${(w*1.7).toFixed(1)}%"></b>`}trees.innerHTML=t;})();
+  const trees=near.querySelector('.r11-trees');let t='';for(let k=0;k<9;k++){const l=rnd()*96,w=4+rnd()*6;t+=`<b style="left:${l.toFixed(1)}%;width:${w.toFixed(1)}%;height:${(w*1.7).toFixed(1)}%"></b>`}trees.innerHTML=t;})();
 const rack=document.createElement('div');rack.className='r11-rack';
 const rods=el('r11-rods','<i class="r11-rod r11-rod-l"></i><i class="r11-rod r11-rod-r"></i>');
 const portal=el('r11-portal','<i class="r11-jamb r11-jamb-l"></i><i class="r11-jamb r11-jamb-r"></i><i class="r11-lintel"></i><i class="r11-sill"></i>');
@@ -78,7 +82,7 @@ const Scene={
     // a arara (barra + cabides) muda de pai mas não de lugar: o plano z=0 tem o mesmo tamanho do palco
     rack.append(rods,bar,items);
     // ordem de pintura: rua → piso (o trecho de fora aparece pelo vidro) → vidro → teto → laterais → arara → porta
-    room.append(out,floor,wall,ceil,sideL,sideR,rack,portal);
+    room.append(out,near,floor,wall,cones,ceil,sideL,sideR,rack,portal);
     vp.prepend(room);room.after(atmo);
     vp.classList.add('r11');vp.dataset.stage=Perf.tier;
   },
@@ -100,9 +104,23 @@ const Scene={
     // rua: o retângulo do vidro ampliado pela distância extra (e folga para a câmera andar), no mesmo eixo O
     const k=(P+Dw+Do)/(P+Dw)*1.18,ox=W/2-Xr*k,oy=Oy+(Yc-Oy)*k,ow=2*Xr*k,oh=(Yf-Oy)*k-(Yc-Oy)*k;
     box(out,ox,oy,ow,oh);out.style.setProperty('--ground',(Yf-oy).toFixed(1)+'px');
+    // calçada: plano das árvores a 0,35P além do vidro, com a base exatamente no chão (não cobre o piso da frente)
+    const Dn2=.35*P,k2=(P+Dw+Dn2)/(P+Dw)*1.2,ny=Oy+(Yc-Oy)*k2;this.Dnear=Dn2;
+    box(near,W/2-Xr*k2,ny,2*Xr*k2,Yf-ny);
+    // spots do teto: 4 fileiras entre a porta e o vidro (posição local = Dn - z, igual no teto e no piso)
+    const rows=[.42,.16,-.08,-.26].map(z=>clamp(z*P,-Dw*.9,Dn*.95)),lx=[30,70];
+    ceil.querySelector('.r11-lights')?.remove();const cl=document.createElement('i');cl.className='r11-lights';
+    cl.innerHTML=rows.map((z,r)=>lx.map(x=>`<b style="left:${x}%;top:${(Dn-z).toFixed(1)}px;--r:${r}"></b>`).join('')).join('');ceil.append(cl);
+    floor.querySelector('.r11-pools').innerHTML=rows.map((z,r)=>lx.map(x=>`<b style="left:${x}%;top:${(Dn-z).toFixed(1)}px;--r:${r}"></b>`).join('')).join('');
+    // cones de luz: só as fileiras atrás da arara (z<0), planos verticais entre o vidro e as roupas
+    this.coneRows=rows.filter(z=>z<0);
+    cones.innerHTML=this.coneRows.map((z,r)=>`<div class="r11-cone-row" style="--r:${r+2}">${lx.map(x=>`<b style="left:${x}%"></b>`).join('')}</div>`).join('');
+    [...cones.children].forEach(c=>Object.assign(c.style,{left:(W/2-Xr).toFixed(1)+'px',top:Yc.toFixed(1)+'px',width:(2*Xr).toFixed(1)+'px',height:(Yf-Yc).toFixed(1)+'px'}));
     // caixilhos: painéis de ~1,5 m (a largura útil da roupa é ~0,6 m) no fundo e ao longo das laterais
     const panel=g.gw*2.4,n=Math.max(2,Math.round(2*Xr/panel)),nd=Math.max(1,Math.round(L/panel));
     wall.querySelector('.r11-mullions').innerHTML=Array.from({length:n-1},(_,i)=>`<b style="left:${((i+1)/n*100).toFixed(3)}%"></b>`).join('');
+    // a luz do dia entra pelo vidro: cada montante (e as quinas) deita uma sombra longa no piso em direção à câmera
+    floor.querySelector('.r11-floor-mull').innerHTML=Array.from({length:n+1},(_,i)=>`<b style="left:${(i/n*100).toFixed(3)}%"></b>`).join('');
     [sideL,sideR].forEach(sd=>{sd.querySelector('.r11-mullions').innerHTML=Array.from({length:nd},(_,i)=>`<b style="left:${((i+1)/(nd+1)*100).toFixed(3)}%"></b>`).join('')});
 
     box(sideL,W/2-Xr,Yc,L,Yf-Yc);box(sideR,W/2+Xr,Yc,L,Yf-Yc);
@@ -130,7 +148,7 @@ const Camera={
   px:new M.Spring(0,{k:38,z:.9}),py:new M.Spring(0,{k:38,z:.9}),cz:new M.Spring(0,{k:46,z:.92}),
   shot:null,running:false,
   far(){const S=Scene;this.c=S.C0;this.cx=-.035*S.W;this.cy=-.07*S.H;this.light=.38;this.scene('far');R.stageHide();this.apply()},
-  live(){this.shot=null;this.c=0;this.cx=this.cy=0;this.light=1;this.scene('live');this.apply()},
+  live(){this.shot=null;this.c=0;this.cx=this.cy=0;this.light=1;this.scene('live');vp.classList.add('r11-lit');this.apply()},
   scene(n){vp.dataset.scene=n;vp.classList.toggle('r11-film',n!=='live')},
   // dolly: avanço com crane e pequeno arco lateral; interrompível — o gesto encurta o resto do plano
   dolly({hold=760,dur=Perf.tier==='touch'?1650:1900}={}){
@@ -138,6 +156,8 @@ const Camera={
     this.shot={t0:now()+hold,dur,from};this.scene('dolly');this.run();
     // a arara surge: os cabides são pousados na barra enquanto a câmera ainda está na porta
     R.stageEnter(520);
+    // a loja acorda: as fileiras de spots acendem da porta para o fundo enquanto os cabides pousam
+    setTimeout(()=>vp.classList.add('r11-lit'),Math.max(0,hold-420));
   },
   hurry(){
     if(!this.shot)return;
@@ -167,7 +187,8 @@ const Camera={
     // focal (a arara): cada plano desloca px·z/P — a arara (z=0) fica parada, a sala ao redor desliza
     const c=this.c+this.cz.x,x=this.cx,y=this.cy,ox=this.px.x/S.P,oy=this.py.x/S.P;
     const t=z=>`translate3d(${(-x-ox*z).toFixed(2)}px,${(-y-oy*z).toFixed(2)}px,${(z-c).toFixed(2)}px)`;
-    wall.style.transform=t(-S.Dw);out.style.transform=t(-S.Dw-S.Do);
+    wall.style.transform=t(-S.Dw);out.style.transform=t(-S.Dw-S.Do);near.style.transform=t(-S.Dw-S.Dnear);
+    const cr=cones.children;for(let i=0;i<cr.length;i++)cr[i].style.transform=t(S.coneRows[i]);
     floor.style.transform=ceil.style.transform=t(S.Dn)+' rotateX(-90deg)';
     sideL.style.transform=sideR.style.transform=t(S.Dn)+' rotateY(90deg)';
     // em repouso o plano da arara fica sem transform: geometria, hit-test e nitidez idênticos à V10
@@ -195,7 +216,8 @@ const Wind={
     const s=Math.sin(Math.PI*u);return g.peak*s*s;
   },
   gust(peak,dur){if(!this.on||this.g)return;this.g={t0:now()/1000,dur,peak};R.wake()},
-  next(delay){clearTimeout(this.timer);if(!this.on)return;this.timer=setTimeout(()=>this.gust(.5+rand()*.5,2.4+rand()*1.4),delay??(4500+rand()*3500))},
+  // brisa mais presente (pedido V11.3): rajadas de 3–5 s a cada 1,8–4 s com a arara em tela; fora dela, nada
+  next(delay){clearTimeout(this.timer);if(!this.on)return;this.timer=setTimeout(()=>this.gust(.5+rand()*.5,3+rand()*2),delay??(1800+rand()*2200))},
   setOn(v){v=!!v&&Perf.tier!=='static'&&!reduced();if(v===this.on)return;this.on=v;if(v)this.next(1600);else{clearTimeout(this.timer);this.g=null}},
   // o ar se move com a mão: passar rápido o mouse pela arara levanta uma rajada curta (no máximo a cada 2,5 s)
   poke(speed){const t=now();if(!this.on||this.g||t-this.lastPoke<2500||speed<.9)return;this.lastPoke=t;this.gust(clamp(speed*.22,.25,.55),1.8)},
@@ -252,16 +274,28 @@ vp.addEventListener('gb:rail:navigate',e=>{
   const d=Math.sign((e.detail?.index??0)-(e.detail?.from??e.detail?.index??0));
   if(d&&Perf.tier!=='static'){Camera.px.v+=d*(Perf.tier==='touch'?70:110);Camera.run()}
 });
-vp.addEventListener('gb:rail:open',()=>{if(Perf.tier==='static')return;Camera.cz.set(-.06*Scene.P);Camera.run()});
-vp.addEventListener('gb:rail:close',()=>{if(Perf.tier==='static')return;
+vp.addEventListener('gb:rail:open',()=>{if(Perf.tier==='static')return;vp.classList.add('r11-viewing');Camera.cz.set(-.06*Scene.P);Camera.run()});
+vp.addEventListener('gb:rail:close',()=>{vp.classList.remove('r11-viewing');if(Perf.tier==='static')return;
   // volta do Object View: a câmera sai de perto da peça e recua até o plano médio
   Camera.cz.jump(-.07*Scene.P);Camera.cz.set(0);Camera.run()});
+// primeira pessoa: apertar (dedo, caneta ou mouse) inclina o corpo para a arara; o olhar segue o ponto tocado
+// (no toque, o vertical; o horizontal vem do próprio arrasto). Soltar devolve a câmera. Nada bloqueia rolagem.
+if(Perf.tier!=='static'){
+  let press=null;
+  const look=(e,both)=>{const r=vp.getBoundingClientRect(),nx=(e.clientX-r.left)/r.width-.5,ny=(e.clientY-r.top)/r.height-.5;
+    if(both)Camera.px.set(nx*Scene.W*.035);Camera.py.set(ny*Scene.H*.03);Camera.run()};
+  vp.addEventListener('pointerdown',e=>{if(!Reveal.done||e.button>0||e.target.closest('.rail-controls,.r10-caption,.gb-tags'))return;press=e.pointerId;
+    Camera.cz.set(-.015*Scene.P);look(e,e.pointerType!=='mouse');},{passive:true});
+  vp.addEventListener('pointermove',e=>{if(press===e.pointerId&&e.pointerType!=='mouse')look(e,false)},{passive:true});
+  const release=e=>{if(press!==e.pointerId)return;press=null;if(!vp.matches('.r11-viewing'))Camera.cz.set(0);if(e.pointerType!=='mouse'){Camera.px.set(0);Camera.py.set(0)}Camera.run()};
+  ['pointerup','pointercancel','lostpointercapture'].forEach(n=>vp.addEventListener(n,release,{passive:true}));
+}
 if(Perf.tier==='full'&&M.Prefs.fine){
   let lx=0,lt=0;
   vp.addEventListener('pointermove',e=>{
     if(e.pointerType!=='mouse'||vp.classList.contains('is-dragging')||!Reveal.done)return;
     const r=vp.getBoundingClientRect(),nx=(e.clientX-r.left)/r.width-.5,ny=(e.clientY-r.top)/r.height-.5;
-    Camera.px.set(nx*Scene.W*.03);Camera.py.set(ny*Scene.H*.025);Camera.run();
+    Camera.px.set(nx*Scene.W*.04);Camera.py.set(ny*Scene.H*.03);Camera.run();
     const t=now();if(lt){Wind.poke(Math.abs(e.clientX-lx)/Math.max(8,t-lt))}lx=e.clientX;lt=t;
   },{passive:true});
   vp.addEventListener('pointerleave',()=>{Camera.px.set(0);Camera.py.set(0);Camera.run()});
