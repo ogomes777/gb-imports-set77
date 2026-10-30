@@ -315,13 +315,13 @@ function draw(now){
  [flow.twist,flow.twistVelocity]=spring(flow.twist,flow.twistVelocity,twistTarget,dt,3.5);
  buildCurve(t);
  const age=now-firstFrame;
- const travel=intro?ease(clamp((age-220)/2460,0,1)):1;
+ const travel=intro?ease(clamp((age-190)/2920,0,1)):1;
  sweepHead=intro?1.085-travel*1.105:0;
  sweepX=1-travel;
  host.style.setProperty('--gb-sweep',travel.toFixed(4));
  // Keep ribbon and signature uninterrupted until ~2.85s.
  // No storefront script is evaluated during the moving/inking frames.
- if(intro&&age>=2820)host.classList.add('is-preparing-entry');
+ if(intro&&age>=3380)host.classList.add('is-preparing-entry');
  const k=1-Math.exp(-dt*3.9);
  pointer.x=lerp(pointer.x,pointer.targetX,k);
  pointer.y=lerp(pointer.y,pointer.targetY,k);
@@ -393,7 +393,7 @@ function draw(now){
  paintAvg=frames?paintAvg*.93+cost*.07:cost;
  paintMax=Math.max(paintMax,cost);
  frames++;
- if(intro&&age>=2820)parkForStore();
+ if(intro&&age>=3380)parkForStore();
  else request();
 }
 function start(){
