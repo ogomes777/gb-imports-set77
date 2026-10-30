@@ -1,0 +1,37 @@
+name: GB Imports | Catalog Wave V41
+on:
+  push:
+    branches: [feat/gb-catalog-wave-v41]
+    paths:
+      - 'gb-cinema-v13.js'
+      - 'gb-cinema-v13.css'
+      - 'tests/catalog-wave-v41.mjs'
+      - '.github/workflows/gb-catalog-wave-v41.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'gb-cinema-v13.js'
+      - 'gb-cinema-v13.css'
+      - 'tests/catalog-wave-v41.mjs'
+permissions:
+  contents: read
+jobs:
+  wave:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build current GB storefront
+        run: node scripts/build.mjs
+      - name: Setup Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install chromium
+      - name: Test premium wave, mobile, reduced motion and real catalog
+        run: |
+          python3 -m http.server 8080 --directory dist > /tmp/gb-wave-http.log 2>&1 &
+          sleep 2
+          node tests/catalog-wave-v41.mjs
