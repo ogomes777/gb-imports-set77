@@ -217,7 +217,9 @@ const Wind={
   },
   gust(peak,dur){if(!this.on||this.g)return;this.g={t0:now()/1000,dur,peak};R.wake()},
   // brisa mais presente (pedido V11.3): rajadas de 3–5 s a cada 1,8–4 s com a arara em tela; fora dela, nada
-  next(delay){clearTimeout(this.timer);if(!this.on)return;this.timer=setTimeout(()=>this.gust(.5+rand()*.5,3+rand()*2),delay??(1800+rand()*2200))},
+  // a próxima rajada só sopra com a arara parada: se os cabides ainda assentam a anterior, espera mais um pouco
+  // (sem rAF) — entre rajadas o relógio sempre para, mesmo num aparelho lento
+  next(delay){clearTimeout(this.timer);if(!this.on)return;const blow=()=>{if(document.getElementById('railItems')?.classList.contains('is-moving')){this.timer=setTimeout(blow,600);return}this.gust(.5+rand()*.5,3+rand()*2)};this.timer=setTimeout(blow,delay??(1800+rand()*2200))},
   setOn(v){v=!!v&&Perf.tier!=='static'&&!reduced();if(v===this.on)return;this.on=v;if(v)this.next(1600);else{clearTimeout(this.timer);this.g=null}},
   // o ar se move com a mão: passar rápido o mouse pela arara levanta uma rajada curta (no máximo a cada 2,5 s)
   poke(speed){const t=now();if(!this.on||this.g||t-this.lastPoke<2500||speed<.9)return;this.lastPoke=t;this.gust(clamp(speed*.22,.25,.55),1.8)},

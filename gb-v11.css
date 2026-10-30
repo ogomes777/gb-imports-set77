@@ -440,11 +440,11 @@ body[data-gb-theme] #lookstudio :is(.look-controls,.look-stage){transition:backg
  #lookstudio #lookSave .look-cta-arrow{width:29px;height:29px;font-size:16px}
  #lookstudio .look-tools{grid-template-columns:1fr;margin-top:9px}
  #lookstudio .look-tools>span{display:none}
- #lookstudio #lookCompareBtn{width:100%;min-height:43px;border-radius:12px!important;font-size:9px}
+ #lookstudio #lookCompareBtn{width:100%;min-height:44px;border-radius:12px!important;font-size:9px}
  #lookstudio .look-sources{gap:6px}
  #lookstudio .look-sources button:not(.look-kit){min-height:34px;font-size:8px;padding:7px 9px}
- #lookstudio .look-kit{min-height:40px;padding:7px 10px!important;font-size:8px}
- #lookstudio #lookShuffle{top:12px;right:10px;min-width:0;min-height:40px;padding:0 10px;border-radius:12px!important;font-size:8px;gap:6px}
+ #lookstudio .look-kit{min-height:44px;padding:7px 10px!important;font-size:8px}
+ #lookstudio #lookShuffle{top:12px;right:10px;min-width:0;min-height:44px;padding:0 10px;border-radius:12px!important;font-size:8px;gap:6px}
  #lookstudio #lookShuffle svg{width:15px;height:15px}
  #lookstudio .fit-dial{min-height:39px}
  #lookstudio .fit-spin-track .fit-orbit-thumb{width:14px;height:14px}
@@ -563,12 +563,12 @@ body[data-gb-theme="origem"] #lookstudio .fit-emotes button.is-playing i{
 @media(max-width:780px){
  #lookstudio .fit-emotes{width:auto;gap:6px;top:17%;right:8px;padding:7px 5px;min-width:0;border-radius:15px}
  #lookstudio .fit-emotes:before,#lookstudio .fit-emotes-title{display:none}
- #lookstudio .fit-emotes button{width:43px;height:43px;min-height:43px;padding:3px;border-radius:10px;justify-content:center}
+ #lookstudio .fit-emotes button{width:44px;height:44px;min-height:44px;padding:3px;border-radius:10px;justify-content:center}
  #lookstudio .fit-emotes button+button{border-top-color:transparent}
  #lookstudio .fit-emotes button i{width:35px;height:35px;border-radius:9px}
  #lookstudio .fit-emotes button b{display:none}
- #lookstudio #lookShuffle{min-height:41px;padding:0 10px;font-size:8px}
- #lookstudio .look-kit{min-height:43px;padding:7px 10px!important;font-size:8px}
+ #lookstudio #lookShuffle{min-height:44px;padding:0 10px;font-size:8px}
+ #lookstudio .look-kit{min-height:44px;padding:7px 10px!important;font-size:8px}
 }
 @media(prefers-reduced-motion:reduce){
  #lookstudio .fit-emotes button,#lookstudio #lookShuffle,#lookstudio .look-kit{transition:none!important;animation:none!important}
