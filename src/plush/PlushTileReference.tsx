@@ -1174,6 +1174,9 @@ function __OriginkitBase_PlushTile({
         let entT = 0
         let clock = 0
         let lastDraw = -1
+        // Report only an actual bright GPU pixel, never a mounted black canvas.
+        let firstVisual = false
+        const samplePixel = new Uint8Array(4)
         let frameEma = 16.7
         let slowFrames = 0
         let fastFrames = 0
@@ -1492,6 +1495,16 @@ function __OriginkitBase_PlushTile({
             U_ST.i1("uSegBase", HALF_SEG)
             gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, (HALF_SEG + 1) * 2, count)
             gl.bindVertexArray(vao)
+            if (!firstVisual && ge > 0.25) {
+                try {
+                    gl.readPixels(Math.floor(canvas.width * .5), Math.floor(canvas.height * .5),
+                        1, 1, gl.RGBA, gl.UNSIGNED_BYTE, samplePixel)
+                    if (samplePixel[3] > 100 && Math.max(samplePixel[0], samplePixel[1], samplePixel[2]) > 85) {
+                        firstVisual = true
+                        root.dispatchEvent(new Event("gb:plush-ready", { bubbles: true }))
+                    }
+                } catch { /* official GB image remains visible */ }
+            }
 
             if (active || breezeK > 0) wake()
         }
