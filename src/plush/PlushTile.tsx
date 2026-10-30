@@ -1534,8 +1534,11 @@ function __OriginkitBase_PlushTile({
             stats.quality = quality
             if (!verified && fade >= 1 && grow >= 0.999) {
                 // Same task as the draw, so the back buffer is still there to read.
-                // A small block at the centre: the monogram's dark outline alone never counts as fur.
-                gl.readPixels((canvas.width - PROBE) >> 1, (canvas.height - PROBE) >> 1, PROBE, PROBE, gl.RGBA, gl.UNSIGNED_BYTE, probe)
+                // A small block in the plain fur above the artwork (the artwork's centre can be a dark parting):
+                // tc is the tile centre in device pixels, GL origin, so +y is up the tile.
+                const px = Math.round(Math.min(Math.max(tc[0] - PROBE / 2, 0), canvas.width - PROBE))
+                const py = Math.round(Math.min(Math.max(tc[1] + halfPx * 0.72 - PROBE / 2, 0), canvas.height - PROBE))
+                gl.readPixels(px, py, PROBE, PROBE, gl.RGBA, gl.UNSIGNED_BYTE, probe)
                 let lit = 0
                 for (let i = 0; i < probe.length; i += 4) if (Math.max(probe[i], probe[i + 1], probe[i + 2]) > 90) lit++
                 if (lit > PROBE * PROBE * 0.2) {

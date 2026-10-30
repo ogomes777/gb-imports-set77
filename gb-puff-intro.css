@@ -3,7 +3,7 @@
    there is no canvas edge to see. The poster is the same object rendered with fur, sized and centred on the
    tile's framing, so poster → live is a cross-fade in place. Only transform, opacity and filter animate. */
 
-#gbRibbonBoot{--gb-dive:950ms;--gb-poster:calc(min(100vw,100dvh) * .912);
+#gbRibbonBoot{--gb-dive:950ms;--gb-poster:calc(min(100vw,100dvh) * .903);--gb-poster-y:calc(min(100vw,100dvh) * .004);
   position:fixed;inset:0;z-index:2147483000;width:100vw;height:100vh;height:100dvh;overflow:hidden;isolation:isolate;
   background:#000;color:#f4f1e8;pointer-events:auto;touch-action:pan-y;contain:strict;
   transition:background-color calc(var(--gb-dive) * .7) ease calc(var(--gb-dive) * .3)}
@@ -18,7 +18,8 @@
 #gbRibbonBoot.is-brand.is-settled .gb-puff-camera{will-change:auto}
 
 /* poster: real rendered fur (RGBA), never a flat monogram; shown only after decode */
-.gb-puff-poster{position:absolute;left:50%;top:50%;width:var(--gb-poster);height:auto;aspect-ratio:553/549;
+/* calibrated against the live render at 1440×900 and 390×844: same silhouette width and centre within a few px */
+.gb-puff-poster{position:absolute;left:50%;top:calc(50% + var(--gb-poster-y));width:var(--gb-poster);height:auto;aspect-ratio:553/549;
   transform:translate(-50%,-50%);user-select:none;pointer-events:none;-webkit-user-drag:none}
 .gb-puff-poster:not([src]){visibility:hidden}
 

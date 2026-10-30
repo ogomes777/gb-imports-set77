@@ -30,7 +30,9 @@ const atTop=!params.has('peca')&&(!location.hash||location.hash==='#inicio')&&!/
 const play=atTop&&!reduced;
 let seen=false;try{seen=sessionStorage.getItem('gbPuffSeen')==='1'}catch{}
 
-const WATCHDOG=6000;                 // the page is released by then, no matter what
+// the page is released by then, no matter what: the quick dive started at 5.2 s ends by ~5.7 s, inside the
+// 6 s contract even when a busy main thread fires the timer a few hundred ms late
+const WATCHDOG=5200;
 const CORE_AT=650;                   // storefront boot starts once the puff is on screen (parallel, never gated)
 const SHOW=seen?1300:2600;           // how long the puff holds before the dive (shorter on a revisit)
 const DIVE=950,DIVE_SKIP=480;
@@ -100,6 +102,7 @@ if(POSTER&&posterEl){
 const conn=navigator.connection;
 const saveData=!!conn?.saveData||/(^|-)2g$/.test(conn?.effectiveType||'');
 const forceLive=params.get('gbPuffLive')==='1';           // QA capture on software GPUs only
+const hold=params.get('gbPuffHold')==='1';               // QA / recording: no automatic exit (skip or finish() only)
 const coarse=matchMedia('(pointer: coarse)').matches;
 const mem=navigator.deviceMemory||8,cores=navigator.hardwareConcurrency||8;
 const strandCap=forceLive?12000:coarse||innerWidth<720?26000:mem<=4||cores<=4?36000:90000;
@@ -151,20 +154,20 @@ on(window,'pagehide',()=>finish('pagehide'));
 
 /* ---------- leaving: the camera dives into the puff ---------- */
 function maybeLeave(){
- if(finished||transitionAt||!brandAt)return;
+ if(finished||transitionAt||!brandAt||hold)return;
  const held=now()-brandAt>=SHOW;
  const touching=now()-lastTouch<550;
  if(held&&coreDone()&&!touching)return finish('ready');
  later(maybeLeave,touching?300:160);
 }
-later(()=>finish('watchdog'),WATCHDOG);
+if(!hold)later(()=>finish('watchdog'),WATCHDOG);
 
 function finish(why){
  if(finished||transitionAt)return;
  reason=why;transitionAt=now();mark('transition');set('transitioning');
  bootCore();
  try{sessionStorage.setItem('gbPuffSeen','1')}catch{}
- const quick=why==='skip'||why==='hidden'||why==='pagehide'||why==='no-visual';
+ const quick=why==='skip'||why==='hidden'||why==='pagehide'||why==='no-visual'||why==='watchdog';
  const dur=why==='hidden'||why==='pagehide'?0:quick?DIVE_SKIP:DIVE;
  host.style.setProperty('--gb-dive',dur+'ms');
  // The landing is already laid out underneath: un-hide it and let the camera pass through the puff.

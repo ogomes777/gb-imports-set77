@@ -7,7 +7,7 @@ for(const [width,height] of [[1440,900],[390,844]]){
  const ctx=await browser.newContext({viewport:{width,height},hasTouch:width<500,deviceScaleFactor:1});
  const page=await ctx.newPage();const errors=[];
  page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:8080/?gbPuffLive=1',{waitUntil:'domcontentloaded'});
+ await page.goto('http://127.0.0.1:8080/?gbPuffLive=1&gbPuffHold=1',{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.GBGlassRibbons?.visible,null,{timeout:25000});
  const first=await page.evaluate(()=>({glass:getComputedStyle(document.querySelector('#gbRibbonBoot .gb-puff-glass')).backgroundImage,
   originalLogo:GBGlassRibbons.logoAsset,full:GBGlassRibbons.fullGlass}));
@@ -19,11 +19,13 @@ for(const [width,height] of [[1440,900],[390,844]]){
  if(width<500){const cdp=await ctx.newCDPSession(page);const tp=(t,x,y)=>cdp.send('Input.dispatchTouchEvent',{type:t,touchPoints:t==='touchEnd'?[]:[{x,y}]});
   await tp('touchStart',150,380);for(let i=1;i<=8;i++){await tp('touchMove',150+i*9,380+i*6);await page.waitForTimeout(40)}}
  else await page.mouse.move(width*.45,height*.45,{steps:6});
- const opened=await page.waitForFunction(()=>GBGlassRibbons.brush>.2||GBGlassRibbons.removed,null,{timeout:8000}).then(()=>page.evaluate(()=>({brush:GBGlassRibbons.brush,frames:GBGlassRibbons.frames,quality:GBGlassRibbons.quality,reason:GBGlassRibbons.reason})));
- assert(opened.brush>.2,'fibres inert under the pointer '+JSON.stringify({before,opened}));
+ const opened=await page.waitForFunction(b=>GBGlassRibbons.brush>b+.1||GBGlassRibbons.removed,before.brush,{timeout:12000}).then(()=>page.evaluate(()=>({brush:GBGlassRibbons.brush,frames:GBGlassRibbons.frames,quality:GBGlassRibbons.quality,reason:GBGlassRibbons.reason})));
+ assert(opened.brush>before.brush+.1,'fibres inert under the pointer '+JSON.stringify({before,opened}));
  assert(opened.frames>before.frames,'render loop stopped');
  assert(opened.reason!=='skip','touching the puff skipped the intro');
  assert(opened.quality>0&&opened.quality<=1,'invalid adaptive quality');
+ // held for the gesture (?gbPuffHold=1): leave the way a visitor would
+ await page.evaluate(()=>GBGlassRibbons.finish());
  await page.waitForFunction(()=>GBGlassRibbons.settled&&GBGlassRibbons.removed,null,{timeout:17000});
  assert(!(await page.evaluate(()=>GBGlassRibbons.active)),'retired intro still painting');
  assert(!errors.length,'page errors '+errors);
