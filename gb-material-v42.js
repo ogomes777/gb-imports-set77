@@ -17,7 +17,7 @@ const low=innerWidth<780||navigator.connection?.saveData||navigator.deviceMemory
 const strands=navigator.connection?.saveData?4000:innerWidth<780?9500:low?15000:28000;
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 let gl=null,programBase=null,programFur=null,tex=null,vao=null,raf=0,first=0,last=0,frames=0,disposed=false,mode='fallback',ready=false;
-let UB=null,UF=null;
+let UB=null,UF=null,visualVerified=false,visualSample=null,invalidFrames=0;
 let px=0,py=0,lastPointer=0;
 const res={shaders:[],programs:[]};
 const art=document.createElement('canvas');art.width=512;art.height=512;
@@ -33,7 +33,15 @@ const furFS='#version 300 es\nprecision highp float;in vec3 tint;in float alpha;
 const compile=(type,src)=>{const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));res.shaders.push(s);return s};
 const prog=(vs,fs)=>{const p=gl.createProgram();gl.attachShader(p,compile(gl.VERTEX_SHADER,vs));gl.attachShader(p,compile(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));res.programs.push(p);return p};
 function upload(){if(!gl||!tex||!ready)return;gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tex);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,art)}
-function resize(){if(!gl)return;const r=canvas.getBoundingClientRect(),limit=low?480:850,dpr=Math.min(devicePixelRatio||1,low?1:1.2),ratio=Math.min(dpr,limit/Math.max(r.width,r.height,1));canvas.width=Math.max(1,Math.floor(r.width*ratio));canvas.height=Math.max(1,Math.floor(r.height*ratio));gl.viewport(0,0,canvas.width,canvas.height)}
+function resize(){if(!gl)return;
+ // This canvas starts invisible until the first VERIFIED draw. Measuring the
+ // hidden canvas used to allocate a 1 x 1 WebGL backbuffer: black square bug.
+ // The visible tile, not the hidden GPU surface, owns the real dimensions.
+ const r=tile.getBoundingClientRect(),limit=low?480:850,dpr=Math.min(devicePixelRatio||1,low?1:1.2);
+ const ratio=Math.min(dpr,limit/Math.max(r.width,r.height,1));
+ canvas.width=Math.max(2,Math.floor(r.width*ratio));canvas.height=Math.max(2,Math.floor(r.height*ratio));
+ gl.viewport(0,0,canvas.width,canvas.height);
+}
 function clean(){cancelAnimationFrame(raf);raf=0;if(!gl)return;res.programs.forEach(p=>gl.deleteProgram(p));res.shaders.forEach(s=>gl.deleteShader(s));if(tex)gl.deleteTexture(tex);if(vao)gl.deleteVertexArray(vao);canvas.width=canvas.height=0;gl=null}
 function stop(){if(disposed)return;disposed=true;clean();observer?.disconnect();stage.remove();window.removeEventListener('pointermove',pointer);window.removeEventListener('resize',resize);document.removeEventListener('visibilitychange',visibility)}
 function pointer(e){const r=stage.getBoundingClientRect();px=clamp((e.clientX-r.left)/Math.max(1,r.width)*2-1,-1,1);py=clamp(1-(e.clientY-r.top)/Math.max(1,r.height)*2,-1,1);lastPointer=performance.now();request()}
@@ -57,8 +65,22 @@ function draw(now){
  gl.uniform1f(UF.touch,active?1:0);
  gl.drawArraysInstanced(gl.TRIANGLES,0,6,strands);
  frames++;
- if(ready&&frames>=1)host.classList.add('gb-material-gpu');
- if(t<3&&host.classList.contains('is-opening'))request();
+ // Fail closed: never replace the visible official-GB fallback with a black,
+ // transparent or unpainted WebGL canvas. A successful compile is not a
+ // successful frame. Check the rendered center and a nearby inside sample.
+ if(ready&&!visualVerified&&frames>=1){
+  const samples=new Uint8Array(4), samples2=new Uint8Array(4);
+  gl.readPixels(Math.floor(canvas.width*.5),Math.floor(canvas.height*.5),1,1,gl.RGBA,gl.UNSIGNED_BYTE,samples);
+  gl.readPixels(Math.floor(canvas.width*.46),Math.floor(canvas.height*.57),1,1,gl.RGBA,gl.UNSIGNED_BYTE,samples2);
+  const bright=(p)=>p[3]>150&&Math.max(p[0],p[1],p[2])>90;
+  visualSample={center:Array.from(samples),offset:Array.from(samples2),buffer:[canvas.width,canvas.height]};
+  if(canvas.width>24&&canvas.height>24&&(bright(samples)||bright(samples2))){
+   visualVerified=true;host.classList.add('gb-material-gpu');
+  }else if(++invalidFrames>=3){
+   mode='fallback';clean();
+  }
+ }
+ if(t<3&&host.classList.contains('is-opening')&&gl)request();
 }
 function setup(){
  if(disposed)return;
@@ -91,5 +113,5 @@ window.addEventListener('pointermove',pointer,{passive:true});
 window.addEventListener('resize',resize,{passive:true});
 document.addEventListener('visibilitychange',visibility);
 if('requestIdleCallback'in window)requestIdleCallback(setup,{timeout:1500});else setTimeout(setup,700);
-window.GBMaterialSignatureV42=Object.freeze({get mode(){return mode},get strands(){return strands},get frames(){return frames},get stopped(){return disposed},get asset(){return logoPath},get artworkReady(){return ready},finish:stop});
+window.GBMaterialSignatureV42=Object.freeze({get mode(){return mode},get strands(){return strands},get frames(){return frames},get stopped(){return disposed},get asset(){return logoPath},get artworkReady(){return ready},get verified(){return visualVerified},get sample(){return visualSample},get buffer(){return [canvas.width,canvas.height]},finish:stop});
 })();
