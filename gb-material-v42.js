@@ -17,6 +17,7 @@ const low=innerWidth<780||navigator.connection?.saveData||navigator.deviceMemory
 const strands=navigator.connection?.saveData?4000:innerWidth<780?9500:low?15000:28000;
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 let gl=null,programBase=null,programFur=null,tex=null,vao=null,raf=0,first=0,last=0,frames=0,disposed=false,mode='fallback',ready=false;
+let UB=null,UF=null;
 let px=0,py=0,lastPointer=0;
 const res={shaders:[],programs:[]};
 const art=document.createElement('canvas');art.width=512;art.height=512;
@@ -47,15 +48,16 @@ function draw(now){
  gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
  gl.bindVertexArray(vao);
  gl.useProgram(programBase);
- gl.uniform1i(gl.getUniformLocation(programBase,'art'),0);gl.uniform2f(gl.getUniformLocation(programBase,'mouse'),px,py);
+ gl.uniform1i(UB.art,0);gl.uniform2f(UB.mouse,px,py);
  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
  gl.useProgram(programFur);
- gl.uniform1i(gl.getUniformLocation(programFur,'art'),0);
- gl.uniform1f(gl.getUniformLocation(programFur,'t'),t);
- gl.uniform2f(gl.getUniformLocation(programFur,'mouse'),px,py);
- gl.uniform1f(gl.getUniformLocation(programFur,'touch'),active?1:0);
+ gl.uniform1i(UF.art,0);
+ gl.uniform1f(UF.t,t);
+ gl.uniform2f(UF.mouse,px,py);
+ gl.uniform1f(UF.touch,active?1:0);
  gl.drawArraysInstanced(gl.TRIANGLES,0,6,strands);
  frames++;
+ if(ready&&frames>=1)host.classList.add('gb-material-gpu');
  if(t<3&&host.classList.contains('is-opening'))request();
 }
 function setup(){
@@ -64,6 +66,8 @@ function setup(){
   gl=canvas.getContext('webgl2',{alpha:true,antialias:false,depth:false,stencil:false,powerPreference:'low-power',premultipliedAlpha:true});
   if(!gl)return;
   programBase=prog(baseVS,baseFS);programFur=prog(furVS,furFS);
+  UB={art:gl.getUniformLocation(programBase,'art'),mouse:gl.getUniformLocation(programBase,'mouse')};
+  UF={art:gl.getUniformLocation(programFur,'art'),t:gl.getUniformLocation(programFur,'t'),mouse:gl.getUniformLocation(programFur,'mouse'),touch:gl.getUniformLocation(programFur,'touch')};
   vao=gl.createVertexArray();gl.bindVertexArray(vao);
   tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
@@ -71,7 +75,7 @@ function setup(){
   const fill=art.getContext('2d').getImageData(0,0,1,1);
   gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array(fill.data));
   upload();resize();gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
-  mode='webgl2';host.classList.add('gb-material-gpu');request();
+  mode='webgl2';request();
  }catch(err){mode='fallback';clean()}
 }
 let observer=null;
