@@ -282,3 +282,49 @@
     transition:none!important;animation:none!important;filter:none!important;
   }
 }
+
+
+/* V44 REAL-HAIR POSTER | Derived from the actual user-supplied WebGL renderer,
+   never an icon, gradient-simulated texture or a fake 3D card. */
+#gbRibbonBoot.gb-puff-v44 .gb-plush-fallback{
+  width:min(83vmin,690px)!important;
+  height:min(83vmin,690px)!important;
+  border:0!important;border-radius:0!important;
+  background:none!important;box-shadow:none!important;
+  transform:translate3d(-50%,-50%,0) scale(.92)!important;
+  pointer-events:none!important;
+  overflow:visible!important;
+  opacity:0!important;
+  display:none!important;
+}
+#gbRibbonBoot.gb-puff-v44 .gb-plush-fallback::after{
+  display:none!important;
+}
+#gbRibbonBoot.gb-puff-v44 .gb-plush-fallback img{
+  display:block;width:100%;height:100%;object-fit:contain;
+  filter:none!important;user-select:none;-webkit-user-drag:none;
+}
+#gbRibbonBoot.gb-puff-v44 .gb-material-stage.gb-poster-loaded .gb-plush-fallback{
+  display:grid!important;visibility:visible!important;
+  opacity:1!important;
+  transform:translate3d(-50%,-50%,0) scale(1)!important;
+  transition:opacity .44s ease,transform .78s cubic-bezier(.16,.86,.2,1)!important;
+}
+#gbRibbonBoot.gb-puff-v44 .gb-material-stage.gb-plush-ready .gb-plush-fallback{
+  opacity:0!important;
+  transform:translate3d(-50%,-50%,0) scale(1.025)!important;
+}
+#gbRibbonBoot.gb-puff-v44.is-gateway .gb-plush-fallback{
+  opacity:0!important;
+  transform:translate3d(-50%,-50%,0) scale(3.1)!important;
+  transition:transform .57s cubic-bezier(.26,.77,.26,1),opacity .43s ease-out!important;
+}
+@media(max-width:760px){
+ #gbRibbonBoot.gb-puff-v44 .gb-plush-fallback{
+   width:min(89vw,440px)!important;
+   height:min(89vw,440px)!important;
+ }
+ #gbRibbonBoot.gb-puff-v44.is-gateway .gb-plush-fallback{
+   transform:translate3d(-50%,-50%,0) scale(2.4)!important;
+ }
+}
