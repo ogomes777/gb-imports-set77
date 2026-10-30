@@ -1,5 +1,8 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+const shot=name=>join(tmpdir(),name);
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 for(const [width,height] of [[1440,900],[390,844]]){
  const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1,hasTouch:width<600});
@@ -19,7 +22,7 @@ for(const [width,height] of [[1440,900],[390,844]]){
   fullGlass:GBGlassRibbons.fullGlass,
   originalLogo:GBGlassRibbons.logoAsset
  }));
- await page.screenshot({path:'v25-'+width+'-reveal.jpg',type:'jpeg',quality:58});
+ await page.screenshot({path:shot('v25-'+width+'-reveal.jpg'),type:'jpeg',quality:58});
  assert(reveal.frames>2,'ribbons not rendering: '+JSON.stringify(reveal));
  assert(reveal.opening,'opening finished too early');
  assert(!reveal.oldIntro,'old block intro still mounted');
@@ -28,27 +31,27 @@ for(const [width,height] of [[1440,900],[390,844]]){
  assert(reveal.originalLogo==='./assets/brand/gb-monograma-amarelo-preto.svg','Original GB logo was replaced');
  const oldFrames=reveal.frames;
  if(width<600){await page.touchscreen.tap(120,340)}else{await page.mouse.move(800,320);await page.mouse.down();await page.mouse.up()}
- await page.waitForFunction(()=>GBGlassRibbons.settled&&document.getElementById('gbRibbonBoot')?.parentElement?.id==='heroStage',null,{timeout:18000});
+ // V34+: a abertura assina o logo, vira portal e se retira; nada dela fica pintando no hero
+ await page.waitForFunction(()=>GBGlassRibbons.settled&&GBGlassRibbons.removed,null,{timeout:18000});
  await page.waitForTimeout(400);
  const settled=await page.evaluate(()=>({
   opening:GBGlassRibbons.opening,
   settled:GBGlassRibbons.settled,
   frames:GBGlassRibbons.frames,
   canvas:GBGlassRibbons.canvasSize,
-  parent:document.querySelector('.gb-ribbon-layer').parentElement?.id,
-  layer:document.querySelector('.gb-ribbon-layer').className,
-  logoPresent:!!document.querySelector('.gb-ribbon-signature img'),
+  removed:GBGlassRibbons.removed,active:GBGlassRibbons.active,
+  layer:!!document.querySelector('.gb-ribbon-layer'),
   hero:!!document.querySelector('#heroArt'),
   fit:!!document.querySelector('#lookstudio'),
   overflow:document.documentElement.scrollWidth-innerWidth,
   modal:document.querySelector('#productModal')?.className
  }));
- await page.screenshot({path:'v25-'+width+'-settled.jpg',type:'jpeg',quality:58});
+ await page.screenshot({path:shot('v25-'+width+'-settled.jpg'),type:'jpeg',quality:58});
  assert(settled.settled&&!settled.opening,'never settled: '+JSON.stringify(settled));
- assert(settled.frames>oldFrames+5,'ribbons stopped: '+JSON.stringify(settled));
- assert(settled.parent==='heroStage'&&settled.hero&&settled.fit,'existing site damaged: '+JSON.stringify(settled));
- assert(await page.evaluate(()=>GBGlassRibbons.fullGlass),'settled Glass not full bleed');
- assert(settled.overflow<=3,'horizontal overflow: '+JSON.stringify(settled));
+ assert(settled.frames>oldFrames,'ribbons stopped before the signature: '+JSON.stringify(settled));
+ assert(settled.removed&&!settled.active&&!settled.layer,'intro still painting over the hero: '+JSON.stringify(settled));
+ assert(settled.hero&&settled.fit,'existing site damaged: '+JSON.stringify(settled));
+  assert(settled.overflow<=3,'horizontal overflow: '+JSON.stringify(settled));
  assert(!settled.modal?.includes('is-open'),'pointer leaked to product modal: '+settled.modal);
  assert(errors.length===0,'runtime errors '+JSON.stringify(errors));
  const pointer=await page.evaluate(()=>GBGlassRibbons.pointer);

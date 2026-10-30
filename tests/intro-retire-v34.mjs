@@ -1,5 +1,8 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+const shot=name=>join(tmpdir(),name);
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 for(const [width,height,slow] of [[1440,900,false],[390,844,false],[360,780,true]]){
  const ctx=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,hasTouch:width<600});
@@ -27,7 +30,7 @@ for(const [width,height,slow] of [[1440,900,false],[390,844,false],[360,780,true
   fit:typeof window.GBFitting,
   overflow:document.documentElement.scrollWidth-innerWidth
  }));
- await page.screenshot({path:'v34-'+width+'-hero.jpg',type:'jpeg',quality:70});
+ await page.screenshot({path:shot('v34-'+width+'-hero.jpg'),type:'jpeg',quality:70});
  assert(end.removed&&!end.active&&end.canvas[0]===0&&end.canvas[1]===0&&!end.child&&!end.hostInDoc,'ribbon leaked into hero '+JSON.stringify(end));
  assert(end.fit==='object'&&end.overflow<=2&&!errors.length,'store regression '+JSON.stringify({end,errors}));
  await page.waitForTimeout(1200);
