@@ -40,7 +40,9 @@ function part(f,left,top,cls,alt,lazy){
   const box=`class="hg-part ${cls}" style="left:${f4(left)}em;top:${f4(top)}em;width:${f4(f.fw)}em;height:${f4(f.fh)}em"`,pos=`style="width:${f4(f.iw)}em;left:${f4(f.il)}em;top:${f4(f.it)}em"`;
   const img=(src,a)=>`<img ${lazy?'data-src':'src'}="${src}" alt="${a}" width="${f.m.w}" height="${f.m.h}" decoding="async" draggable="false" ${pos}>`;
   const sh=shadowOf(f.src);
-  return{html:`<span ${box}>${img(f.src,esc(alt))}</span>`,shadow:`<span ${box}>${img(sh||f.src,'')}</span>`,baked:!!sh,minX:left,maxX:left+f.fw,maxY:top+f.fh};
+  // V11 rig 2.5D: a mesma foto em dois ossos — corpo (preso ao cabide) e barra (atrasa no vento).
+  // Máscaras complementares sem faixa translúcida; o osso da barra só aparece quando a peça está "viva" (.is-rig).
+  return{html:`<span ${box}><span class="hg-bone hg-bone-a">${img(f.src,esc(alt))}</span><span class="hg-bone hg-bone-b" aria-hidden="true">${img(f.src,'')}</span></span>`,shadow:`<span ${box}>${img(sh||f.src,'')}</span>`,baked:!!sh,minX:left,maxX:left+f.fw,maxY:top+f.fh};
 }
 // peça de cima: gancho no centro, gola/capuz encostado no pescoço do cabide
 function shoulder(src,fw,cx,alt,lazy){
@@ -168,7 +170,7 @@ const currentVariant=it=>it.variants[variantSel.get(it.id)||0];
 
 /* ============================== ARARA ============================== */
 const pos=new M.Spring(0,M.Tokens.spring.object),swing=new M.Spring(0,M.Tokens.spring.hanger),lag=new M.Spring(0,{k:62,z:.5}),spread=new M.Spring(0,{k:150,z:.9}),shift=new M.Spring(0,{k:150,z:.9});
-let cards=[],target=0,running=false,dragging=false,dragStart=0,wheelTimer=0,hoverIdx=-1,lastWin=-99;
+let cards=[],target=0,running=false,railMoving=false,dragging=false,dragStart=0,wheelTimer=0,hoverIdx=-1,lastWin=-99;
 const mobile=()=>innerWidth<600;
 let G={vw:viewport.clientWidth,gw:240,barTop:72,sag:18,S0:240,S1:110};
 function measure(){
@@ -186,7 +188,8 @@ function computeGaps(){
   const f=cards[target];if(!f){gapL=gapR=0;shiftX=0;fScale=1;return}
   const it=S.list[target],tagsPx=it?.variants.length>1?it.variants.length*(G.m?24:36)+(G.m?10:18):0;
   // composição peça + fichas: cabe na largura (no celular a peça em foco encolhe só o necessário) e fica centrada
-  const avail=G.vw-(G.m?16:120),need=(f.maxX-f.minX)*G.gw+tagsPx;
+  // V11: a composição em foco fica fora da faixa de borda onde o palco esmaece a arara
+  const avail=G.vw-(G.m?24:160),need=(f.maxX-f.minX)*G.gw+tagsPx;
   fScale=need>avail?avail/need:1;
   const left=f.minX*G.gw*fScale,right=f.maxX*G.gw*fScale+tagsPx;shiftX=-(left+right)/2;
   const ns=G.m?.84:.8,room=G.m?.06:.1,r=cards[target+1],l=cards[target-1],tagsW=tagsPx/G.gw;
@@ -209,7 +212,7 @@ function buildRail(){
 function renderCard(i,html){
   const it=S.list[i],card=cards[i];if(!card)return null;const fig=figure(it,currentVariant(it),'combo');
   card.el.dataset.mode=fig.mode;card.minX=fig.minX;card.maxX=fig.maxX;if(i===target)computeGaps();card.el.style.setProperty('--minx',f4(fig.minX)+'em');card.el.style.setProperty('--maxx',f4(fig.maxX)+'em');card.el.style.setProperty('--maxy',f4(fig.maxY)+'em');
-  if(html!==false){card.turn.innerHTML=fig.html;card.fig=null;card.hydrated=true;arm(card)}
+  if(html!==false){card.turn.innerHTML=fig.html;card.fig=null;card.hem=null;card.hydrated=true;arm(card)}
   return fig;
 }
 // a peça só aparece com a foto da roupa decodificada: antes disso, nem gancho nem sombra (sem "cópia" cinza
@@ -230,31 +233,65 @@ function hydrate(force){
     else if(a>R+5&&card.hydrated){const imgs=qa('img[src]',card.el);if(imgs.every(img=>img.complete)){card.hydrated=false;card.el.classList.remove('is-ready');imgs.forEach(img=>{img.dataset.src=img.getAttribute('src');img.removeAttribute('src')})}}
   });
 }
+/* ---------- V11: física por peça (cabide → corpo do tecido → barra) + vento ambiente ----------
+   Cada cabide tem a própria mola (massa/rigidez pela família da peça), o corpo do tecido segue o cabide com
+   atraso e a barra (osso de baixo do rig) segue o corpo com mais atraso: nada balança em sincronia.
+   O vento vem do palco V11 (GBRailScene.wind): rajadas curtas e espaçadas, ondas de fase determinística por
+   peça que atravessam a arara. Só as peças em cena são calculadas; fora de rajada e de gesto, o relógio para. */
+const FAM={top:{k:112,amp:1},outer:{k:80,amp:.62},set:{k:74,amp:.55},bottom:{k:94,amp:.8},object:{k:90,amp:.4},study:{k:90,amp:.4}};
+const seedOf=str=>{let h=2166136261;for(const c of String(str))h=Math.imul(h^c.charCodeAt(0),16777619);return(h>>>0)/4294967296};
+function physOf(i){
+  const card=cards[i];if(card.ph)return card.ph;
+  const it=S.list[i],f=FAM[it?.family]||FAM.top,r=seedOf(it?.id||i),r2=seedOf((it?.id||i)+'~'),k=f.k*(.88+r*.24);
+  return card.ph={f,th:new M.Spring(0,{k,z:.4+r2*.08}),fi:new M.Spring(0,{k:k*.58,z:.52}),he:new M.Spring(0,{k:k*.38,z:.58}),
+    w1:1.05+r*.55,w2:2.2+r2*.8,w3:4.6+r*1.4,p1:r*6.283,p2:r2*6.283,p3:(r+r2)*3.14};
+}
+const rigOn=()=>!reduced()&&!lite()&&window.GBRailScene?.rig!==false;
+const windNow=t=>{const W=window.GBRailScene;return W&&!reduced()&&!lite()?W.wind(t):0};
+let windLevel=0;
+function physics(dt,t){
+  const wl=windLevel=windNow(t),sw=swing.x,p=pos.x;let busy=wl>0;
+  cards.forEach((card,i)=>{
+    if(!card.vis)return;
+    const P=physOf(i),a=Math.abs(i-p),k=1-Math.min(a,4)*.12,x=xOf(i-p);
+    // vento: três senoides de fase própria, a frente da rajada atravessa a arara (fase pela posição na tela)
+    const w=wl?wl*P.f.amp*(Math.sin(P.w1*t+P.p1-x*.0017)*.62+Math.sin(P.w2*t+P.p2-x*.0012)*.28+Math.sin(P.w3*t+P.p3)*.1):0;
+    P.th.set(sw*k+w*.8);P.th.step(dt);
+    P.fi.set(P.th.x+w*.45);P.fi.step(dt);
+    P.he.set(P.fi.x+w*.85+(wl?wl*.25*Math.sin(P.w3*1.7*t+P.p2):0));P.he.step(dt);
+    if(!(P.th.settled&&P.fi.settled&&P.he.settled))busy=true;
+  });
+  return busy;
+}
 function layout(){
-  const p=pos.x,sw=swing.x,lg=lag.x-swing.x,m=G.m,R=m?2.4:5.2;
+  const p=pos.x,m=G.m,R=m?2.4:5.2,rig=rigOn(),rigR=m?0:1;
   cards.forEach((card,i)=>{
     const d=i-p,a=Math.abs(d);
     const vis=a<R+.8;if(vis!==card.vis){card.vis=vis;card.el.hidden=!vis}
     if(!vis)return;
     const h=card.h,x=xOf(d);
     const s=(Math.max(.6,1-Math.min(a,1)*(m?.16:.2)-Math.max(a-1,0)*.05)+h*.035)*(i===target?1-(1-fScale)*spread.x:1);
-    const ry=-Math.sign(d)*Math.min(a,1)*(m?16:24)*(1-h)-Math.sign(d)*Math.max(a-1,0)*4*(1-h);
+    // foto só de frente: inclinação 3/4 contida (sem "papelão" girando); a profundidade real vem do palco V11
+    const ry=-Math.sign(d)*Math.min(a,1)*(m?11:15)*(1-h)-Math.sign(d)*Math.max(a-1,0)*2.5*(1-h);
     const y=barY(x)-h*5;
     card.el.style.transform=`translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) scale(${s.toFixed(4)})`;
     card.el.style.zIndex=String(200-Math.round(a*12)+(h>.05?30:0));
     card.el.style.opacity=a>R-.6?clamp((R+.6-a)/1.2,0,1).toFixed(3):'1';
-    // o cabide balança a partir do gancho; o tecido acompanha com atraso (inércia do pano)
-    const k=1-Math.min(a,4)*.12,ph=1+(((i*37)%7)-3)*.05;
-    card.swing.style.transform=Math.abs(sw)>.01?`rotate(${(sw*k*ph).toFixed(3)}deg)`:'';
+    // o cabide balança a partir do gancho; o tecido acompanha com atraso (inércia do pano); a barra atrasa mais
+    const P=physOf(i),th=P.th.x,fi=P.fi.x-th,he=P.he.x-P.fi.x;
+    card.swing.style.transform=Math.abs(th)>.01?`rotate(${th.toFixed(3)}deg)`:'';
     card.turn.style.transform=`perspective(${m?700:950}px) rotateY(${ry.toFixed(2)}deg)`;
     const fig=card.fig||(card.fig=qa('.hg-fig,.hg-shadow',card.el));
-    const tr=Math.abs(lg)>.01?`rotate(${(lg*.9*k).toFixed(3)}deg)`:'';fig.forEach(f=>f.style.transform=tr);
+    const tr=Math.abs(fi)>.01?`rotate(${(fi*.9).toFixed(3)}deg)`:'';fig.forEach(f=>f.style.transform=tr);
+    const live=rig&&a<=rigR+.5;if(live!==!!card.rig){card.rig=live;card.el.classList.toggle('is-rig',live)}
+    if(live){const hem=card.hem||(card.hem=qa('.hg-bone-b',card.el)),ht=Math.abs(he)>.01?`rotate(${(he*1.5).toFixed(3)}deg)`:'';hem.forEach(b=>b.style.transform=ht)}
   });
   const bar=q('#railProgress');if(bar)bar.style.transform=`scaleX(${((clamp(p,0,S.list.length-1)+1)/S.list.length).toFixed(4)})`;
 }
-function loop(dt){
+function loop(dt,tms){
   if(!dragging)pos.step(dt);
   swing.set(clamp(-pos.v*5.2,-14,14));swing.step(dt);lag.set(swing.x);lag.step(dt);
+  const alive=physics(dt,(tms||performance.now())/1000);
   const rest=!dragging&&Math.abs(pos.target-pos.x)<=.02;spread.set(rest?1:0);spread.step(dt);
   // recentramento da composição só em repouso: sob o dedo a arara anda 1:1, sem deriva
   if(rest)shift.set(shiftX);shift.step(dt);
@@ -263,22 +300,27 @@ function loop(dt){
   hydrate();layout();
   // a peça chegou: fichas descem enquanto o tecido ainda termina de balançar
   if(!dragging&&Math.abs(pos.target-pos.x)<.02&&Math.abs(pos.v)<.35&&S.phase!=='focused'&&S.phase!=='viewer')onSettled();
-  const idle=!dragging&&pos.settled&&shift.settled&&Math.abs(swing.x)<.02&&Math.abs(swing.v)<.04&&Math.abs(lag.x)<.02&&Math.abs(lag.v)<.04&&spread.settled&&!hovering;
-  if(idle){pos.jump(target);swing.jump(0);lag.jump(0);layout();running=false;track.classList.remove('is-moving');onSettled();return false}
+  const railIdle=!dragging&&pos.settled&&shift.settled&&Math.abs(swing.x)<.02&&Math.abs(swing.v)<.04&&Math.abs(lag.x)<.02&&Math.abs(lag.v)<.04&&spread.settled&&!hovering;
+  // vento ambiente não é "arara em movimento": o estado só conta gesto, mola da arara e o tecido assentando
+  railMoving=!railIdle||(alive&&windLevel===0);
+  const idle=railIdle&&!alive;
+  if(idle){pos.jump(target);swing.jump(0);lag.jump(0);cards.forEach(c=>{if(c.ph){c.ph.th.jump(0);c.ph.fi.jump(0);c.ph.he.jump(0)}});layout();running=false;track.classList.remove('is-moving');onSettled();return false}
 }
 // foco do teclado acompanha a peça em foco; se ela ainda está longe (Home/End), o foco espera na arara
 function keyFocus(){const c=cards[target];if(c&&!c.el.hidden)c.hit.focus({preventScroll:true});else viewport.focus({preventScroll:true})}
-function onSettled(){setPhase(S.open?'viewer':'focused');const it=S.list[target];if(it&&!railTags&&!dragging)mountRailTags(it);if(S.input==='keyboard'&&viewport.contains(document.activeElement)&&document.activeElement!==cards[target]?.hit&&!document.activeElement.closest('.gb-tags'))keyFocus()}
+let settledAt=-1;
+const emit=(n,detail)=>viewport.dispatchEvent(new CustomEvent('gb:rail:'+n,{bubbles:true,detail}));
+function onSettled(){if(settledAt!==target&&!S.open){settledAt=target;emit('settled',{index:target})}setPhase(S.open?'viewer':'focused');const it=S.list[target];if(it&&!railTags&&!dragging)mountRailTags(it);if(S.input==='keyboard'&&viewport.contains(document.activeElement)&&document.activeElement!==cards[target]?.hit&&!document.activeElement.closest('.gb-tags'))keyFocus()}
 function kick(){
-  if(reduced()){pos.jump(target);swing.jump(0);lag.jump(0);spread.jump(1);shift.jump(shiftX);cards.forEach(c=>c.h=c===cards[hoverIdx]?1:0);hydrate();layout();onSettled();return}
-  if(!running){running=true;track.classList.add('is-moving');M.Ticker.add(loop)}
+  if(reduced()){pos.jump(target);swing.jump(0);lag.jump(0);spread.jump(1);shift.jump(shiftX);cards.forEach(c=>{c.h=c===cards[hoverIdx]?1:0;if(c.ph){c.ph.th.jump(0);c.ph.fi.jump(0);c.ph.he.jump(0)}});hydrate();layout();onSettled();return}
+  if(!running){running=true;railMoving=true;track.classList.add('is-moving');M.Ticker.add(loop)}
 }
 function setPhase(p){S.phase=p;viewport.dataset.phase=p}
 function navigate(i,{input}={}){
   if(!S.list.length)return;const n=clamp(i,0,S.list.length-1);
   if(input)S.input=input;
   if(n===target){if(i!==n){pos.v+=(i>n?1:-1)*1.4;kick()}return}
-  target=n;pos.set(n);setPhase('settling');computeGaps();updateInfo();kick();
+  const from=target;target=n;settledAt=-1;pos.set(n);setPhase('settling');computeGaps();updateInfo();kick();emit('navigate',{index:n,from});
 }
 // informação e fichas da peça em foco (fichas entram só quando a arara acomoda)
 let railTags=null;
@@ -316,7 +358,7 @@ async function chooseVariant(it,i,scope){
   const ri=S.list.indexOf(it),card=cards[ri];
   // a ficha responde na hora; a roupa troca quando a foto nova estiver decodificada
   if(railTags&&ri===target)swingTags(railTags,i);
-  if(card){const ok=await swapFigure(card.turn,figure(it,v,'combo').html,{dir});if(!ok){variantSel.set(it.id,prev);if(railTags&&ri===target)swingTags(railTags,prev);return}renderCard(ri,false);card.fig=null;card.hydrated=true;card.el.classList.add('is-ready');swing.v+=dir*(reduced()?0:22);kick()}
+  if(card){const ok=await swapFigure(card.turn,figure(it,v,'combo').html,{dir});if(!ok){variantSel.set(it.id,prev);if(railTags&&ri===target)swingTags(railTags,prev);return}renderCard(ri,false);card.fig=null;card.hem=null;card.hydrated=true;card.el.classList.add('is-ready');if(!reduced()){swing.v+=dir*12;physOf(ri).th.v+=dir*26;physOf(ri).fi.v+=dir*14}kick()}
   if(ri===target)updateCaptionOnly(it);
   if(S.open&&S.current===it){await drawViewer({dir,variantOnly:true});}
   announce.textContent=`${it.title}: cor ${v.label.toLowerCase()} selecionada.`;
@@ -347,9 +389,9 @@ viewport.addEventListener('keydown',e=>{
 });
 // arrasto 1:1 na área livre; fichas, botões e legenda não iniciam arrasto; gesto vertical libera a rolagem
 M.drag(viewport,{axis:'x',ignore:'.rail-controls,.gb-tags,.r10-caption,.rail-bottom button',
-  onStart(){dragging=true;dragStart=pos.x;setPhase('drag');if(railTags){retractTags(railTags);railTags=null}kick()},
+  onStart(){dragging=true;dragStart=pos.x;setPhase('drag');settledAt=-1;if(railTags){retractTags(railTags);railTags=null}kick();emit('dragstart',{})},
   onMove(dx){const max=S.list.length-1,step=G.S0;let p=dragStart-dx/step;if(p<0)p*=.3;else if(p>max)p=max+(p-max)*.3;pos.v=(p-pos.x)*60;pos.x=p;pos.target=p;if(reduced()){hydrate();layout()}},
-  onEnd(v){dragging=false;const step=G.S0,proj=pos.x-clamp(v/step*.18,-2.2,2.2);target=clamp(Math.round(proj),0,S.list.length-1);pos.set(target);pos.v=-v/step*.35;setPhase('settling');computeGaps();updateInfo();kick()}
+  onEnd(v){dragging=false;const step=G.S0,proj=pos.x-clamp(v/step*.18,-2.2,2.2);target=clamp(Math.round(proj),0,S.list.length-1);pos.set(target);pos.v=-v/step*.35;setPhase('settling');computeGaps();updateInfo();kick();emit('navigate',{index:target,input:'drag'})}
 });
 viewport.addEventListener('wheel',e=>{
   if(Math.abs(e.deltaX)<=Math.abs(e.deltaY)||Math.abs(e.deltaX)<2)return; // rolagem vertical nunca é capturada
@@ -414,13 +456,18 @@ async function drawViewer({dir=0,entry=false,variantOnly=false}={}){
   // composição: só modos com foto real para esta cor
   let shown=0;qa('[data-rail-view]').forEach(b=>{const view=b.dataset.railView,ok=it.study?availableViews(p).includes(view):!!modeFor(it,v,view)&&(view==='combo'||it.family==='set');b.hidden=!ok;shown+=ok;const on=view===S.view;b.classList.toggle('selected',on);b.setAttribute('aria-pressed',String(on))});
   const sw=q('.rail-view-switch');if(sw)sw.hidden=shown<2;
-  qa('[data-orient]',orient).forEach(b=>{const on=b.dataset.orient==='front';b.setAttribute('aria-pressed',String(on));b.classList.toggle('selected',on)});
+  // orientação = capacidade da mídia (V11: GBRailViews). Hoje só FRENTE; costas/lateral ligam sozinhas quando
+  // existir foto aprovada com procedência daquela vista e cor — nunca derivadas da frente.
+  const caps=it.study?{front:true}:(window.GBRailViews?.resolve(v.sourceId)||{front:true});
+  if(!caps[S.orientation])S.orientation='front';viewer.dataset.orientation=S.orientation;
+  qa('[data-orient]',orient).forEach(b=>{const o=b.dataset.orient,on=o===S.orientation;b.setAttribute('aria-pressed',String(on));b.classList.toggle('selected',on);b.setAttribute('aria-disabled',String(!caps[o]))});
+  const note=q('#r10OrientNote');if(note)note.textContent=caps.back||caps.side?'Vistas com foto real aprovada do acervo.':(caps.reason||'Só a frente foi fotografada. Lateral e costas aguardam fotos reais: o verso não é simulado.');
   orient.hidden=!!it.study;
   // avisa as outras camadas antes de esperar pelas fotos (o V08 esconde o estudo de cor de peça com foto na hora)
   document.dispatchEvent(new CustomEvent('gb:object-product',{detail:{product:p,item:it.id,variant:v.id,view:S.view,orientation:S.orientation,study:!!it.study,photo:!it.study}}));
   if(it.study){vHost.innerHTML=`<div class="r10-study">${productMedia(p,S.view)}</div>`;vTags.innerHTML=''}
   else{
-    const html=figure(it,v,S.view).html;fitViewer();
+    const ov=S.orientation!=='front'&&caps.refs?.[S.orientation],html=(ov?figure(it,{...v,media:{combo:ov}},'combo'):figure(it,v,S.view)).html;fitViewer();
     // fichas primeiro (síncrono): nunca sobra ficha da peça anterior enquanto a foto nova carrega
     if(!variantOnly||!vTags.firstElementChild){vTags.innerHTML=tagsHTML(it,variantSel.get(it.id),'viewer');if(entry)dropTags(vTags.firstElementChild)}
     else swingTags(vTags.firstElementChild,variantSel.get(it.id));
@@ -434,7 +481,7 @@ function openViewer(it,{from,variant}={}){
   if(typeof closeAll==='function'&&viewer.hidden)closeAll(false);
   if(viewer.hidden)previousFocus=document.activeElement;
   if(variant!=null&&!it.study)variantSel.set(it.id,variant);
-  S.current=it;S.view='combo';S.orientation='front';S.open=true;setPhase('viewer');
+  S.current=it;S.view='combo';S.orientation='front';S.open=true;setPhase('viewer');emit('open',{item:it.id});
   viewer.hidden=false;document.body.classList.add('no-scroll');
   drawViewer({entry:true}).then(()=>{
     const fig=vHost.querySelector('.hg-fig')||vHost.firstElementChild,src=from?.el?.querySelector('.hg-fig');
@@ -444,7 +491,7 @@ function openViewer(it,{from,variant}={}){
   q('#railViewerClose').focus();
 }
 function closeViewer(){
-  if(viewer.hidden)return;viewer.hidden=true;S.open=false;document.body.classList.remove('no-scroll');setPhase('focused');
+  if(viewer.hidden)return;viewer.hidden=true;S.open=false;document.body.classList.remove('no-scroll');setPhase('focused');emit('close',{item:S.current?.id});
   // o estado da arara acompanha a cor escolhida dentro do viewer
   const it=S.current,ri=S.list.indexOf(it);
   if(ri>=0&&cards[ri]&&!it.adhoc){const v=currentVariant(it),cur=cards[ri].el.querySelector('.hg-fig img')?.getAttribute('src')||cards[ri].el.querySelector('.hg-fig img')?.dataset.src;
@@ -462,7 +509,9 @@ q('#railViewerClose')?.addEventListener('click',closeViewer);
 q('#railViewerPrev')?.addEventListener('click',()=>viewerStep(-1));
 q('#railViewerNext')?.addEventListener('click',()=>viewerStep(1));
 qa('[data-rail-view]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.railView===S.view)return;const order=['combo','top','bottom'];const dir=order.indexOf(b.dataset.railView)>order.indexOf(S.view)?1:-1;S.view=b.dataset.railView;drawViewer({dir});announce.textContent=`Vista ${VIEW_NAME[S.view].toLowerCase()}.`}));
-orient.addEventListener('click',e=>{const b=e.target.closest('[data-orient]');if(!b||b.dataset.orient==='front')return;announce.textContent=`Vista ${b.textContent.toLowerCase()} indisponível: ainda não há foto real desse ângulo.`;q('#r10OrientNote').classList.remove('is-flash');void q('#r10OrientNote').offsetWidth;q('#r10OrientNote').classList.add('is-flash')});
+orient.addEventListener('click',e=>{const b=e.target.closest('[data-orient]');if(!b)return;
+  if(b.getAttribute('aria-disabled')!=='true'){if(b.dataset.orient!==S.orientation){S.orientation=b.dataset.orient;drawViewer({dir:1});announce.textContent=`Vista ${b.textContent.toLowerCase()}: foto real do acervo.`}return}
+  announce.textContent=`Vista ${b.textContent.toLowerCase()} indisponível: ainda não há foto real desse ângulo.`;q('#r10OrientNote').classList.remove('is-flash');void q('#r10OrientNote').offsetWidth;q('#r10OrientNote').classList.add('is-flash')});
 vTags.addEventListener('click',e=>{const t=e.target.closest('.gb-tag');if(!t||!S.current)return;chooseVariant(S.current,+t.dataset.variant,'viewer')});
 q('#railViewerProduct')?.addEventListener('click',()=>{const v=currentVariant(S.current);const p=byId(v.sourceId);closeViewer();if(typeof detailModal==='function')detailModal(p,{detailOnly:true})});
 // toque: swipe horizontal troca de peça (não há multivista real para girar); fichas e botões não contam
@@ -489,9 +538,11 @@ window.GBOpenProductExperience=p=>{
   if(!r.it.adhoc){const li=S.list.indexOf(r.it);if(li<0){setFilter('all')}const idx=S.list.indexOf(r.it);if(idx>=0){target=idx;pos.jump(idx);computeGaps();hydrate(true);layout();updateInfo()}}
   openViewer(r.it,{variant:r.vi});return true;
 };
-window.GBRail={get state(){const it=S.list[target],v=it&&currentVariant(it);return{index:target,count:S.list.length,itemId:it?.id,productId:v?.sourceId,variantId:v?.id,view:S.view,orientation:S.orientation,phase:S.phase,open:S.open,filter:S.filter,pos:pos.x,moving:running}},
+window.GBRail={get state(){const it=S.list[target],v=it&&currentVariant(it);return{index:target,count:S.list.length,itemId:it?.id,productId:v?.sourceId,variantId:v?.id,view:S.view,orientation:S.orientation,phase:S.phase,open:S.open,filter:S.filter,pos:pos.x,moving:running&&railMoving,wind:+windLevel.toFixed(3)}},
   items:()=>S.list.map(it=>({id:it.id,title:it.title,family:it.family,variants:it.variants.map(v=>({id:v.id,label:v.label,productId:v.sourceId})),capabilities:it.capabilities})),
-  navigate:i=>navigate(i),setFilter,chooseVariant:i=>chooseVariant(S.open?S.current:S.list[target],i,'api'),open:()=>openViewer(S.list[target],{from:cards[target]}),close:closeViewer,counts:CAT.counts};
+  navigate:i=>navigate(i),setFilter,
+  // V11: o palco acorda o mesmo relógio da arara (rajada de vento) em vez de rodar um segundo loop
+  wake:()=>{if(!reduced()&&!lite())kick()},get geometry(){return{...G}},chooseVariant:i=>chooseVariant(S.open?S.current:S.list[target],i,'api'),open:()=>openViewer(S.list[target],{from:cards[target]}),close:closeViewer,counts:CAT.counts};
 
 /* ============================== MONTAGEM ============================== */
 viewport.classList.add('r10');

@@ -133,3 +133,12 @@
 .r10-item .hg{transition:opacity .26s ease}
 .r10-item:not(.is-ready) .hg{opacity:0}
 @media(prefers-reduced-motion:reduce){.r10-item .hg{transition:none}}
+
+/* ---------- V11 / rig 2.5D do tecido: dois ossos da MESMA foto ----------
+   Osso A (corpo, preso ao cabide) fica opaco até 64% e some até 70%; osso B (barra) aparece de 50% a 58% e
+   gira sobre o meio da peça. Na faixa de troca A continua opaco por baixo: sem faixa translúcida, sem
+   duplicar contorno. Só peças "vivas" (foco e vizinhas) ligam o osso B; no resto é uma imagem só. */
+.hg-bone{position:absolute;inset:0;display:block}
+.hg-bone-b{display:none;transform-origin:50% 57%}
+.is-rig .hg-bone-a{-webkit-mask-image:linear-gradient(180deg,#000 64%,transparent 70%);mask-image:linear-gradient(180deg,#000 64%,transparent 70%)}
+.is-rig .hg-bone-b{display:block;-webkit-mask-image:linear-gradient(180deg,transparent 50%,#000 58%);mask-image:linear-gradient(180deg,transparent 50%,#000 58%)}
