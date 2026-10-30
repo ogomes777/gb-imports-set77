@@ -75,6 +75,7 @@ const pointer={x:.5,y:.5,targetX:.5,targetY:.5,force:0,tap:0};
 // The film now holds its mark, then opens two glass doors into the existing hero.
 const duration=2200;
  const puffOnly=true;
+ const posterCapture=new URLSearchParams(location.search).has('gbCapturePoster');
  let visiblePuffAt=0,handoffTimer=0;
  window.addEventListener('gb:plush-first-visible',()=>{visiblePuffAt=performance.now()},{once:true}); // V43: reference plush without the golden ribbons
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -307,7 +308,7 @@ function draw(now){
  if(puffOnly){
   if(!firstFrame)firstFrame=now;
   frames++;
-  if(now-firstFrame>=1850)parkForStore();else request();
+  if(now-firstFrame>=(posterCapture?12500:1850))parkForStore();else request();
   return;
  }
  // Never throttle powerful devices below the display's native cadence.
@@ -429,7 +430,7 @@ function start(){
  if(puffOnly){
   firstFrame=performance.now();frames=0;request();
   // Guaranteed release even if a chunk fails, hangs or never emits the event.
-  settleTimeout=setTimeout(()=>{if(!settled){window.GB_BOOT_CORE?.();settle(true)}},6400);
+  settleTimeout=setTimeout(()=>{if(!settled){window.GB_BOOT_CORE?.();settle(true)}},posterCapture?17500:6400);
  }else{
   measure();request();settleTimeout=setTimeout(()=>settle(true),11800);
  }
