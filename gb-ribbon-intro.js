@@ -20,7 +20,7 @@ const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});
 if(!ctx)return;
 host.classList.remove('is-boot');
 const logo=host.querySelector('.gb-ribbon-original');
-if(enterAtTop)logo.style.clipPath='inset(0 0 0 100%)';
+if(enterAtTop)logo.style.clipPath='none';
 const signature=host.querySelector('.gb-ribbon-signature');
 const bloom=host.querySelector('.gb-ribbon-bloom');
 const scan=host.querySelector('.gb-ribbon-scan');
@@ -73,7 +73,8 @@ let quality=constrained?2:1,rollingGap=16,lastQualityChange=0,lastLogoPaint=0,th
 let sweepHead=1.085,sweepX=1.0,signatureProgress=0,logoRevealed=false;
 const pointer={x:.5,y:.5,targetX:.5,targetY:.5,force:0,tap:0};
 // The film now holds its mark, then opens two glass doors into the existing hero.
-const duration=3950;
+const duration=2200;
+ const puffOnly=true; // V43: reference plush without the golden ribbons
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,k)=>a+(b-a)*k;
 const ease=k=>k*k*(3-2*k);
@@ -235,6 +236,14 @@ function updateLogo(now){
 // title BEFORE evaluating storefront scripts. The doors open once boot is done.
 function parkForStore(){
  if(parked||settled||!intro)return;
+ if(puffOnly){
+  parked=true;parkAt=performance.now();cancelAnimationFrame(raf);raf=0;
+  host.classList.add('is-preparing-entry','is-render-idle');
+  // Boot starts; puff remains visible while the original storefront initializes.
+  if(window.GB_BOOT_CORE)window.GB_BOOT_CORE();else settle(true);
+  if(window.GB_CORE_READY||window.GB_CORE_FAILED)settle(true);
+  return;
+ }
  parked=true;
  parkAt=performance.now();
  host.classList.add('is-preparing-entry','is-render-idle');
@@ -255,12 +264,12 @@ function onCoreReady(){
  settle();
 }
 document.addEventListener('gb:core-ready',onCoreReady);
-function settle(){
+function settle(force=false){
  if(settled)return;
  // Do not open the glass doors onto a half-initialized storefront.
  // Keep the elegant title visible until the background bundle finishes;
  // a hard failsafe always releases the visitor if the network fails.
- if(intro&&window.GB_BOOT_CORE&&!window.GB_CORE_READY&&!window.GB_CORE_FAILED&&performance.now()-firstFrame<11000){
+ if(!force&&intro&&window.GB_BOOT_CORE&&!window.GB_CORE_READY&&!window.GB_CORE_FAILED&&performance.now()-firstFrame<5200){
    window.GB_BOOT_CORE?.();
    host.classList.add('is-preparing-entry');
    return;
@@ -270,6 +279,7 @@ function settle(){
  document.removeEventListener('gb:core-ready',onCoreReady);
  host.classList.remove('is-opening','is-preparing-entry','is-render-idle');
  host.classList.add('is-gateway');
+ host.style.pointerEvents='none';
  document.documentElement.classList.remove('gb-ribbon-intro-playing');
  logo.style.clipPath='none';
  clearTimeout(settleTimeout);
@@ -282,10 +292,16 @@ function settle(){
   canvas.width=0;canvas.height=0;
   host.classList.remove('is-gateway');
   host.classList.add('is-finished');
- },1080);
+ },420);
 }
 function draw(now){
  raf=0;if(!alive())return;
+ if(puffOnly){
+  if(!firstFrame)firstFrame=now;
+  frames++;
+  if(now-firstFrame>=1850)parkForStore();else request();
+  return;
+ }
  // Never throttle powerful devices below the display's native cadence.
  // Budget mode is reserved for low-end hardware or detected sustained jank.
  const budget=quality>=2?(mobile()?30:24):0;
@@ -402,8 +418,13 @@ function start(){
   host.remove();canvas.width=0;canvas.height=0;
   return;
  }
- measure();request();
- settleTimeout=setTimeout(settle,11800);
+ if(puffOnly){
+  firstFrame=performance.now();frames=0;request();
+  // Guaranteed release even if a chunk fails, hangs or never emits the event.
+  settleTimeout=setTimeout(()=>{if(!settled){window.GB_BOOT_CORE?.();settle(true)}},6400);
+ }else{
+  measure();request();settleTimeout=setTimeout(()=>settle(true),11800);
+ }
 }
 start();
 window.GBGlassRibbons=Object.freeze({
@@ -419,7 +440,7 @@ window.GBGlassRibbons=Object.freeze({
  get logoAsset(){return logo.getAttribute('src')},
  get sweep(){return sweepX},get signatureProgress(){return signatureProgress},
  get flowBend(){return +flow.bend.toFixed(4)},get flowTwist(){return +flow.twist.toFixed(4)},
- get signatureInkReady(){return signatureReady},
+ get signatureInkReady(){return signatureReady},get puffOnly(){return puffOnly},
  finish:settle,
  replay(){
   if(reduced.matches)return;
@@ -434,8 +455,8 @@ window.GBGlassRibbons=Object.freeze({
   document.body.append(host);
   host.classList.add('is-opening','is-visible');
   document.documentElement.classList.add('gb-ribbon-intro-playing');
-  clearTimeout(settleTimeout);settleTimeout=setTimeout(settle,11800);
-  connect();measure();request();
+  clearTimeout(settleTimeout);settleTimeout=setTimeout(()=>settle(true),6400);
+  connect();if(!puffOnly)measure();request();
  }
 });
 })();
