@@ -55,6 +55,8 @@
    thread is starved or the intro script died (the JS watchdog normally finishes at 6 s). */
 html.gb-ribbon-intro-playing body > :not(#gbRibbonBoot):not(script){visibility:hidden;animation:gbPuffUnhide 0s linear 9s forwards}
 #gbRibbonBoot.is-opening{animation:gbPuffFailsafe .5s ease 9s forwards}
+/* QA recording (?gbPuffHold=1) only */
+html.gb-puff-hold body > :not(#gbRibbonBoot):not(script),html.gb-puff-hold #gbRibbonBoot.is-opening{animation:none}
 @keyframes gbPuffUnhide{to{visibility:visible}}
 @keyframes gbPuffFailsafe{to{opacity:0;visibility:hidden;pointer-events:none}}
 

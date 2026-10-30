@@ -25,6 +25,7 @@ const now=()=>performance.now();
 const T0=now();
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const params=new URLSearchParams(location.search);
+const hold=params.get('gbPuffHold')==='1';   // QA / recording only: no automatic exit (skip or finish())
 // Direct landing only: deep links (#colecao, ?peca, /gb…) open the store straight away.
 const atTop=!params.has('peca')&&(!location.hash||location.hash==='#inicio')&&!/^\/(?:gb|gb-studio)(?:\/|$)/.test(location.pathname);
 const play=atTop&&!reduced;
@@ -64,6 +65,8 @@ if(!play){
 }
 
 document.documentElement.classList.add('gb-ribbon-intro-playing');
+// QA hold: the CSS-only failsafe would otherwise hide the held stage at 9 s
+if(hold)document.documentElement.classList.add('gb-puff-hold');
 document.body.appendChild(host);
 host.classList.remove('is-boot');
 host.classList.add('is-opening');
@@ -102,7 +105,6 @@ if(POSTER&&posterEl){
 const conn=navigator.connection;
 const saveData=!!conn?.saveData||/(^|-)2g$/.test(conn?.effectiveType||'');
 const forceLive=params.get('gbPuffLive')==='1';           // QA capture on software GPUs only
-const hold=params.get('gbPuffHold')==='1';               // QA / recording: no automatic exit (skip or finish() only)
 const coarse=matchMedia('(pointer: coarse)').matches;
 const mem=navigator.deviceMemory||8,cores=navigator.hardwareConcurrency||8;
 const strandCap=forceLive?12000:coarse||innerWidth<720?26000:mem<=4||cores<=4?36000:90000;
@@ -183,6 +185,7 @@ function teardown(){
  finished=true;mark('finished');set('finished');
  timers.forEach(clearTimeout);timers.clear();
  off.splice(0).forEach(f=>f());
+ document.documentElement.classList.remove('gb-puff-hold');
  try{window.GBPlush?.unmount()}catch{}
  if(posterEl)posterEl.removeAttribute('src');
  host.remove();
