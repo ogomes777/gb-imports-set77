@@ -16,7 +16,7 @@ for(const [width,height,q] of [[1280,720,''],[390,844,''],[1280,720,'?gbPuffLive
  if(q){
   await page.waitForFunction(()=>GBGlassRibbons.live||GBGlassRibbons.removed,null,{timeout:20000});
   const live=await page.evaluate(()=>GBGlassRibbons.live);
-  if(live)assert(live.count<=GBGlassRibbons.strandCap&&live.quality>0&&live.quality<=1,'strand budget or adaptive quality broken '+JSON.stringify(live));
+  if(live)assert(live.count<=before.cap&&live.quality>0&&live.quality<=1,'strand budget or adaptive quality broken '+JSON.stringify(live));
  }
  await page.waitForFunction(()=>GBGlassRibbons.settled&&GBGlassRibbons.removed,null,{timeout:18000});
  const retired=await page.evaluate(()=>GBGlassRibbons.frames);

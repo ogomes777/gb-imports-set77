@@ -179,7 +179,10 @@ async function run(w,h,reduced=false){
   check(vp,'SHOP sem roupas ilustrativas do antigo preview',shop.studies===0&&shop.noPhoto===0&&shop.svg===0,JSON.stringify(shop));
   // Detalhe: conjunto fotografado com superior/inferior reais, sem laboratório de cores fictício.
   await page.fill('#catalogSearch','Polo areia');await page.waitForTimeout(260);
-  await page.locator('#productGrid .product-visual').first().click();await page.waitForTimeout(700);
+  await page.locator('#productGrid .product-visual').first().click();
+  // espera o efeito (o viewer com o produto), não um tempo fixo: sob carga 700 ms não bastavam
+  await page.waitForFunction(()=>{const v=document.querySelector('#railViewer');return v&&getComputedStyle(v).visibility!=='hidden'&&v.offsetParent!==null&&/POLO AREIA/.test(document.querySelector('#railViewerName')?.textContent||'')},null,{timeout:3000}).catch(()=>{});
+  await page.waitForTimeout(200);
   check(vp,'V08: card abre o Object View',await page.locator('#railViewer').isVisible());
   check(vp,'V08: Object View mostra o produto real',(await page.locator('#railViewerName').textContent()).includes('POLO AREIA'));
   check(vp,'V08: cores de estudo ocultas para produto com foto',await page.locator('#gbTabColors').isHidden());
