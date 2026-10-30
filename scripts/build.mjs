@@ -106,7 +106,14 @@ const coreBoot = [
 '</script>'
 ].join('\n');
 let out=stripLocal(html)
- .replace('</head>',()=>'<link href="./'+cssName+'" rel="stylesheet"/>\n</head>')
+ .replace('</head>',()=>{
+  // Preload on the real landing only. Deep routes must not download the
+  // heavyweight hair bundle just to open My GB or the studio.
+  const preload=plushBundle
+    ? '<script>if(location.pathname==="/"&&!location.hash&&!matchMedia("(prefers-reduced-motion: reduce)").matches){const e=document.createElement("link");e.rel="preload";e.as="script";e.href='+JSON.stringify('./'+plushBundle)+';document.head.append(e)}</script>\n'
+    : '';
+  return preload+'<link href="./'+cssName+'" rel="stylesheet"/>\n</head>';
+ })
  .replace('</body>',()=>'<script>window.GB_PLUSH_BUNDLE_SRC='+JSON.stringify(plushBundle?'./'+plushBundle:null)+'</script>\n<script src="./'+introName+'"></script>\n'+coreBoot+'\n</body>');
 writeFileSync(join(DIST,'index.html'),out);
 
