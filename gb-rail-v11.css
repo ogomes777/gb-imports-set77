@@ -1,0 +1,100 @@
+/* GB IMPORTS / RAIL V11 — IMMERSIVE STAGE. Loja-conceito clara em perspectiva real (ver gb-rail-v11.js).
+   Geometria (posição/tamanho dos planos) vem do JS; aqui só material, luz e camadas. Só transform/opacity animam. */
+
+/* ---------- Material da sala (claro = ORIGEM; escuro = SINAL, mais abaixo) ---------- */
+.r11{--r11-wall:#efece4;--r11-wall-top:#f8f6f1;--r11-wall-low:#e3dfd5;--r11-floor-near:#b9b3a5;--r11-floor-far:#d8d3c7;
+  --r11-seam:rgba(17,18,20,.075);--r11-ceil:#fbfaf7;--r11-ceil-far:#f0eee8;--r11-side:#cfcabe;--r11-side-far:#e2ded4;
+  --r11-lamp:255,250,238;--r11-shade:28,25,20;--r11-jamb:#141517;--r11-ui:226,222,212;background:var(--r11-wall)}
+.r11 .rail-wall,.r11 .rail-pipe{display:none}
+.rail-viewport.r11::before,.rail-viewport.r11::after{content:none}
+
+/* ---------- Sala: um contêiner com perspectiva; cada plano é projetado por ela ---------- */
+.r11-room{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:visible}
+.r11-plane{position:absolute;display:block;transform-origin:50% 0;backface-visibility:visible}
+.r11-plane>i,.r11-plane>span{position:absolute;display:block;pointer-events:none}
+
+/* parede do fundo: reboco claro, três leques de luz dos trilhos do teto, rodapé */
+.r11-wall{background:
+  radial-gradient(ellipse 12% 62% at 20% 0,rgba(var(--r11-lamp),.95),rgba(var(--r11-lamp),0) 72%),
+  radial-gradient(ellipse 12% 62% at 80% 0,rgba(var(--r11-lamp),.95),rgba(var(--r11-lamp),0) 72%),
+  linear-gradient(180deg,var(--r11-wall-top) 0%,var(--r11-wall) 46%,var(--r11-wall-low) 100%)}
+.r11-wall::before{content:'';position:absolute;left:0;right:0;top:0;height:9%;background:linear-gradient(180deg,rgba(var(--r11-lamp),1),rgba(var(--r11-lamp),0))}
+.r11-wall-wash{inset:0;background:radial-gradient(ellipse 30% 70% at 50% 0,rgba(var(--r11-lamp),.85),rgba(var(--r11-lamp),0) 75%)}
+/* luz de foco atrás da peça escolhida: acende quando a arara assenta, recua durante o gesto (sem flash) */
+.r11-focus-light{left:28%;right:28%;top:6%;height:78%;background:radial-gradient(ellipse 50% 52% at 50% 46%,rgba(var(--r11-lamp),.9),rgba(var(--r11-lamp),0) 72%);opacity:.5;transition:opacity .8s ease}
+.r11[data-phase="focused"] .r11-focus-light,.r11[data-phase="viewer"] .r11-focus-light{opacity:1}
+.r11-sign{left:50%;top:var(--sign-y,40px);width:84px;transform:translate(-50%,-50%);opacity:.13}
+.r11-sign img{display:block;width:100%;height:auto}
+.r11-base{left:0;right:0;bottom:0;height:16px;background:linear-gradient(180deg,rgba(var(--r11-shade),.16) 0,rgba(var(--r11-shade),.05) 2px,var(--r11-wall-low) 3px,#d4d0c5 100%)}
+
+/* piso de cimento queimado: juntas de placa (convergem para o ponto de fuga), luz sob a arara, contato das roupas */
+.r11-floor{background:
+  repeating-linear-gradient(90deg,transparent 0 calc(240px - 1px),var(--r11-seam) calc(240px - 1px) 240px) 50% 0/auto,
+  repeating-linear-gradient(180deg,transparent 0 calc(300px - 1px),var(--r11-seam) calc(300px - 1px) 300px),
+  linear-gradient(180deg,var(--r11-floor-near) 0%,var(--r11-floor-far) 70%,var(--r11-wall-low) 100%)}
+/* soleira da loja: o fio amarelo GB que a câmera atravessa ao entrar */
+.r11-floor::before{content:'';position:absolute;left:0;right:0;top:var(--sill,0);height:6px;background:#FFD447;opacity:.9}
+.r11-floor-pool{left:18%;right:18%;top:calc(var(--rack,50%) - 18%);height:36%;background:radial-gradient(closest-side,rgba(var(--r11-lamp),.55),rgba(var(--r11-lamp),0))}
+.r11-floor-contact{left:8%;right:8%;top:calc(var(--rack,50%) - 4%);height:10%;background:radial-gradient(closest-side,rgba(var(--r11-shade),.14),rgba(var(--r11-shade),0))}
+
+/* teto com dois trilhos de luz correndo para o fundo */
+.r11-ceil{background:linear-gradient(180deg,var(--r11-ceil) 0%,var(--r11-ceil-far) 100%)}
+.r11-track{top:0;bottom:0;width:7px;background:linear-gradient(90deg,#2b2c2f,#626367 50%,#2b2c2f)}
+.r11-track-l{left:30%}.r11-track-r{right:30%}
+/* paredes laterais: menos luz que o fundo */
+.r11-side{transform-origin:0 50%;background:linear-gradient(0deg,rgba(var(--r11-shade),.12),rgba(var(--r11-shade),0) 14%),linear-gradient(90deg,var(--r11-side) 0%,var(--r11-side-far) 100%)}
+
+/* ---------- Arara: plano z=0, mesma caixa do palco; hastes até o teto (sem corda solta) ---------- */
+.r11-rack{position:absolute;inset:0;z-index:1;pointer-events:auto}
+.r11-rods{position:absolute;inset:0;pointer-events:none}
+.r11-rod{position:absolute;top:var(--ceil,-120px);height:calc(var(--bar-top,76px) - var(--ceil,-120px) + 3px);width:3px;background:linear-gradient(90deg,#55565a,#b0b0ac 45%,#4b4c50);border-radius:2px;box-shadow:4px 0 7px rgba(0,0,0,.08)}
+.r11-rod-l{left:calc(1.5% - 1px)}.r11-rod-r{right:calc(1.5% - 1px)}
+.r11 .rail-bar-metal{stroke-width:4.2px}
+.r11 .rail-bar-shadow{stroke:rgba(0,0,0,.12);stroke-width:7px;transform:translateY(14px);filter:blur(3px)}
+/* a arara esmaece só na faixa da borda (máscara estática da camada inteira): peças cortadas pelo quadro não
+   viram fatias de estampa empilhadas, e a faixa dos letreiros laterais fica limpa — sem opacidade por peça */
+.r11 #railItems{-webkit-mask-image:linear-gradient(90deg,transparent 0,transparent 36px,#000 76px,#000 calc(100% - 76px),transparent calc(100% - 36px));mask-image:linear-gradient(90deg,transparent 0,transparent 36px,#000 76px,#000 calc(100% - 76px),transparent calc(100% - 36px))}
+
+/* ---------- Batente da porta (à frente da arara; só existe enquanto a câmera está do lado de fora) ---------- */
+.r11-portal{position:absolute;inset:0;z-index:2;pointer-events:none}
+.r11-portal[hidden]{display:none}
+.r11-portal>i{position:absolute;display:block;background:var(--r11-jamb)}
+.r11-jamb-l{left:-80%;right:calc(50% + var(--xp,400px));top:-120%;bottom:-120%;box-shadow:inset -10px 0 0 #26272b,inset -11px 0 0 rgba(255,255,255,.08)}
+.r11-jamb-r{left:calc(50% + var(--xp,400px));right:-80%;top:-120%;bottom:-120%;box-shadow:inset 10px 0 0 #26272b,inset 11px 0 0 rgba(255,255,255,.08)}
+.r11-lintel{left:-80%;right:-80%;top:-120%;height:calc(var(--yl,0px) + 120%);box-shadow:inset 0 -10px 0 #26272b}
+.r11-sill{display:none!important}
+
+/* ---------- Atmosfera: queda de luz nas bordas + sala acendendo na chegada ---------- */
+.r11-atmo{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 78% 88% at 50% 40%,rgba(var(--r11-shade),0) 56%,rgba(var(--r11-shade),.13) 100%)}
+.r11-atmo::after{content:'';position:absolute;inset:0;background:rgb(var(--r11-shade));opacity:calc((1 - var(--r11-light,1)) * .3)}
+
+/* ---------- UI acessível por cima da sala (não se curva com o ambiente) ---------- */
+.r11 .rail-side-stamp{z-index:13}
+.r11 .rail-side-left{left:14px}.r11 .rail-side-right{right:14px}
+.r11 .rail-bottom{background:linear-gradient(0deg,rgba(var(--r11-ui),.82) 15%,rgba(var(--r11-ui),0))}
+
+/* ---------- Celular: mesma sala, menos borda e menos luxo ---------- */
+@media(max-width:599px){
+  .r11 #railItems{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 12px,#000 calc(100% - 12px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 12px,#000 calc(100% - 12px),transparent 100%)}
+  .r11-sign{width:58px}
+  .r11-track{width:5px}
+}
+/* quadros lentos medidos no dolly: sem sombra desfocada da barra */
+.r11-low .rail-bar-shadow{filter:none}
+
+/* ---------- Tema escuro (SINAL): loja à noite, luz quente nos trilhos ---------- */
+body[data-gb-theme="sinal"] .r11{--r11-wall:#1c1d20;--r11-wall-top:#25262a;--r11-wall-low:#131416;--r11-floor-near:#0c0d0e;--r11-floor-far:#1a1b1e;
+  --r11-seam:rgba(255,255,255,.04);--r11-ceil:#151618;--r11-ceil-far:#1b1c1f;--r11-side:#121315;--r11-side-far:#1a1b1e;
+  --r11-lamp:255,226,160;--r11-shade:0,0,0;--r11-jamb:#050506;--r11-ui:14,15,16;background:var(--r11-wall)!important}
+body[data-gb-theme="sinal"] .r11 .r11-wall{background:
+  radial-gradient(ellipse 12% 62% at 20% 0,rgba(var(--r11-lamp),.18),rgba(var(--r11-lamp),0) 72%),
+  radial-gradient(ellipse 12% 62% at 80% 0,rgba(var(--r11-lamp),.18),rgba(var(--r11-lamp),0) 72%),
+  linear-gradient(180deg,var(--r11-wall-top) 0%,var(--r11-wall) 46%,var(--r11-wall-low) 100%)}
+body[data-gb-theme="sinal"] .r11 .r11-wall-wash{opacity:.22}
+body[data-gb-theme="sinal"] .r11 .r11-wall::before{opacity:.3}
+body[data-gb-theme="sinal"] .r11 .r11-focus-light{background:radial-gradient(ellipse 50% 52% at 50% 46%,rgba(var(--r11-lamp),.2),rgba(var(--r11-lamp),0) 72%)}
+body[data-gb-theme="sinal"] .r11 .r11-floor-pool{opacity:.25}
+body[data-gb-theme="sinal"] .r11 .r11-sign{filter:invert(1);opacity:.1}
+body[data-gb-theme="sinal"] .r11 .r11-base{background:linear-gradient(180deg,rgba(0,0,0,.5) 0,#0e0f10 3px,#0b0b0c 100%)}
+
+@media(prefers-reduced-motion:reduce){.r11-focus-light{transition:none}}
