@@ -114,7 +114,7 @@ let out=stripLocal(html)
     : '';
   return preload+'<link href="./'+cssName+'" rel="stylesheet"/>\n</head>';
  })
- .replace('</body>',()=>'<script>window.GB_PLUSH_BUNDLE_SRC='+JSON.stringify(plushBundle?'./'+plushBundle:null)+'</script>\n<script src="./'+introName+'"></script>\n'+coreBoot+'\n</body>');
+ .replace('</body>',()=>'<script>window.GB_PLUSH_BUNDLE_SRC='+JSON.stringify(plushBundle?'./'+plushBundle:null)+';window.GB_PUFF_POSTER_URL='+JSON.stringify(existsSync(join(ROOT,'assets/brand/gb-puff-poster-v44.webp'))?'./assets/brand/gb-puff-poster-v44.webp':null)+'</script>\n<script src="./'+introName+'"></script>\n'+coreBoot+'\n</body>');
 writeFileSync(join(DIST,'index.html'),out);
 
 // V40 route entrypoints: emit real clean-URL HTML files for every visual route.
