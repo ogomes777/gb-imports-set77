@@ -281,9 +281,9 @@ function physics(dt,t){
     const P=physOf(i),a=Math.abs(i-p),k=1-Math.min(a,4)*.12,x=xOf(i-p);
     // vento: três senoides de fase própria, a frente da rajada atravessa a arara (fase pela posição na tela)
     const w=wl?wl*P.f.amp*(Math.sin(P.w1*t+P.p1-x*.0017)*.62+Math.sin(P.w2*t+P.p2-x*.0012)*.28+Math.sin(P.w3*t+P.p3)*.1):0;
-    P.th.set(sw*k+w*.8);P.th.step(dt);
-    P.fi.set(P.th.x+w*.45);P.fi.step(dt);
-    P.he.set(P.fi.x+w*1.25+(wl?wl*.4*Math.sin(P.w3*1.7*t+P.p2):0));P.he.step(dt);
+    P.th.set(sw*k+w*.92);P.th.step(dt);
+    P.fi.set(P.th.x+w*.52);P.fi.step(dt);
+    P.he.set(P.fi.x+w*1.45+(wl?wl*.4*Math.sin(P.w3*1.7*t+P.p2):0));P.he.step(dt);
     // a arara correndo empurra o ar: cada peça gira um pouco no gancho contra o movimento (com o próprio atraso);
     // o vento também torce de leve. Parada, volta de frente
     P.yw.set(clamp(-pos.v*6.5,-14,14)*(1-Math.min(a,3)*.12)+w*1.6);P.yw.step(dt);
@@ -480,6 +480,23 @@ viewport.addEventListener('wheel',e=>{
   pos.x=clamp(pos.x+e.deltaX/step,-.3,max+.3);pos.target=pos.x;pos.v=e.deltaX/step*12;setPhase('drag');kick();
   clearTimeout(wheelTimer);wheelTimer=setTimeout(()=>{target=clamp(Math.round(pos.x),0,max);pos.set(target);computeGaps();updateInfo();kick()},110);
 },{passive:false});
+/* ---------- roçar a peça: o cursor ou o dedo passando por cima empurra o tecido ----------
+   Impulso nas molas da própria peça (corpo, barra e giro no gancho), mais forte nas pontas e embaixo; os limites
+   suaves do layout seguram a amplitude, então a roupa dobra inteira — nunca abre emenda. Vizinhas sentem o ar. */
+let brushX=0,brushT=0;
+track.addEventListener('pointermove',e=>{
+  if(reduced()||lite()||dragging||S.open)return;
+  const t=performance.now(),vx=brushT&&t-brushT<250?(e.clientX-brushX)/clamp(t-brushT,16,40):0;brushX=e.clientX;brushT=t;
+  if(Math.abs(vx)<.08)return;
+  const it=e.target.closest('.r10-item');if(!it)return;const i=+it.dataset.railItem,c=cards[i];if(!c?.vis)return;
+  const r=(c.hit||c.el).getBoundingClientRect();if(!r.width)return;
+  const rx=clamp((e.clientX-r.left)/r.width-.5,-.5,.5),ry=clamp((e.clientY-r.top)/r.height,0,1);
+  const edge=.45+Math.abs(rx)*1.1,f=clamp(vx,-2.4,2.4),P=physOf(i);
+  // sem o osso da barra (aparelho modesto), o cabide leva o empurrão: a peça inteira balança
+  P.th.v+=f*(rigOn()?2.2:7)*edge;P.fi.v+=f*3*edge;P.he.v+=f*(13+ry*15)*edge;P.yw.v+=-f*rx*26;
+  [i-1,i+1].forEach(j=>{const n=cards[j];if(n?.vis){const Q=physOf(j);Q.he.v+=f*2.4;Q.fi.v+=f*1.2}});
+  kick();
+},{passive:true});
 if(M.Prefs.fine){
   track.addEventListener('pointerover',e=>{const it=e.target.closest('.r10-item');const i=it?+it.dataset.railItem:-1;if(i!==hoverIdx){hoverIdx=i;kick()}});
   track.addEventListener('pointerleave',()=>{hoverIdx=-1;kick()});

@@ -4,7 +4,7 @@
 /* ---------- Material da sala (claro = ORIGEM; escuro = SINAL, mais abaixo) ---------- */
 .r11{--r11-wall:#f7f6f2;--r11-wall-low:#ecebe5;--r11-floor-near:#cfcac0;--r11-floor-far:#e7e4dc;--r11-floor-shine:#f3f1ec;--r11-floor-out:#dcdcd6;
   --r11-seam:rgba(17,18,20,.07);--r11-ceil:#fdfcfa;--r11-ceil-far:#f2f0eb;
-  --r11-sky-top:#dbe5ec;--r11-sky:#eaf0f1;--r11-haze:#f3f2ec;--r11-sunc:255,244,218;--r11-bld:96,110,122;--r11-win:255,255,255;--r11-wina:.22;--r11-leaf:120,140,112;
+  --r11-sky-top:#e9eef1;--r11-sky:#f1f2ef;--r11-haze:#f4f2ec;--r11-shop:255,246,226;--r11-sign:28,30,34;--r11-grout:rgba(140,134,122,.38);--r11-tile-a:rgba(255,255,255,.07);--r11-tile-b:rgba(80,70,56,.035);--r11-sunc:255,244,218;--r11-bld:96,110,122;--r11-win:255,255,255;--r11-wina:.22;--r11-leaf:120,140,112;
   --r11-glass:226,236,234;--r11-alu-l:#d9dbda;--r11-alu-d:#9a9d9f;--r11-hazec:243,242,236;
   --r11-lamp:255,252,244;--r11-shade:34,30,24;--r11-jamb:#ebe8e1;--r11-jamb-edge:#d6d2c8;--r11-ui:240,238,233;background:var(--r11-wall)}
 .r11 .rail-wall,.r11 .rail-pipe{display:none}
@@ -15,18 +15,32 @@
 .r11-plane{position:absolute;display:block;transform-origin:50% 0;backface-visibility:visible}
 .r11-plane>i,.r11-plane>span{position:absolute;display:block;pointer-events:none}
 
-/* ---------- A rua lá fora (vista pelo vidro): céu claro, sol baixo, cidade fora de foco, árvores ---------- */
+/* ---------- O shopping lá fora (visto pela vitrine): claraboia, mezanino, vitrines acesas, pilares ----------
+   Tudo fora de foco e sem marca: só a luz das outras lojas, como num corredor de shopping. */
 .r11-out{transform-origin:50% 0;background:linear-gradient(180deg,var(--r11-sky-top) 0%,var(--r11-sky) 42%,var(--r11-haze) 78%,var(--r11-haze) 100%)}
 .r11-sky{inset:0;background:radial-gradient(ellipse 60% 40% at 50% 100%,rgba(var(--r11-lamp),.55),rgba(var(--r11-lamp),0) 70%)}
-.r11-sun{left:58%;top:8%;width:30%;height:46%;background:radial-gradient(closest-side,rgba(var(--r11-sunc),.75),rgba(var(--r11-sunc),.18) 45%,rgba(var(--r11-sunc),0))}
-.r11-city{left:0;right:0;bottom:calc(100% - var(--ground,80%));height:60%}
-.r11-city b{position:absolute;bottom:0;display:block;background:linear-gradient(180deg,rgba(var(--r11-bld),calc(.12 + var(--t)*.12)),rgba(var(--r11-bld),calc(.18 + var(--t)*.1)))}
-.r11-city b::after{content:'';position:absolute;inset:10% 18% 8%;opacity:calc(.35 + var(--t)*.4);background:repeating-linear-gradient(180deg,rgba(var(--r11-win),var(--r11-wina)) 0 1px,transparent 1px 11px)}
-/* perspectiva aérea: a base da cidade some na névoa do chão, como uma rua vista a distância */
-.r11-out::after{content:'';position:absolute;left:0;right:0;top:calc(var(--ground,80%) - 26%);height:34%;background:linear-gradient(180deg,rgba(var(--r11-hazec),0),rgba(var(--r11-hazec),.85) 70%,rgba(var(--r11-hazec),1));pointer-events:none}
+.r11-sun{left:58%;top:8%;width:30%;height:46%;background:radial-gradient(closest-side,rgba(var(--r11-sunc),.55),rgba(var(--r11-sunc),.12) 45%,rgba(var(--r11-sunc),0))}
+.r11-city{left:0;right:0;top:0;height:var(--ground,80%)}
+/* vitrine: interior quente, faixa do letreiro escura em cima, montante no meio e reflexo do corredor no vidro */
+.r11-city b{position:absolute;display:block;filter:blur(1.4px);
+  background:linear-gradient(180deg,rgba(var(--r11-sign),calc(.18 + var(--t)*.2)) 0 7%,transparent 7%),
+    radial-gradient(ellipse 70% 60% at 50% 45%,rgba(var(--r11-shop),.95),rgba(var(--r11-shop),.45) 70%,rgba(var(--r11-shop),.25)),rgba(var(--r11-shop),.3)}
+/* dentro da vitrine: prateleiras e araras de outras lojas (só manchas de cor fora de foco), montante e reflexo */
+.r11-city b::before{content:'';position:absolute;left:12%;right:12%;top:30%;bottom:16%;opacity:calc(.25 + var(--t)*.25);
+  background:repeating-linear-gradient(90deg,rgba(var(--r11-sign),.32) 0 6%,transparent 6% 11%),linear-gradient(180deg,transparent 0 46%,rgba(var(--r11-sign),.3) 46% 49%,transparent 49%)}
+.r11-city b::after{content:'';position:absolute;inset:7% 0 0;background:linear-gradient(90deg,transparent 0 calc(50% - 1px),rgba(var(--r11-sign),.16) calc(50% - 1px) calc(50% + 1px),transparent 0),linear-gradient(115deg,transparent 30%,rgba(255,255,255,.3) 38%,transparent 46%)}
+/* mezanino: laje e guarda-corpo de vidro do piso de cima, claraboia no alto */
+.r11-mezz{left:0;right:0;bottom:39%;height:8%;background:linear-gradient(180deg,rgba(var(--r11-sign),.16),rgba(var(--r11-sign),.3) 30%,rgba(255,255,255,.55) 34%,rgba(var(--r11-glass),.5) 100%)}
+.r11-skylight{left:-4%;right:-4%;top:0;height:24%;background:repeating-linear-gradient(90deg,rgba(var(--r11-sign),.1) 0 2px,transparent 2px 9%),linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,0))}
+/* perspectiva aérea: o chão do corredor some numa névoa clara, como um shopping visto a distância */
+.r11-out::after{content:'';position:absolute;left:0;right:0;top:calc(var(--ground,80%) - 18%);height:26%;background:linear-gradient(180deg,rgba(var(--r11-hazec),0),rgba(var(--r11-hazec),.7) 70%,rgba(var(--r11-hazec),1));pointer-events:none}
 .r11-near{transform-origin:50% 0}
-.r11-near .r11-trees{left:0;right:0;bottom:0;height:30%}
-.r11-trees b{position:absolute;bottom:-4%;display:block;border-radius:50% 50% 40% 40%;background:radial-gradient(ellipse at 50% 35%,rgba(var(--r11-leaf),.42),rgba(var(--r11-leaf),.18) 60%,rgba(var(--r11-leaf),0) 72%)}
+.r11-near .r11-trees{inset:0}
+/* pilares redondos do corredor: luz de um lado, sombra do outro (cilindro), base com rodapé metálico */
+.r11-trees b{position:absolute;bottom:0;display:block;filter:blur(.6px);
+  background:linear-gradient(90deg,rgba(var(--r11-shade),.16),rgba(255,255,255,.75) 32%,rgba(255,255,255,.9) 44%,rgba(var(--r11-shade),.08) 78%,rgba(var(--r11-shade),.2)),var(--r11-wall-low)}
+.r11-trees b::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3.5%;background:linear-gradient(90deg,var(--r11-alu-d),var(--r11-alu-l) 40%,var(--r11-alu-d))}
+.r11-rail-glass{left:0;right:0;bottom:0;height:0}
 
 /* ---------- Vidro: fundo e laterais em caixilhos de alumínio. O vidro só tinge e reflete; a rua aparece ---------- */
 .r11-glass{background:linear-gradient(180deg,rgba(var(--r11-glass),.30) 0%,rgba(var(--r11-glass),.10) 38%,rgba(var(--r11-glass),.16) 82%,rgba(var(--r11-glass),.34) 100%)}
@@ -56,6 +70,8 @@
 .r11-pools{inset:0}
 .r11-pools b{position:absolute;width:300px;height:260px;margin:-130px 0 0 -150px;border-radius:50%;background:radial-gradient(closest-side,rgba(var(--r11-lamp),.6),rgba(var(--r11-lamp),.18) 55%,rgba(var(--r11-lamp),0));opacity:0;transition:opacity .7s ease calc(var(--r)*.17s + .08s)}
 .r11-lit .r11-pools b{opacity:1}
+/* reflexo especular do spot no porcelanato: um risco de luz alongado em direção a quem olha */
+.r11-pools b::after{content:'';position:absolute;left:44%;right:44%;top:30%;bottom:-30%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.95),rgba(255,255,255,.35) 45%,rgba(255,255,255,0))}
 .r11-cones{position:absolute;inset:0;pointer-events:none}
 .r11-cone-row{position:absolute;transform-origin:50% 0}
 .r11-cone-row b{position:absolute;top:0;bottom:0;width:20%;margin-left:-10%;background:linear-gradient(180deg,rgba(var(--r11-lamp),.26),rgba(var(--r11-lamp),.07) 65%,rgba(var(--r11-lamp),0));
@@ -67,12 +83,18 @@
 /* faixa jateada no vidro, à altura do olhar de quem passa na calçada */
 .r11-frost{left:0;right:0;top:64%;height:7%;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.42) 18%,rgba(255,255,255,.36) 82%,rgba(255,255,255,0))}
 
-/* ---------- Piso contínuo: cimento polido dentro, o mesmo piso lá fora depois do trilho do vidro ---------- */
-.r11-floor{background:
-  repeating-linear-gradient(90deg,transparent 0 calc(240px - 1px),var(--r11-seam) calc(240px - 1px) 240px) 50% 0/auto,
-  repeating-linear-gradient(180deg,transparent 0 calc(300px - 1px),var(--r11-seam) calc(300px - 1px) 300px),
+/* ---------- Piso de porcelanato polido: placas grandes, rejunte fino, leve variação de tom entre placas e brilho
+   de espelho (as luzes e as peças refletem). Dentro da loja até o trilho do vidro; o corredor do shopping segue. */
+.r11-floor{--tile:150px;background:
+  repeating-linear-gradient(90deg,transparent 0 calc(var(--tile) - 1.5px),var(--r11-grout) calc(var(--tile) - 1.5px) var(--tile)),
+  repeating-linear-gradient(180deg,transparent 0 calc(var(--tile) - 1.5px),var(--r11-grout) calc(var(--tile) - 1.5px) var(--tile)),
+  conic-gradient(var(--r11-tile-a) 0 25%,var(--r11-tile-b) 0 50%,var(--r11-tile-a) 0 75%,var(--r11-tile-b) 0) 0 0/calc(var(--tile) * 2) calc(var(--tile) * 2),
   linear-gradient(180deg,var(--r11-floor-near) 0%,var(--r11-floor-far) calc(var(--glass,60%) * .7),var(--r11-floor-shine) calc(var(--glass,60%) - .6%),
-    var(--r11-alu-d) calc(var(--glass,60%) - .6%),var(--r11-alu-d) var(--glass,60%),var(--r11-floor-out) var(--glass,60%),var(--r11-haze) 100%)}
+    var(--r11-alu-d) calc(var(--glass,60%) - .6%),var(--r11-alu-d) var(--glass,60%),var(--r11-floor-out) var(--glass,60%),var(--r11-haze) 100%);
+  background-position:50% var(--sill,0),50% var(--sill,0),50% var(--sill,0),0 0}
+/* polido: o vidro do fundo e a claraboia se refletem numa faixa clara antes do trilho */
+.r11-floor::after{content:'';position:absolute;left:0;right:0;top:calc(var(--glass,60%) * .62);height:calc(var(--glass,60%) * .38);
+  background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.34) 82%,rgba(255,255,255,.12));pointer-events:none}
 /* soleira da loja: o fio amarelo GB que a câmera atravessa ao entrar */
 .r11-floor::before{content:'';position:absolute;left:0;right:0;top:var(--sill,0);height:6px;background:#FFD447;opacity:.9;transition:opacity .7s ease}
 /* já dentro da loja a soleira ficou para trás (no celular ela ainda cairia no quadro) */
@@ -90,7 +112,7 @@
    esmaecendo para longe do chão. Uma peça só: a arara inteira refletida custava ~45 ms por quadro. */
 .r10-refl{display:none}
 .r11 .r10-refl.on{display:block;position:absolute;left:var(--minx);top:0;width:calc(var(--maxx) - var(--minx));height:var(--maxy);transform-origin:calc(var(--minx) * -1) 0;pointer-events:none;
-  opacity:var(--r11-refl,.32);-webkit-mask-image:linear-gradient(180deg,transparent 38%,#000 100%);mask-image:linear-gradient(180deg,transparent 38%,#000 100%)}
+  opacity:var(--r11-refl,.4);-webkit-mask-image:linear-gradient(180deg,transparent 38%,#000 100%);mask-image:linear-gradient(180deg,transparent 38%,#000 100%)}
 .r11 .r10-refl-in{position:absolute;left:calc(var(--minx) * -1);top:0}
 .r11 .r10-refl :is(.hg-bone-a){-webkit-mask-image:none!important;mask-image:none!important}
 .r11 .r10-refl .hg-bone-b{display:none!important}
@@ -142,18 +164,21 @@
 /* quadros lentos medidos no dolly: sem sombra desfocada da barra */
 .r11-low .rail-bar-shadow{filter:none}
 
-/* ---------- Tema escuro (SINAL): a loja à noite — cidade acesa lá fora, piso escuro e espelhado ---------- */
+/* ---------- Tema escuro (SINAL): o shopping à noite — vitrines quentes lá fora, porcelanato escuro e espelhado ---------- */
 body[data-gb-theme="sinal"] .r11{--r11-wall:#111317;--r11-wall-low:#0d0e10;--r11-floor-near:#0a0b0c;--r11-floor-far:#15161a;--r11-floor-shine:#1c1d22;--r11-floor-out:#14161b;
   --r11-seam:rgba(255,255,255,.04);--r11-ceil:#141518;--r11-ceil-far:#18191d;
   --r11-sky-top:#070a12;--r11-sky:#0e1420;--r11-haze:#1a1f2b;--r11-sunc:255,196,120;--r11-bld:8,11,18;--r11-win:255,206,120;--r11-wina:.55;--r11-leaf:20,26,22;
   --r11-glass:40,52,60;--r11-alu-l:#3a3d42;--r11-alu-d:#1b1d20;--r11-hazec:26,31,43;
-  --r11-lamp:255,226,160;--r11-shade:0,0,0;--r11-jamb:#0b0c0d;--r11-jamb-edge:#1d1e21;--r11-ui:14,15,16;--r11-refl:.42;background:var(--r11-wall)!important}
+  --r11-lamp:255,226,160;--r11-shade:0,0,0;--r11-jamb:#0b0c0d;--r11-jamb-edge:#1d1e21;--r11-ui:14,15,16;--r11-refl:.5;
+  --r11-shop:255,206,140;--r11-sign:4,5,8;--r11-grout:rgba(255,255,255,.07);--r11-tile-a:rgba(255,255,255,.025);--r11-tile-b:rgba(0,0,0,.18);background:var(--r11-wall)!important}
 body[data-gb-theme="sinal"] .r11 .r11-sun{opacity:.35}
 body[data-gb-theme="sinal"] .r11.r11-lit .r11-cone-row b{opacity:1}
 body[data-gb-theme="sinal"] .r11 .r11-frost{opacity:.12}
 body[data-gb-theme="sinal"] .r11 .r11-floor-mull{opacity:.4}
 body[data-gb-theme="sinal"] .r11 .r11-lights b{background:radial-gradient(circle,#2a2b2e 0 34%,#3a3b3f 36% 52%,transparent 54%)}
-body[data-gb-theme="sinal"] .r11 .r11-city b{background:linear-gradient(180deg,rgba(18,22,32,.92),rgba(10,12,18,.96))}
+body[data-gb-theme="sinal"] .r11 .r11-skylight{opacity:.18}
+body[data-gb-theme="sinal"] .r11 .r11-trees b{background:linear-gradient(90deg,rgba(0,0,0,.5),rgba(255,226,160,.16) 36%,rgba(255,226,160,.1) 46%,rgba(0,0,0,.4) 80%),#15161a}
+body[data-gb-theme="sinal"] .r11 .r11-floor::after{opacity:.35}
 body[data-gb-theme="sinal"] .r11 .r11-sheen{opacity:.35}
 body[data-gb-theme="sinal"] .r11 .r11-floor-pool{opacity:.3}
 body[data-gb-theme="sinal"] .r11 .r11-floor-sun{opacity:.25}

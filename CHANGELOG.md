@@ -1,6 +1,10 @@
 # GB Flagship / Changelog
 
 ## V11 — 30/10/2026 · "GB RAIL IMMERSIVE"
+- V11.4 — loja dentro de um shopping: do outro lado da vitrine, o corredor do mall com pilares redondos, vitrines acesas de outras lojas (térreo e mezanino com guarda-corpo de vidro) e claraboia; à noite, as vitrines ficam quentes. Tudo fora de foco e sem marca.
+- V11.4 — piso de porcelanato polido: placas grandes com rejunte fino e leve variação de tom, reflexo do vidro antes do trilho, risco especular de cada spot e a peça em foco espelhada com mais brilho.
+- V11.4 — roçar a peça: passar o cursor (ou o dedo antes de arrastar) por cima da roupa empurra o tecido — mais nas pontas e embaixo, a peça gira um pouco no gancho e as vizinhas sentem o ar; os limites suaves mantêm a roupa inteira.
+- V11.4 — mais rápido e mais vento: a câmera sai da porta antes (0,52 s) e o travelling dura 1,6 s (1,4 s no toque); rajadas um pouco mais fortes e mais frequentes, e a próxima só sopra com os cabides parados.
 - V11.3 — roupas vivas: vizinhas em 3/4 e a peça em foco de frente; ao arrastar, cada peça gira no gancho contra o movimento e volta ao parar; a barra do tecido flexiona sem abrir costura; brisa mais presente com a arara em tela.
 - V11.3 — a loja acorda: spots do teto, cones de luz e poças no piso acendem fileira por fileira enquanto a câmera entra; sombras longas dos montantes no piso; faixa jateada no vidro; árvores num plano mais próximo da rua (parallax pelo vidro).
 - V11.3 — câmera em primeira pessoa: segurar o dedo ou o mouse inclina a câmera para a arara e o olhar segue o toque; soltar devolve.
