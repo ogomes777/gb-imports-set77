@@ -9,14 +9,15 @@ Arquivos: `gb-rail-v11.js`, `gb-rail-v11.css`, ajustes em `gb-rail-v10.js`/`.css
 | Beat | Quando | O que se vê |
 | --- | --- | --- |
 | 0. Capítulo | `#rail` entra na tela | Muro amarelo da V12 com **EM MOVIMENTO**, sem mudança. A loja já espera atrás dele, no plano aberto. |
-| 1. Porta | Os blocos do capítulo abrem (`.gb-chap.is-out`) | O batente grafite da porta enquadra a loja: parede ao fundo, piso de cimento com juntas que convergem, teto com dois trilhos de luz e paredes laterais. A arara aparece pequena, ao fundo, e a sala está com a luz baixa. Esse plano fica parado por 0,76 s. |
-| 2. Travelling | 1,9 s no desktop, 1,65 s no toque | A câmera avança (dolly), desce (crane) e fecha um pequeno arco lateral, com easing de cinema. O batente passa pela câmera e sai do quadro, e o fio amarelo GB da soleira passa por baixo dela. A luz da sala sobe um pouco antes da câmera chegar. |
+| 1. Porta | Os blocos do capítulo abrem (`.gb-chap.is-out`) | O batente claro da porta enquadra uma loja branca: parede ao fundo, piso polido com juntas que convergem, teto com dois trilhos de luz e paredes laterais. A barra está vazia, ao fundo. Esse plano fica parado por 0,76 s. |
+| 1b. A arara surge | 0,52 s depois dos blocos abrirem | Os cabides são pousados na barra um a um, da peça em foco para fora (75 ms entre pares). Cada um sobe um pouco, desce com mola curta e balança no contato. Fora de quadro, as peças já entram pousadas. |
+| 2. Travelling | 1,9 s no desktop, 1,65 s no toque | A câmera avança (dolly), desce (crane) e fecha um pequeno arco lateral, com easing de cinema e três passos curtos (a câmera sobe e desce poucos pixels, como quem anda). O batente passa pela câmera e sai do quadro, e o fio amarelo GB da soleira passa por baixo dela. A luz da sala sobe um pouco antes da câmera chegar. Ao chegar, a câmera passa 1–2% e assenta. |
 | 3. A arara ganha vida | Logo depois de assentar | Vem a primeira rajada de ar. Cada cabide balança com a própria mola, o corpo do tecido atrasa em relação ao cabide e a barra da roupa atrasa mais. |
-| 4. Exploração | Arrasto, setas, teclado, roda | Tudo continua igual à V10. A câmera acompanha cada troca com um respiro lateral e volta ao eixo. A luz de foco atrás da peça recua durante o gesto e acende quando a arara assenta. |
+| 4. Exploração | Arrasto (mouse e toque), setas, teclado, roda | Tudo continua igual à V10. Durante o arrasto a sala gira levemente contra o gesto; a arara segue 1:1 sob o dedo. A câmera acompanha cada troca com um respiro lateral e volta ao eixo. A luz de foco atrás da peça recua durante o gesto e acende quando a arara assenta. |
 | 5. Detalhe | Clique ou Enter na peça | O Object View e o FLIP da V10 continuam. A câmera da sala avança atrás do viewer. |
 | 6. Retorno | Fechar ou Esc | A câmera sai de perto da peça e recua até o plano médio, com a mesma peça, cor e foco. |
 
-O filme roda uma vez por carregamento. Qualquer intenção do visitante encurta o plano em 340 ms e é atendida na hora, sem nada ficar bloqueado: `pointerdown`, roda, tecla ou navegação. Sem capítulo (seção já na tela ao carregar, ou link direto), o filme começa quando a arara aparece.
+O filme roda uma vez por carregamento. Qualquer intenção do visitante encurta o plano em 340 ms e pousa os cabides que faltam, sem nada ficar bloqueado: `pointerdown`, toque, roda, tecla, navegação, filtro ou chamada da API `GBRail`. Sem capítulo (seção já na tela ao carregar, ou link direto), o filme começa quando a arara aparece.
 
 ## 2. O que é geometria, foto, sombra, luz e física
 
@@ -27,7 +28,8 @@ O filme roda uma vez por carregamento. Qualquer intenção do visitante encurta 
 | Batente da porta | Geometria em `z=+0,42P` | Só existe enquanto a câmera está do lado de fora (`hidden` em repouso). |
 | Roupas | **Foto real** do acervo | Recortes de `assets-map.js`, sem alteração. |
 | Sombra na parede | Imagem pré-calculada (V10) | `scripts/medir_midia_rail.py`. |
-| Contato e poça de luz no piso | Gradiente estático no plano do piso | Desenhado sob a arara. |
+| Contato no piso | Uma sombra suave por peça (`.r10-floor`) | Fica na linha do piso do plano da arara (`GBRailScene.floorY`), acompanha o balanço e some com a peça enquanto ela está no ar. |
+| Poça de luz no piso | Gradiente estático no plano do piso | Desenhada sob a arara. |
 | Luz | Gradientes estáticos | Leques dos trilhos na parede, faixa de luz no alto, luz de foco atrás da peça (opacidade por `data-phase`), queda nas bordas e nível de luz da chegada (`--r11-light`, só opacidade). |
 | Física | Molas do `GBMotion` | Três molas por cabide em cena: cabide → corpo → barra. |
 
@@ -55,8 +57,10 @@ Contrato com a V10, sem segundo relógio:
 - `GBRailScene.wind(t)`: nível da rajada.
 - `GBRailScene.rig`: rig ligado ou não.
 - `GBRail.wake()`: o palco acorda **o mesmo** loop da arara.
+- `GBRail.stageHide()` / `GBRail.stageEnter(delay)`: entrada dos cabides.
+- `GBRailScene.floorY`: linha do piso no plano da arara.
 - `GBRail.geometry`.
-- Eventos `gb:rail:navigate`, `settled`, `dragstart`, `open` e `close`, emitidos no `#railViewport`.
+- Eventos `gb:rail:navigate`, `settled`, `dragstart`, `drag`, `intent`, `open` e `close`, emitidos no `#railViewport`.
 
 ## 4. Física do tecido (`gb-rail-v10.js`)
 
