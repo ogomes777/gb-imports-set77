@@ -60,14 +60,79 @@ if(fine){
   grid?.addEventListener('pointerout',e=>{const f=e.target.closest?.('.product-frame');if(f&&!f.contains(e.relatedTarget)){f.classList.remove('is-tilt');f.style.rotate=''}},{passive:true});
 }
 
-/* ---------- 4c. a grade do catálogo dobra com a velocidade da rolagem (loop só enquanto rola) ---------- */
+/* ---------- 4c. GB CATALOG WAVE V41 | scroll-responsive cinematic wave ---------- */
+/* The original V13 skew remains the basis, with physically damped depth and
+   staggered cards. One shared GBMotion ticker; no perpetual animation.
+   Do not animate .product-frame: V14 owns its view-timeline entrance, and
+   V13 owns its pointer 3D tilt. Catalog data and events remain untouched. */
 {const grid=document.getElementById('productGrid');
-  if(grid&&M?.Ticker){let lastY=scrollY,lastT=performance.now(),target=0,cur=0,on=false;
-    const loop=()=>{target*=.86;cur+=(target-cur)*.2;grid.style.transform=Math.abs(cur)<.02?'':`skewY(${cur.toFixed(3)}deg)`;if(Math.abs(cur)<.02&&Math.abs(target)<.02){on=false;grid.style.transform='';return false}};
-    addEventListener('scroll',()=>{const t=performance.now(),dt=Math.max(8,t-lastT),v=(scrollY-lastY)/dt;lastY=scrollY;lastT=t;
-      const r=grid.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;
-      target=clamp(v*1.6,-2.4,2.4);if(!on){on=true;M.Ticker.add(loop)}},{passive:true});
-  }}
+ if(grid&&M?.Ticker){
+  const wave=new M.Spring(0,{k:116,z:.72});
+  let cards=[],active=new Set(),columns=4,on=false,lastY=scrollY,lastT=performance.now(),lastScroll=0;
+  let amplitude=0,skew=0,layoutReads=0;
+  const mobile=()=>innerWidth<780;
+  const allowed=()=>!M.Prefs.reduced&&!document.hidden&&!document.body.classList.contains('gb-experience-open');
+  const visible=()=>{const r=grid.getBoundingClientRect();return r.bottom>-90&&r.top<innerHeight+90};
+  const sync=()=>{
+   const cols=getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length;
+   columns=Math.max(1,cols);
+   cards=[...grid.querySelectorAll(':scope > .product-card')].map((el,i)=>({el,i,top:el.offsetTop}));
+  };
+  const reset=()=>{
+   grid.style.transform='';
+   grid.classList.remove('gb-wave-live');
+   for(const el of active){el.style.removeProperty('--gb-wave-y');el.style.removeProperty('--gb-wave-rot');}
+   active.clear();amplitude=skew=0;
+  };
+  const loop=(dt)=>{
+   if(!allowed()||!visible()){wave.jump(0);reset();on=false;return false}
+   if(performance.now()-lastScroll>70)wave.set(0);
+   wave.step(dt);
+   const intensity=Math.max(-1,Math.min(1,wave.x));
+   const strength=M.Prefs.lite?.55:1,amp=intensity*strength;
+   const peak=mobile()?3.7:5.25;
+   skew=amp*peak;amplitude=Math.abs(amp);
+   const roll=amp*(mobile()?.65:1.2);
+   grid.classList.add('gb-wave-live');
+   grid.style.transform=`perspective(1400px) rotateX(${roll.toFixed(3)}deg) skewY(${skew.toFixed(3)}deg) translate3d(0,${(-amp*(mobile()?3:6)).toFixed(2)}px,0)`;
+   const stage=grid.getBoundingClientRect();layoutReads++;
+   const low=-stage.top-360,high=low+innerHeight+720;
+   const next=new Set(),count=Math.max(1,columns),phase=scrollY*.010;
+   for(const item of cards){
+    if(item.top<low||item.top>high)continue; // Only the nearby visible rows receive per-card motion.
+    const row=Math.floor(item.i/count),col=item.i%count;
+    const offset=Math.sin(phase+col*1.12+row*.72)*amp*(mobile()?9:20);
+    const twist=Math.sin(phase*.55+col*.92-row*.48)*amp*(mobile()?.32:.68);
+    item.el.style.setProperty('--gb-wave-y',offset.toFixed(2)+'px');
+    item.el.style.setProperty('--gb-wave-rot',twist.toFixed(3)+'deg');
+    next.add(item.el);
+   }
+   for(const el of active)if(!next.has(el)){el.style.removeProperty('--gb-wave-y');el.style.removeProperty('--gb-wave-rot')}
+   active=next;
+   if(wave.target===0&&Math.abs(wave.x)<.004&&Math.abs(wave.v)<.018){
+    wave.jump(0);reset();on=false;return false;
+   }
+  };
+  const kick=()=>{if(!on){on=true;M.Ticker.add(loop)}};
+  const scroll=()=>{
+   const now=performance.now(),dt=Math.max(12,now-lastT),delta=scrollY-lastY;
+   lastY=scrollY;lastT=now;
+   if(!allowed()||!visible())return;
+   if(cards.length!==grid.querySelectorAll(':scope > .product-card').length)sync();
+   const velocity=delta/dt;
+   if(Math.abs(velocity)<.075)return;
+   lastScroll=now;
+   wave.set(Math.max(-1,Math.min(1,velocity*.68)));
+   kick();
+  };
+  sync();
+  addEventListener('scroll',scroll,{passive:true});
+  addEventListener('resize',sync,{passive:true});
+  if('MutationObserver'in window)new MutationObserver(()=>{reset();wave.jump(0);sync()}).observe(grid,{childList:true});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){wave.jump(0);reset()}});
+  window.GBCatalogWaveV41={get state(){return{active:on,amplitude,skew,columns,visibleCards:active.size,totalCards:cards.length,layoutReads}}};
+ }
+}
 
 /* ---------- 3. lupa da própria foto (só com mouse; o cursor continua o do sistema) ---------- */
 if(!fine)return;
