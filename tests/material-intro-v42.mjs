@@ -26,6 +26,32 @@ try {
    await p.waitForTimeout(1600);
    const during=await p.evaluate(()=>({material:GBMaterialSignatureV42.mode,frames:GBMaterialSignatureV42.frames,alive:GBGlassRibbons.opening}));
    assert(['webgl2','fallback'].includes(during.material),'material renderer not initialized');
+   const material=await p.evaluate(()=>{
+     const gb=window.GBMaterialSignatureV42;
+     const el=document.querySelector('.gb-material-tile');
+     const fallback=document.querySelector('.gb-material-static');
+     const logo=document.querySelector('.gb-material-static img');
+     return {
+       mode:gb.mode,verified:gb.verified,sample:gb.sample,buffer:gb.buffer,
+       frameCount:gb.frames,ready:gb.artworkReady,
+       size:el?.getBoundingClientRect().width,
+       fallbackDisplay:getComputedStyle(fallback).display,
+       logoLoaded:logo.complete&&logo.naturalWidth>0
+     };
+   });
+   assert(material.logoLoaded,'official GB monogram not loaded');
+   assert(material.size>170,'signature object size is invalid');
+   assert(material.mode==='fallback'||(
+     material.buffer[0]>24&&material.buffer[1]>24&&
+     (material.verified||material.fallbackDisplay!=='none')
+   ),'GPU hidden fallback without verified visible output '+JSON.stringify(material));
+   if(material.verified){
+     assert(material.sample?.buffer[0]>24,'GPU still has a 1px buffer');
+     const colors=[material.sample.center,material.sample.offset];
+     assert(colors.some(p=>p[3]>150&&Math.max(...p.slice(0,3))>90),'GPU frame appears black '+JSON.stringify(material));
+   }else{
+     assert(material.fallbackDisplay!=='none','unverified GPU hid the safe GB fallback '+JSON.stringify(material));
+   }
    await p.waitForFunction(()=>window.GBGlassRibbons?.parked,{timeout:20000});
    const parked=await p.evaluate(()=>({running:GBGlassRibbons.active,material:GBMaterialSignatureV42?.mode,heavy:document.querySelectorAll('script[src*="gb-core-"]').length}));
    assert(!parked.running,'gold ribbon kept rendering with boot');
