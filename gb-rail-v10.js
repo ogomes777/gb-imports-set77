@@ -181,7 +181,9 @@ function measure(){
   const bar=q('#railBar');
   if(bar){const u=G.sag/40*100;bar.querySelectorAll('path').forEach(p=>p.setAttribute('d',`M0 5 Q500 ${(5+2*u).toFixed(2)} 1000 5`))}
 }
-const barY=x=>{const t=clamp((G.vw*.485+x)/(G.vw*.97),0,1);return G.barTop+G.sag*4*t*(1-t)};
+// meia-largura da barra: 48,5% do palco na V10; a V11 estende a barra de parede a parede (setBarSpan)
+let barHalf=0;
+const barY=x=>{const h=barHalf||G.vw*.485,t=clamp((h+x)/(2*h),0,1);return G.barTop+G.sag*4*t*(1-t)};
 // distância foco→vizinho: em repouso os cabides se afastam o quanto a peça em foco (e as fichas) ocupam
 let gapL=0,gapR=0,shiftX=0,fScale=1;
 function computeGaps(){
@@ -567,7 +569,7 @@ window.GBRail={get state(){const it=S.list[target],v=it&&currentVariant(it);retu
   items:()=>S.list.map(it=>({id:it.id,title:it.title,family:it.family,variants:it.variants.map(v=>({id:v.id,label:v.label,productId:v.sourceId})),capabilities:it.capabilities})),
   navigate:i=>navigate(i),setFilter,
   // V11: o palco acorda o mesmo relógio da arara (rajada de vento) em vez de rodar um segundo loop
-  wake:()=>{if(!reduced()&&!lite())kick()},stageHide,stageEnter,get entering(){return entering},get geometry(){return{...G}},chooseVariant:i=>chooseVariant(S.open?S.current:S.list[target],i,'api'),open:()=>openViewer(S.list[target],{from:cards[target]}),close:closeViewer,counts:CAT.counts};
+  wake:()=>{if(!reduced()&&!lite())kick()},setBarSpan:h=>{barHalf=h>0?h:0;layout()},barY:x=>barY(x),stageHide,stageEnter,get entering(){return entering},get geometry(){return{...G}},chooseVariant:i=>chooseVariant(S.open?S.current:S.list[target],i,'api'),open:()=>openViewer(S.list[target],{from:cards[target]}),close:closeViewer,counts:CAT.counts};
 
 /* ============================== MONTAGEM ============================== */
 viewport.classList.add('r10');

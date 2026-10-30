@@ -91,7 +91,10 @@ const Scene={
     // letreiro GB no alto da parede: visível ao entrar, sai de quadro para cima quando a câmera chega
     wall.style.setProperty('--sign-y',(Oy-(Oy+40)/f-Yc).toFixed(1)+'px');
     // hastes da arara presas no teto (plano z=0, y=Yc)
+    // barra de parede a parede (encaixada nas laterais, sem ponta solta) com duas hastes no teto a 6% das bordas
+    vp.style.setProperty('--r11-bar-l',(W/2-Xr).toFixed(1)+'px');vp.style.setProperty('--r11-bar-w',(2*Xr).toFixed(1)+'px');R.setBarSpan(Xr);
     rods.style.setProperty('--ceil',Yc.toFixed(1)+'px');
+    const rx=W*.44;rods.style.setProperty('--rod-x',rx.toFixed(1)+'px');rods.style.setProperty('--rod-h',(R.barY(rx)-Yc+2).toFixed(1)+'px');
     // batente da porta: abertura ~80% do quadro na chegada, fora de quadro quando a câmera passa
     const sp=P/(P-Zp+C0),Xp=.41*W/sp,Yl=Oy-(Oy-.04*H)/sp;
     portal.style.setProperty('--xp',Xp.toFixed(1)+'px');portal.style.setProperty('--yl',Yl.toFixed(1)+'px');portal.style.setProperty('--yf',Yf.toFixed(1)+'px');
@@ -163,7 +166,9 @@ let seed=0x6b1d;const rand=()=>(seed=(seed*1103515245+12345)>>>0)/4294967296;
 const Wind={
   g:null,timer:0,on:false,lastPoke:0,
   level(t){
-    const g=this.g;if(!g)return 0;const u=(t-g.t0)/g.dur;if(u<0)return 0;
+    // rajada criada no meio de um quadro pode ter t0 depois do carimbo do quadro: devolve um valor mínimo
+    // (não zero) para o relógio da arara não parar antes de ela começar — senão a rajada fica presa
+    const g=this.g;if(!g)return 0;const u=(t-g.t0)/g.dur;if(u<0)return 1e-4;
     if(u>=1){this.g=null;this.next();return 0}
     const s=Math.sin(Math.PI*u);return g.peak*s*s;
   },

@@ -47,8 +47,9 @@
 /* ---------- Arara: plano z=0, mesma caixa do palco; hastes até o teto (sem corda solta) ---------- */
 .r11-rack{position:absolute;inset:0;z-index:1;pointer-events:auto}
 .r11-rods{position:absolute;inset:0;pointer-events:none}
-.r11-rod{position:absolute;top:var(--ceil,-120px);height:calc(var(--bar-top,76px) - var(--ceil,-120px) + 3px);width:3px;background:linear-gradient(90deg,#55565a,#b0b0ac 45%,#4b4c50);border-radius:2px;box-shadow:4px 0 7px rgba(0,0,0,.08)}
-.r11-rod-l{left:calc(1.5% - 1px)}.r11-rod-r{right:calc(1.5% - 1px)}
+.r11-rod{position:absolute;top:var(--ceil,-120px);height:var(--rod-h,200px);width:3px;background:linear-gradient(90deg,#55565a,#b0b0ac 45%,#4b4c50);border-radius:2px;box-shadow:4px 0 7px rgba(0,0,0,.08)}
+.r11-rod-l{left:calc(50% - var(--rod-x,40%) - 1.5px)}.r11-rod-r{left:calc(50% + var(--rod-x,40%) - 1.5px)}
+.r11 .rail-bar{left:var(--r11-bar-l,1.5%);width:var(--r11-bar-w,97%)}
 .r11 .rail-bar-metal{stroke-width:4.2px}
 .r11 .rail-bar-shadow{stroke:rgba(0,0,0,.12);stroke-width:7px;transform:translateY(14px);filter:blur(3px)}
 /* a arara esmaece só na faixa da borda (máscara estática da camada inteira): peças cortadas pelo quadro não

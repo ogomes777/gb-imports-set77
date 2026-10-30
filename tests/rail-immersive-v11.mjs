@@ -56,7 +56,9 @@ async function film(browser,w,h){
   const c=cam.cam,firstOut=c.findIndex(x=>/is-out/.test(x.chap)),firstMove=c.findIndex((x,i)=>i>0&&x.phase==='dolly'&&x.s-c[i-1].s>1e-5),live=c.findIndex(x=>x.phase==='live');
   check(vp,'V11: a câmera só anda depois que os blocos do capítulo abrem (sem intro concorrente)',firstOut>=0&&firstMove>firstOut,`out@${c[firstOut]?.t|0}ms move@${c[firstMove]?.t|0}ms`);
     // salto = variação de escala por milissegundo acima do dobro do pico do easing (independe da taxa de quadros)
-  const dolly=c.slice(firstMove,live>0?live:undefined),jumps=dolly.slice(1).map((x,i)=>(x.s-dolly[i].s)/Math.max(1,x.dt));
+  // inclinação medida em janelas de ≥40 ms (o rAF de um navegador sem GPU varia muito quadro a quadro)
+  const dolly=c.slice(firstMove,live>0?live:undefined),jumps=[];
+  for(let i=1;i<dolly.length;i++){let j=i-1;while(j>0&&dolly[i].t-dolly[j].t<40)j--;jumps.push((dolly[i].s-dolly[j].s)/Math.max(1,dolly[i].t-dolly[j].t))}
   // ao chegar, a câmera passa 1–2% e assenta (sem degrau): o repouso exato é conferido no plano final
   check(vp,'V11: dolly contínuo até o plano final (escala só cresce, sem salto)',live>0&&dolly.length>20&&Math.min(...jumps)>-1e-6&&Math.max(...jumps)<.0012&&c[live].s>.995&&c[live].s<1.02,`frames ${dolly.length} maior passo ${(Math.max(...jumps)*1000).toFixed(3)}/s`);
   const dur=live>0?c[live].t-c[firstMove].t:0;
