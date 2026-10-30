@@ -183,3 +183,102 @@
 @media(prefers-reduced-motion:reduce){
  #gbRibbonBoot.gb-puff-v43 .gb-material-stage{display:none!important}
 }
+
+
+/* GB V44 | FIRST VISIBLE FRAME = REAL PLUSH, NEVER THE FLAT ICON.
+   No gold ribbons. Background is optically dark, with no permanent GPU animation.
+   The opening visual is the actual user-provided PlushTile WebGL render.
+*/
+#gbRibbonBoot.gb-puff-v44,
+#gbRibbonBoot.gb-puff-v44:not(.is-gateway),
+#gbRibbonBoot.gb-puff-v44 .gb-ribbon-glass {
+  background-color:#050506!important;
+  background-image:
+    radial-gradient(ellipse 52% 51% at 50% 48%,rgba(26,28,33,.76) 0%,rgba(12,13,16,.40) 43%,transparent 75%),
+    radial-gradient(ellipse 84% 85% at 57% 45%,#0d0d10,#050506 74%,#020203)!important;
+}
+#gbRibbonBoot.gb-puff-v44 .gb-ribbon-glass:before,
+#gbRibbonBoot.gb-puff-v44 .gb-ribbon-glass:after,
+#gbRibbonBoot.gb-puff-v44 .gb-ribbon-glass-specular,
+#gbRibbonBoot.gb-puff-v44 .gb-ribbon-glass-depth{
+  display:none!important;
+}
+#gbRibbonBoot.gb-puff-v44 .gb-material-stage,
+#gbRibbonBoot.gb-puff-v44.is-preparing-entry .gb-material-stage {
+  display:block!important;
+  opacity:1!important;
+  transform:none!important;
+  visibility:visible!important;
+  filter:none!important;
+  animation:none!important;
+  transition:none!important;
+}
+/* The flat image is intentionally excluded from every visible state,
+   including disabled WebGL. In that failure case the background dissolves
+   into the working shop, not a fake flat GB puff. */
+#gbRibbonBoot.gb-puff-v44 .gb-plush-fallback {
+  display:none!important;opacity:0!important;visibility:hidden!important;
+}
+#gbRibbonBoot.gb-puff-v44 .gb-plush-react-root {
+  position:absolute;inset:0;z-index:3;
+  opacity:0;
+  transform:translate3d(0,28px,0) scale(.865);
+  transform-origin:50% 50%;
+  filter:blur(12px);
+  transition:transform .82s cubic-bezier(.18,.85,.18,1),
+             filter .7s cubic-bezier(.19,.76,.21,1),
+             opacity .56s cubic-bezier(.18,.8,.18,1);
+  will-change:transform,opacity,filter;
+}
+#gbRibbonBoot.gb-puff-v44 .gb-material-stage.gb-plush-ready .gb-plush-react-root{
+  opacity:1;filter:blur(0);
+  transform:translate3d(0,0,0) scale(1);
+}
+#gbRibbonBoot.gb-puff-v44 .gb-material-aura{
+  width:min(88vw,900px);
+  background:
+     radial-gradient(ellipse,rgba(230,222,205,.045),rgba(180,180,196,.012) 49%,transparent 74%);
+  opacity:1;
+}
+#gbRibbonBoot.gb-puff-v44 .gb-material-stage::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 23% 27%,rgba(247,241,227,.048) 0 .7px,transparent 1px),
+    radial-gradient(circle at 78% 38%,rgba(245,241,224,.038) 0 .8px,transparent 1px),
+    radial-gradient(circle at 49% 73%,rgba(247,241,224,.022) 0 .65px,transparent 1px);
+  background-size:211px 167px,263px 221px,187px 243px;
+  opacity:.43;z-index:0;
+}
+#gbRibbonBoot.gb-puff-v44.is-gateway .gb-material-stage{
+  display:block!important;
+  pointer-events:none!important;
+}
+#gbRibbonBoot.gb-puff-v44.is-gateway .gb-plush-react-root{
+  opacity:0!important;
+  transform:translate3d(0,0,0) scale(2.9)!important;
+  filter:blur(13px)!important;
+  transition:transform .54s cubic-bezier(.26,.75,.22,1),
+             opacity .42s ease-out .10s,
+             filter .48s ease-in!important;
+}
+#gbRibbonBoot.gb-puff-v44.is-gateway{
+  background:#050506!important;
+  opacity:0!important;
+  transition:opacity .56s ease-out .12s!important;
+}
+@media(max-width:760px){
+  #gbRibbonBoot.gb-puff-v44 .gb-plush-react-root{
+    transform:translate3d(0,18px,0) scale(.89);
+    filter:blur(8px);
+  }
+  #gbRibbonBoot.gb-puff-v44.is-gateway .gb-plush-react-root{
+    transform:translate3d(0,0,0) scale(2.25)!important;
+    filter:blur(8px)!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #gbRibbonBoot.gb-puff-v44 .gb-plush-react-root,
+  #gbRibbonBoot.gb-puff-v44.is-gateway .gb-plush-react-root{
+    transition:none!important;animation:none!important;filter:none!important;
+  }
+}
