@@ -132,13 +132,35 @@ function swingTags(box,sel){
     t.animate([{transform:'rotate(0)'},{transform:`rotate(${amp}deg)`},{transform:`rotate(${-amp*.55}deg)`},{transform:`rotate(${amp*.25}deg)`},{transform:'rotate(0)'}],{duration:on?780:620,easing:'ease-out'})});
 }
 // troca de mídia sem piscar: decodifica antes, cruza as duas camadas; se falhar, mantém a anterior
-async function swapFigure(host,html,{dir=0}={}){
+// troca de COR em onda (V11): a foto da nova cor sobe da barra até a gola numa frente ondulada; logo abaixo da
+// frente, uma faixa de luz feita da própria foto nova (só acende onde há tecido, nunca um retângulo). A foto
+// antiga fica por baixo até a onda passar. Polígono em "em" no espaço do cabide: vale na arara e no viewer.
+const waves=new WeakMap();
+function colorWave(host,old,next,box,onDone){
+  waves.get(host)?.finish();
+  const glow=next.cloneNode(true);glow.classList.add('hg-glow','is-leaving');glow.setAttribute('aria-hidden','true');qa('img',glow).forEach(i=>i.alt='');
+  old.classList.add('is-leaving');host.append(next,glow);
+  const x0=box.minX-.3,x1=box.maxX+.3,yb=box.maxY+.32,top=-.4,band=.075,N=30,t0=performance.now(),dur=1050;
+  const edge=(Y,t,rev)=>{const p=[];for(let k=0;k<=N;k++){const x=rev?x0+(x1-x0)*k/N:x1-(x1-x0)*k/N;
+    p.push(`${x.toFixed(3)}em ${(Y+.022*Math.sin(x*13+t*6.5)+.011*Math.sin(x*29-t*9)).toFixed(3)}em`)}return p};
+  let done=false;
+  const finish=()=>{if(done)return;done=true;old.remove();glow.remove();next.style.clipPath='';waves.delete(host);onDone?.()};
+  const frame=()=>{if(done)return false;const u=clamp((performance.now()-t0)/dur,0,1),e=.5-.5*Math.cos(Math.PI*u),Y=yb+(top-yb)*e,t=u*dur/1000;
+    next.style.clipPath=`polygon(${x0}em ${yb+1}em,${x1}em ${yb+1}em,${edge(Y,t).join(',')})`;
+    glow.style.clipPath=`polygon(${edge(Y,t).join(',')},${edge(Y+band,t,true).join(',')})`;
+    glow.style.opacity=(Math.sin(Math.PI*u)*.95).toFixed(3);
+    if(u>=1){finish();return false}};
+  frame();waves.set(host,{finish});M.Ticker.add(frame);
+}
+async function swapFigure(host,html,{dir=0,wave=null,onDone}={}){
   const tmp=document.createElement('span');tmp.innerHTML=html;const next=tmp.firstElementChild;
   const imgs=qa('img',next);
   try{await Promise.all(imgs.map(i=>{if(i.dataset.src){i.src=i.dataset.src;i.removeAttribute('data-src')}return i.decode?i.decode():Promise.resolve()}))}
   catch{announce.textContent='Não foi possível carregar esta foto agora. A peça anterior foi mantida.';return false}
-  const old=host.querySelector(':scope>.hg');
-  if(!old||reduced()||!next.animate){old?.remove();host.prepend(next);return true}
+  waves.get(host)?.finish();
+  const old=host.querySelector(':scope>.hg:not(.is-leaving)')||host.querySelector(':scope>.hg');
+  if(!old||reduced()||!next.animate){qa(':scope>.hg',host).forEach(h=>h.remove());host.prepend(next);onDone?.();return true}
+  if(wave){colorWave(host,old,next,wave,onDone);return true}
   next.classList.add('is-entering');host.prepend(next);
   old.classList.add('is-leaving');
   old.animate([{opacity:1},{opacity:0}],{duration:240,easing:'ease-out',fill:'forwards'}).finished.then(()=>old.remove()).catch(()=>old.remove());
@@ -206,10 +228,10 @@ function buildRail(){
   track.innerHTML=S.list.map((it,i)=>{
     const v=currentVariant(it),fig=figure(it,v,'combo',{lazy:true});
     const n=it.variants.length>1?`, ${it.variants.length} cores fotografadas`:'';
-    return `<div class="r10-item" data-rail-item="${i}" data-mode="${fig.mode}" style="--minx:${f4(fig.minX)}em;--maxx:${f4(fig.maxX)}em;--maxy:${f4(fig.maxY)}em"><i class="r10-floor" aria-hidden="true"></i><button type="button" class="r10-hit" data-rail-hit="${i}" tabindex="-1" aria-label="${esc(it.title)} — ${fmt(i)} de ${S.list.length}, ${esc(it.label.toLowerCase())}${n}"></button><span class="r10-swing"><span class="r10-turn">${fig.html}</span></span></div>`;
+    return `<div class="r10-item" data-rail-item="${i}" data-mode="${fig.mode}" style="--minx:${f4(fig.minX)}em;--maxx:${f4(fig.maxX)}em;--maxy:${f4(fig.maxY)}em"><i class="r10-floor" aria-hidden="true"></i><button type="button" class="r10-hit" data-rail-hit="${i}" tabindex="-1" aria-label="${esc(it.title)} — ${fmt(i)} de ${S.list.length}, ${esc(it.label.toLowerCase())}${n}"></button><span class="r10-swing"><span class="r10-turn">${fig.html}</span></span><span class="r10-refl" aria-hidden="true"></span></div>`;
   }).join('');
-  cards=qa('.r10-item',track).map(el=>({el,floor:el.querySelector('.r10-floor'),swing:el.querySelector('.r10-swing'),turn:el.querySelector('.r10-turn'),hit:el.querySelector('.r10-hit'),h:0,hydrated:false,vis:true,minX:parseFloat(el.style.getPropertyValue('--minx')),maxX:parseFloat(el.style.getPropertyValue('--maxx'))}));
-  lastWin=-99;entering=0;
+  cards=qa('.r10-item',track).map(el=>({el,floor:el.querySelector('.r10-floor'),refl:el.querySelector('.r10-refl'),swing:el.querySelector('.r10-swing'),turn:el.querySelector('.r10-turn'),hit:el.querySelector('.r10-hit'),h:0,hydrated:false,vis:true,minX:parseFloat(el.style.getPropertyValue('--minx')),maxX:parseFloat(el.style.getPropertyValue('--maxx'))}));
+  lastWin=-99;entering=0;reflCard=null;
 }
 function renderCard(i,html){
   const it=S.list[i],card=cards[i];if(!card)return null;const fig=figure(it,currentVariant(it),'combo');
@@ -221,7 +243,7 @@ function renderCard(i,html){
 // da silhueta nem cabide vazio entrando pela borda enquanto a foto chega — V11, bug da borda direita)
 function arm(card){
   const imgs=qa('.hg:not(.is-leaving) .hg-fig img',card.el),ok=i=>i.getAttribute('src')&&i.complete&&i.naturalWidth>0;
-  const check=()=>{const on=imgs.length>0&&imgs.every(ok);card.el.classList.toggle('is-ready',on);return on};
+  const check=()=>{const on=imgs.length>0&&imgs.every(ok);card.el.classList.toggle('is-ready',on);if(on&&card===cards[target]&&!card.reflOn)reflect(card);return on};
   if(check())return;
   imgs.forEach(i=>{if(!ok(i))i.addEventListener('load',()=>{if(card.el.contains(i))check()},{once:true})});
 }
@@ -245,7 +267,7 @@ const seedOf=str=>{let h=2166136261;for(const c of String(str))h=Math.imul(h^c.c
 function physOf(i){
   const card=cards[i];if(card.ph)return card.ph;
   const it=S.list[i],f=FAM[it?.family]||FAM.top,r=seedOf(it?.id||i),r2=seedOf((it?.id||i)+'~'),k=f.k*(.88+r*.24);
-  return card.ph={f,th:new M.Spring(0,{k,z:.4+r2*.08}),fi:new M.Spring(0,{k:k*.58,z:.52}),he:new M.Spring(0,{k:k*.38,z:.58}),
+  return card.ph={f,th:new M.Spring(0,{k,z:.56+r2*.08}),fi:new M.Spring(0,{k:k*.58,z:.64}),he:new M.Spring(0,{k:k*.38,z:.7}),
     w1:1.05+r*.55,w2:2.2+r2*.8,w3:4.6+r*1.4,p1:r*6.283,p2:r2*6.283,p3:(r+r2)*3.14};
 }
 const rigOn=()=>!reduced()&&!lite()&&window.GBRailScene?.rig!==false;
@@ -302,21 +324,30 @@ function layout(){
     const op=(a>R-.6?clamp((R+.6-a)/1.2,0,1):1)*(ld?ld.alpha:1);
     card.el.style.opacity=op<1?op.toFixed(3):'1';
     // o cabide balança a partir do gancho; o tecido acompanha com atraso (inércia do pano); a barra atrasa mais
-    const P=physOf(i),th=P.th.x,fi=P.fi.x-th,he=P.he.x-P.fi.x;
+    // limites de pano de verdade: o cabide não passa de ~4,5° (kit em dois cabides gira quase rígido, senão a
+    // bermuda descola do gancho), o corpo atrasa no máximo ~2° e a barra só se solta com vento — no arrasto ela
+    // acompanha o corpo, para a peça nunca parecer cortada ao meio
+    const P=physOf(i),kit=card.el.dataset.mode==='kit',lim=kit?1.4:4.5;
+    // limite suave (tanh): o pano desacelera perto do máximo em vez de bater num batente
+    const soft=(v,l)=>l*Math.tanh(v/l),calm=dragging?0:1-clamp(Math.abs(pos.v)/.5,0,1);
+    const th=soft(P.th.x*(kit?.32:1),lim),fi=soft(P.fi.x-P.th.x,2)*(kit?.4:1),he=soft((P.he.x-P.fi.x)*.7,1.1)*calm;
     card.swing.style.transform=Math.abs(th)>.01?`rotate(${th.toFixed(3)}deg)`:'';
     // sombra de contato no piso (V11): fica no chão sob a peça, acompanha o balanço e some com ela no ar
-    if(floorY&&card.floor){const fy=(floorY-y)/s,fx=-th*.012*G.gw;card.floor.style.transform=`translate3d(calc(-50% + ${fx.toFixed(1)}px),${fy.toFixed(1)}px,0)`}
+    if(floorY&&card.floor){const fy=(floorY-y)/s,fx=-th*.012*G.gw;card.floor.style.transform=`translate3d(calc(-50% + ${fx.toFixed(1)}px),${fy.toFixed(1)}px,0)`;
+      // reflexo no piso polido: a mesma foto espelhada sobre a linha do piso (só a peça em foco — barato e fiel)
+      if(i===target&&!card.reflOn&&window.GBRailScene?.reflect)reflect(card);
+      if(card.reflOn)card.refl.style.transform=`translate3d(0,${(2*fy).toFixed(1)}px,0) scaleY(-1) rotate(${th.toFixed(3)}deg)`}
     card.turn.style.transform=`perspective(${m?700:950}px) rotateY(${ry.toFixed(2)}deg)`;
     const fig=card.fig||(card.fig=qa('.hg-fig,.hg-shadow',card.el));
     const tr=Math.abs(fi)>.01?`rotate(${(fi*.9).toFixed(3)}deg)`:'';fig.forEach(f=>f.style.transform=tr);
     const live=rig&&a<=rigR+.5;if(live!==!!card.rig){card.rig=live;card.el.classList.toggle('is-rig',live)}
-    if(live){const hem=card.hem||(card.hem=qa('.hg-bone-b',card.el)),ht=Math.abs(he)>.01?`rotate(${(he*1.5).toFixed(3)}deg)`:'';hem.forEach(b=>b.style.transform=ht)}
+    if(live){const hem=card.hem||(card.hem=qa('.hg-bone-b',card.turn)),ht=Math.abs(he)>.01?`rotate(${he.toFixed(3)}deg)`:'';hem.forEach(b=>b.style.transform=ht)}
   });
   const bar=q('#railProgress');if(bar)bar.style.transform=`scaleX(${((clamp(p,0,S.list.length-1)+1)/S.list.length).toFixed(4)})`;
 }
 function loop(dt,tms){
   if(!dragging)pos.step(dt);
-  swing.set(clamp(-pos.v*5.2,-14,14));swing.step(dt);lag.set(swing.x);lag.step(dt);
+  swing.set(clamp(-pos.v*2.4,-5,5));swing.step(dt);lag.set(swing.x);lag.step(dt);
   const alive=physics(dt,(tms||performance.now())/1000)||entering>0;
   const rest=!dragging&&Math.abs(pos.target-pos.x)<=.02;spread.set(rest?1:0);spread.step(dt);
   // recentramento da composição só em repouso: sob o dedo a arara anda 1:1, sem deriva
@@ -334,9 +365,20 @@ function loop(dt,tms){
 }
 // foco do teclado acompanha a peça em foco; se ela ainda está longe (Home/End), o foco espera na arara
 function keyFocus(){const c=cards[target];if(c&&!c.el.hidden)c.hit.focus({preventScroll:true});else viewport.focus({preventScroll:true})}
-let settledAt=-1;
+let settledAt=-1,reflCard=null;
+// espelho da peça em foco no piso (V11): cópia das fotos da própria peça, sem gancho nem sombra, sem rig
+function reflect(card){
+  const want=window.GBRailScene?.reflect&&!lite()?card:null;
+  if(reflCard&&reflCard!==want){reflCard.reflOn=false;reflCard.refl.classList.remove('on');reflCard.refl.innerHTML='';reflCard.reflSrc=''}
+  reflCard=want;if(!want)return;
+  const fig=want.turn.querySelector('.hg:not(.is-leaving) .hg-fig'),src=fig?.querySelector('img')?.getAttribute('src')||'';
+  if(!fig||!src||!want.el.classList.contains('is-ready'))return;
+  if(want.reflSrc!==src){const c=fig.cloneNode(true);c.removeAttribute('style');qa('img',c).forEach(i=>i.alt='');qa('[style*="rotate"]',c).forEach(e=>e.style.transform='');
+    want.refl.innerHTML='';const inn=document.createElement('span');inn.className='r10-refl-in';inn.appendChild(c);want.refl.appendChild(inn);want.reflSrc=src}
+  want.reflOn=true;want.refl.classList.add('on');
+}
 const emit=(n,detail)=>viewport.dispatchEvent(new CustomEvent('gb:rail:'+n,{bubbles:true,detail}));
-function onSettled(){if(settledAt!==target&&!S.open){settledAt=target;emit('settled',{index:target})}setPhase(S.open?'viewer':'focused');const it=S.list[target];if(it&&!railTags&&!dragging)mountRailTags(it);if(S.input==='keyboard'&&viewport.contains(document.activeElement)&&document.activeElement!==cards[target]?.hit&&!document.activeElement.closest('.gb-tags'))keyFocus()}
+function onSettled(){if(settledAt!==target&&!S.open){settledAt=target;emit('settled',{index:target})}if(cards[target]&&(reflCard!==cards[target]||!cards[target].reflOn))reflect(cards[target]);setPhase(S.open?'viewer':'focused');const it=S.list[target];if(it&&!railTags&&!dragging)mountRailTags(it);if(S.input==='keyboard'&&viewport.contains(document.activeElement)&&document.activeElement!==cards[target]?.hit&&!document.activeElement.closest('.gb-tags'))keyFocus()}
 function kick(){
   if(reduced()){pos.jump(target);swing.jump(0);lag.jump(0);spread.jump(1);shift.jump(shiftX);cards.forEach(c=>{c.h=c===cards[hoverIdx]?1:0;if(c.ph){c.ph.th.jump(0);c.ph.fi.jump(0);c.ph.he.jump(0)}});hydrate();layout();onSettled();return}
   if(!running){running=true;railMoving=true;track.classList.add('is-moving');M.Ticker.add(loop)}
@@ -385,7 +427,7 @@ async function chooseVariant(it,i,scope){
   const ri=S.list.indexOf(it),card=cards[ri];
   // a ficha responde na hora; a roupa troca quando a foto nova estiver decodificada
   if(railTags&&ri===target)swingTags(railTags,i);
-  if(card){const ok=await swapFigure(card.turn,figure(it,v,'combo').html,{dir});if(!ok){variantSel.set(it.id,prev);if(railTags&&ri===target)swingTags(railTags,prev);return}renderCard(ri,false);card.fig=null;card.hem=null;card.hydrated=true;card.el.classList.add('is-ready');if(!reduced()){swing.v+=dir*12;physOf(ri).th.v+=dir*26;physOf(ri).fi.v+=dir*14}kick()}
+  if(card){const fg=figure(it,v,'combo'),ok=await swapFigure(card.turn,fg.html,{dir,wave:fg,onDone:()=>{card.fig=null;card.hem=null;if(reflCard===card)reflect(card)}});if(!ok){variantSel.set(it.id,prev);if(railTags&&ri===target)swingTags(railTags,prev);return}renderCard(ri,false);card.fig=null;card.hem=null;card.hydrated=true;card.el.classList.add('is-ready');if(!reduced()){swing.v+=dir*3;physOf(ri).th.v+=dir*7;physOf(ri).fi.v+=dir*5}kick()}
   if(ri===target)updateCaptionOnly(it);
   if(S.open&&S.current===it){await drawViewer({dir,variantOnly:true});}
   announce.textContent=`${it.title}: cor ${v.label.toLowerCase()} selecionada.`;
@@ -416,7 +458,8 @@ viewport.addEventListener('keydown',e=>{
 });
 // arrasto 1:1 na área livre; fichas, botões e legenda não iniciam arrasto; gesto vertical libera a rolagem
 M.drag(viewport,{axis:'x',ignore:'.rail-controls,.gb-tags,.r10-caption,.rail-bottom button',
-  onStart(){dragging=true;dragStart=pos.x;setPhase('drag');settledAt=-1;if(railTags){retractTags(railTags);railTags=null}kick();emit('dragstart',{})},
+  onStart(){dragging=true;dragStart=pos.x;setPhase('drag');settledAt=-1;cards.forEach(c=>c.hem?.forEach(b=>b.style.transform=''));   // a barra do tecido trava no mesmo instante em que o dedo pega a arara
+if(railTags){retractTags(railTags);railTags=null}kick();emit('dragstart',{})},
   onMove(dx){const max=S.list.length-1,step=G.S0;let p=dragStart-dx/step;if(p<0)p*=.3;else if(p>max)p=max+(p-max)*.3;pos.v=(p-pos.x)*60;pos.x=p;pos.target=p;emit('drag',{v:pos.v});if(reduced()){hydrate();layout()}},
   onEnd(v){dragging=false;const step=G.S0,proj=pos.x-clamp(v/step*.18,-2.2,2.2);target=clamp(Math.round(proj),0,S.list.length-1);pos.set(target);pos.v=-v/step*.35;setPhase('settling');computeGaps();updateInfo();kick();emit('navigate',{index:target,input:'drag'})}
 });
@@ -494,12 +537,12 @@ async function drawViewer({dir=0,entry=false,variantOnly=false}={}){
   document.dispatchEvent(new CustomEvent('gb:object-product',{detail:{product:p,item:it.id,variant:v.id,view:S.view,orientation:S.orientation,study:!!it.study,photo:!it.study}}));
   if(it.study){vHost.innerHTML=`<div class="r10-study">${productMedia(p,S.view)}</div>`;vTags.innerHTML=''}
   else{
-    const ov=S.orientation!=='front'&&caps.refs?.[S.orientation],html=(ov?figure(it,{...v,media:{combo:ov}},'combo'):figure(it,v,S.view)).html;fitViewer();
+    const ov=S.orientation!=='front'&&caps.refs?.[S.orientation],fg=ov?figure(it,{...v,media:{combo:ov}},'combo'):figure(it,v,S.view),html=fg.html;fitViewer();
     // fichas primeiro (síncrono): nunca sobra ficha da peça anterior enquanto a foto nova carrega
     if(!variantOnly||!vTags.firstElementChild){vTags.innerHTML=tagsHTML(it,variantSel.get(it.id),'viewer');if(entry)dropTags(vTags.firstElementChild)}
     else swingTags(vTags.firstElementChild,variantSel.get(it.id));
     if(entry||!vHost.firstElementChild){vHost.innerHTML=html;await Promise.all(qa('img',vHost).map(i=>i.decode?.().catch(()=>{})));}
-    else await swapFigure(vHost,html,{dir});
+    else await swapFigure(vHost,html,{dir,wave:variantOnly?fg:null});
     vSwing.v+=dir*(reduced()?0:26)+(entry&&!reduced()?14:0);vKick();
   }
 }

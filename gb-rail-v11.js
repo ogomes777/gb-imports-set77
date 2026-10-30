@@ -54,21 +54,31 @@ const Perf={
 /* ============================== Scene ============================== */
 const el=(cls,html='')=>{const d=document.createElement('div');d.className=cls;d.setAttribute('aria-hidden','true');d.innerHTML=html;return d};
 const room=el('r11-room');
-const wall=el('r11-plane r11-wall',`<i class="r11-wall-wash"></i><i class="r11-focus-light"></i><span class="r11-sign"><img src="./assets/brand/gb-monograma-preto.svg" alt="" width="120" height="80" decoding="async"></span><i class="r11-base"></i>`);
+// V11.2 vitrine de vidro: o fundo e as laterais são caixilhos de vidro; atrás deles, a rua em luz de dia
+// (cidade fora de foco, sol baixo). O piso atravessa o vidro e continua lá fora — a câmera vê o chão seguir.
+const out=el('r11-plane r11-out','<i class="r11-sky"></i><i class="r11-sun"></i><i class="r11-city"></i><i class="r11-trees"></i>');
+const glassKids='<i class="r11-mullions"></i><i class="r11-sheen"></i><i class="r11-head"></i><i class="r11-base"></i>';
+const wall=el('r11-plane r11-wall r11-glass',`${glassKids}<i class="r11-focus-light"></i><span class="r11-sign"><img src="./assets/brand/gb-monograma-preto.svg" alt="" width="120" height="80" decoding="async"></span>`);
 const ceil=el('r11-plane r11-ceil','<i class="r11-track r11-track-l"></i><i class="r11-track r11-track-r"></i>');
-const sideL=el('r11-plane r11-side r11-side-l'),sideR=el('r11-plane r11-side r11-side-r');
-const floor=el('r11-plane r11-floor','<i class="r11-floor-pool"></i><i class="r11-floor-contact"></i>');
+const sideL=el('r11-plane r11-side r11-glass r11-side-l',glassKids),sideR=el('r11-plane r11-side r11-glass r11-side-r',glassKids);
+const floor=el('r11-plane r11-floor','<i class="r11-floor-pool"></i><i class="r11-floor-sun"></i>');
+// silhuetas da cidade lá fora: blocos determinísticos, baixo contraste (fora de foco), alturas e larguras variadas
+(()=>{const city=out.querySelector('.r11-city');let r=7;const rnd=()=>(r=(r*9301+49297)%233280)/233280;let x=0,html='';
+  while(x<100){const w=3+rnd()*7,h=12+rnd()*30,tone=rnd();html+=`<b style="left:${x.toFixed(2)}%;width:${w.toFixed(2)}%;height:${h.toFixed(1)}%;--t:${tone.toFixed(2)}"></b>`;x+=w+rnd()*1.6}
+  city.innerHTML=html;
+  const trees=out.querySelector('.r11-trees');let t='';for(let k=0;k<9;k++){const l=rnd()*96,w=4+rnd()*6;t+=`<b style="left:${l.toFixed(1)}%;width:${w.toFixed(1)}%;height:${(w*1.7).toFixed(1)}%"></b>`}trees.innerHTML=t;})();
 const rack=document.createElement('div');rack.className='r11-rack';
 const rods=el('r11-rods','<i class="r11-rod r11-rod-l"></i><i class="r11-rod r11-rod-r"></i>');
 const portal=el('r11-portal','<i class="r11-jamb r11-jamb-l"></i><i class="r11-jamb r11-jamb-r"></i><i class="r11-lintel"></i><i class="r11-sill"></i>');
-const atmo=el('r11-atmo');
+const atmo=el('r11-atmo','<i class="r11-dim"></i>'),atmoDim=atmo.firstElementChild;
 const Scene={
   W:0,H:0,P:1000,Oy:300,Dw:360,Dn:420,Zp:420,C0:550,
   build(){
     const bar=document.getElementById('railBar'),items=document.getElementById('railItems');
     // a arara (barra + cabides) muda de pai mas não de lugar: o plano z=0 tem o mesmo tamanho do palco
     rack.append(rods,bar,items);
-    room.append(wall,ceil,sideL,sideR,floor,rack,portal);
+    // ordem de pintura: rua → piso (o trecho de fora aparece pelo vidro) → vidro → teto → laterais → arara → porta
+    room.append(out,floor,wall,ceil,sideL,sideR,rack,portal);
     vp.prepend(room);room.after(atmo);
     vp.classList.add('r11');vp.dataset.stage=Perf.tier;
   },
@@ -76,15 +86,25 @@ const Scene={
     const g=R.geometry,W=vp.clientWidth,H=vp.clientHeight;if(!W||!H||!g.gw)return false;
     const P=Math.round(clamp(.55*W+.6*H,620,1500)),Oy=g.barTop+g.gw*.62;
     const Dw=.36*P,Zp=.42*P,C0=(g.m?.5:.55)*P,Dn=Math.min(.9*P,C0+.32*P),f=P/(P+Dw);
-    const J=g.barTop+g.gw*1.5;                 // encontro parede/piso logo abaixo da barra das roupas mais longas
-    const Yf=Oy+(J-Oy)/f,Yc=Oy-(Oy+14)/f,Xr=W/2*.97/f,L=Dn+Dw;
-    Object.assign(this,{W,H,P,Oy,Dw,Dn,Zp,C0,f,Yf,Yc,Xr,L});
+    // piso no plano da arara a ~0,2 roupa abaixo da barra das peças mais longas (arara de loja); o vidro do fundo
+    // encontra o piso mais acima, por trás das barras — e o reflexo das peças cai dentro do quadro
+    const Yf=g.barTop+g.gw*1.65,Yc=Oy-(Oy+14)/f,Xr=W/2*.97/f,L=Dn+Dw,Do=1.1*P,Lf=L+Do;
+    Object.assign(this,{W,H,P,Oy,Dw,Dn,Zp,C0,f,Yf,Yc,Xr,L,Do,Lf});
     // linha do piso no plano da arara: a V10 pousa ali a sombra de contato de cada peça
     Stage.floorY=Yf;
     room.style.perspective=P+'px';room.style.perspectiveOrigin=`50% ${Oy.toFixed(1)}px`;
     const box=(n,l,t,w,h)=>Object.assign(n.style,{left:l.toFixed(1)+'px',top:t.toFixed(1)+'px',width:w.toFixed(1)+'px',height:h.toFixed(1)+'px'});
     box(wall,W/2-Xr,Yc,2*Xr,Yf-Yc);
-    box(floor,W/2-Xr,Yf,2*Xr,L);box(ceil,W/2-Xr,Yc,2*Xr,L);
+    box(floor,W/2-Xr,Yf,2*Xr,Lf);box(ceil,W/2-Xr,Yc,2*Xr,L);
+    floor.style.setProperty('--glass',(L/Lf*100).toFixed(2)+'%');
+    // rua: o retângulo do vidro ampliado pela distância extra (e folga para a câmera andar), no mesmo eixo O
+    const k=(P+Dw+Do)/(P+Dw)*1.18,ox=W/2-Xr*k,oy=Oy+(Yc-Oy)*k,ow=2*Xr*k,oh=(Yf-Oy)*k-(Yc-Oy)*k;
+    box(out,ox,oy,ow,oh);out.style.setProperty('--ground',(Yf-oy).toFixed(1)+'px');
+    // caixilhos: painéis de ~1,5 m (a largura útil da roupa é ~0,6 m) no fundo e ao longo das laterais
+    const panel=g.gw*2.4,n=Math.max(2,Math.round(2*Xr/panel)),nd=Math.max(1,Math.round(L/panel));
+    wall.querySelector('.r11-mullions').innerHTML=Array.from({length:n-1},(_,i)=>`<b style="left:${((i+1)/n*100).toFixed(3)}%"></b>`).join('');
+    [sideL,sideR].forEach(sd=>{sd.querySelector('.r11-mullions').innerHTML=Array.from({length:nd},(_,i)=>`<b style="left:${((i+1)/(nd+1)*100).toFixed(3)}%"></b>`).join('')});
+
     box(sideL,W/2-Xr,Yc,L,Yf-Yc);box(sideR,W/2+Xr,Yc,L,Yf-Yc);
     // contato e poça de luz no piso, sob a arara (plano z=0 fica a Dn da borda de perto do piso)
     floor.style.setProperty('--rack',(Dn/L*100).toFixed(2)+'%');floor.style.setProperty('--sill',(Dn-Zp).toFixed(1)+'px');
@@ -147,7 +167,7 @@ const Camera={
     // focal (a arara): cada plano desloca px·z/P — a arara (z=0) fica parada, a sala ao redor desliza
     const c=this.c+this.cz.x,x=this.cx,y=this.cy,ox=this.px.x/S.P,oy=this.py.x/S.P;
     const t=z=>`translate3d(${(-x-ox*z).toFixed(2)}px,${(-y-oy*z).toFixed(2)}px,${(z-c).toFixed(2)}px)`;
-    wall.style.transform=t(-S.Dw);
+    wall.style.transform=t(-S.Dw);out.style.transform=t(-S.Dw-S.Do);
     floor.style.transform=ceil.style.transform=t(S.Dn)+' rotateX(-90deg)';
     sideL.style.transform=sideR.style.transform=t(S.Dn)+' rotateY(90deg)';
     // em repouso o plano da arara fica sem transform: geometria, hit-test e nitidez idênticos à V10
@@ -155,7 +175,9 @@ const Camera={
     rack.style.transform=rest?'':t(0);
     const pv=c>S.Zp*.25;if(pv!==!portal.hidden)portal.hidden=!pv;
     if(pv)portal.style.transform=t(S.Zp);
-    vp.style.setProperty('--r11-light',this.light.toFixed(3));
+    // só a atmosfera usa o nível de luz: escrever a variável no palco inteiro invalidaria o estilo de todas as
+    // peças a cada quadro (medido: ~4× mais caro). A luz vai direto na opacidade da camada que escurece.
+    const dim=((1-this.light)*.16).toFixed(3);if(dim!==this.lastDim){this.lastDim=dim;atmoDim.style.opacity=dim}
     window.GBRailScene.camera={c:+c.toFixed(2),x:+x.toFixed(2),y:+y.toFixed(2),orbit:[+this.px.x.toFixed(2),+this.py.x.toFixed(2)],scale:+(S.P/(S.P+c)).toFixed(4),light:+this.light.toFixed(3)};
   },
 };
@@ -182,6 +204,8 @@ const Wind={
 /* ============================== Stage (contrato lido pela V10) ============================== */
 const Stage=window.GBRailScene={
   rig:Perf.tier!=='static',
+  // espelho da peça em foco no piso polido (a V10 desenha; medido: reflexo da camada inteira custava ~45 ms/quadro)
+  reflect:true,
   wind:t=>Wind.level(t),
   get phase(){return vp.dataset.scene},
   get tier(){return Perf.tier+(Perf.low?'-low':'')},

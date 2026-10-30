@@ -142,3 +142,7 @@
 .hg-bone-b{display:none;transform-origin:50% 57%}
 .is-rig .hg-bone-a{-webkit-mask-image:linear-gradient(180deg,#000 64%,transparent 70%);mask-image:linear-gradient(180deg,#000 64%,transparent 70%)}
 .is-rig .hg-bone-b{display:block;-webkit-mask-image:linear-gradient(180deg,transparent 50%,#000 58%);mask-image:linear-gradient(180deg,transparent 50%,#000 58%)}
+
+/* ---------- V11 / troca de cor em onda: faixa de luz feita da própria foto nova (só onde há tecido) ---------- */
+.hg-glow{pointer-events:none;filter:brightness(1.55) saturate(1.25) contrast(.9)}
+.hg-glow :is(.hg-shadow,.hg-hook,.hg-bar,.hg-clip,.hg-neckshade){display:none}

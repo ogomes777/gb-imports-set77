@@ -71,11 +71,18 @@ async function film(browser,w,h){
   metrics.push({vp,dollyMs:dur|0,frameMeanMs:+mean.toFixed(1),frameP95Ms:+p95.toFixed(1),longTasks:cam.lt});
   // 3. plano final: arara exatamente no plano da V10 (sem transform), piso e parede projetados pela mesma perspectiva
   const fin=await page.evaluate(()=>{const v=document.querySelector('#railViewport').getBoundingClientRect(),fl=document.querySelector('.r11-floor').getBoundingClientRect(),wl=document.querySelector('.r11-wall').getBoundingClientRect(),
-    hem=Math.max(...[...document.querySelectorAll('.r10-item.is-focus .hg-fig .hg-part')].map(p=>p.getBoundingClientRect().bottom));
+    hem=Math.max(...[...document.querySelectorAll('.r10-item.is-focus .r10-turn .hg-fig .hg-part')].map(p=>p.getBoundingClientRect().bottom));
     return{rack:document.querySelector('.r11-rack').style.transform,cam:GBRailScene.camera,portal:document.querySelector('.r11-portal').hidden,
       junction:wl.bottom-v.top,floorTop:fl.top-v.top,hem:hem-v.top,h:v.height,floor3d:/matrix3d/.test(getComputedStyle(document.querySelector('.r11-floor')).transform)}});
   check(vp,'V11: câmera assentada = plano da arara idêntico à V10 (identidade, porta fora de quadro)',fin.rack===''&&fin.cam.scale===1&&fin.portal,JSON.stringify(fin.cam));
-  check(vp,'V11: piso em perspectiva real encontra a parede abaixo das roupas e dentro do palco',fin.floor3d&&fin.junction>fin.hem-6&&fin.junction<fin.h-40,JSON.stringify(fin));
+  const glass=await page.evaluate(()=>{const fl=document.querySelector('.r11-floor'),rf=document.querySelector('.r10-item.is-focus .r10-refl.on'),r=rf&&rf.querySelector('img')&&rf.getBoundingClientRect().top>=GBRailScene.floorY+document.querySelector('#railViewport').getBoundingClientRect().top-2?'below':'none';
+    return{out:!!document.querySelector('.r11-out .r11-city b'),panes:document.querySelectorAll('.r11-glass').length,mullions:document.querySelectorAll('.r11-wall .r11-mullions b').length,
+      sideMullions:document.querySelectorAll('.r11-side-l .r11-mullions b').length,floorOut:parseFloat(fl.style.getPropertyValue('--glass'))<100,reflect:r&&r!=='none'?r.slice(0,12):r}});
+  check(vp,'V11: vitrine de vidro — fundo e laterais em caixilhos, rua lá fora, piso que continua depois do vidro, reflexo no piso',
+    glass.out&&glass.panes===3&&glass.mullions>=1&&glass.sideMullions>=1&&glass.floorOut&&/^below/.test(glass.reflect||''),JSON.stringify(glass));
+  // piso do plano da arara logo abaixo das barras das roupas; o trilho do vidro do fundo encontra o piso mais acima
+  const fy=await page.evaluate(()=>GBRailScene.floorY);
+  check(vp,'V11: piso em perspectiva real logo abaixo das roupas e dentro do palco; vidro do fundo pousa mais acima',fin.floor3d&&fy>fin.hem&&fy<fin.h-40&&fin.junction<fy,JSON.stringify({...fin,floorY:fy}));
   if(!mobile){
     const vb=await page.locator('#railViewport').boundingBox();
     await page.mouse.move(vb.x+vb.width*.85,vb.y+vb.height*.3,{steps:4});await page.waitForTimeout(700);
@@ -92,7 +99,7 @@ async function film(browser,w,h){
   for(let i=0;i<3&&!wind;i++){const s=await page.evaluate(()=>{const cards=[...document.querySelectorAll('#railItems .r10-item:not([hidden])')];
       const ang=cards.map(c=>{const m=/rotate\((-?[\d.]+)deg/.exec(c.querySelector('.r10-swing').style.transform);return m?+m[1]:0});
       return{wind:GBRail.state.wind,moving:GBRail.state.moving,ang,rig:document.querySelectorAll('.r10-item.is-rig').length,focusRig:document.querySelector('.r10-item.is-focus').classList.contains('is-rig'),
-        hem:getComputedStyle(document.querySelector('.r10-item.is-focus .hg-bone-b')).display}});
+        hem:getComputedStyle(document.querySelector('.r10-item.is-focus .r10-turn .hg-bone-b')).display}});
     if(s.wind>.2)wind=s;else await page.waitForTimeout(150)}
   check(vp,'V11: vento ambiente chega depois da câmera',!!wind,JSON.stringify(wind||await page.evaluate(()=>({air:GBRailScene.air,st:GBRail.state}))));
   if(wind){
@@ -106,6 +113,30 @@ async function film(browser,w,h){
   // 5. rajada termina e o relógio para (nada roda parado)
   const calm=await page.waitForFunction(()=>GBRail.state.wind===0&&!document.querySelector('#railItems').classList.contains('is-moving'),null,{timeout:9000}).then(()=>true).catch(()=>false);
   check(vp,'V11: entre rajadas a arara para o relógio',calm);
+  // 5b. arrasto rápido: balanço contido (cabide ≤ 4,5°), a barra do tecido não se solta no arrasto (peça inteira)
+  if(!mobile){
+    const vb=await page.locator('#railViewport').boundingBox(),y=vb.y+vb.height*.5;
+    await page.evaluate(()=>{window.__sw=[];const f=()=>{const cs=[...document.querySelectorAll('#railItems .r10-item:not([hidden])')];
+      const ang=cs.map(c=>{const m=/rotate\((-?[\d.]+)deg/.exec(c.querySelector('.r10-swing').style.transform);return m?Math.abs(+m[1]):0});
+      const hem=[...document.querySelectorAll('#railItems .r10-item.is-rig .r10-turn .hg-bone-b')].map(b=>{const m=/rotate\((-?[\d.]+)deg/.exec(b.style.transform);return m?Math.abs(+m[1]):0});
+      __sw.push({a:Math.max(0,...ang),h:Math.max(0,...hem),drag:document.querySelector('#railViewport').classList.contains('is-dragging')});if(__sw.length<150)requestAnimationFrame(f)};requestAnimationFrame(f)});
+    for(const d of [-1,1]){await page.mouse.move(vb.x+vb.width*(d<0?.72:.28),y);await page.mouse.down();for(let k=1;k<=10;k++){await page.mouse.move(vb.x+vb.width*(d<0?.72:.28)+d*k*34,y);await page.waitForTimeout(12)}await page.mouse.up();await page.waitForTimeout(700)}
+    const sw=await page.evaluate(()=>__sw);await page.mouse.move(2,2);await settle(page);
+    const maxA=Math.max(...sw.map(x=>x.a)),hemDrag=Math.max(0,...sw.filter(x=>x.drag).map(x=>x.h));
+    check(vp,'V11: arrasto rápido com balanço contido (cabide < 4,5°) e peça inteira (barra do tecido presa no arrasto)',maxA<4.5&&hemDrag<.05,`cabide máx ${maxA.toFixed(2)}° · barra no arrasto ${hemDrag.toFixed(3)}°`);
+    // troca de cor em onda: a foto nova sobe da barra até a gola, a antiga sai só no fim
+    const iv=await page.evaluate(()=>GBRail.items().findIndex(i=>i.id==='gb-v10-tech-fleece'));await page.evaluate(i=>GBRail.navigate(i),iv);await settle(page);await page.waitForTimeout(900);
+    await page.locator('.r10-item.is-focus .gb-tag[data-variant="2"]').click();
+    const wv=[];for(let k=0;k<14;k++){wv.push(await page.evaluate(()=>{const c=document.querySelector('.r10-item.is-focus'),n=c.querySelector('.r10-turn>.hg:not(.is-leaving)');
+      const cp=n?n.style.clipPath:'',m=/polygon\(([^)]*)\)/.exec(cp);let edgeY=null;if(m){const ys=m[1].split(',').slice(2).map(p=>parseFloat(p.trim().split(/\s+/)[1]));edgeY=ys.reduce((a,b)=>a+b,0)/ys.length}
+      return{hg:c.querySelectorAll('.r10-turn>.hg').length,glow:c.querySelectorAll('.hg-glow').length,edgeY,src:n?.querySelector('.hg-fig img')?.getAttribute('src')||''}}));await page.waitForTimeout(90)}
+    await page.waitForTimeout(900);
+    const end=await page.evaluate(()=>{const c=document.querySelector('.r10-item.is-focus');return{hg:c.querySelectorAll('.r10-turn>.hg').length,glow:c.querySelectorAll('.hg-glow').length,clip:c.querySelector('.r10-turn>.hg').style.clipPath,variant:GBRail.state.variantId,src:c.querySelector('.r10-turn>.hg .hg-fig img').getAttribute('src')}});
+    const ys=wv.map(x=>x.edgeY).filter(v=>v!=null),rising=ys.length>=4&&ys.every((v,i)=>i===0||v<=ys[i-1]+1e-6)&&ys[0]-ys.at(-1)>.4;
+    check(vp,'V11: troca de cor em onda de baixo para cima (foto antiga por baixo + faixa de luz), uma camada só no fim',
+      wv.some(x=>x.hg===3&&x.glow===1)&&rising&&end.hg===1&&end.glow===0&&!end.clip&&end.variant==='azul'&&/gb-crt-0(38|39|40)/.test(end.src),JSON.stringify({ys:ys.map(v=>+v.toFixed(2)),end}));
+    await page.evaluate(()=>GBRail.navigate(2));await settle(page);
+  }
   // 6. interação: setas e teclado continuam; a câmera reage e volta ao eixo
   await page.locator('#railNext').click();let s=await settle(page);
   check(vp,'V11: seta avança uma peça com a loja montada',s.index===3,JSON.stringify(s));
