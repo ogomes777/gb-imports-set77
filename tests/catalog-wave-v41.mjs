@@ -11,10 +11,10 @@ try{
   const page=await context.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:8080/',{waitUntil:'domcontentloaded',timeout:35000});
-  await page.waitForFunction(()=>window.GB_CORE_READY&&window.GBCatalogWaveV41,{timeout:40000});
+  await page.waitForFunction(()=>window.GB_CORE_READY&&(matchMedia('(prefers-reduced-motion: reduce)').matches||window.GBCatalogWaveV41),{timeout:40000});
   await page.evaluate(()=>{document.getElementById('productGrid').scrollIntoView({block:'center',behavior:'instant'})});
   await page.waitForTimeout(140);
-  const initial=await page.evaluate(()=>GBCatalogWaveV41.state);
+  const initial=await page.evaluate(()=>window.GBCatalogWaveV41?.state||{totalCards:document.querySelectorAll('#productGrid .product-card').length,active:false});
   assert(initial.totalCards===8,'catalog must still render 8 initial products');
   if(!cfg.reduced){
    await page.mouse.wheel(0,460);
@@ -33,7 +33,7 @@ try{
   }else{
    await page.mouse.wheel(0,450);
    await page.waitForTimeout(300);
-   assert(!await page.evaluate(()=>GBCatalogWaveV41.state.active),'motion reduced preference ignored');
+   assert(!await page.evaluate(()=>!!window.GBCatalogWaveV41?.state.active),'motion reduced preference ignored');
   }
   // The optical response never changes catalog event handlers, filters or favorites.
   await page.locator('.filter[data-filter="track"]').click();
