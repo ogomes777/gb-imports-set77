@@ -136,6 +136,17 @@ async function film(browser,w,h){
     check(vp,'V11: arrasto rápido com balanço contido (cabide < 4,5°) e tecido flexível sem abrir (barra ≤ 2° no arrasto)',maxA<4.5&&hemDrag<=2,`cabide máx ${maxA.toFixed(2)}° · barra no arrasto ${hemDrag.toFixed(3)}°`);
     const rest=await page.evaluate(()=>{const f=document.querySelector('.r10-item.is-focus .r10-turn'),n=document.querySelector(`.r10-item[data-rail-item="${GBRail.state.index+1}"] .r10-turn`);const g=e=>e?Math.abs(+(/rotateY\((-?[\d.]+)deg/.exec(e.style.transform)||[0,0])[1]):null;return{focus:g(f),next:g(n)}});
     check(vp,'V11: peças viram de lado em 3/4 (vizinhas) e a peça em foco fica de frente; nunca passam de 38° (sem verso)',rest.focus<1.5&&rest.next>15&&maxY<38.01,JSON.stringify({...rest,maxY:+maxY.toFixed(2)}));
+    // 5c. roçar a peça: o cursor passando rápido pela ponta da peça em foco dobra o tecido (barra e corpo) sem
+    // nenhum botão apertado; os limites suaves seguram a amplitude (barra ≤ 3,2°, cabide < 4,5°): roupa inteira
+    await settle(page);await page.waitForFunction(()=>!document.querySelector('#railItems').classList.contains('is-moving'),null,{timeout:18000}).catch(()=>{});
+    const fb=await page.locator('.r10-item.is-focus .r10-hit').boundingBox();
+    await page.evaluate(()=>{window.__br=[];const f=()=>{const it=document.querySelector('.r10-item.is-focus'),b=it?.querySelector('.r10-turn .hg-bone-b'),sw=it?.querySelector('.r10-swing');
+      const g=(e,re)=>e?Math.abs(+(re.exec(e.style.transform)||[0,0])[1]):0;__br.push({h:g(b,/skewX\((-?[\d.]+)deg/),a:g(sw,/rotate\((-?[\d.]+)deg/)});if(__br.length<90)requestAnimationFrame(f)};requestAnimationFrame(f)});
+    const by=fb.y+fb.height*.82;await page.mouse.move(fb.x+fb.width*.05,by);await page.mouse.move(fb.x+fb.width*.93,by,{steps:10});
+    await page.waitForTimeout(700);const br=await page.evaluate(()=>__br);await page.mouse.move(2,2);
+    const bh=Math.max(0,...br.map(x=>x.h)),ba=Math.max(0,...br.map(x=>x.a));
+    check(vp,'V11: roçar a ponta da peça com o cursor dobra o tecido, inteiro (barra 0,3–3,2°, cabide < 4,5°)',bh>.3&&bh<=3.21&&ba<4.5,`barra ${bh.toFixed(2)}° · cabide ${ba.toFixed(2)}°`);
+    await settle(page);
     // troca de cor em onda: a foto nova sobe da barra até a gola, a antiga sai só no fim
     const iv=await page.evaluate(()=>GBRail.items().findIndex(i=>i.id==='gb-v10-tech-fleece'));await page.evaluate(i=>GBRail.navigate(i),iv);await settle(page);await page.waitForTimeout(900);
     await page.locator('.r10-item.is-focus .gb-tag[data-variant="2"]').click();

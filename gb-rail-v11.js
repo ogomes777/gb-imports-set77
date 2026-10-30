@@ -57,8 +57,9 @@ const room=el('r11-room');
 // V11.2 vitrine de vidro: o fundo e as laterais são caixilhos de vidro; atrás deles, a rua em luz de dia
 // (cidade fora de foco, sol baixo). O piso atravessa o vidro e continua lá fora — a câmera vê o chão seguir.
 const out=el('r11-plane r11-out','<i class="r11-sky"></i><i class="r11-sun"></i><i class="r11-city"></i>');
-// rua mais perto (árvores e postes na calçada): outro plano, outra profundidade — parallax real através do vidro
-const near=el('r11-plane r11-near','<i class="r11-trees"></i>');
+// corredor do shopping, mais perto: pilares redondos entre a vitrine e as lojas da frente — outro plano, outra
+// profundidade, parallax real através do vidro
+const near=el('r11-plane r11-near','<i class="r11-trees"></i><i class="r11-rail-glass"></i>');
 // a loja acorda: fileiras de spots no teto, cones de luz e poças no piso acendem da porta para o fundo
 const cones=el('r11-cones');
 const glassKids='<i class="r11-mullions"></i><i class="r11-sheen"></i><i class="r11-head"></i><i class="r11-base"></i>';
@@ -66,11 +67,12 @@ const wall=el('r11-plane r11-wall r11-glass',`${glassKids}<i class="r11-frost"><
 const ceil=el('r11-plane r11-ceil','<i class="r11-track r11-track-l"></i><i class="r11-track r11-track-r"></i>');
 const sideL=el('r11-plane r11-side r11-glass r11-side-l',glassKids),sideR=el('r11-plane r11-side r11-glass r11-side-r',glassKids);
 const floor=el('r11-plane r11-floor','<i class="r11-floor-pool"></i><i class="r11-floor-sun"></i><i class="r11-floor-mull"></i><i class="r11-pools"></i>');
-// silhuetas da cidade lá fora: blocos determinísticos, baixo contraste (fora de foco), alturas e larguras variadas
-(()=>{const city=out.querySelector('.r11-city');let r=7;const rnd=()=>(r=(r*9301+49297)%233280)/233280;let x=0,html='';
-  while(x<100){const w=3+rnd()*7,h=12+rnd()*30,tone=rnd();html+=`<b style="left:${x.toFixed(2)}%;width:${w.toFixed(2)}%;height:${h.toFixed(1)}%;--t:${tone.toFixed(2)}"></b>`;x+=w+rnd()*1.6}
-  city.innerHTML=html;
-  const trees=near.querySelector('.r11-trees');let t='';for(let k=0;k<9;k++){const l=rnd()*96,w=4+rnd()*6;t+=`<b style="left:${l.toFixed(1)}%;width:${w.toFixed(1)}%;height:${(w*1.7).toFixed(1)}%"></b>`}trees.innerHTML=t;})();
+// o shopping lá fora: duas fileiras de vitrines acesas (térreo e mezanino com guarda-corpo de vidro), fora de foco,
+// larguras e tons determinísticos — nenhuma marca, só luz de loja
+(()=>{const city=out.querySelector('.r11-city');let r=7;const rnd=()=>(r=(r*9301+49297)%233280)/233280;let html='';
+  for(const[row,bottom,h]of[[0,0,34],[1,47,27]]){let x=-2;while(x<100){const w=9+rnd()*9,tone=rnd();html+=`<b class="r11-shop" style="left:${x.toFixed(2)}%;width:${w.toFixed(2)}%;bottom:${bottom}%;height:${h}%;--t:${tone.toFixed(2)};--row:${row}"></b>`;x+=w+.6}}
+  city.innerHTML=html+'<i class="r11-mezz"></i><i class="r11-skylight"></i>';
+  const trees=near.querySelector('.r11-trees');let t='';for(const l of[8,37,63,92]){t+=`<b style="left:${l}%;width:2.6%;height:100%"></b>`}trees.innerHTML=t;})();
 const rack=document.createElement('div');rack.className='r11-rack';
 const rods=el('r11-rods','<i class="r11-rod r11-rod-l"></i><i class="r11-rod r11-rod-r"></i>');
 const portal=el('r11-portal','<i class="r11-jamb r11-jamb-l"></i><i class="r11-jamb r11-jamb-r"></i><i class="r11-lintel"></i><i class="r11-sill"></i>');
@@ -100,7 +102,7 @@ const Scene={
     const box=(n,l,t,w,h)=>Object.assign(n.style,{left:l.toFixed(1)+'px',top:t.toFixed(1)+'px',width:w.toFixed(1)+'px',height:h.toFixed(1)+'px'});
     box(wall,W/2-Xr,Yc,2*Xr,Yf-Yc);
     box(floor,W/2-Xr,Yf,2*Xr,Lf);box(ceil,W/2-Xr,Yc,2*Xr,L);
-    floor.style.setProperty('--glass',(L/Lf*100).toFixed(2)+'%');
+    floor.style.setProperty('--glass',(L/Lf*100).toFixed(2)+'%');floor.style.setProperty('--tile',Math.round(g.gw*1.45)+'px');
     // rua: o retângulo do vidro ampliado pela distância extra (e folga para a câmera andar), no mesmo eixo O
     const k=(P+Dw+Do)/(P+Dw)*1.18,ox=W/2-Xr*k,oy=Oy+(Yc-Oy)*k,ow=2*Xr*k,oh=(Yf-Oy)*k-(Yc-Oy)*k;
     box(out,ox,oy,ow,oh);out.style.setProperty('--ground',(Yf-oy).toFixed(1)+'px');
@@ -151,7 +153,7 @@ const Camera={
   live(){this.shot=null;this.c=0;this.cx=this.cy=0;this.light=1;this.scene('live');vp.classList.add('r11-lit');this.apply()},
   scene(n){vp.dataset.scene=n;vp.classList.toggle('r11-film',n!=='live')},
   // dolly: avanço com crane e pequeno arco lateral; interrompível — o gesto encurta o resto do plano
-  dolly({hold=760,dur=Perf.tier==='touch'?1650:1900}={}){
+  dolly({hold=520,dur=Perf.tier==='touch'?1400:1600}={}){
     const from={c:this.c,cx:this.cx,cy:this.cy,light:this.light};
     this.shot={t0:now()+hold,dur,from};this.scene('dolly');this.run();
     // a arara surge: os cabides são pousados na barra enquanto a câmera ainda está na porta
@@ -219,7 +221,7 @@ const Wind={
   // brisa mais presente (pedido V11.3): rajadas de 3–5 s a cada 1,8–4 s com a arara em tela; fora dela, nada
   // a próxima rajada só sopra com a arara parada: se os cabides ainda assentam a anterior, espera mais um pouco
   // (sem rAF) — entre rajadas o relógio sempre para, mesmo num aparelho lento
-  next(delay){clearTimeout(this.timer);if(!this.on)return;const blow=()=>{if(document.getElementById('railItems')?.classList.contains('is-moving')){this.timer=setTimeout(blow,600);return}this.gust(.5+rand()*.5,3+rand()*2)};this.timer=setTimeout(blow,delay??(1800+rand()*2200))},
+  next(delay){clearTimeout(this.timer);if(!this.on)return;const blow=()=>{if(document.getElementById('railItems')?.classList.contains('is-moving')){this.timer=setTimeout(blow,600);return}this.gust(.62+rand()*.38,3+rand()*2)};this.timer=setTimeout(blow,delay??(1400+rand()*1800))},
   setOn(v){v=!!v&&Perf.tier!=='static'&&!reduced();if(v===this.on)return;this.on=v;if(v)this.next(1600);else{clearTimeout(this.timer);this.g=null}},
   // o ar se move com a mão: passar rápido o mouse pela arara levanta uma rajada curta (no máximo a cada 2,5 s)
   poke(speed){const t=now();if(!this.on||this.g||t-this.lastPoke<2500||speed<.9)return;this.lastPoke=t;this.gust(clamp(speed*.22,.25,.55),1.8)},

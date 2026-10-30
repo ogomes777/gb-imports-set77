@@ -28,9 +28,9 @@ O filme roda uma vez por carregamento. Qualquer intenção do visitante encurta 
 | Camada | Natureza | Como |
 | --- | --- | --- |
 | Vidro do fundo, vidros laterais, piso, teto | **Geometria real** (CSS 3D) | Os planos são filhos de `.r11-room` (`perspective: P`, origem no horizonte = altura do olho). O vidro do fundo está em `translateZ(-Dw)`. O piso e o teto são planos com `rotateX(-90deg)`; as laterais usam `rotateY(90deg)`. Os montantes de alumínio ficam a cada ~1,5 m (2,4 larguras de roupa). |
-| Rua lá fora | Plano em `translateZ(-Dw - 1,1P)` | Céu, sol baixo, cidade fora de foco (blocos determinísticos de baixo contraste) e névoa que esconde a base dos prédios (perspectiva aérea). Ordem de pintura: rua → piso (o trecho de fora aparece pelo vidro) → vidro. |
-| Piso | Um plano contínuo | Cimento polido dentro, trilho do vidro, o mesmo piso lá fora até a rua. Luz do dia deitando no piso perto do vidro e sombras longas dos montantes do vidro em direção à câmera. |
-| Calçada | Plano em `translateZ(-Dw - 0,35P)` | Árvores mais perto que a cidade: parallax real através do vidro quando a câmera anda. Base exatamente no chão. |
+| Shopping lá fora | Plano em `translateZ(-Dw - 1,1P)` | Desde a V11.4: corredor de shopping fora de foco — claraboia, mezanino com guarda-corpo de vidro e duas fileiras de vitrines acesas de outras lojas (larguras e tons determinísticos, `.r11-city b`), sem marca. Névoa clara no chão do corredor (perspectiva aérea). |
+| Piso | Um plano contínuo | Desde a V11.4: porcelanato polido — placas de ~1,45 roupa (`--tile`, do JS) com rejunte fino e leve variação de tom entre placas, faixa de reflexo do vidro antes do trilho, risco especular sob cada spot e a peça em foco espelhada (`--r11-refl`). O mesmo plano segue pelo corredor do shopping. Sombras longas dos montantes do vidro em direção à câmera. |
+| Pilares do corredor | Plano em `translateZ(-Dw - 0,35P)` | Pilares redondos do shopping (`.r11-trees b`) mais perto que as vitrines: parallax real através do vidro quando a câmera anda. Base exatamente no chão. |
 | Luz do teto | Spots no plano do teto, cones (planos verticais atrás da arara), poças no piso | 4 fileiras × 2. Acendem em sequência no filme (`.r11-lit`). |
 | Vidro | Caixilhos, brilho, faixa jateada | A faixa jateada fica à altura do olhar de quem passa na calçada. |
 | Arara: barra, hastes até o teto, cabides | Plano z=0, **igual à V10** | `#railBar` e `#railItems` mudaram de pai para `.r11-rack` sem mudar de lugar. Com a câmera em repouso, o rack fica **sem transform**: geometria, hit-test e nitidez são idênticos aos da V10. |
@@ -74,6 +74,13 @@ Contrato com a V10, sem segundo relógio:
 - Eventos `gb:rail:navigate`, `settled`, `dragstart`, `drag`, `intent`, `open` e `close`, emitidos no `#railViewport`.
 
 ## 4. Física do tecido (`gb-rail-v10.js`)
+
+**Roçar a peça (V11.4).** `pointermove` na arara (sem gesto de arrasto) mede a velocidade horizontal do ponteiro e
+dá um impulso nas molas da peça sob ele: cabide (`th`) de leve, corpo (`fi`) pouco e barra (`he`) mais — o que dobra
+o tecido é a diferença entre corpo e barra, por isso a barra recebe mais. O impulso cresce nas pontas (`|rx|`) e
+embaixo (`ry`); a peça gira no gancho (`yw`) contra o lado tocado e as vizinhas recebem um sopro. A peça é medida
+pela área de toque (`.r10-hit`): `.r10-swing` é um invólucro de tamanho zero. A amplitude final continua presa
+pelos limites suaves do layout (barra ≤ 3,2°), então a roupa dobra inteira. Teste: "roçar a ponta da peça".
 
 - **Molas por peça.** Cada cabide em cena tem `th` (cabide), `fi` (corpo, segue o cabide) e `he` (barra, segue o corpo). A rigidez depende da família: camiseta 112, bermuda 94, jaqueta 80, conjunto 74, com ±12% por semente do id. Moletom e conjunto oscilam menos e mais devagar que camiseta.
 - **Vento.** Três senoides com frequência e fase próprias por peça. A frente da rajada atravessa a arara (fase pela posição na tela), então nada balança em sincronia.
