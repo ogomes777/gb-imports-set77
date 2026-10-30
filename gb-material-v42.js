@@ -12,10 +12,14 @@
  const stage=document.createElement('div');
  stage.className='gb-material-stage';
  stage.setAttribute('aria-label','GB Imports, assinatura de pelúcia');
- stage.innerHTML='<div class="gb-material-aura"></div><div class="gb-plush-fallback"><img src="'+logo+'" alt="GB Imports" draggable="false"></div><div class="gb-plush-react-root"></div>';
+ stage.innerHTML='<div class="gb-material-aura"></div><div class="gb-plush-fallback"><img src="./assets/brand/gb-puff-poster-v44.webp" alt="GB Imports em pelúcia" draggable="false"></div><div class="gb-plush-react-root"></div>';
  host.append(stage);
  const mount=stage.querySelector('.gb-plush-react-root');
  const fallback=stage.querySelector('.gb-plush-fallback');
+ const poster=fallback.querySelector('img');
+ poster.addEventListener('load',()=>{if(poster.naturalWidth>80)stage.classList.add('gb-poster-loaded')},{once:true});
+ poster.addEventListener('error',()=>stage.classList.add('gb-poster-missing'),{once:true});
+ if(poster.complete&&poster.naturalWidth>80)stage.classList.add('gb-poster-loaded');
  let done=false,ready=false,started=false,failed=false,script=null,observer=null,entryTimer=0,loadTimer=0;
  function finish(){
   if(done)return;done=true;
@@ -67,7 +71,8 @@
  });
  window.GBPuffV43=Object.freeze({
   get ready(){return ready},get failed(){return failed},get stopped(){return done},
-  get firstVisibleIsFur(){return ready&&!stage.querySelector('.gb-plush-fallback')?.getClientRects().length},
+  get firstVisibleIsFur(){return ready||stage.classList.contains('gb-poster-loaded')},
+  get posterReady(){return stage.classList.contains('gb-poster-loaded')},
   get originalSource(){return true},skip:()=>film.finish()
  });
 })();
