@@ -81,7 +81,9 @@ async function film(browser,w,h){
     await page.mouse.move(vb.x+vb.width*.85,vb.y+vb.height*.3,{steps:4});await page.waitForTimeout(700);
     const par=await page.evaluate(()=>({rack:document.querySelector('.r11-rack').style.transform,wall:document.querySelector('.r11-wall').style.transform,orbit:GBRailScene.camera.orbit}));
     check(vp,'V11: parallax do mouse gira a sala em torno da arara (plano da arara intocado)',par.rack===''&&Math.abs(par.orbit[0])>2,JSON.stringify(par));
-    await page.mouse.move(2,2);
+    // tira o mouse e espera o hover e a rajada que o próprio gesto levantou assentarem
+    await page.mouse.move(2,2);await settle(page);
+    await page.waitForFunction(()=>GBRail.state.wind===0,null,{timeout:6000}).catch(()=>{});
   }
   // 4. a arara ganha vida: rajada de vento ambiente, peças fora de sincronia, a arara não conta como "movendo"
   let wind=null;
