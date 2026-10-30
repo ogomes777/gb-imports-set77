@@ -116,9 +116,10 @@ async function film(browser,w,h){
     const low=await page.evaluate(()=>GBRailScene.tier.endsWith('-low'));
     check(vp,`V11: rig do tecido só na peça em foco (e vizinhas no desktop)${low?' — nível low: rig desligado':''}`,low?wind.rig===0:wind.focusRig&&wind.hem==='block'&&wind.rig<=(mobile?1:3),JSON.stringify({rig:wind.rig,hem:wind.hem,low}));
   }
-  // 5. rajada termina e o relógio para (nada roda parado)
-  const calm=await page.waitForFunction(()=>GBRail.state.wind===0&&!document.querySelector('#railItems').classList.contains('is-moving'),null,{timeout:9000}).then(()=>true).catch(()=>false);
-  check(vp,'V11: entre rajadas a arara para o relógio',calm);
+  // 5. rajada termina e o relógio para (nada roda parado). Um ciclo vai até 9s (rajada ≤5s + intervalo ≤4s) e um
+  // intervalo curto pode acabar antes de os cabides assentarem: espera dois ciclos inteiros.
+  const calm=await page.waitForFunction(()=>GBRail.state.wind===0&&!document.querySelector('#railItems').classList.contains('is-moving'),null,{timeout:18000}).then(()=>true).catch(()=>false);
+  check(vp,'V11: entre rajadas a arara para o relógio',calm,calm?'':JSON.stringify(await page.evaluate(()=>({st:GBRail.state,air:GBRailScene.air,cls:document.querySelector('#railItems').className,entering:GBRail.entering}))));
   // 5b. arrasto rápido: balanço contido (cabide ≤ 4,5°), a barra do tecido não se solta no arrasto (peça inteira)
   if(!mobile){
     const vb=await page.locator('#railViewport').boundingBox(),y=vb.y+vb.height*.5;
