@@ -1,6 +1,6 @@
 /* GB IMPORTS / PUFF INTRO V45 — acceptance suite (03_QA/MATRIZ_ACEITE.md, the automatable part).
  * Serve the build first:  node scripts/build.mjs && python3 -m http.server 8080 --directory dist
- *   node tests/puff-intro-v45.mjs [baseUrl]
+ *   node tests/puff-intro-v45.mjs [baseUrl]      (protected preview: GB_SHARE=<url with _vercel_share> as well)
  * Headless Chromium rasterises WebGL in software (SwiftShader), which visitors never get live: the default runs
  * cover the poster path, `?gbPuffLive=1` forces the original PlushTile live to test fibres, cross-fade and teardown.
  */
@@ -43,6 +43,8 @@ async function open(sc,{w=1440,h=900,path='',reduced=false,touch=false,cpu=0,blo
     requestAnimationFrame(tick);
   });
   if(init)await page.addInitScript(init);
+  // protected Vercel preview: GB_SHARE (a _vercel_share URL) sets the access cookie for this context first
+  if(process.env.GB_SHARE){const pre=await ctx.newPage();await pre.goto(process.env.GB_SHARE,{waitUntil:'commit'});await pre.close()}
   const t0=Date.now();
   await page.goto(BASE+path,{waitUntil:'commit'});
   return {ctx,page,errors,bad,requests,t0};
