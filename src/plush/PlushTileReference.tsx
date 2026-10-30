@@ -920,7 +920,10 @@ function __OriginkitBase_PlushTile({
         const softwareGpu = /swiftshader|llvmpipe|software/i.test(gpuName)
         // SwiftShader can spend seconds per frame with six-digit strand counts,
         // preventing the original storefront from booting. Use the safe GB image.
-        if (softwareGpu) return
+        // Controlled CI-only mode captures one genuine material frame as a photographic
+        // first-frame poster. Software GPUs remain disabled for real visitors.
+        const posterCapture = new URLSearchParams(location.search).has('gbCapturePoster')
+        if (softwareGpu && !posterCapture) return
         const deviceCap = window.innerWidth < 720 ? 8500 :
           (navigator as Navigator & { deviceMemory?: number }).deviceMemory &&
           (navigator as Navigator & { deviceMemory?: number }).deviceMemory! <= 4 ? 16000 : 44000
@@ -1378,7 +1381,7 @@ function __OriginkitBase_PlushTile({
             // A device still slow at the resolution floor also thins the coat; wider hairs keep it covered.
             const thin = Math.min(1, quality / 0.75)
             const requestedCount = Math.min(MAX_STRANDS, Math.round((density / 5) * tileCss * tileCss * STRANDS_PER_PX * thin))
-            const count = Math.min(deviceCap, requestedCount)
+            const count = Math.min(posterCapture ? 10500 : deviceCap, requestedCount)
             const reach = clampN(c.rs.reach, 0, 10, DEFAULT_RESPONSE.reach)
 
             gl.viewport(0, 0, canvas.width, canvas.height)
