@@ -403,7 +403,7 @@ async function run(w,h,reduced=false){
     const live=part=>[...(f?.querySelectorAll(`.fit-layer-${part} .fit-garment`)||[])];
     return{figs:document.querySelectorAll('#lookstudio .fit-figure:not(.fit-figure-b)').length,top:live('top').map(g=>g.dataset.product),bottom:live('bottom').map(g=>g.dataset.product),
       sel:{top:document.querySelector('#lookTops [aria-pressed="true"]')?.dataset.lookId,bottom:document.querySelector('#lookBottoms [aria-pressed="true"]')?.dataset.lookId},
-      state:window.GBFitting?.state,phase:st.dataset.phase,label:f?.querySelector('.fit-svg')?.getAttribute('aria-label'),anims:f?f.getAnimations({subtree:true}).filter(a=>a.playState==='running'&&a.animationName!=='fitBreath').length:-1}});
+      state:window.GBFitting?.state,phase:st.dataset.phase,label:f?.querySelector('.fit-svg')?.getAttribute('aria-label'),anims:f?f.getAnimations({subtree:true}).filter(a=>a.playState==='running'&&!/^(fitBreath|gbEye)/.test(a.animationName||'')).length:-1}});
   const settled=async()=>{await page.waitForTimeout(reduced?120:1700);return fit()};  // V18: a peça é arremessada do seletor antes de vestir
   const one1=s=>s.figs===1&&s.top.length===1&&s.bottom.length===1;
   const events=[];await page.exposeFunction('__gbLook',d=>events.push(d)).catch(()=>{});
@@ -418,9 +418,10 @@ async function run(w,h,reduced=false){
     return{n:Object.keys(C.top).length+Object.keys(C.bottom).length,opts:document.querySelectorAll('#lookTops .look-option,#lookBottoms .look-option').length,
       thumbs:[...document.querySelectorAll('#lookTops .look-option img,#lookBottoms .look-option img')].every(i=>/assets\/fit\/thumb\//.test(i.getAttribute('src'))),
       hrefs:hrefs.length&&hrefs.every(h=>/^\.\/assets\/fit\//.test(h)),ok,head:!!f.querySelector('.fit-head'),hands:f.querySelectorAll('.fit-layer-arms .fit-hand').length,
-      legs:f.querySelectorAll('.fit-layer-legs .fit-leg').length}});
+      legs:f.querySelectorAll('.fit-layer-legs .fit-leg').length,covered:f.querySelector('.fit-layer-legs .fit-legs')?.dataset.pants==='true'&&!!f.querySelector('.fit-layer-shoe .fit-shoe')}});
   check(vp,'fit V16: seletores e manequim só com fotos reais do acervo (assets/fit)',real.opts===real.n&&real.thumbs&&real.hrefs&&real.ok,JSON.stringify(real));
-  check(vp,'fit V16: robô completo — cabeça, duas mãos, duas pernas',real.head&&real.hands===2&&real.legs===2,JSON.stringify(real));
+  // calça + tênis reais escondem a skin das pernas (V1.2: sem canela vazando na bainha)
+  check(vp,'fit V16: robô completo — cabeça, duas mãos, duas pernas (ou calça com tênis por cima)',real.head&&real.hands===2&&(real.legs===2||real.covered&&real.legs===0),JSON.stringify(real));
   const tee=await page.evaluate(async()=>{const C=window.GB_FIT_CATALOG,id=Object.keys(C.top).find(k=>C.top[k].rig?.l&&C.top[k].rig?.r);
     document.querySelector(`#lookTops [data-look-id="${id}"]`).click();await new Promise(r=>setTimeout(r,1800));const f=document.querySelector('#gbFitFigure');
     const sl=[...f.querySelectorAll('.fit-layer-sleeves .fit-sleeves image')].map(i=>i.getAttribute('transform')||'');

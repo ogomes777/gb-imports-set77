@@ -197,7 +197,7 @@ body[data-gb-theme="sinal"] #lookstudio .look-controls-eyebrow,body[data-gb-them
 
 /* ---------- V18 mobile: robô um pouco acima, giro logo abaixo dos pés, aviso legal no rodapé ---------- */
 @media(max-width:780px){
-  .fit-figure,.fit-geom,.fit-split-line{height:79%;bottom:13.5%}
+  .fit-figure,.fit-geom,.fit-split-line{height:81%;bottom:13.5%}
   .look-stage.has-fit .look-stage-foot{display:none}
   .fit-legal{bottom:10px;font-size:7.5px;line-height:1.45}
   .fit-turnbar{top:auto;bottom:40px;padding:0 2px}
