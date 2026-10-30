@@ -1,0 +1,63 @@
+/* GB IMPORTS / PUFF INTRO V45 — black glass stage, real-fur puff, camera dive into the landing.
+   Geometry: the live PlushTile fills the stage (its own studio pass paints the black and the soft top light), so
+   there is no canvas edge to see. The poster is the same object rendered with fur, sized and centred on the
+   tile's framing, so poster → live is a cross-fade in place. Only transform, opacity and filter animate. */
+
+#gbRibbonBoot{--gb-dive:950ms;--gb-poster:calc(min(100vw,100dvh) * .912);
+  position:fixed;inset:0;z-index:2147483000;width:100vw;height:100vh;height:100dvh;overflow:hidden;isolation:isolate;
+  background:#000;color:#f4f1e8;pointer-events:auto;touch-action:pan-y;contain:strict;
+  transition:background-color calc(var(--gb-dive) * .7) ease calc(var(--gb-dive) * .3)}
+#gbRibbonBoot.is-finished{display:none!important}
+#heroStage > #gbRibbonBoot{display:none!important}
+
+/* the camera: everything the dive pushes through */
+.gb-puff-camera{position:absolute;inset:0;transform-origin:50% 50%;opacity:0;transform:scale(.9);filter:blur(14px);will-change:transform,opacity,filter}
+#gbRibbonBoot.is-brand .gb-puff-camera{opacity:1;transform:none;filter:none;
+  transition:opacity .62s cubic-bezier(.2,.7,.2,1),transform 1.1s cubic-bezier(.16,1,.3,1),filter .8s ease-out}
+/* after the entrance the camera stops promoting a layer: the canvas composites on its own */
+#gbRibbonBoot.is-brand.is-settled .gb-puff-camera{will-change:auto}
+
+/* poster: real rendered fur (RGBA), never a flat monogram; shown only after decode */
+.gb-puff-poster{position:absolute;left:50%;top:50%;width:var(--gb-poster);height:auto;aspect-ratio:553/549;
+  transform:translate(-50%,-50%);user-select:none;pointer-events:none;-webkit-user-drag:none}
+.gb-puff-poster:not([src]){visibility:hidden}
+
+/* live PlushTile root; canvas kept laid out (never display:none) and invisible until a verified lit frame */
+.gb-puff-live{position:absolute;inset:0;opacity:0;transition:opacity .45s ease}
+.gb-puff-live > div{touch-action:pan-y}
+#gbRibbonBoot.is-live .gb-puff-live{opacity:1}
+#gbRibbonBoot.is-live .gb-puff-poster{opacity:0;transition:opacity .45s ease .12s}
+
+/* black glass: a faint top reflection and a deep edge falloff over the stage; no gold, no text */
+.gb-puff-glass{position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(172deg,rgba(255,255,255,.035) 0%,rgba(255,255,255,0) 22%),
+    radial-gradient(ellipse 120% 90% at 50% 46%,rgba(0,0,0,0) 55%,rgba(0,0,0,.55) 100%)}
+.gb-puff-glass::after{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent)}
+
+/* leaving on purpose: a quiet control, keyboard reachable */
+.gb-puff-skip{position:absolute;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:2;
+  min-width:44px;min-height:44px;padding:0 16px;border:1px solid rgba(244,241,232,.22);border-radius:999px;background:rgba(10,10,12,.42);
+  color:rgba(244,241,232,.72);font:600 10px/1 "DM Sans",system-ui,sans-serif;letter-spacing:.22em;cursor:pointer;
+  opacity:0;transition:opacity .4s ease .9s;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#gbRibbonBoot.is-brand .gb-puff-skip{opacity:1}
+.gb-puff-skip:hover,.gb-puff-skip:focus-visible{color:#f4f1e8;border-color:rgba(255,212,71,.7);outline:none}
+
+/* the dive: the camera passes through the puff while the black opens onto the landing */
+#gbRibbonBoot.is-diving{background-color:rgba(0,0,0,0)}
+#gbRibbonBoot.is-diving .gb-puff-camera{opacity:0;transform:scale(3.4);filter:blur(12px);
+  transition:transform var(--gb-dive) cubic-bezier(.55,0,.2,1),filter calc(var(--gb-dive) * .8) ease-in calc(var(--gb-dive) * .2),opacity calc(var(--gb-dive) * .55) ease-in calc(var(--gb-dive) * .45)}
+#gbRibbonBoot.is-diving .gb-puff-glass,#gbRibbonBoot.is-diving .gb-puff-skip{opacity:0;transition:opacity .25s ease}
+
+/* while the intro plays the store is laid out but not painted (V33): no compositing behind the stage.
+   CSS-only guarantee, independent of any timer: at 9 s the page shows and the stage leaves even if the main
+   thread is starved or the intro script died (the JS watchdog normally finishes at 6 s). */
+html.gb-ribbon-intro-playing body > :not(#gbRibbonBoot):not(script){visibility:hidden;animation:gbPuffUnhide 0s linear 9s forwards}
+#gbRibbonBoot.is-opening{animation:gbPuffFailsafe .5s ease 9s forwards}
+@keyframes gbPuffUnhide{to{visibility:visible}}
+@keyframes gbPuffFailsafe{to{opacity:0;visibility:hidden;pointer-events:none}}
+
+@media(prefers-reduced-motion:reduce){
+  #gbRibbonBoot{display:none!important}
+  html.gb-ribbon-intro-playing body > :not(#gbRibbonBoot):not(script){visibility:visible;animation:none}
+}

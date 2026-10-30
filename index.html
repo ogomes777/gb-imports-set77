@@ -20,12 +20,12 @@
 <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&amp;family=Archivo+Black&amp;display=swap" rel="stylesheet"/></noscript>
 <link as="image" fetchpriority="high" href="./assets/brand/gb-monograma-claro.svg" rel="preload" type="image/svg+xml"/>
 <style id="gbRibbonCritical">
-/* First paint: the film is already covering the document, before deferred JS. */
-#gbRibbonBoot{position:fixed;inset:0;z-index:2147483000;width:100vw;height:100vh;height:100dvh;overflow:hidden;pointer-events:auto;isolation:isolate;background:radial-gradient(ellipse 75% 62% at 50% 34%,#fff,#f1f0ec 75%,#dddcd6 100%);opacity:1}
-#gbRibbonBoot.is-boot{animation:gbRibbonFailsafe .6s ease 11s forwards}
-#gbRibbonBoot.is-boot .gb-ribbon-signature,#gbRibbonBoot.is-boot .gb-ribbon-entry{opacity:0}
-#gbRibbonBoot .gb-ribbon-glass{position:absolute;inset:0;background:linear-gradient(155deg,#fff,#f5f4f0 55%,#eceae5);pointer-events:none}
-@keyframes gbRibbonFailsafe{to{opacity:0;visibility:hidden;pointer-events:none}}
+/* First paint: the black glass stage already covers the document, before any JS. No logo, no tile, no white. */
+#gbRibbonBoot{position:fixed;inset:0;z-index:2147483000;width:100vw;height:100vh;height:100dvh;overflow:hidden;pointer-events:auto;isolation:isolate;background:#000;opacity:1}
+#gbRibbonBoot .gb-puff-camera{opacity:0}
+/* if the intro script never runs, the stage still gets out of the way (the JS watchdog is 6 s) */
+#gbRibbonBoot.is-boot{animation:gbPuffFailsafe .5s ease 6.6s forwards}
+@keyframes gbPuffFailsafe{to{opacity:0;visibility:hidden;pointer-events:none}}
 @media(prefers-reduced-motion:reduce){#gbRibbonBoot.is-boot{display:none!important}}
 </style>
 <link as="image" fetchpriority="high" href="./assets/brand/gb-monograma-amarelo-preto.svg" rel="preload" type="image/svg+xml"/>
@@ -37,19 +37,16 @@
 <script defer="" src="./campaign-map.js"></script>
 <script defer="" src="./motion-core.js"></script>
 <script defer="" src="./main.js"></script>
-<link href="./v03.css" rel="stylesheet"/><script defer="" src="./look-fitting.js"></script><script defer="True" src="./v03.js"></script><link href="./v04.css" rel="stylesheet"/><script defer="" src="./v04.js"></script><script defer="" src="./gb-rail-v10.js"></script><link href="./v05.css" rel="stylesheet"/><script defer="True" src="./v05.js"></script><link href="./v06.css" rel="stylesheet"/><script defer="" src="./v06.js"></script><link href="./v07.css" rel="stylesheet"/><script defer="" src="./v07.js"></script><link href="./v08.css" rel="stylesheet"/><script defer="" src="./v08.js"></script><link href="./look-fitting.css" rel="stylesheet"/><link href="./gb-rail-v10.css" rel="stylesheet"/><link href="./showroom-cinema.css" rel="stylesheet"/><link href="./gb-themes.css" rel="stylesheet"/><link href="./gb-v11.css" rel="stylesheet"/><link href="./gb-edit-v12.css" rel="stylesheet"/><link href="./gb-ribbon-intro.css" rel="stylesheet"/><link href="./gb-cinema-v13.css" rel="stylesheet"/>
+<link href="./v03.css" rel="stylesheet"/><script defer="" src="./look-fitting.js"></script><script defer="True" src="./v03.js"></script><link href="./v04.css" rel="stylesheet"/><script defer="" src="./v04.js"></script><script defer="" src="./gb-rail-v10.js"></script><link href="./v05.css" rel="stylesheet"/><script defer="True" src="./v05.js"></script><link href="./v06.css" rel="stylesheet"/><script defer="" src="./v06.js"></script><link href="./v07.css" rel="stylesheet"/><script defer="" src="./v07.js"></script><link href="./v08.css" rel="stylesheet"/><script defer="" src="./v08.js"></script><link href="./look-fitting.css" rel="stylesheet"/><link href="./gb-rail-v10.css" rel="stylesheet"/><link href="./showroom-cinema.css" rel="stylesheet"/><link href="./gb-themes.css" rel="stylesheet"/><link href="./gb-v11.css" rel="stylesheet"/><link href="./gb-edit-v12.css" rel="stylesheet"/><link href="./gb-puff-intro.css" rel="stylesheet"/><link href="./gb-cinema-v13.css" rel="stylesheet"/>
 <link href="./gb-film-v14.css" rel="stylesheet"/>
-<link href="./gb-encounter-v15.css" rel="stylesheet"/><link href="./gb-nav-v39.css" rel="stylesheet"/><link href="./gb-experience-v40.css" rel="stylesheet"/><link href="./gb-rail-v11.css" rel="stylesheet"/><script defer="" src="./showroom-cinema.js"></script><script defer="" src="./gb-i18n.js"></script><script defer="" src="./gb-v11.js"></script><script defer="" src="./gb-ribbon-intro.js"></script><script defer="" src="./gb-edit-v12.js"></script><script defer="" src="./gb-rail-v11.js"></script><script defer="" src="./gb-cinema-v13.js"></script>
+<link href="./gb-encounter-v15.css" rel="stylesheet"/><link href="./gb-nav-v39.css" rel="stylesheet"/><link href="./gb-experience-v40.css" rel="stylesheet"/><link href="./gb-rail-v11.css" rel="stylesheet"/><script defer="" src="./showroom-cinema.js"></script><script defer="" src="./gb-i18n.js"></script><script defer="" src="./gb-v11.js"></script><script defer="" src="./gb-puff-intro.js"></script><script defer="" src="./gb-edit-v12.js"></script><script defer="" src="./gb-rail-v11.js"></script><script defer="" src="./gb-cinema-v13.js"></script>
 <script defer="" src="./gb-film-v14.js"></script>
 <script defer="" src="./gb-encounter-v15.js"></script><script defer="" src="./gb-nav-v39.js"></script><script defer="" src="./gb-experience-v40.js"></script></head>
 <body>
-<div id="gbRibbonBoot" class="gb-ribbon-layer is-boot is-opening" aria-hidden="true">
-<div class="gb-ribbon-glass"><i class="gb-ribbon-glass-depth"></i><i class="gb-ribbon-glass-specular"></i><i class="gb-ribbon-glass-grain"></i></div>
-<canvas class="gb-ribbon-canvas"></canvas>
-<div class="gb-ribbon-signature"><i class="gb-ribbon-logo-atmosphere"></i><span class="gb-ribbon-logo-plate"><img class="gb-ribbon-original" src="./assets/brand/gb-monograma-amarelo-preto.svg" width="1000" height="610" alt="" fetchpriority="high" decoding="async"/></span><span class="gb-ribbon-scan"></span><span class="gb-ribbon-label">GB IMPORTS</span><span class="gb-ribbon-subline">THE GB EDIT</span></div>
-<div class="gb-ribbon-bloom"></div><div class="gb-ribbon-scene-number">GB / 001</div><div class="gb-ribbon-scene-foot">CURATED MOTION <span>•</span> GB IMPORTS</div>
-<div class="gb-ribbon-entry"><span class="gb-ribbon-entry-kicker">A EXPERIÊNCIA ESTÁ COMEÇANDO</span><strong>ENTRE NA GB.</strong><span class="gb-ribbon-entry-sub">NÃO É SOBRE TER. É SOBRE SER.</span></div>
-<i class="gb-ribbon-door gb-ribbon-door-left"></i><i class="gb-ribbon-door gb-ribbon-door-right"></i>
+<div id="gbRibbonBoot" class="gb-puff-intro is-boot">
+<div class="gb-puff-camera" aria-hidden="true"><img class="gb-puff-poster" alt="" width="553" height="549" decoding="async" draggable="false"/><div class="gb-puff-live"></div></div>
+<i class="gb-puff-glass" aria-hidden="true"></i>
+<button class="gb-puff-skip" type="button" aria-label="Pular abertura e entrar na loja">PULAR</button>
 </div>
 <a class="skip-link" href="#colecao">Pular para o catálogo</a>
 <header class="site-header v03-header gb-island" id="top" data-tone="dark">

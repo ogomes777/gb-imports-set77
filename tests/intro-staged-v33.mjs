@@ -1,3 +1,5 @@
+// V33 → V45: staged boot. The first paint is the stage alone (no store script yet); the store then boots IN
+// PARALLEL while the puff is on screen (V45 contract: never gated on the GPU), and the page is complete after.
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 const b=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
@@ -8,34 +10,19 @@ for(const [w,h,slow] of [[1440,900,false],[390,844,false],[360,780,true]]){
  if(slow){const cd=await c.newCDPSession(p);await cd.send('Emulation.setCPUThrottlingRate',{rate:3})}
  const started=Date.now();
  await p.goto('http://127.0.0.1:8080/',{waitUntil:'domcontentloaded',timeout:30000});
- await p.waitForFunction(()=>window.GBGlassRibbons?.frames>0,null,{timeout:10000});
- const atStart=await p.evaluate(()=>({
-  opening:GBGlassRibbons.opening,ready:window.GB_CORE_READY,
-  original:GBGlassRibbons.logoAsset,heavy:document.querySelectorAll('script[src*="gb-core-"]').length,
-  hidden:getComputedStyle(document.querySelector('#top')).visibility
- }));
- assert(atStart.opening&&!atStart.ready&&atStart.heavy===0&&atStart.hidden==='hidden','heavy scripts ran before intro '+JSON.stringify(atStart));
- await p.waitForTimeout(2400);
- const during=await p.evaluate(()=>({
-  ready:window.GB_CORE_READY,
-  active:GBGlassRibbons.opening,
-  heavy:document.querySelectorAll('script[src*="gb-core-"]').length,
-  frame:GBGlassRibbons.frames,
-  ink:GBGlassRibbons.signatureProgress
- }));
- assert(during.frame>3,'intro ribbon stopped '+JSON.stringify(during));
+ await p.waitForFunction(()=>window.GBGlassRibbons,null,{timeout:10000});
+ const atStart=await p.evaluate(()=>({opening:GBGlassRibbons.opening,ready:window.GB_CORE_READY,original:GBGlassRibbons.logoAsset,
+  heavy:document.querySelectorAll('script[src*="gb-core-"]').length,hidden:getComputedStyle(document.querySelector('#top')).visibility}));
+ assert(atStart.opening&&!atStart.ready&&atStart.heavy===0&&atStart.hidden==='hidden','store scripts raced the first paint '+JSON.stringify(atStart));
+ await p.waitForFunction(()=>GBGlassRibbons.visible,null,{timeout:12000});
+ await p.waitForFunction(()=>document.querySelectorAll('script[src*="gb-core-"]').length>0||GBGlassRibbons.removed,null,{timeout:12000});
+ const during=await p.evaluate(()=>({opening:GBGlassRibbons.opening,heavy:document.querySelectorAll('script[src*="gb-core-"]').length,coreBoot:GBGlassRibbons.timeline.coreBoot,visible:GBGlassRibbons.visible}));
+ assert(during.heavy>0&&during.opening&&during.visible,'store did not boot in parallel with the puff '+JSON.stringify(during));
  await p.waitForFunction(()=>window.GB_CORE_READY===true&&GBGlassRibbons.settled&&GBGlassRibbons.removed,null,{timeout:22000});
- const after=await p.evaluate(()=>({
-  ms:Math.round(performance.now()),
-  ready:GB_CORE_READY,fit:typeof GBFitting,
-  heavy:document.querySelectorAll('script[src*="gb-core-"]').length,
-  hidden:getComputedStyle(document.querySelector('#top')).visibility,
-  logo:GBGlassRibbons.logoAsset,
-  overflow:document.documentElement.scrollWidth-innerWidth,
-  modal:!!document.getElementById('productModal'),
-  active:GBGlassRibbons.active,
-  retired:!document.querySelector('#gbRibbonBoot')
- }));
+ const after=await p.evaluate(()=>({ms:Math.round(performance.now()),ready:GB_CORE_READY,fit:typeof GBFitting,
+  heavy:document.querySelectorAll('script[src*="gb-core-"]').length,hidden:getComputedStyle(document.querySelector('#top')).visibility,
+  logo:GBGlassRibbons.logoAsset,overflow:document.documentElement.scrollWidth-innerWidth,modal:!!document.getElementById('productModal'),
+  active:GBGlassRibbons.active,retired:!document.querySelector('#gbRibbonBoot')}));
  assert(after.retired&&!after.active&&after.heavy>=10&&after.fit==='object'&&after.hidden==='visible'&&after.overflow<3&&errs.length===0,'Store incomplete '+JSON.stringify({after,errs}));
  console.log(JSON.stringify({width:w,slow,elapsed:Date.now()-started,atStart,during,after,errors:errs}));
  await c.close();

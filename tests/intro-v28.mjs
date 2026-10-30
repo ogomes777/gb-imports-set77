@@ -1,3 +1,5 @@
+// V28 → V45: the stage covers the document from the first paint even while every JS chunk is delayed; no white,
+// no flat logo, then the puff, then a handoff that releases the page. Reduced motion never shows the stage.
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import {tmpdir} from 'node:os';
@@ -15,23 +17,19 @@ for(const [width,height] of [[1440,900],[390,844]]){
   const host=document.getElementById('gbRibbonBoot');
   const c=getComputedStyle(host),r=host.getBoundingClientRect();
   const target=document.elementFromPoint(innerWidth*.5,innerHeight*.5);
-  return{exists:!!host,boot:host.classList.contains('is-boot'),width:r.width,height:r.height,top:r.top,position:c.position,zIndex:c.zIndex,bg:c.backgroundImage,cover:target===host||host.contains(target),head:!!document.querySelector('.site-header')};
+  const cam=host.querySelector('.gb-puff-camera');
+  return{boot:host.classList.contains('is-boot'),width:r.width,height:r.height,position:c.position,bg:c.backgroundColor,
+   cover:target===host||host.contains(target),brandShown:cam?+getComputedStyle(cam).opacity:0};
  });
  await page.screenshot({path:shot('v28-'+width+'-FIRST-PAINT.jpg'),type:'jpeg',quality:70});
  assert(pre.boot&&pre.cover&&pre.position==='fixed'&&pre.width>=width-1&&pre.height>=height-1,'landing flashed during JS load '+JSON.stringify(pre));
+ assert(pre.bg==='rgb(0, 0, 0)'&&pre.brandShown===0,'first paint must be plain black glass (no logo, no tile) '+JSON.stringify(pre));
  await pending;
- await page.waitForFunction(()=>window.GBGlassRibbons&&GBGlassRibbons.frames>1,null,{timeout:18000});
- const begin=await page.evaluate(()=>({opening:GBGlassRibbons.opening,asset:GBGlassRibbons.logoAsset,white:getComputedStyle(document.querySelector('.gb-ribbon-glass')).backgroundImage,glass:GBGlassRibbons.fullGlass,body:document.querySelector('#gbRibbonBoot').parentElement.tagName}));
+ await page.waitForFunction(()=>window.GBGlassRibbons?.visible,null,{timeout:18000});
+ const begin=await page.evaluate(()=>({opening:GBGlassRibbons.opening,asset:GBGlassRibbons.logoAsset,glass:GBGlassRibbons.fullGlass,body:document.querySelector('#gbRibbonBoot').parentElement.tagName}));
  assert(begin.opening&&begin.glass&&begin.asset.includes('gb-monograma-amarelo-preto.svg')&&begin.body==='BODY','intro missing '+JSON.stringify(begin));
- await page.waitForTimeout(3000);
- const mid=await page.evaluate(()=>({opening:GBGlassRibbons.opening,entry:document.querySelector('.gb-ribbon-entry')?.getBoundingClientRect().width}));
- assert(mid.opening,'intro too short');
- await page.screenshot({path:shot('v28-'+width+'-LOGO.jpg'),type:'jpeg',quality:68});
+ await page.screenshot({path:shot('v28-'+width+'-PUFF.jpg'),type:'jpeg',quality:68});
  if(width<600)await page.touchscreen.tap(210,330);else await page.mouse.move(800,300,{steps:5});
- await page.waitForTimeout(1600);
- const gate=await page.evaluate(()=>({preparing:document.querySelector('#gbRibbonBoot').classList.contains('is-preparing-entry'),text:document.querySelector('.gb-ribbon-entry strong')?.textContent}));
- await page.screenshot({path:shot('v28-'+width+'-ENTRY.jpg'),type:'jpeg',quality:68});
- // V34+: a abertura assina o logo, vira portal e se retira; nada dela fica pintando no hero
  await page.waitForFunction(()=>GBGlassRibbons.settled&&GBGlassRibbons.removed,null,{timeout:14000});
  const after=await page.evaluate(()=>({settled:GBGlassRibbons.settled,removed:GBGlassRibbons.removed,active:GBGlassRibbons.active,frame:GBGlassRibbons.frames,hero:!!document.getElementById('heroArt'),fit:!!document.getElementById('lookstudio'),overflow:document.documentElement.scrollWidth-innerWidth,cover:!!document.elementFromPoint(innerWidth/2,innerHeight/2)?.closest('#gbRibbonBoot')}));
  await page.waitForTimeout(550);
@@ -40,7 +38,7 @@ for(const [width,height] of [[1440,900],[390,844]]){
  assert(later===after.frame,'retired intro kept painting');
  assert(!errors.length,'JS errors: '+errors.join(';'));
  await page.screenshot({path:shot('v28-'+width+'-HERO.jpg'),type:'jpeg',quality:70});
- console.log(JSON.stringify({viewport:width+'x'+height,firstPaint:pre,begin:{opening:begin.opening,asset:begin.asset},mid,gate,after,framesAfter:later,errors}));
+ console.log(JSON.stringify({viewport:width+'x'+height,firstPaint:pre,begin,after,framesAfter:later,errors}));
  await ctx.close();
 }
 const r=await b.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'});

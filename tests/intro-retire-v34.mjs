@@ -11,7 +11,7 @@ for(const [width,height,slow] of [[1440,900,false],[390,844,false],[360,780,true
  if(slow){const cdp=await ctx.newCDPSession(page);await cdp.send('Emulation.setCPUThrottlingRate',{rate:3});}
  const start=Date.now();
  await page.goto('http://127.0.0.1:8080/',{waitUntil:'domcontentloaded',timeout:35000});
- await page.waitForFunction(()=>window.GBGlassRibbons?.frames>=2,null,{timeout:17000});
+ await page.waitForFunction(()=>window.GBGlassRibbons?.visible,null,{timeout:17000});
  const first=await page.evaluate(()=>({
    opening:GBGlassRibbons.opening,
    host:document.querySelector('#gbRibbonBoot')?.parentElement?.tagName,

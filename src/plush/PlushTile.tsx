@@ -846,10 +846,14 @@ export interface PlushTileProps {
     breeze?: number
     advanced?: Partial<Advanced>
     style?: CSSProperties
+    /** GB IMPORTS: most strands this device draws (the original cap is MAX_STRANDS). */
+    strandCap?: number
+    /** GB IMPORTS: draw on software rasterisers (SwiftShader, llvmpipe). Off for visitors; on for controlled capture. */
+    allowSoftware?: boolean
 }
 
 function __OriginkitBase_PlushTile({
-    image = {"alt":"","src":"https://cdn.brandfetch.io/idGP0S1Jjj/theme/dark/symbol.svg?c=1dxbfHSJFAPEGdCLU4o5B"},
+    image = {"alt":"","src":"./assets/brand/gb-monograma-amarelo-preto.svg"}, // GB IMPORTS: official monogram, served locally (was a Brandfetch CDN URL)
     artwork = {"fit":"contain","size":72,"offsetY":0},
     background = DEFAULTS.background,
     furColor = DEFAULTS.furColor,
@@ -863,6 +867,8 @@ function __OriginkitBase_PlushTile({
     breeze = DEFAULTS.breeze,
     advanced = {"glow":60,"lens":20,"seed":0,"clump":28,"crimp":20,"sheen":25,"bounce":55,"emboss":50,"shadow":50,"tipFade":25,"edgeFlow":75,"rimLight":90,"rimShare":26,"hairWidth":0.85,"rootShade":60,"undercoat":22,"depthShade":45,"keyFalloff":75,"lightAngle":100,"lightColor":"#FFF4E6","colorJitter":22,"lightHeight":40},
     style,
+    strandCap = MAX_STRANDS,
+    allowSoftware = false,
 }: PlushTileProps) {
     const rootRef = useRef<HTMLDivElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -887,6 +893,7 @@ function __OriginkitBase_PlushTile({
         adv,
         // Everything the artwork and flow textures are built from.
         artKey: [src, art.fit, art.size, art.offsetY, furColor, fr.flow, adv.edgeFlow].join("|"),
+        cap: Math.max(1000, Math.min(MAX_STRANDS, num(strandCap, MAX_STRANDS))),
     }
     const cfgRef = useRef(cfg)
     cfgRef.current = cfg
@@ -910,8 +917,22 @@ function __OriginkitBase_PlushTile({
             powerPreference: "low-power",
             preserveDrawingBuffer: false,
         }) as WebGL2RenderingContext | null
+        // GB IMPORTS: the host listens for these to keep the real-fur poster or cross-fade to live.
+        const emit = (type: string, detail?: unknown) => rootEl.dispatchEvent(new CustomEvent(type, { bubbles: true, detail }))
         // No WebGL2: the root's CSS Background stays showing.
-        if (!ctx) return
+        if (!ctx) {
+            emit("gb:plush-unsupported", { reason: "no-webgl2" })
+            return
+        }
+        // GB IMPORTS: a software rasteriser spends seconds per frame on six-digit strand counts and
+        // would starve the storefront boot. Visitors on one keep the poster; capture may opt in.
+        const dbg = ctx.getExtension("WEBGL_debug_renderer_info")
+        const gpuName = String(dbg ? ctx.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : ctx.getParameter(ctx.RENDERER))
+        const software = /swiftshader|llvmpipe|software|basic render/i.test(gpuName)
+        if (software && !allowSoftware) {
+            emit("gb:plush-unsupported", { reason: "software", gpu: gpuName })
+            return
+        }
         const root: HTMLDivElement = rootEl
         const canvas: HTMLCanvasElement = canvasEl
         const gl: WebGL2RenderingContext = ctx
@@ -944,6 +965,7 @@ function __OriginkitBase_PlushTile({
             strandProg = build(STRAND_VERT, STRAND_FRAG)
         } catch (err) {
             console.error("PlushTile:", err)
+            emit("gb:plush-failed", { reason: "shader" })
             return
         }
         const vao = gl.createVertexArray()
@@ -1126,6 +1148,7 @@ function __OriginkitBase_PlushTile({
             e.preventDefault()
             disposed = true
             cancelAnimationFrame(raf)
+            emit("gb:plush-failed", { reason: "context-lost" })
         }
         const onRestored = () => setGeneration((g) => g + 1)
         canvas.addEventListener("webglcontextlost", onLost)
@@ -1178,6 +1201,13 @@ function __OriginkitBase_PlushTile({
         let slowFrames = 0
         let fastFrames = 0
         let scheduled = false
+        // GB IMPORTS: live numbers for QA, mutated in place (the loop still allocates nothing), and
+        // the first frame whose centre pixel is real lit fur — never a mounted black canvas.
+        const stats = { gpu: gpuName, software, requested: 0, count: 0, frames: 0, brush: 0, quality: 1, firstFrameMs: 0 }
+        ;(root as HTMLDivElement & { __gbPlush?: typeof stats }).__gbPlush = stats
+        let verified = false
+        const PROBE = 24
+        const probe = new Uint8Array(PROBE * PROBE * 4)
 
         function wake() {
             if (disposed || scheduled) return
@@ -1364,7 +1394,11 @@ function __OriginkitBase_PlushTile({
             const tileCss = aFull * minCss
             // A device still slow at the resolution floor also thins the coat; wider hairs keep it covered.
             const thin = Math.min(1, quality / 0.75)
-            const count = Math.min(MAX_STRANDS, Math.round((density / 5) * tileCss * tileCss * STRANDS_PER_PX * thin))
+            const requested = Math.min(MAX_STRANDS, Math.round((density / 5) * tileCss * tileCss * STRANDS_PER_PX * thin))
+            // GB IMPORTS: the device budget caps the count; the hairs that remain widen a little (at most
+            // 1.5×) so the coat keeps its cover and silhouette without turning wiry.
+            const count = Math.min(requested, c.cap)
+            const widthK = Math.min(1.5, Math.sqrt(requested / Math.max(1, count)))
             const reach = clampN(c.rs.reach, 0, 10, DEFAULT_RESPONSE.reach)
 
             gl.viewport(0, 0, canvas.width, canvas.height)
@@ -1475,7 +1509,7 @@ function __OriginkitBase_PlushTile({
             U_ST.f1("uGrow", 0.15 + 0.85 * grow)
             U_ST.f1("uTime", clock)
             U_ST.f1("uBreeze", breezeK * 0.35)
-            U_ST.f1("uWidth", (clampN(adv.hairWidth, 0.2, 4, DEFAULT_ADVANCED.hairWidth) * kPx) / Math.sqrt(thin))
+            U_ST.f1("uWidth", (clampN(adv.hairWidth, 0.2, 4, DEFAULT_ADVANCED.hairWidth) * kPx * widthK) / Math.sqrt(thin))
             U_ST.f1("uJitter", clampN(adv.colorJitter, 0, 50, DEFAULT_ADVANCED.colorJitter) / 100)
             U_ST.f1("uTipFade", clampN(adv.tipFade, 0, 100, DEFAULT_ADVANCED.tipFade) / 100)
             U_ST.f1("uRootShade", clampN(adv.rootShade, 0, 100, DEFAULT_ADVANCED.rootShade) / 100)
@@ -1492,6 +1526,24 @@ function __OriginkitBase_PlushTile({
             U_ST.i1("uSegBase", HALF_SEG)
             gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, (HALF_SEG + 1) * 2, count)
             gl.bindVertexArray(vao)
+
+            stats.requested = requested
+            stats.count = count
+            stats.frames++
+            stats.brush = sm.bw
+            stats.quality = quality
+            if (!verified && fade >= 1 && grow >= 0.999) {
+                // Same task as the draw, so the back buffer is still there to read.
+                // A small block at the centre: the monogram's dark outline alone never counts as fur.
+                gl.readPixels((canvas.width - PROBE) >> 1, (canvas.height - PROBE) >> 1, PROBE, PROBE, gl.RGBA, gl.UNSIGNED_BYTE, probe)
+                let lit = 0
+                for (let i = 0; i < probe.length; i += 4) if (Math.max(probe[i], probe[i + 1], probe[i + 2]) > 90) lit++
+                if (lit > PROBE * PROBE * 0.2) {
+                    verified = true
+                    stats.firstFrameMs = performance.now()
+                    emit("gb:plush-ready", stats)
+                }
+            }
 
             if (active || breezeK > 0) wake()
         }
@@ -1524,7 +1576,7 @@ function __OriginkitBase_PlushTile({
             shaders.forEach((s) => gl.deleteShader(s))
             programs.forEach((p) => gl.deleteProgram(p))
         }
-    }, [generation])
+    }, [generation, allowSoftware])
 
     return (
         <div
@@ -1543,7 +1595,7 @@ const __originkitPresetProps = {
   "furColor": "#FFFFFF",
   "image": {
     "alt": "",
-    "src": "blob:https://www.originkit.dev/2ca03e2a-d5ae-4d10-bf44-3a2a7f973fe5"
+    "src": "./assets/brand/gb-monograma-amarelo-preto.svg"
   },
   "scale": 115,
   "radius": 49,
