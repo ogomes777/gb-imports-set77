@@ -1,6 +1,9 @@
 # GB Flagship / Changelog
 
 ## V11 — 30/10/2026 · "GB RAIL IMMERSIVE"
+- V11.2 — vitrine de vidro: fundo e laterais em caixilhos de alumínio com vidro; lá fora, a rua em luz de dia (à noite no tema escuro); o piso atravessa o vidro e continua do lado de fora. A peça em foco aparece espelhada no piso polido.
+- V11.2 — troca de cor em onda: ao escolher outra cor na ficha, a foto nova sobe da barra até a gola numa frente ondulada com uma faixa de luz na própria peça.
+- V11.2 — arrasto mais calmo: inclinação limitada a ~4,5° com limite suave, kits em dois cabides giram quase rígidos e a barra do tecido trava enquanto a arara está sendo arrastada (as peças não parecem mais cortadas ao meio).
 - A arara V10 entra numa loja: parede, piso de cimento com juntas em perspectiva, teto com trilhos de luz, paredes laterais e o batente da porta, todos em CSS 3D projetados pela mesma câmera. Em repouso, o plano da arara é idêntico ao da V10.
 - Filme depois do capítulo EM MOVIMENTO: porta no plano aberto → dolly com crane e arco (1,9 s; 1,65 s no toque) → a luz revela as peças → primeira rajada. Interrompível por qualquer gesto. Não repete.
 - A arara surge: com a câmera ainda na porta, os cabides são pousados na barra um a um, da peça em foco para fora, e balançam no contato. Cada peça tem sombra de contato no piso. Loja branca com piso polido; a câmera anda em primeira pessoa (três passos curtos) e assenta. No arrasto (mouse e toque), a sala gira levemente contra o gesto.

@@ -1,6 +1,8 @@
 # GB RAIL IMMERSIVE V11: a arara dentro de uma loja
 
-A V11 evolui a arara V10 sem substituí-la. Catálogo, estado (`GBRail`), gestos, fichas de cor e Object View continuam sendo os da V10. O que muda é o espaço em volta: barra e cabides passam a ficar no plano z=0 de uma sala com perspectiva real, e uma câmera entra nessa loja depois do capítulo **EM MOVIMENTO**.
+A V11 evolui a arara V10 sem substituí-la. Catálogo, estado (`GBRail`), gestos, fichas de cor e Object View continuam sendo os da V10. O que muda é o espaço em volta: barra e cabides passam a ficar no plano z=0 de uma loja com perspectiva real, e uma câmera entra nessa loja depois do capítulo **EM MOVIMENTO**.
+
+Desde a V11.2 a loja é uma **vitrine de vidro**: o fundo e as laterais são caixilhos de alumínio com vidro, lá fora há uma rua em luz de dia (cidade fora de foco, névoa, sol baixo; no tema escuro, a cidade acesa à noite) e o piso polido atravessa o trilho do vidro e continua do lado de fora.
 
 Arquivos: `gb-rail-v11.js`, `gb-rail-v11.css`, ajustes em `gb-rail-v10.js`/`.css` e o teste `tests/rail-immersive-v11.mjs`.
 
@@ -9,11 +11,12 @@ Arquivos: `gb-rail-v11.js`, `gb-rail-v11.css`, ajustes em `gb-rail-v10.js`/`.css
 | Beat | Quando | O que se vê |
 | --- | --- | --- |
 | 0. Capítulo | `#rail` entra na tela | Muro amarelo da V12 com **EM MOVIMENTO**, sem mudança. A loja já espera atrás dele, no plano aberto. |
-| 1. Porta | Os blocos do capítulo abrem (`.gb-chap.is-out`) | O batente claro da porta enquadra uma loja branca: parede ao fundo, piso polido com juntas que convergem, teto com dois trilhos de luz e paredes laterais. A barra está vazia, ao fundo. Esse plano fica parado por 0,76 s. |
+| 1. Porta | Os blocos do capítulo abrem (`.gb-chap.is-out`) | O batente claro da porta enquadra a loja de vidro: caixilhos no fundo e nas laterais (os montantes convergem), a rua lá fora, piso polido com juntas que convergem e seguem para fora, teto com dois trilhos de luz. A barra está vazia, ao fundo. Esse plano fica parado por 0,76 s. |
 | 1b. A arara surge | 0,52 s depois dos blocos abrirem | Os cabides são pousados na barra um a um, da peça em foco para fora (75 ms entre pares). Cada um sobe um pouco, desce com mola curta e balança no contato. Fora de quadro, as peças já entram pousadas. |
 | 2. Travelling | 1,9 s no desktop, 1,65 s no toque | A câmera avança (dolly), desce (crane) e fecha um pequeno arco lateral, com easing de cinema e três passos curtos (a câmera sobe e desce poucos pixels, como quem anda). O batente passa pela câmera e sai do quadro, e o fio amarelo GB da soleira passa por baixo dela. A luz da sala sobe um pouco antes da câmera chegar. Ao chegar, a câmera passa 1–2% e assenta. |
 | 3. A arara ganha vida | Logo depois de assentar | Vem a primeira rajada de ar. Cada cabide balança com a própria mola, o corpo do tecido atrasa em relação ao cabide e a barra da roupa atrasa mais. |
-| 4. Exploração | Arrasto (mouse e toque), setas, teclado, roda | Tudo continua igual à V10. Durante o arrasto a sala gira levemente contra o gesto; a arara segue 1:1 sob o dedo. A câmera acompanha cada troca com um respiro lateral e volta ao eixo. A luz de foco atrás da peça recua durante o gesto e acende quando a arara assenta. |
+| 4. Exploração | Arrasto (mouse e toque), setas, teclado, roda | Tudo continua igual à V10. Durante o arrasto a sala gira levemente contra o gesto; a arara segue 1:1 sob o dedo. As peças inclinam no máximo ~4,5° (limite suave), kits em dois cabides giram quase rígidos e a barra do tecido trava enquanto o dedo segura a arara. A peça em foco aparece espelhada no piso polido. A câmera acompanha cada troca com um respiro lateral e volta ao eixo. A luz de foco atrás da peça recua durante o gesto e acende quando a arara assenta. |
+| 4b. Troca de cor | Clique numa ficha de cor (arara ou Object View) | A foto da nova cor sobe da barra até a gola numa frente ondulada, com uma faixa de luz feita da própria foto nova (só acende onde há tecido). A foto antiga fica por baixo até a onda passar (~1 s). No fim resta uma camada só. Movimento reduzido troca na hora. |
 | 5. Detalhe | Clique ou Enter na peça | O Object View e o FLIP da V10 continuam. A câmera da sala avança atrás do viewer. |
 | 6. Retorno | Fechar ou Esc | A câmera sai de perto da peça e recua até o plano médio, com a mesma peça, cor e foco. |
 
@@ -23,12 +26,15 @@ O filme roda uma vez por carregamento. Qualquer intenção do visitante encurta 
 
 | Camada | Natureza | Como |
 | --- | --- | --- |
-| Parede, piso, teto, paredes laterais | **Geometria real** (CSS 3D) | Os planos são filhos de `.r11-room` (`perspective: P`, origem no horizonte = altura do olho). A parede está em `translateZ(-Dw)`. O piso e o teto são planos com `rotateX(-90deg)`; as laterais usam `rotateY(90deg)`. |
+| Vidro do fundo, vidros laterais, piso, teto | **Geometria real** (CSS 3D) | Os planos são filhos de `.r11-room` (`perspective: P`, origem no horizonte = altura do olho). O vidro do fundo está em `translateZ(-Dw)`. O piso e o teto são planos com `rotateX(-90deg)`; as laterais usam `rotateY(90deg)`. Os montantes de alumínio ficam a cada ~1,5 m (2,4 larguras de roupa). |
+| Rua lá fora | Plano em `translateZ(-Dw - 1,1P)` | Céu, sol baixo, cidade fora de foco (blocos determinísticos de baixo contraste) e névoa que esconde a base dos prédios (perspectiva aérea). Ordem de pintura: rua → piso (o trecho de fora aparece pelo vidro) → vidro. |
+| Piso | Um plano contínuo | Cimento polido dentro, trilho do vidro, o mesmo piso lá fora até a rua. Luz do dia deitando no piso perto do vidro. |
 | Arara: barra, hastes até o teto, cabides | Plano z=0, **igual à V10** | `#railBar` e `#railItems` mudaram de pai para `.r11-rack` sem mudar de lugar. Com a câmera em repouso, o rack fica **sem transform**: geometria, hit-test e nitidez são idênticos aos da V10. |
 | Batente da porta | Geometria em `z=+0,42P` | Só existe enquanto a câmera está do lado de fora (`hidden` em repouso). |
 | Roupas | **Foto real** do acervo | Recortes de `assets-map.js`, sem alteração. |
 | Sombra na parede | Imagem pré-calculada (V10) | `scripts/medir_midia_rail.py`. |
-| Contato no piso | Uma sombra suave por peça (`.r10-floor`) | Fica na linha do piso do plano da arara (`GBRailScene.floorY`), acompanha o balanço e some com a peça enquanto ela está no ar. |
+| Contato no piso | Uma sombra suave por peça (`.r10-floor`) | Fica na linha do piso do plano da arara (`GBRailScene.floorY`, ~0,2 roupa abaixo das barras mais longas), acompanha o balanço e some com a peça enquanto ela está no ar. |
+| Reflexo no piso polido | A própria foto da peça em foco, espelhada (`.r10-refl`) | Espelhada sobre a linha do piso, esmaecendo para longe do chão, com o balanço invertido. Só a peça em foco: refletir a arara inteira com `-webkit-box-reflect` custou ~45 ms por quadro (medido) e foi descartado. |
 | Poça de luz no piso | Gradiente estático no plano do piso | Desenhada sob a arara. |
 | Luz | Gradientes estáticos | Leques dos trilhos na parede, faixa de luz no alto, luz de foco atrás da peça (opacidade por `data-phase`), queda nas bordas e nível de luz da chegada (`--r11-light`, só opacidade). |
 | Física | Molas do `GBMotion` | Três molas por cabide em cena: cabide → corpo → barra. |
@@ -36,7 +42,7 @@ O filme roda uma vez por carregamento. Qualquer intenção do visitante encurta 
 **Câmera.** A câmera é uma posição `(cx, cy, c)`. Cada plano recebe `translate3d(-cx, -cy, z - c)` e é projetado pela mesma perspectiva. Por isso a parede anda menos que a arara, o piso converge e a porta passa pela câmera: é parallax físico, não ampliação de imagem. A geometria da sala é derivada da geometria da arara (`GBRail.geometry`):
 
 - horizonte na altura do peito das roupas;
-- encontro parede/piso logo abaixo das barras mais longas;
+- piso do plano da arara logo abaixo das barras mais longas; o trilho do vidro do fundo encontra o piso mais acima, por trás delas;
 - teto fora de quadro no plano final;
 - paredes laterais aparecendo 1,5% em cada borda.
 
@@ -44,7 +50,7 @@ O filme roda uma vez por carregamento. Qualquer intenção do visitante encurta 
 
 | Sistema | Responsabilidade |
 | --- | --- |
-| `Perf` | Define o nível: `full` (desktop com mouse), `touch` ou `static` (movimento reduzido, saveData, aparelho modesto). Mede os quadros do próprio dolly: abaixo de ~36 fps rebaixa para `-low`, desligando o rig do tecido e o blur da sombra da barra. Sala, câmera e vento continuam. |
+| `Perf` | Define o nível: `full` (desktop com mouse), `touch` ou `static` (movimento reduzido, saveData, aparelho modesto). Mede os quadros do próprio dolly: abaixo de ~36 fps rebaixa para `-low`, desligando o rig do tecido e o blur da sombra da barra. Sala, câmera e vento continuam. O nível de luz da chegada é escrito só na opacidade da camada que escurece (não como variável no palco inteiro, o que invalidaria o estilo de todas as peças a cada quadro). |
 | `Scene` | Monta as camadas e mede a sala a partir da arara. Reage a `ResizeObserver`. |
 | `Camera` | Guarda a pose. Faz o dolly com easing, a pressa ao interagir, as molas de parallax/impulso e o push/pull do viewer, e projeta cada camada. |
 | `Reveal` | Observa `.gb-chap` (`MutationObserver` da classe `is-out`). Sem timer cego: só há um teto de segurança se o capítulo sumir. Nunca cria um segundo overlay. |
@@ -56,6 +62,7 @@ Contrato com a V10, sem segundo relógio:
 
 - `GBRailScene.wind(t)`: nível da rajada.
 - `GBRailScene.rig`: rig ligado ou não.
+- `GBRailScene.reflect`: espelho da peça em foco no piso.
 - `GBRail.wake()`: o palco acorda **o mesmo** loop da arara.
 - `GBRail.stageHide()` / `GBRail.stageEnter(delay)`: entrada dos cabides.
 - `GBRailScene.floorY`: linha do piso no plano da arara.
