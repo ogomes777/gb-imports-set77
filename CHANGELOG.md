@@ -1,5 +1,14 @@
 # GB Flagship / Changelog
 
+## V11 — 30/10/2026 · "GB RAIL IMMERSIVE"
+- A arara V10 entra numa loja: parede, piso de cimento com juntas em perspectiva, teto com trilhos de luz, paredes laterais e o batente da porta, todos em CSS 3D projetados pela mesma câmera. Em repouso, o plano da arara é idêntico ao da V10.
+- Filme depois do capítulo EM MOVIMENTO: porta no plano aberto → dolly com crane e arco (1,9 s; 1,65 s no toque) → a luz revela as peças → primeira rajada. Interrompível por qualquer gesto. Não repete.
+- Física por peça: mola do cabide, corpo do tecido com atraso e barra com mais atraso (rig de dois ossos da mesma foto, sem deformar estampa). Massa por família. Vento em rajadas espaçadas, fora de sincronia, só com a arara em tela; entre rajadas o relógio para.
+- Câmera reage à navegação, ao ponteiro (mouse) e ao Object View (avança ao abrir, recua ao fechar). Luz de foco por fase.
+- Bug da borda direita: cabide e sombra pintavam antes da foto da roupa nas peças que entravam pela direita. Hidratação adiantada e peça revelada só com a foto decodificada: de 152/240 quadros com fantasma para 0. A borda da arara esmaece por máscara estática, e os letreiros laterais ficam na faixa limpa.
+- `GBRailViews`: costas, lateral e 360° só com foto aprovada, com procedência e com arquivo real. Hoje, só a frente.
+- `tests/rail-immersive-v11.mjs` (5 larguras, borda com foto lenta, interrupção, movimento reduzido, vistas). Detalhes em `docs/GB_RAIL_V11.md`.
+
 ## Correção do catálogo — 23/10/2026
 - Vitrine: ocultar somente as 12 bermudas avulsas cujo objeto aparece minúsculo no arquivo (s-120 a s-131); preservar as 10 bermudas com enquadramento normal (s-079 a s-088), os kits, os arquivos de origem e a contagem sincronizada de 102 produtos.
 
