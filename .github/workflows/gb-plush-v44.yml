@@ -1,0 +1,37 @@
+name: GB Imports | First Real Plush Frame V44
+on:
+  push:
+    branches: [feat/gb-plush-first-frame-v44]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'gb-material-v42.js'
+      - 'gb-material-v42.css'
+      - 'gb-ribbon-intro.js'
+      - 'scripts/build.mjs'
+      - 'tests/plush-first-frame-v44.mjs'
+permissions:
+  contents: read
+jobs:
+  first-real-frame:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install production dependencies and Chromium
+        run: |
+          npm install --no-audit --no-fund
+          npm install --no-save playwright
+          npx playwright install chromium
+      - name: Build live PlushTile and static storefront
+        run: |
+          node scripts/build.mjs
+          test -n "$(ls dist/_gb/gb-plush-v43.*.js)"
+      - name: Verify first frame, touch, fallback, fade and storefront
+        run: |
+          python3 -m http.server 8080 --directory dist > /tmp/gb-v44-http.log 2>&1 &
+          sleep 2
+          node tests/plush-first-frame-v44.mjs
