@@ -43,8 +43,11 @@ async function film(browser,w,h){
     items:document.querySelectorAll('#railItems .r10-item').length,perspective:getComputedStyle(document.querySelector('.r11-room')).perspective}));
   check(vp,'V11: capítulo EM MOVIMENTO preservado e loja montada sob a mesma arara',pre.chap&&pre.layers&&pre.items===63&&pre.perspective!=='none',JSON.stringify(pre));
   check(vp,'V11: antes do capítulo a câmera está no plano aberto (arara ao fundo)',pre.phase==='far'&&pre.cam.scale<.72,JSON.stringify(pre.cam));
-  const hid=await page.evaluate(()=>({entering:GBRail.entering,shown:[...document.querySelectorAll('#railItems .r10-item:not([hidden])')].filter(c=>+getComputedStyle(c).opacity>0).length}));
+  // a composição inicial assenta em ~1 s; depois disso, com os cabides esperando o filme, nada roda
+  await page.waitForFunction(()=>!GBRail.state.moving,null,{timeout:6000}).catch(()=>{});await page.waitForTimeout(300);
+  const hid=await page.evaluate(()=>({moving:GBRail.state.moving,running:document.querySelector('#railItems').classList.contains('is-moving'),entering:GBRail.entering,shown:[...document.querySelectorAll('#railItems .r10-item:not([hidden])')].filter(c=>+getComputedStyle(c).opacity>0).length}));
   check(vp,'V11: antes do filme a barra está vazia (cabides ainda não pousaram)',hid.entering===63&&hid.shown===0,JSON.stringify(hid));
+  check(vp,'V11: antes do filme o relógio da arara está parado (nada roda fora de tela)',!hid.moving&&!hid.running,JSON.stringify(hid));
   // 2. rola: grava a câmera por quadro (rAF) desde o capítulo até assentar
   await page.evaluate(()=>{window.__cam=[];const t0=performance.now();let lt=0;const f=t=>{const c=GBRailScene.camera,ch=document.querySelector('#rail>.gb-chap');
     const op=[...document.querySelectorAll('#railItems .r10-item:not([hidden])')].map(c=>+c.style.opacity||(c.style.opacity===''?1:0));

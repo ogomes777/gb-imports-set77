@@ -348,7 +348,9 @@ function layout(){
 function loop(dt,tms){
   if(!dragging)pos.step(dt);
   swing.set(clamp(-pos.v*2.4,-5,5));swing.step(dt);lag.set(swing.x);lag.step(dt);
-  const alive=physics(dt,(tms||performance.now())/1000)||entering>0;
+  // só cabide com pouso agendado mantém o relógio: escondidos à espera do filme não custam quadro nenhum
+  const landing=entering>0&&cards.some(c=>c.en&&c.en.t!==Infinity);
+  const alive=physics(dt,(tms||performance.now())/1000)||landing;
   const rest=!dragging&&Math.abs(pos.target-pos.x)<=.02;spread.set(rest?1:0);spread.step(dt);
   // recentramento da composição só em repouso: sob o dedo a arara anda 1:1, sem deriva
   if(rest)shift.set(shiftX);shift.step(dt);
@@ -359,7 +361,7 @@ function loop(dt,tms){
   if(!dragging&&Math.abs(pos.target-pos.x)<.02&&Math.abs(pos.v)<.35&&S.phase!=='focused'&&S.phase!=='viewer')onSettled();
   const railIdle=!dragging&&pos.settled&&shift.settled&&Math.abs(swing.x)<.02&&Math.abs(swing.v)<.04&&Math.abs(lag.x)<.02&&Math.abs(lag.v)<.04&&spread.settled&&!hovering;
   // vento ambiente e o tecido assentando não são "arara em movimento": o estado conta gesto, mola da arara e entrada
-  railMoving=!railIdle||entering>0;
+  railMoving=!railIdle||landing;
   const idle=railIdle&&!alive;
   if(idle){pos.jump(target);swing.jump(0);lag.jump(0);cards.forEach(c=>{if(c.ph){c.ph.th.jump(0);c.ph.fi.jump(0);c.ph.he.jump(0)}});layout();running=false;track.classList.remove('is-moving');onSettled();return false}
 }
