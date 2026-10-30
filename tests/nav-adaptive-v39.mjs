@@ -1,5 +1,8 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+const shot=name=>join(tmpdir(),name);
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 for(const cfg of [{w:1440,h:900},{w:390,h:844}]){
  const c=await browser.newContext({viewport:{width:cfg.w,height:cfg.h},hasTouch:cfg.w<600,reducedMotion:'reduce'});
@@ -35,7 +38,7 @@ for(const cfg of [{w:1440,h:900},{w:390,h:844}]){
   assert(await page.locator('#gbLanguageMenu').isVisible(),'keyboard picker did not open');
   await page.keyboard.press('Escape');
   assert(await page.locator('#gbLanguageMenu').isHidden(),'escape should close the language menu');
-  await page.screenshot({path:'v39-desktop-navbar.png'});
+  await page.screenshot({path:shot('v39-desktop-navbar.png')});
  }else{
   assert(await page.locator('#gbSettingsOpen').count()===0,'mobile duplicate preferences remain');
   await page.locator('#gbLanguageTrigger').click();
@@ -59,7 +62,7 @@ for(const cfg of [{w:1440,h:900},{w:390,h:844}]){
  const filtered=await page.evaluate(()=>({suggestions:document.querySelector('#gbSearchSuggestions').hidden,
  count:document.querySelectorAll('#searchResults [data-searchproduct]').length}));
  assert(filtered.suggestions&&filtered.count>0,'live real catalog search broken '+JSON.stringify(filtered));
- await page.screenshot({path:cfg.w>900?'v39-desktop-search.png':'v39-mobile-search.png'});
+ await page.screenshot({path:shot(cfg.w>900?'v39-desktop-search.png':'v39-mobile-search.png')});
  await page.locator('#searchDrawer [data-close]').click();
  assert(await page.locator('#searchDrawer').isHidden(),'search close broke');
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);

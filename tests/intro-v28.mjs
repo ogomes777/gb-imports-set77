@@ -1,5 +1,8 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+const shot=name=>join(tmpdir(),name);
 const b=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 for(const [width,height] of [[1440,900],[390,844]]){
  const ctx=await b.newContext({viewport:{width,height},deviceScaleFactor:1,hasTouch:width<600,isMobile:width<600});
@@ -14,7 +17,7 @@ for(const [width,height] of [[1440,900],[390,844]]){
   const target=document.elementFromPoint(innerWidth*.5,innerHeight*.5);
   return{exists:!!host,boot:host.classList.contains('is-boot'),width:r.width,height:r.height,top:r.top,position:c.position,zIndex:c.zIndex,bg:c.backgroundImage,cover:target===host||host.contains(target),head:!!document.querySelector('.site-header')};
  });
- await page.screenshot({path:'v28-'+width+'-FIRST-PAINT.jpg',type:'jpeg',quality:70});
+ await page.screenshot({path:shot('v28-'+width+'-FIRST-PAINT.jpg'),type:'jpeg',quality:70});
  assert(pre.boot&&pre.cover&&pre.position==='fixed'&&pre.width>=width-1&&pre.height>=height-1,'landing flashed during JS load '+JSON.stringify(pre));
  await pending;
  await page.waitForFunction(()=>window.GBGlassRibbons&&GBGlassRibbons.frames>1,null,{timeout:18000});
@@ -23,19 +26,20 @@ for(const [width,height] of [[1440,900],[390,844]]){
  await page.waitForTimeout(3000);
  const mid=await page.evaluate(()=>({opening:GBGlassRibbons.opening,entry:document.querySelector('.gb-ribbon-entry')?.getBoundingClientRect().width}));
  assert(mid.opening,'intro too short');
- await page.screenshot({path:'v28-'+width+'-LOGO.jpg',type:'jpeg',quality:68});
+ await page.screenshot({path:shot('v28-'+width+'-LOGO.jpg'),type:'jpeg',quality:68});
  if(width<600)await page.touchscreen.tap(210,330);else await page.mouse.move(800,300,{steps:5});
  await page.waitForTimeout(1600);
  const gate=await page.evaluate(()=>({preparing:document.querySelector('#gbRibbonBoot').classList.contains('is-preparing-entry'),text:document.querySelector('.gb-ribbon-entry strong')?.textContent}));
- await page.screenshot({path:'v28-'+width+'-ENTRY.jpg',type:'jpeg',quality:68});
- await page.waitForFunction(()=>GBGlassRibbons.settled&&document.getElementById('gbRibbonBoot').parentElement.id==='heroStage',null,{timeout:14000});
- const after=await page.evaluate(()=>({settled:GBGlassRibbons.settled,parent:document.querySelector('#gbRibbonBoot').parentElement.id,position:getComputedStyle(document.getElementById('gbRibbonBoot')).position,frame:GBGlassRibbons.frames,hero:!!document.getElementById('heroArt'),fit:!!document.getElementById('lookstudio'),overflow:document.documentElement.scrollWidth-innerWidth,overlayPointer:getComputedStyle(document.getElementById('gbRibbonBoot')).pointerEvents}));
+ await page.screenshot({path:shot('v28-'+width+'-ENTRY.jpg'),type:'jpeg',quality:68});
+ // V34+: a abertura assina o logo, vira portal e se retira; nada dela fica pintando no hero
+ await page.waitForFunction(()=>GBGlassRibbons.settled&&GBGlassRibbons.removed,null,{timeout:14000});
+ const after=await page.evaluate(()=>({settled:GBGlassRibbons.settled,removed:GBGlassRibbons.removed,active:GBGlassRibbons.active,frame:GBGlassRibbons.frames,hero:!!document.getElementById('heroArt'),fit:!!document.getElementById('lookstudio'),overflow:document.documentElement.scrollWidth-innerWidth,cover:!!document.elementFromPoint(innerWidth/2,innerHeight/2)?.closest('#gbRibbonBoot')}));
  await page.waitForTimeout(550);
  const later=await page.evaluate(()=>GBGlassRibbons.frames);
- assert(after.settled&&after.parent==='heroStage'&&after.position==='absolute'&&after.overlayPointer==='none'&&after.hero&&after.fit&&after.overflow<=2,'landing handoff failed '+JSON.stringify(after));
- assert(later>after.frame,'ribbon loop stopped');
+ assert(after.settled&&after.removed&&!after.active&&!after.cover&&after.hero&&after.fit&&after.overflow<=2,'landing handoff failed '+JSON.stringify(after));
+ assert(later===after.frame,'retired intro kept painting');
  assert(!errors.length,'JS errors: '+errors.join(';'));
- await page.screenshot({path:'v28-'+width+'-HERO.jpg',type:'jpeg',quality:70});
+ await page.screenshot({path:shot('v28-'+width+'-HERO.jpg'),type:'jpeg',quality:70});
  console.log(JSON.stringify({viewport:width+'x'+height,firstPaint:pre,begin:{opening:begin.opening,asset:begin.asset},mid,gate,after,framesAfter:later,errors}));
  await ctx.close();
 }
@@ -43,7 +47,7 @@ const r=await b.newContext({viewport:{width:390,height:844},reducedMotion:'reduc
 const reducedPage=await r.newPage();
 await reducedPage.goto('http://127.0.0.1:8080/',{waitUntil:'domcontentloaded'});
 await reducedPage.waitForFunction(()=>window.GBGlassRibbons,null,{timeout:20000});
-const red=await reducedPage.evaluate(()=>({opening:GBGlassRibbons.opening,frames:GBGlassRibbons.frames,bootDisplay:getComputedStyle(document.getElementById('gbRibbonBoot')).display,position:getComputedStyle(document.getElementById('gbRibbonBoot')).position}));
-assert(!red.opening&&red.frames===0&&red.position==='absolute','reduced motion broken '+JSON.stringify(red));
+const red=await reducedPage.evaluate(()=>({opening:GBGlassRibbons.opening,frames:GBGlassRibbons.frames,removed:GBGlassRibbons.removed,host:!!document.getElementById('gbRibbonBoot')}));
+assert(!red.opening&&red.frames===0&&red.removed&&!red.host,'reduced motion broken '+JSON.stringify(red));
 console.log('REDUCED',red);
 await r.close();await b.close();

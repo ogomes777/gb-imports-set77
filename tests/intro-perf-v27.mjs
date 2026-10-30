@@ -8,8 +8,7 @@ for(const [width,height] of [[1280,720],[390,844]]){
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:8080/',{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.GBGlassRibbons?.frames>0,null,{timeout:30000});
- await page.waitForFunction(()=>GBGlassRibbons.settled&&document.getElementById('gbRibbonBoot')?.parentElement?.id==='heroStage',null,{timeout:18000});
- const before=await page.evaluate(()=>({
+  const before=await page.evaluate(()=>({
    quality:GBGlassRibbons.quality,
    frameGapMs:GBGlassRibbons.frameGapMs,
    paintMs:GBGlassRibbons.paintMs,
@@ -18,7 +17,7 @@ for(const [width,height] of [[1280,720],[390,844]]){
    settled:GBGlassRibbons.settled,
    glass:GBGlassRibbons.fullGlass
  }));
- assert(before.settled&&before.glass,'intro failed '+JSON.stringify(before));
+ assert(before.glass,'intro failed '+JSON.stringify(before));
  assert(before.logo.includes('gb-monograma-amarelo-preto.svg'),'logo changed');
  assert(before.quality>=0&&before.quality<=2,'invalid adaptive state');
  assert(before.paintMs[0]<20,'canvas paint cost too high '+JSON.stringify(before));
@@ -31,6 +30,9 @@ for(const [width,height] of [[1280,720],[390,844]]){
  }));
  assert(moved.pointer[0]>.18&&moved.pointer[0]<.82,'input lost');
  assert(moved.frames>before.frames,'ribbon loop stopped');
+ // V34+: depois do portal a abertura sai; rolar a página e voltar ao topo não religa o filme
+ await page.waitForFunction(()=>GBGlassRibbons.settled&&GBGlassRibbons.removed,null,{timeout:18000});
+ const retired=await page.evaluate(()=>GBGlassRibbons.frames);
  const scroll=await page.evaluate(()=>{
    window.scrollTo({top:document.documentElement.scrollHeight-innerHeight,behavior:'instant'});
    return {total:document.documentElement.scrollHeight,position:scrollY};
@@ -39,11 +41,11 @@ for(const [width,height] of [[1280,720],[390,844]]){
  const away=await page.evaluate(()=>GBGlassRibbons.frames);
  await page.waitForTimeout(600);
  const away2=await page.evaluate(()=>GBGlassRibbons.frames);
- if(scroll.position>height*1.5)assert(away2-away<=2,'canvas kept painting offscreen');
+ assert(away2===away,'canvas kept painting offscreen');
  await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
  await page.waitForTimeout(550);
  const resumed=await page.evaluate(()=>GBGlassRibbons.frames);
- assert(resumed>away2,'hero ribbon did not resume');
+ assert(resumed===retired&&!(await page.evaluate(()=>GBGlassRibbons.active)),'retired intro restarted on the hero');
  assert(errors.length===0,'JS errors '+JSON.stringify(errors));
  console.log(JSON.stringify({viewport:width+'x'+height,ok:true,before,moved,offscreenFrames:away2-away,errors}));
  await ctx.close();

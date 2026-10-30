@@ -9,10 +9,9 @@ for(const [width,height] of [[1440,900],[390,844]]){
  await page.waitForFunction(()=>window.GBGlassRibbons?.frames>0,null,{timeout:25000});
  const first=await page.evaluate(()=>({sweep:GBGlassRibbons.sweep,signature:GBGlassRibbons.signatureProgress,
   glass:getComputedStyle(document.querySelector('#gbRibbonBoot .gb-ribbon-glass')).backgroundImage,
-  originalLogo:GBGlassRibbons.logoAsset}));
+  originalLogo:GBGlassRibbons.logoAsset,full:GBGlassRibbons.fullGlass}));
  assert(first.originalLogo==='./assets/brand/gb-monograma-amarelo-preto.svg','original logo changed');
- assert(first.glass.includes('radial-gradient'),'ceramic glass layers missing');
- await page.waitForFunction(()=>GBGlassRibbons.settled&&document.getElementById('gbRibbonBoot').parentElement.id==='heroStage',null,{timeout:17000});
+ assert(first.full&&/gradient\(/.test(first.glass),'glass layers missing');
  const before=await page.evaluate(()=>({bend:GBGlassRibbons.flowBend,twist:GBGlassRibbons.flowTwist,frames:GBGlassRibbons.frames}));
  if(width<500){await page.touchscreen.tap(70,170);}else{await page.mouse.move(210,170,{steps:4});await page.mouse.down();}
  await page.waitForTimeout(260);
@@ -25,6 +24,9 @@ for(const [width,height] of [[1440,900],[390,844]]){
  assert(left.bend!==right.bend||left.twist!==right.twist,'spring response inert');
  assert(right.paint[0]<25,'paint too expensive in sandbox '+right.paint[0]);
  assert([0,1,2].includes(right.quality),'invalid adaptive quality');
+ // V34+: a abertura sai sozinha e não deixa o filme pintando
+ await page.waitForFunction(()=>GBGlassRibbons.settled&&GBGlassRibbons.removed,null,{timeout:17000});
+ assert(!(await page.evaluate(()=>GBGlassRibbons.active)),'retired intro still painting');
  assert(!errors.length,'page errors '+errors);
  console.log(JSON.stringify({viewport:width+'x'+height,first,reactivity:{before,left,right},errors}));
  await ctx.close();
