@@ -1543,7 +1543,7 @@ const __originkitPresetProps = {
   "furColor": "#FFFFFF",
   "image": {
     "alt": "",
-    "src": "blob:https://www.originkit.dev/2ca03e2a-d5ae-4d10-bf44-3a2a7f973fe5"
+    "src": "./assets/brand/gb-monograma-amarelo-preto.svg"
   },
   "scale": 115,
   "radius": 49,
