@@ -24,8 +24,8 @@ for(const cfg of configs){
  });
  // CI must never assume a Vercel sandbox filesystem path.
  // Visual capture is not needed for this layout/animation regression.
- assert(mid.image.includes('gb-glass-pearl-v37.webp'),'The optical glass asset was lost '+JSON.stringify(mid));
- assert(['rgb(247, 247, 243)','rgb(248, 247, 243)'].includes(mid.bg)&&['rgb(246, 245, 241)','rgb(248, 247, 243)'].includes(mid.hostbg),'Dark theme/failure did not get a light fallback '+JSON.stringify(mid));
+ assert(!mid.image.includes('gb-glass-pearl-v37.webp'),'V42 should no longer expose the white optical glass '+JSON.stringify(mid));
+ assert(mid.hostbg==='rgb(5, 5, 6)'&&mid.bg==='rgb(5, 5, 6)','Black Gold must remain genuinely dark in every theme and failure case '+JSON.stringify(mid));
  await p.waitForFunction(()=>GBGlassRibbons.parked===true,null,{timeout:18000});
  const tail=await p.evaluate(()=>({can:GBGlassRibbons.canvasSize,quality:GBGlassRibbons.quality,frames:GBGlassRibbons.frames,sweep:GBGlassRibbons.sweep,ink:GBGlassRibbons.signatureProgress}));
  assert(mid.can[0]===tail.can[0]&&mid.can[1]===tail.can[1],'Backing store changed while ribbon was completing '+JSON.stringify({mid,tail}));

@@ -20,9 +20,9 @@ for(const [w,h,slow] of [[1440,900,false],[390,844,false],[360,780,true]]){
     frames:GBGlassRibbons.frames};
   }));
  }
- assert(frames[1].bg.includes('gb-glass-pearl-v37.webp'),'glass image missing');
+ assert(frames.every(x=>!x.bg.includes('gb-glass-pearl-v37.webp')),'V42 should not download old pearl material');
  const resource=await page.evaluate(()=>performance.getEntriesByType('resource').filter(e=>e.name.includes('gb-glass-pearl-v37.webp')).map(e=>({url:e.name,duration:e.duration,bytes:e.transferSize})));
- assert(resource.length===1&&!badImages.length,'glass asset not downloaded '+JSON.stringify({resource,badImages}));
+ assert(resource.length===0&&!badImages.length,'V42 must never rely on old white glass '+JSON.stringify({resource,badImages}));
  assert(frames.every(x=>x.filter==='none'&&x.inkFilter==='none'&&x.specularAnimation==='none'),
    'expensive animated image filter / specular still active '+JSON.stringify(frames));
  assert(frames[0].clip.startsWith('inset('),'first frame mask not stable');

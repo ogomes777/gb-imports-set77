@@ -1,0 +1,39 @@
+name: GB Imports | Original PlushTile V43
+on:
+  push:
+    branches: [feat/gb-puff-only-v43]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/plush/**'
+      - 'gb-material-v42.js'
+      - 'gb-material-v42.css'
+      - 'gb-ribbon-intro.js'
+      - 'scripts/build.mjs'
+      - 'package.json'
+      - 'tests/puff-v43.mjs'
+permissions:
+  contents: read
+jobs:
+  original-plush:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned React/esbuild and Playwright
+        run: |
+          npm install --no-audit --no-fund
+          npm install --no-save playwright
+          npx playwright install chromium
+      - name: Build original plush and storefront
+        run: |
+          node scripts/build.mjs
+          test -n "$(ls dist/_gb/gb-plush-v43.*.js)"
+      - name: Test real GPU component, shop handoff and fallback
+        run: |
+          python3 -m http.server 8080 --directory dist > /tmp/gb-v43-http.log 2>&1 &
+          sleep 2
+          node tests/puff-v43.mjs

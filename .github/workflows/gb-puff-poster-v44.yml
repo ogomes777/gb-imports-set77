@@ -1,0 +1,45 @@
+name: GB Imports | Generate True Fur Poster V44
+on:
+  push:
+    branches: [feat/gb-plush-first-frame-v44]
+    paths:
+      - 'scripts/capture-gb-puff-poster-v44.mjs'
+      - 'scripts/prepare-gb-puff-poster-v44.py'
+      - '.github/workflows/gb-puff-poster-v44.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  poster:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare exact user-supplied fur shader
+        run: |
+          npm install --no-audit --no-fund
+          npm install --no-save playwright
+          npx playwright install chromium
+          python3 -m pip install --user Pillow
+          node scripts/build.mjs
+      - name: Capture actual WebGL2 fibers (software capture ONLY during CI)
+        run: |
+          node scripts/capture-gb-puff-poster-v44.mjs
+          python3 scripts/prepare-gb-puff-poster-v44.py
+          test -s assets/brand/gb-puff-poster-v44.webp
+      - name: Commit pre-rendered real-fur first frame to the isolated V44 branch
+        run: |
+          git config user.name "GB Poster QA"
+          git config user.email "gb-poster-qa@users.noreply.github.com"
+          git add assets/brand/gb-puff-poster-v44.webp
+          if git diff --cached --quiet; then
+            echo "Poster already present"
+          else
+            git commit -m "asset(intro): actual PlushTile fur first-frame poster for instant fidelity"
+            git push origin HEAD:feat/gb-plush-first-frame-v44
+          fi
