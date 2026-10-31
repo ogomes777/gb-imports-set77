@@ -47,66 +47,96 @@ function project(angle,r,skew){
  * gentle illuminated smoke over the existing graphite surface.
  * Build once per resize or theme change, move only a few points in runtime.
  */
+/* GB COSMOS V47.1 | Visible atmospheric chamber, dual-theme safe.
+ * Replaces near-invisible mist with 2 broad volumetric cloud shelves and
+ * a spectral champagne/blue aurora. No polylines, rings, spirals or portals.
+ * All gas/light is rendered ONCE at theme change or resize.
+ */
 function buildNebula(){
  if(!nctx||w<10||h<10)return;
  const theme=document.body.dataset.gbTheme||'origem';
  const dark=theme==='sinal',silver=theme==='trama',mob=mobile();
- const budget=mob?260000:640000;
+ const budget=mob?320000:730000;
  const ratio=Math.min(1,Math.sqrt(budget/(w*h)));
  nebula.width=Math.max(2,Math.round(w*ratio));
  nebula.height=Math.max(2,Math.round(h*ratio));
  nctx.setTransform(ratio,0,0,ratio,0,0);
  nctx.clearRect(0,0,w,h);
- const cx=w*.525,cy=h*.49,scale=Math.min(w,h);
- let noiseSeed=775419;
- function rnd(){noiseSeed=(Math.imul(noiseSeed,1664525)+1013904223)>>>0;return noiseSeed/4294967296}
- // The same spatial composition across themes; only color and contrast vary.
+ const cx=w*.55,cy=h*.51,span=Math.min(w,h);
  const scheme=dark?{
-  warm:'247,188,99',cold:'116,150,179',pearl:'235,233,221',
-  base:.19,secondary:.12,center:.23,cloud:.065,dust:.23
+  slate:'80,94,119',champagne:'255,201,118',blue:'119,177,224',
+  graphite:.27,warm:.36,cool:.24,core:.37,cloud:.24,dust:.42
  }:silver?{
-  warm:'165,144,115',cold:'116,134,153',pearl:'228,222,207',
-  base:.09,secondary:.055,center:.115,cloud:.022,dust:.125
+  slate:'71,83,92',champagne:'188,152,103',blue:'91,132,164',
+  graphite:.25,warm:.34,cool:.22,core:.32,cloud:.20,dust:.30
  }:{
-  warm:'201,155,78',cold:'120,139,157',pearl:'243,233,212',
-  base:.105,secondary:.065,center:.128,cloud:.026,dust:.135
+  slate:'77,88,94',champagne:'210,163,80',blue:'100,141,176',
+  graphite:.28,warm:.37,cool:.23,core:.35,cloud:.21,dust:.32
  };
- function mist(x,y,rx,ry,rgb,opacity){
+ function mist(x,y,rx,ry,col,alpha){
   nctx.save();
-  nctx.translate(x,y);
-  nctx.scale(rx,ry);
-  const g=nctx.createRadialGradient(0,0,.02,0,0,1);
-  g.addColorStop(0,'rgba('+rgb+','+opacity+')');
-  g.addColorStop(.34,'rgba('+rgb+','+(opacity*.52)+')');
-  g.addColorStop(.69,'rgba('+rgb+','+(opacity*.13)+')');
-  g.addColorStop(1,'rgba('+rgb+',0)');
-  nctx.fillStyle=g;
-  nctx.fillRect(-1,-1,2,2);
+  nctx.translate(x,y);nctx.scale(rx,ry);
+  const g=nctx.createRadialGradient(0,0,0,0,0,1);
+  g.addColorStop(0,'rgba('+col+','+alpha+')');
+  g.addColorStop(.34,'rgba('+col+','+(alpha*.82)+')');
+  g.addColorStop(.64,'rgba('+col+','+(alpha*.32)+')');
+  g.addColorStop(.85,'rgba('+col+','+(alpha*.075)+')');
+  g.addColorStop(1,'rgba('+col+',0)');
+  nctx.fillStyle=g;nctx.fillRect(-1,-1,2,2);
   nctx.restore();
  }
- // One big diffuse atmosphere; no outlines, dark circular portal or arms.
- mist(cx,cy,w*.50,h*.46,scheme.warm,scheme.base);
- mist(cx+w*.15,cy-h*.12,w*.28,h*.38,scheme.cold,scheme.secondary);
- mist(cx-w*.16,cy+h*.14,w*.28,h*.30,scheme.pearl,scheme.secondary*.82);
- // The three volumes gently overlap. A short axial glow makes the
- // garments read like they're floating inside a premium photo studio.
- mist(cx,cy,scale*.23,scale*.23,scheme.pearl,scheme.center);
- mist(cx,cy+scale*.02,scale*.11,scale*.12,scheme.warm,scheme.base*.52);
- // Very faint grain confined to the same atmosphere, pre-rendered once.
- const count=mob?55:140;
- for(let i=0;i<count;i++){
-  const a=rnd()*Math.PI*2;
-  const rad=Math.sqrt(rnd());
-  const x=cx+Math.cos(a)*w*.39*rad;
-  const y=cy+Math.sin(a)*h*.39*rad*.67;
-  const grain=.28+rnd()*.80;
-  const alpha=scheme.dust*(1-rad*.78)*(.35+rnd()*.65);
-  nctx.fillStyle='rgba('+(i%8===0?scheme.warm:scheme.pearl)+','+alpha.toFixed(3)+')';
-  nctx.fillRect(x,y,grain,grain);
+ // Broad tapered graphite haze provides legible depth on IVORY without
+ // creating a dark circular black-hole portal. Positions are asymmetrical
+ // and span the space BETWEEN and BEHIND the garments.
+ mist(cx-w*.035,cy+h*.04,w*.45,h*.41,scheme.slate,scheme.graphite);
+ mist(cx+w*.18,cy-h*.19,w*.28,h*.29,scheme.slate,scheme.graphite*.58);
+ // Strong but controlled light volumes are the recognizable hero feature.
+ // These are feathered volumetric CLOUDS, not graphic strokes.
+ mist(cx-w*.18,cy-h*.16,w*.34,h*.30,scheme.champagne,scheme.warm);
+ mist(cx+w*.25,cy+h*.17,w*.34,h*.32,scheme.blue,scheme.cool);
+ mist(cx+w*.06,cy-h*.035,w*.23,h*.35,scheme.champagne,scheme.warm*.72);
+ mist(cx-w*.12,cy+h*.23,w*.26,h*.25,scheme.blue,scheme.cool*.70);
+ // Inner light is deliberately brighter than the old almost invisible fog.
+ mist(cx+w*.015,cy+h*.01,span*.23,span*.24,'255,229,176',scheme.core);
+ mist(cx+w*.095,cy-h*.09,span*.16,span*.19,scheme.champagne,scheme.core*.68);
+ // Airy asymmetric glow wisps: sampled sprites form a luminous gas sheet.
+ let seed=770047;
+ const rnd=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+ function sprite(rgb){
+  const c=document.createElement('canvas');c.width=c.height=56;
+  const g=c.getContext('2d');
+  const grd=g.createRadialGradient(28,28,0,28,28,28);
+  grd.addColorStop(0,'rgba('+rgb+',.32)');
+  grd.addColorStop(.34,'rgba('+rgb+',.18)');
+  grd.addColorStop(.71,'rgba('+rgb+',.042)');
+  grd.addColorStop(1,'rgba('+rgb+',0)');
+  g.fillStyle=grd;g.fillRect(0,0,56,56);
+  return c;
  }
- // A restrained rim-lit cloud at the rear of the hero: visual depth
- // without drawing a frame or competing with the brand's lettering.
- mist(cx+w*.08,cy+h*.015,w*.24,h*.26,scheme.cold,scheme.cloud);
+ const warmSprite=sprite(scheme.champagne),blueSprite=sprite(scheme.blue);
+ nctx.save();
+ nctx.globalCompositeOperation='source-over';
+ const clouds=mob?75:150;
+ // Two gently curved banks of gaseous light, no visible lines.
+ for(let i=0;i<clouds;i++){
+  const bank=i%2,t=rnd(),angle=(bank?.26:-.28)+t*2.0;
+  const x=cx+(t-.5)*w*.83+(rnd()-.5)*w*.065;
+  const y=cy+(bank?1:-1)*h*.11+Math.sin(angle)*h*.16+(rnd()-.5)*h*.13;
+  const size=span*(.075+rnd()*.13);
+  nctx.globalAlpha=scheme.cloud*(.42+rnd()*.56);
+  nctx.drawImage(bank?blueSprite:warmSprite,x-size*.5,y-size*.5,size,size);
+ }
+ nctx.restore();
+ // Sparse, purposeful pin-lights in the same physical volume.
+ const grains=mob?19:40;
+ for(let i=0;i<grains;i++){
+  const x=cx+(rnd()-.5)*w*.83;
+  const y=cy+(rnd()-.5)*h*.58;
+  const amount=scheme.dust*(.45+rnd()*.55);
+  const size=.68+rnd()*1.25;
+  nctx.fillStyle='rgba('+(i%4===0?scheme.champagne:scheme.slate)+','+amount.toFixed(3)+')';
+  nctx.beginPath();nctx.arc(x,y,size,0,Math.PI*2);nctx.fill();
+ }
  nebulaTheme=theme;nebulaReady=true;nebulaBuilds++;
 }
 function paint(time){
@@ -130,7 +160,7 @@ function paint(time){
  const warm=dark?'245,207,151':silver?'151,133,109':'172,137,83';
  const pearl=dark?'240,239,228':'127,115,101';
  const timePhase=time*.000046;
- const count=M.Prefs.lite?8:mobile()?13:28;
+ const count=M.Prefs.lite?9:mobile()?16:30;
  for(let i=0;i<count;i++){
   const star=stars[i];
   const near=star.z,angle=star.a+timePhase*star.speed;
@@ -200,5 +230,5 @@ if('ResizeObserver'in window)new ResizeObserver(resize).observe(art);
 resize();
 window.GBHeroCosmosV46={get frames(){return frames},get active(){return attached&&runnable()},
  get quality(){return mobile()?'mobile/20fps':M.Prefs.lite?'lite/15fps':'desktop/30fps'},
- get dimensions(){return{w,h,canvas:[canvas.width,canvas.height],dpr}},get scene(){return 'atmospheric-cosmos-dual-theme'},get nebulaBuilds(){return nebulaBuilds},stop(){visible=false;pause()}};
+ get dimensions(){return{w,h,canvas:[canvas.width,canvas.height],dpr}},get scene(){return 'visible-atmospheric-cosmos-dual-theme'},get nebulaBuilds(){return nebulaBuilds},stop(){visible=false;pause()}};
 })();
