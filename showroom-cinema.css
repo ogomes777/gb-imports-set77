@@ -254,3 +254,67 @@ body:has(#showroom .showroom-heading.is-warm) #colecao::after{opacity:0}
 @keyframes scSurge{0%,100%{opacity:.12}5%{opacity:1}13%{opacity:.3}19%{opacity:.85}36%{opacity:.14}}
 /* a regra antiga "h2 span:not(.sc-ch){color:inherit}" é mais específica: a tinta precisa vencer */
 #showroom .showroom-heading h2 .sc-wm{color:#111214}
+
+
+/* GB IMPORTS | COLD ROOM V48 / REVERSIBLE REVEAL
+   The paper is a translucent spatial layer over the SAME Three.js landscape.
+   Its opacity is a continuous scroll position, never an IO on/off switch.
+   The flakes, lens front and headline all thaw when scrolling UP.
+*/
+#showroom .showroom-heading .sc-scroll-paper{
+ position:absolute;inset:0;z-index:2;pointer-events:none;
+ background:var(--sc-paper-color,#f4f1e8);
+ opacity:0;
+ visibility:hidden;
+ transform:translateZ(0);
+}
+#showroom .showroom-heading.is-rewinding .sc-scroll-paper{
+ opacity:clamp(0,calc(1 - var(--sc-scroll-cold,1)),1);
+ visibility:visible;
+}
+/* The frost edge starts at the flake (right), so type changes back
+   in reverse spatial order rather than all letters snapping together. */
+#showroom .showroom-heading.is-rewinding h2 .sc-ch{
+ --sc-letter-ice:clamp(0,calc(var(--sc-scroll-cold,1)*2.40 - var(--j,0)*.085),1);
+}
+#showroom .showroom-heading.is-rewinding h2 .sc-ice{
+ opacity:var(--sc-letter-ice)!important;
+ transition:none!important;
+}
+#showroom .showroom-heading.is-rewinding h2 .sc-wm{
+ opacity:calc(1 - var(--sc-letter-ice))!important;
+ transition:none!important;
+}
+#showroom .showroom-heading.is-rewinding h2 .sc-gl{
+ opacity:0!important;animation:none!important;
+}
+/* Chapter microcopy gradually shifts from ice to dark ink as the section
+   reconnects with the collection on its way back. */
+#showroom .showroom-heading.is-rewinding{
+ --sc-paper-percent:calc((1 - var(--sc-scroll-cold,1))*100%);
+}
+#showroom .showroom-heading.is-rewinding>span:first-child,
+#showroom .showroom-heading.is-rewinding>p,
+#showroom .showroom-heading.is-rewinding .showroom-sub span,
+#showroom .showroom-heading.is-rewinding .showroom-cinema-status{
+ color:color-mix(in srgb,#525963 var(--sc-paper-percent),#d5d3c9);
+ transition:none!important;
+}
+#showroom .showroom-heading.is-rewinding>.showroom-mark{
+ color:color-mix(in srgb,#111214 var(--sc-paper-percent),#efece2);
+ transition:none!important;
+}
+#showroom .showroom-heading.is-rewinding .showroom-sub{
+ border-top-color:color-mix(in srgb,rgba(17,18,20,.16) var(--sc-paper-percent),rgba(143,208,255,.24));
+ transition:none!important;
+}
+#showroom .showroom-heading.is-rewinding::before,
+#showroom .showroom-heading.is-rewinding::after{
+ opacity:var(--sc-scroll-cold,1);
+ transition:none!important;
+}
+@media(prefers-reduced-motion:reduce){
+ #showroom .showroom-heading .sc-scroll-paper{display:none!important}
+ #showroom .showroom-heading.is-rewinding h2 .sc-ice,
+ #showroom .showroom-heading.is-rewinding h2 .sc-wm{transition:none!important}
+}
