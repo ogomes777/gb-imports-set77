@@ -215,3 +215,22 @@ body[data-gb-theme="sinal"] #inicio .gb-hero-cosmos-v46{
 @media(prefers-reduced-motion:reduce){
  #inicio .gb-hero-cosmos-v46{display:none!important}
 }
+
+/* V47.1 - the atmosphere must actually READ on the live IVORY hero.
+   Keep the original GB watermark but reduce competition with the light field.
+   The material remains fully behind original Tech Fleece and copy. */
+#inicio .gb-hero-cosmos-v46,
+body[data-gb-theme="trama"] #inicio .gb-hero-cosmos-v46,
+body[data-gb-theme="sinal"] #inicio .gb-hero-cosmos-v46{
+ opacity:1!important;
+ mix-blend-mode:normal!important;
+ filter:none!important;
+}
+#inicio .hero-giant-mark{opacity:.18!important}
+body[data-gb-theme="sinal"] #inicio .hero-giant-mark{opacity:.15!important}
+@media(max-width:780px){
+ #inicio .gb-hero-cosmos-v46,
+ body[data-gb-theme="trama"] #inicio .gb-hero-cosmos-v46,
+ body[data-gb-theme="sinal"] #inicio .gb-hero-cosmos-v46{opacity:1!important}
+ #inicio .hero-giant-mark{opacity:.145!important}
+}
