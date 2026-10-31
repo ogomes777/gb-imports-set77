@@ -37,6 +37,30 @@ try{
   assert(snapshot.stage&&snapshot.count===3,'original 3D trio lost '+JSON.stringify(snapshot));
   assert(snapshot.heroHeight>=620,'hero collapsed on mobile '+JSON.stringify(snapshot));
   assert(snapshot.overflow<=3,'horizontal overflow '+JSON.stringify(snapshot));
+  // Regression proof for the specific user screenshots: ghost garments and
+  // yellow slabs masking the headline cannot return during automatic orbit.
+  const visual=await page.evaluate(()=>{
+   const objs=[...document.querySelectorAll('#heroTrio .trio-obj')];
+   const h=document.querySelector('#heroTitle');
+   const pieces=[...h.querySelectorAll('.hl>span')];
+   return {
+    opaque:objs.map(el=>({css:getComputedStyle(el).opacity,inline:el.style.opacity,
+      media:getComputedStyle(el.querySelector('.trio-media')).opacity,
+      z:Number(getComputedStyle(el).zIndex)})),
+    headline:h.textContent.trim().replace(/\\s+/g,' '),
+    letterOpacity:pieces.map(el=>getComputedStyle(el).opacity),
+    yellowBlades:[...h.querySelectorAll('.hl')].map(el=>getComputedStyle(el,'::after').display),
+    cosmosBlend:getComputedStyle(document.getElementById('gbHeroCosmosV46')).mixBlendMode
+   };
+  });
+  assert(visual.opaque.every(v=>v.css==='1'&&v.inline==='1'&&v.media==='1'),
+   'transparent garment lets back jacket show through: '+JSON.stringify(visual));
+  assert(visual.headline.includes('SEU ')&&visual.letterOpacity.every(v=>v==='1'),
+   'headline still hidden behind yellow animation '+JSON.stringify(visual));
+  assert(visual.yellowBlades.every(v=>v==='none'),
+   'yellow reveal slabs still cover live headline '+JSON.stringify(visual));
+  if(!p.reduced) assert(visual.cosmosBlend==='normal',
+   'galaxy darkened by multiply blending on ivory background');
   if(!p.reduced){
    await page.waitForFunction(()=>GBHeroCosmosV46.frames>=2,{timeout:6000});
    const motion1=await page.evaluate(()=>({phase:GBHeroStage.phase,transform:document.querySelector('#heroTrio .trio-obj').style.transform}));
@@ -46,6 +70,17 @@ try{
    assert(motion1.transform!==motion2.transform,'the three items have become stationary');
    const result=await page.evaluate(()=>GBHeroCosmosV46);
    assert(snapshot.dimensions.canvas[0]<=1500&&snapshot.dimensions.canvas[1]<=1250,'unbounded canvas resolution');
+   const ink=await page.evaluate(()=>{
+     const canvas=document.getElementById('gbHeroCosmosV46');
+     const d=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+     let nonempty=0,brightest=0;
+     for(let i=0;i<d.length;i+=32){
+      if(d[i+3]>0)nonempty++;
+      if(d[i+3]>brightest)brightest=d[i+3];
+     }
+     return{nonempty,brightest};
+   });
+   assert(ink.nonempty>90&&ink.brightest>20,'cosmic trails invisible, too dark or never painted '+JSON.stringify(ink));
    if(p.w<600){
     assert(snapshot.quality.includes('mobile'),'adaptive mobile rendering missing');
     await page.touchscreen.tap(p.w*.66,Math.min(p.h*.48,p.h-160));
