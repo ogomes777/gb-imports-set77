@@ -15,7 +15,7 @@ let current = null
 function mount(node, { strandCap, pixelBudget, maxDpr, allowSoftware = false, breeze } = {}) {
   if (current || !node || !node.isConnected) return false
   const root = createRoot(node)
-  root.render(
+  const render = (paused) => root.render(
     React.createElement(PlushTile, {
       image: { src: './assets/brand/gb-monograma-amarelo-preto.svg', alt: 'GB' },
       entrance: { animate: false },
@@ -24,9 +24,11 @@ function mount(node, { strandCap, pixelBudget, maxDpr, allowSoftware = false, br
       maxDpr,
       allowSoftware,
       ...(breeze === undefined ? null : { breeze }),
+      paused,
     })
   )
-  current = { root, node }
+  render(false)
+  current = { root, node, render }
   return true
 }
 
@@ -43,5 +45,8 @@ function unmount() {
   node.textContent = ''
 }
 
-window.GBPlush = Object.freeze({ mount, unmount, get mounted() { return !!current } })
+/** Freeze the fur on its last frame (the camera dive zooms a still image; nothing is drawn meanwhile). */
+function pause() { current?.render(true) }
+
+window.GBPlush = Object.freeze({ mount, unmount, pause, get mounted() { return !!current } })
 document.dispatchEvent(new Event('gb:plush-bundle'))

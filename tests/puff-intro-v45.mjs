@@ -38,9 +38,9 @@ async function open(sc,{w=1440,h=900,path='',reduced=false,touch=false,cpu=0,blo
           liveOp:live?+getComputedStyle(live).opacity:0,
           canvas:live?.querySelector('canvas')?[live.querySelector('canvas').width,live.querySelector('canvas').height]:null,
           flat:[...h.querySelectorAll('img,svg,object,use')].filter(e=>/monograma|\.svg/.test(e.getAttribute('src')||e.getAttribute('href')||'')).length,
-          bg:getComputedStyle(h).backgroundColor,state:h.dataset.state||'',brush:window.GBPuffIntro?.brush||0,gold:!!document.querySelector('.gb-intro.is-gold')});
+          bg:getComputedStyle(h).backgroundColor,state:h.dataset.state||'',brush:window.GBPuffIntro?.brush||0,gold:!!document.querySelector('div.gb-intro.is-gold')});
       }
-      else if(document.querySelector('.gb-intro.is-gold'))window.__puff.goldAfter=true;
+      else if(document.querySelector('div.gb-intro.is-gold'))window.__puff.goldAfter=true;
       if(window.__puff.frames.length<1200)requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
@@ -63,7 +63,7 @@ if(FROM<=1){
   const ok=await finished(page);
   const s=await page.evaluate(()=>({api:{state:GBPuffIntro.state,mode:GBPuffIntro.mode,reason:GBPuffIntro.reason,removed:GBPuffIntro.removed,frames:GBPuffIntro.frames,tl:GBPuffIntro.timeline},fin:window.__puff.fin,
     playing:document.documentElement.classList.contains('gb-ribbon-intro-playing'),hero:!!document.querySelector('#heroArt,#heroStage'),
-    heroVisible:getComputedStyle(document.querySelector('#inicio')||document.body).visibility,core:window.GB_CORE_READY,v12wall:!!document.querySelector('.gb-intro:not(.is-gold)')}));
+    heroVisible:getComputedStyle(document.querySelector('#inicio')||document.body).visibility,core:window.GB_CORE_READY,v12wall:!!document.querySelector('div.gb-intro:not(.is-gold)')}));
   const fb=await firstBrand(page);
   check(sc,'intro termina e remove o palco (estado finished, host fora do DOM)',ok&&s.api.removed,JSON.stringify(s.api));
   check(sc,'primeiro objeto de marca visível é o poster de pelo real (decodificado), nunca um ícone chapado',!!fb&&fb.poster&&fb.flat===0,JSON.stringify(fb));
@@ -73,7 +73,7 @@ if(FROM<=1){
   check(sc,'depois da intro: página visível, hero presente, sem o muro escuro antigo da V12 (só o dourado do mergulho), core pronto',!s.playing&&s.hero&&s.heroVisible==='visible'&&!s.v12wall&&s.core===true,JSON.stringify(s));
   check(sc,'GPU por software não roda o shader para visitantes (0 quadros live) nem baixa o chunk do PlushTile',s.api.mode==='poster'&&s.api.frames===0&&!requests.some(u=>/gb-plush\./.test(u)),JSON.stringify(s.api));
   const gold=await page.evaluate(()=>window.__puff.frames.some(f=>f.gold)||!!window.__puff.goldAfter);
-  const goldGone=await page.waitForFunction(()=>!document.querySelector('.gb-intro'),null,{timeout:6000}).then(()=>true).catch(()=>false);
+  const goldGone=await page.waitForFunction(()=>!document.querySelector('div.gb-intro'),null,{timeout:6000}).then(()=>true).catch(()=>false);
   check(sc,'no mergulho a abertura da landing chega em dourado (muro amarelo que explode em blocos, V12) e sai sozinha',gold&&goldGone,JSON.stringify({gold,goldGone}));
   check(sc,'sem 404 e sem erro de JS',!bad.length&&!errors.length,JSON.stringify({bad,errors}));
   await ctx.close();

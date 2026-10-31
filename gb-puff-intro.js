@@ -98,9 +98,9 @@ const gpu=window.WebGL2RenderingContext?probeGpu():'none';
 const wantLive=!!BUNDLE&&!!liveEl&&!saveData&&!!window.WebGL2RenderingContext&&(gpu==='hardware'||forceLive);
 // device budget: strands, backing-store pixels and DPR (the original's adaptive quality works inside these)
 const budget=forceLive?{strandCap:12000,pixelBudget:900000,maxDpr:1}
- :coarse||innerWidth<720?{strandCap:22000,pixelBudget:1000000,maxDpr:2}
- :mem<=4||cores<=4?{strandCap:34000,pixelBudget:1400000,maxDpr:1.5}
- :{strandCap:70000,pixelBudget:1900000,maxDpr:1.5};
+ :coarse||innerWidth<720?{strandCap:18000,pixelBudget:850000,maxDpr:1.75}
+ :mem<=4||cores<=4?{strandCap:30000,pixelBudget:1200000,maxDpr:1.25}
+ :{strandCap:56000,pixelBudget:1600000,maxDpr:1.5};
 const strandCap=budget.strandCap;
 const LIVE_WAIT=forceLive?12000:1500;   // the live tile must be up by then, or the poster takes the stage for good
 host.dataset.gpu=gpu;
@@ -108,8 +108,9 @@ if(wantLive)host.classList.add('is-live-path');
 
 /* ---------- storefront: boots in parallel; the intro only listens ---------- */
 const bootCore=()=>{if(!tl.coreBoot){mark('coreBoot');window.GB_BOOT_CORE?.()}};
-// on the live path the store waits for the first fur frame (or 1.2 s, whichever is first), so the two never fight
-later(bootCore,wantLive?1200:CORE_AT);
+// The store boots at once, while the stage is black and the puff rises: its heavy script evaluation lands where the
+// motion is the compositor's (camera scale/opacity), not while the fur is holding on screen.
+later(bootCore,60);
 const coreDone=()=>window.GB_CORE_READY||window.GB_CORE_FAILED||!window.GB_BOOT_CORE;
 // The landing's first layout and paint is the heaviest frame of the visit. It happens here, under the opaque stage,
 // while the puff holds — never during the dive — and the dive waits until it has settled.
@@ -119,11 +120,11 @@ function revealPage(){
  revealedAt=now();
  document.documentElement.classList.remove('gb-ribbon-intro-playing');
  // the gold opening that follows the dive is built now, invisible, so the dive itself does no DOM work
- later(()=>{if(!transitionAt&&!goldWall)goldWall=window.GBEditOpening?.({gold:true,hold:1000,defer:true})||null},120);
+ later(()=>{if(!transitionAt&&!goldWall)goldWall=window.GBEditOpening?.({gold:true,hold:DIVE+700,defer:true})||null},120);
 }
 let goldWall=null;
 const REVEAL_SETTLE=520;
-on(document,'gb:core-ready',()=>{mark('coreReady');if(brandAt)revealPage();maybeLeave()});
+on(document,'gb:core-ready',()=>{mark('coreReady');revealPage();maybeLeave()});
 
 function showBrand(kind){
  if(brandAt||finished)return;
@@ -177,7 +178,6 @@ if(wantLive){
   host.classList.add('is-live');
   set('visible-live');
   showBrand('live');
-  later(bootCore,250);
  });
  on(liveEl,'gb:plush-unsupported',e=>liveFailed(e.detail?.reason));
  on(liveEl,'gb:plush-failed',e=>liveFailed(e.detail?.reason));
@@ -229,13 +229,15 @@ function finish(why){
  host.classList.remove('is-opening');
  host.classList.add('is-diving');
  host.style.pointerEvents='none';
- // halfway through the dive the puff fills the frame: the landing's own V12 opening (gold wall, monogram,
- // GB IMPORTS) takes over and bursts into blocks onto the hero, like every chapter wall of the page
- if(!/^(hidden|pagehide|no-visual)$/.test(why))later(()=>{
-  if(goldWall){if(quick)goldWall.drop(),goldWall=null;else return goldWall.play()}
-  window.GBEditOpening?.({gold:true,hold:quick?700:1000});
- },Math.round(dur*.45));
- else goldWall?.drop();
+ // The landing's own V12 opening (gold wall, monogram, GB IMPORTS) goes up right now, under the still-opaque stage,
+ // so the puff bursts straight into yellow — never a glimpse of the landing in between — then it bursts into
+ // blocks onto the hero like every chapter wall. No timer: a busy frame cannot delay or cancel it.
+ if(!/^(hidden|pagehide|no-visual)$/.test(why)){
+  if(goldWall)goldWall.play();
+  else goldWall=window.GBEditOpening?.({gold:true,hold:dur+700})||null;
+ }else goldWall?.drop();
+ // the fur freezes on its last frame for the zoom: no strand is drawn while the camera passes through it
+ try{window.GBPlush?.pause?.()}catch{}
  later(teardown,dur+40);
 }
 

@@ -13,7 +13,7 @@ const blocks=(n=24,cols=6)=>Array.from({length:n},(_,i)=>{const r=Math.floor(i/c
    Com a intro do puff (V45) ela não começa sozinha: o puff a chama em dourado no meio do mergulho, como os muros
    amarelos dos capítulos (window.GBEditOpening({gold, hold})). */
 const opening=({gold=false,hold=1500,defer=false}={})=>{
-  if(document.querySelector('.gb-intro'))return null;
+  if(document.querySelector('div.gb-intro'))return null;   // (<html> also carries .gb-intro, from v06)
   const intro=document.createElement('div');intro.className='gb-intro'+(gold?' is-gold':'')+(defer?' is-staged':'');intro.setAttribute('aria-hidden','true');
   const mark=gold?'./assets/brand/gb-monograma-preto.svg':'./assets/brand/gb-monograma-amarelo-preto.svg';
   intro.innerHTML=`<div class="gb-intro-grid">${blocks()}</div><div class="gb-intro-mark"><img alt="" src="${mark}" width="190" height="127" decoding="async"/><span class="gb-intro-word">${[...'GB IMPORTS'].map((c,i)=>`<span style="--i:${i}">${c===' '?'&nbsp;':c}</span>`).join('')}</span></div>`;

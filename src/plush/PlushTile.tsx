@@ -851,6 +851,8 @@ export interface PlushTileProps {
     /** GB IMPORTS: most backing-store pixels (the original budget is PIXEL_BUDGET) and the highest DPR drawn. */
     pixelBudget?: number
     maxDpr?: number
+    /** GB IMPORTS: stop drawing and keep the last frame on the canvas (the intro's camera dive zooms a still). */
+    paused?: boolean
     /** GB IMPORTS: draw on software rasterisers (SwiftShader, llvmpipe). Off for visitors; on for controlled capture. */
     allowSoftware?: boolean
 }
@@ -873,6 +875,7 @@ function __OriginkitBase_PlushTile({
     strandCap = MAX_STRANDS,
     pixelBudget = PIXEL_BUDGET,
     maxDpr = 2,
+    paused = false,
     allowSoftware = false,
 }: PlushTileProps) {
     const rootRef = useRef<HTMLDivElement>(null)
@@ -901,6 +904,7 @@ function __OriginkitBase_PlushTile({
         cap: Math.max(1000, Math.min(MAX_STRANDS, num(strandCap, MAX_STRANDS))),
         pixels: Math.max(200_000, Math.min(PIXEL_BUDGET, num(pixelBudget, PIXEL_BUDGET))),
         maxDpr: Math.max(1, Math.min(2, num(maxDpr, 2))),
+        paused: !!paused,
     }
     const cfgRef = useRef(cfg)
     cfgRef.current = cfg
@@ -1231,6 +1235,11 @@ function __OriginkitBase_PlushTile({
                 return
             }
             const c = cfgRef.current
+            // GB IMPORTS: paused — draw nothing; the canvas keeps showing the last presented frame
+            if (c.paused) {
+                lastDraw = -1
+                return
+            }
             const adv = c.adv
             const en = c.en
 
