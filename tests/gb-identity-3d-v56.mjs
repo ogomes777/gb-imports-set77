@@ -14,6 +14,9 @@ try{
   await page.waitForFunction(()=>window.GB_CORE_READY&&!document.getElementById('gbRibbonBoot'),null,{timeout:50000});
   await page.evaluate(()=>{const s=document.querySelector('#universo .gb56-stage'),r=s.getBoundingClientRect();scrollTo({top:scrollY+r.top-110,behavior:'instant'})});
   await page.waitForFunction(()=>window.GBBrand3DV56?.ready||window.GBBrand3DV56?.failed,null,{timeout:18000});
+  await page.waitForFunction(()=>document.querySelector('.gb56-stage')?.classList.contains('gb56-webgl')||window.GBBrand3DV56?.failed,null,{timeout:8000});
+  await page.waitForTimeout(620); // fade from official SVG fallback to volumetric WebGL canvas
+
   const scene=await page.evaluate(()=>{
    const q=s=>document.querySelector(s),geo=e=>{const r=e.getBoundingClientRect();return{w:r.width,h:r.height,left:r.left,right:r.right,top:r.top,bottom:r.bottom}};
    const s=q('#universo'),stage=q('#universo .gb56-stage'),obj=window.GBBrand3DV56;
