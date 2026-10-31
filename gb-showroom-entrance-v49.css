@@ -124,3 +124,23 @@
   opacity:1!important;transform:none!important;animation:none!important;
  }
 }
+
+
+/* The showroom itself joins the arrival: short editorial reveal on desktop.
+   Mobile keeps its controls visible while the garment makes its entrance. */
+@media(min-width:1081px) and (prefers-reduced-motion:no-preference){
+ #showroom.gb49-entering .showroom-sidebar{
+  animation:gb49ControlsReveal .74s cubic-bezier(.2,.85,.23,1) both;
+ }
+ #showroom.gb49-entering .showroom-feature-foot{
+  animation:gb49CaptionReveal .67s ease-out .40s both;
+ }
+}
+@keyframes gb49ControlsReveal{
+ from{opacity:.24;transform:translate3d(-16px,0,0)}
+ to{opacity:1;transform:none}
+}
+@keyframes gb49CaptionReveal{
+ from{opacity:0;transform:translate3d(0,12px,0)}
+ to{opacity:1;transform:none}
+}
