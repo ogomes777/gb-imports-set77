@@ -91,6 +91,61 @@ try{
   }));
   assert(switched.current==='1'&&switched.completed&&switched.on===1&&Number(switched.opacity)>.99,
    'garment switching broken after introduction '+JSON.stringify(switched));
+  // The user asked for late, REPLAYABLE arrivals in BOTH scroll directions.
+  // Don't cheat by reloading, navigating to #showroom, or forcing classes.
+  const scrollFeature=async position=>page.evaluate(pos=>{
+   const el=document.querySelector('#showroom .showroom-feature');
+   const r=el.getBoundingClientRect(),v=innerHeight;
+   const absoluteTop=scrollY+r.top;
+   const target=pos==='center'
+    ?absoluteTop+r.height/2-v/2
+    :pos==='below' ?absoluteTop+r.height+v*.4
+    :pos==='above'?absoluteTop-v*1.2
+    :absoluteTop-v*.72;
+   scrollTo({top:Math.max(0,target),behavior:'instant'});
+  },position);
+  const freshState=()=>page.evaluate(()=>({
+    plays:GBShowroomArrivalV49.playCount,
+    state:GBShowroomArrivalV49.state,
+    armed:GBShowroomArrivalV49.armed,
+    coverage:GBShowroomArrivalV49.coverage,
+    dir:GBShowroomArrivalV49.lastDirection,
+    duration:document.querySelector('#showroom').style.getPropertyValue('--gb49-duration'),
+    vfx:document.querySelector('#showroom').className,
+    variant:GBShowroomArrivalV49.activeColor
+  }));
+  const initial=await freshState();
+  assert(initial.plays===1,'the first entry must play exactly once '+JSON.stringify(initial));
+  // Exit above: on re-entering while scrolling DOWN, the neon must
+  // wait until the feature is genuinely central, not fire at 16% visibility.
+  await scrollFeature('above');
+  await page.waitForFunction(()=>GBShowroomArrivalV49.armed,null,{timeout:3500});
+  await scrollFeature('early');
+  await page.waitForTimeout(110);
+  const early=await freshState();
+  assert(early.plays===1&&early.armed,
+   'neon starts too early, before actual showroom arrival '+JSON.stringify(early));
+  await scrollFeature('center');
+  await page.waitForFunction(()=>GBShowroomArrivalV49.playCount===2,null,{timeout:4000});
+  const second=await freshState();
+  assert(second.dir==='down'&&second.variant==='1'&&
+    second.duration===(viewport.width<=720?'1160ms':'1550ms'),
+   'second entry must replay on descending scroll and respect product selection '+JSON.stringify(second));
+  await page.waitForFunction(()=>GBShowroomArrivalV49.completed,null,{timeout:4000});
+  // Exit BELOW, then return UP through the same trigger. It should be
+  // gentler and still animate, never reset a customer's chosen blue set.
+  await scrollFeature('below');
+  await page.waitForFunction(()=>GBShowroomArrivalV49.armed,null,{timeout:3500});
+  await scrollFeature('center');
+  await page.waitForFunction(()=>GBShowroomArrivalV49.playCount===3,null,{timeout:4000});
+  const third=await freshState();
+  assert(third.dir==='up'&&third.variant==='1',
+   'upward return did not replay or changed the user-selected fleece '+JSON.stringify(third));
+  assert(third.duration===(viewport.width<=720?'1040ms':'1380ms'),
+   'upward return must use its gentler timing '+JSON.stringify(third));
+  await page.waitForFunction(()=>GBShowroomArrivalV49.completed,null,{timeout:3500});
+  const final=await freshState();
+  assert(final.plays===3&&final.state==='done','replay or cleanup regressed '+JSON.stringify(final));
   assert(errors.length===0,'JS console errors '+errors.join(' | '));
   console.log('GB SHOWROOM V49 OK '+JSON.stringify({viewport,start,state,switched,errors}));
   await context.close();
