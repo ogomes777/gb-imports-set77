@@ -1,5 +1,6 @@
-/* GB IMPORTS / V49 — NEON ARRIVAL OF GRAPHITE TECH FLEECE
- * Runs once on the showroom visual. Uses only transforms and opacity:
+/* GB IMPORTS / V49.2 — REPLAYABLE NEON ARRIVAL
+ * Triggers once PER genuine re-entry after sufficient section visibility.
+ * Uses only transforms and opacity:
  * existing product swap, floor, ring, 3D cold environment and tap work unchanged.
  */
 #showroom .showroom-feature{isolation:isolate}
@@ -50,15 +51,15 @@
   transform:perspective(1100px) translate3d(0,24%,0) rotateX(9deg) scale(.77)!important;
  }
  #showroom.gb49-entering #showroomFeatureMedia .sf-layer.is-on{
-  animation:gb49FleeceRise 1.10s cubic-bezier(.16,1,.30,1) both!important;
+  animation:gb49FleeceRise var(--gb49-duration,1550ms) cubic-bezier(.16,1,.30,1) both!important;
   transition:none!important;
  }
  #showroom.gb49-entering .gb49-arrival-vfx{opacity:1}
- #showroom.gb49-entering .gb49-lightshaft{animation:gb49LightRise 1.05s ease-out both}
- #showroom.gb49-entering .gb49-portal{animation:gb49Portal 1.1s ease-out both}
- #showroom.gb49-entering .gb49-neon-impact{animation:gb49Impact 1.05s ease-out both}
- #showroom.gb49-entering .gb49-flare{animation:gb49Flare .8s ease-out .38s both}
- #showroom.gb49-entering .gb49-particles{animation:gb49Particles 1.05s ease-out .14s both}
+ #showroom.gb49-entering .gb49-lightshaft{animation:gb49LightRise var(--gb49-duration,1550ms) ease-out both}
+ #showroom.gb49-entering .gb49-portal{animation:gb49Portal var(--gb49-duration,1550ms) ease-out both}
+ #showroom.gb49-entering .gb49-neon-impact{animation:gb49Impact var(--gb49-duration,1550ms) ease-out both}
+ #showroom.gb49-entering .gb49-flare{animation:gb49Flare var(--gb49-duration,1550ms) ease-out both}
+ #showroom.gb49-entering .gb49-particles{animation:gb49Particles var(--gb49-duration,1550ms) ease-out both}
 }
 @keyframes gb49FleeceRise{
  0%{opacity:0;transform:perspective(1100px) translate3d(0,24%,0) rotateX(9deg) scale(.77)}
@@ -96,25 +97,43 @@
  100%{opacity:0;transform:translate3d(0,-12%,0) scale(1.1)}
 }
 #showroom.gb49-complete .gb49-arrival-vfx{opacity:0!important}
+#showroom.gb49-returning.gb49-entering .gb49-arrival-vfx{opacity:.76}
+@media(min-width:721px) and (prefers-reduced-motion:no-preference){
+ #showroom.gb49-returning.gb49-entering #showroomFeatureMedia .sf-layer.is-on{
+  animation-name:gb49FleeceReturn!important;
+ }
+}
+@keyframes gb49FleeceReturn{
+ 0%{opacity:0;transform:perspective(1100px) translate3d(0,17%,0) rotateX(6deg) scale(.83)}
+ 25%{opacity:.55}
+ 62%{opacity:1;transform:perspective(1100px) translate3d(0,-1.6%,0) scale(1.025)}
+ 100%{opacity:1;transform:none}
+}
 @media(max-width:720px){
  #showroom .gb49-lightshaft{width:32%;left:34%}
  #showroom .gb49-portal{width:110%;left:-5%;top:7%}
  #showroom .gb49-neon-impact{bottom:16%;left:7%;right:7%}
  #showroom .gb49-flare{left:5%;right:5%}
  #showroom .gb49-particles{opacity:0}
- @media(prefers-reduced-motion:no-preference){
-  #showroom.gb49-entering #showroomFeatureMedia .sf-layer.is-on{
-   animation:gb49MobileRise .88s cubic-bezier(.16,1,.3,1) both!important;
-  }
-  #showroom.gb49-entering .gb49-portal{animation-duration:.88s}
-  #showroom.gb49-entering .gb49-lightshaft{animation-duration:.88s}
-  #showroom.gb49-entering .gb49-neon-impact{animation-duration:.88s}
-  #showroom.gb49-entering .gb49-particles{animation:none}
+}
+/* No nested media query: all target mobile engines including WebKit. */
+@media(max-width:720px) and (prefers-reduced-motion:no-preference){
+ #showroom.gb49-entering #showroomFeatureMedia .sf-layer.is-on{
+  animation:gb49MobileRise var(--gb49-duration,1160ms) cubic-bezier(.16,1,.3,1) both!important;
  }
+ #showroom.gb49-returning.gb49-entering #showroomFeatureMedia .sf-layer.is-on{
+  animation-name:gb49MobileReturn!important;
+ }
+ #showroom.gb49-entering .gb49-particles{animation:none}
 }
 @keyframes gb49MobileRise{
  0%{opacity:0;transform:translate3d(0,18%,0) scale(.85)}
  62%{opacity:1;transform:translate3d(0,-2%,0) scale(1.022)}
+ 100%{opacity:1;transform:none}
+}
+@keyframes gb49MobileReturn{
+ 0%{opacity:0;transform:translate3d(0,12%,0) scale(.90)}
+ 66%{opacity:1;transform:translate3d(0,-1%,0) scale(1.015)}
  100%{opacity:1;transform:none}
 }
 @media(prefers-reduced-motion:reduce){
@@ -130,10 +149,10 @@
    Mobile keeps its controls visible while the garment makes its entrance. */
 @media(min-width:1081px) and (prefers-reduced-motion:no-preference){
  #showroom.gb49-entering .showroom-sidebar{
-  animation:gb49ControlsReveal .74s cubic-bezier(.2,.85,.23,1) both;
+  animation:gb49ControlsReveal var(--gb49-duration,1550ms) cubic-bezier(.2,.85,.23,1) both;
  }
  #showroom.gb49-entering .showroom-feature-foot{
-  animation:gb49CaptionReveal .67s ease-out .40s both;
+  animation:gb49CaptionReveal var(--gb49-duration,1550ms) ease-out both;
  }
 }
 @keyframes gb49ControlsReveal{
