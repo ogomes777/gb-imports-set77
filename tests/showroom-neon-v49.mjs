@@ -28,9 +28,11 @@ try{
   });
   assert(start.v49&&start.effect===5&&start.hasHero&&start.hasLanding&&start.noModal,
     'showroom, landing or visual effect unavailable '+JSON.stringify(start));
-  assert(start.defaultIndex==='0','graphite is no longer the initial product '+JSON.stringify(start));
+  // Product tiles and initial variant are mounted lazily near the viewport;
+  // they are intentionally absent at the top of the landing.
   // Naturally scroll to the showroom, not #showroom in the URL (which skips intro).
   await page.locator('#showroom .showroom-feature').scrollIntoViewIfNeeded();
+  await page.waitForFunction(()=>document.querySelector('#showroomSelector button.active')?.dataset.showIndex==='0',null,{timeout:9000});
   await page.waitForFunction(()=>window.GBShowroomArrivalV49.completed,null,{timeout:7000});
   const state=await page.evaluate(()=>{
    const s=document.querySelector('#showroom'),media=document.querySelector('#showroomFeatureMedia');
