@@ -471,12 +471,17 @@ function reverseFrame(){
  const r=heading.getBoundingClientRect(),view=Math.max(1,innerHeight);
  const movingUp=scrollY<reverseLastY-1;
  reverseLastY=scrollY;
- // V48.1: compress the thaw into 34vh instead of 58vh (~41% shorter).
- // At top<48vh the Cold Room is frozen; at >82vh it is paper again.
- // This remains bidirectional: changing scroll direction re-freezes instantly.
- const p=reverseRound((view*.82-r.top)/(view*.34));
+ // V48.2: start reversing when roughly HALF the Cold Room has reentered
+ // view, rather than waiting for the top seam. Full ~1.3 viewport travel
+ // means a slower, fluid cinematic thaw for both desktop and mobile.
+ const startTop=-Math.min(r.height*.5,view*.70);
+ const endTop=view*.88;
+ const travel=Math.max(1,endTop-startTop);
+ const t=cap((r.top-startTop)/travel,0,1);
+ // Smoothstep softens beginning/end yet scrubs directly with real scroll.
+ const p=reverseRound(1-(t*t*(3-2*t)));
  if(!reverser){
-  if(!arrived||!movingUp||r.top<view*.24||r.top>view*.87)return;
+  if(!arrived||!movingUp||r.top<startTop-2||r.top>endTop)return;
   reverser=true;
   endThaw();
   gsap?.killTweensOf(chars);
@@ -484,19 +489,19 @@ function reverseFrame(){
   heading.classList.add('is-rewinding');
   setWarm(false);
  }
- if(r.top < -view*.92)return;
+ if(r.top<startTop-view*.08)return;
  if(Math.abs(p-reverseProgress)>.001){
   reverseProgress=p;
   setVar('--sc-scroll-cold',String(p));
   scene3d?.setScrollFreeze(p);
  }
  // Ink and ice use the exact same scroll progress as the shader front.
- if(p<=.001&&r.top>=view*.825){
+ if(p<=.001&&r.top>=endTop-view*.015){
   reverser=false;heading.classList.remove('is-rewinding');
   setWarm(true);scene3d?.setFrozen(false);
   arrived=false;arrivalReady=false;
   gsap?.set(glows,{opacity:0});
- }else if(p>=.999&&r.top<=view*.475){
+ }else if(p>=.999&&r.top<=startTop+view*.015){
   reverser=false;heading.classList.remove('is-rewinding');
   setWarm(false);scene3d?.setFrozen(true);
  }
