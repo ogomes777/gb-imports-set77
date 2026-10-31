@@ -501,7 +501,7 @@ function reverseFrame(){
   setWarm(true);scene3d?.setFrozen(false);
   arrived=false;arrivalReady=false;
   gsap?.set(glows,{opacity:0});
- }else if(p>=.999&&r.top<=startTop+view*.015){
+ }else if(p>=.999&&r.top<=startTop+view*.015&&!movingUp){
   reverser=false;heading.classList.remove('is-rewinding');
   setWarm(false);scene3d?.setFrozen(true);
  }
