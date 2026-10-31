@@ -1,0 +1,87 @@
+/* SET77 | GB IMPORTS — HERO COSMOS V46
+ * Continuous 360 orbital showcase stays on original photographed fronts.
+ * Secondary levitation and breathing are on child elements, not .trio-obj,
+ * so GBHeroStage's interaction/selection transforms never conflict.
+ */
+#inicio .hero-art{isolation:isolate;perspective:1300px}
+#inicio .gb-hero-cosmos-v46{
+ position:absolute;inset:0;z-index:1;width:100%;height:100%;
+ pointer-events:none!important;opacity:.95;mix-blend-mode:multiply;
+ contain:layout paint style;
+}
+#inicio .hero-trio{z-index:5;transform-style:preserve-3d}
+#inicio .trio-obj{transform-style:preserve-3d;backface-visibility:hidden;contain:layout style}
+#inicio .trio-media{transform-origin:50% 52%;backface-visibility:hidden}
+#inicio .trio-obj.is-front .trio-media{--gb-hero-breathe:1.035}
+#inicio .trio-obj:not(.is-front) .trio-media{--gb-hero-breathe:1.012}
+#inicio .trio-shadow{transform-origin:50% 50%}
+#inicio .trio-glow{mix-blend-mode:multiply}
+@media(prefers-reduced-motion:no-preference){
+ #inicio.gb-hero-live .trio-media{
+  animation:gbHeroLevitateV46 5.6s cubic-bezier(.42,0,.58,1) infinite!important;
+  will-change:transform;
+ }
+ #inicio.gb-hero-live .trio-obj:nth-child(2) .trio-media{animation-delay:-1.86s!important;animation-duration:5.9s!important}
+ #inicio.gb-hero-live .trio-obj:nth-child(3) .trio-media{animation-delay:-3.75s!important;animation-duration:6.35s!important}
+ #inicio.gb-hero-live .trio-shadow{
+  animation:gbHeroShadowV46 5.6s ease-in-out infinite;will-change:transform,opacity;
+ }
+ #inicio.gb-hero-live .trio-obj:nth-child(2) .trio-shadow{animation-delay:-1.86s}
+ #inicio.gb-hero-live .trio-obj:nth-child(3) .trio-shadow{animation-delay:-3.75s}
+ #inicio.gb-hero-live .trio-glow{
+  animation:gbHeroGlowV46 4.5s ease-in-out infinite!important;
+ }
+}
+@keyframes gbHeroLevitateV46{
+ 0%,100%{transform:translate3d(0,7px,0) rotate(-.7deg) scale(.982)}
+ 23%{transform:translate3d(0,-11px,0) rotate(.25deg) scale(1.006)}
+ 48%{transform:translate3d(0,-24px,0) rotate(.85deg) scale(1.024)}
+ 73%{transform:translate3d(0,-10px,0) rotate(-.20deg) scale(1.004)}
+}
+@keyframes gbHeroShadowV46{
+ 0%,100%{transform:scale(1.03);opacity:.65}
+ 50%{transform:scale(.73);opacity:.23}
+}
+@keyframes gbHeroGlowV46{
+ 0%,100%{transform:scale(.91);opacity:.34}
+ 50%{transform:scale(1.08);opacity:.58}
+}
+/* Deliberately keep cosmic lines in the background. Products and buttons
+   remain readable across the ORIGEM/TRAMA/SINAL theme system. */
+body[data-gb-theme="sinal"] #inicio .gb-hero-cosmos-v46{
+ mix-blend-mode:screen;opacity:.76;
+}
+body[data-gb-theme="trama"] #inicio .gb-hero-cosmos-v46{opacity:.55}
+#inicio .hero-art .hero-trio .trio-obj:focus-visible{outline-offset:0}
+@media(max-width:780px){
+ #inicio .gb-hero-cosmos-v46{opacity:.58!important}
+ #inicio .hero-trio{inset:1% 2% 13% 2%}
+ #inicio .trio-obj{left:23%!important;width:54%!important;top:5%;height:81%}
+ #inicio .trio-media img{
+  filter:drop-shadow(0 12px 13px rgba(40,35,26,.23))!important;
+ }
+ #inicio .trio-obj:not(.is-front) .trio-media{opacity:.91}
+ #inicio .trio-glow{opacity:.35!important}
+ #inicio .gb-stage-lights .gb-beam{opacity:.14}
+ #inicio .gb-stage-lights .gb-stage-halo{opacity:.46}
+ #inicio .hero-stage{overflow:hidden}
+ @media(prefers-reduced-motion:no-preference){
+  #inicio.gb-hero-live .trio-media{animation-duration:6.3s!important;animation-name:gbHeroMobileLevitateV46!important}
+ }
+}
+@keyframes gbHeroMobileLevitateV46{
+ 0%,100%{transform:translate3d(0,3px,0) scale(.992)}
+ 50%{transform:translate3d(0,-13px,0) scale(1.011)}
+}
+@media(max-width:390px){
+ #inicio .hero-trio{inset:0 1% 12% 1%}
+ #inicio .trio-obj{left:24%!important;width:52%!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #inicio .gb-hero-cosmos-v46{display:none!important}
+ #inicio .trio-media,#inicio .trio-shadow,#inicio .trio-glow{animation:none!important;will-change:auto!important}
+}
+@media(hover:none) and (pointer:coarse){
+ #inicio .trio-media img{filter:drop-shadow(0 12px 13px rgba(20,20,20,.23))!important}
+ #inicio .gbf-spot{display:none}
+}
