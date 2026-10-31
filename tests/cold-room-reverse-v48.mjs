@@ -12,8 +12,20 @@ try{
   const context=await browser.newContext({viewport,deviceScaleFactor:1,hasTouch:viewport.width<500,reducedMotion:'no-preference'});
   const page=await context.newPage();
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  // Opening the root must play the full puff. Direct #showroom URLs
+  // deliberately skip it and are NOT the right link for visual QA.
   await page.goto(base+'/',{waitUntil:'domcontentloaded',timeout:40000});
-  await page.waitForFunction(()=>window.GB_CORE_READY&&!document.getElementById('gbRibbonBoot'),{timeout:25000});
+  await page.waitForFunction(()=>Boolean(window.GBPuffIntro),null,{timeout:8500});
+  const intro=await page.evaluate(()=>({
+   playing:GBPuffIntro.opening,
+   hasStage:!!document.getElementById('gbRibbonBoot'),
+   pathname:location.pathname,hash:location.hash,
+   heroPresent:!!document.getElementById('heroStage')
+  }));
+  assert(intro.playing&&intro.hasStage&&intro.heroPresent&&!intro.hash,
+   'root must preserve original GB intro, hero and landing '+JSON.stringify(intro));
+  await page.waitForFunction(()=>window.GB_CORE_READY&&!document.getElementById('gbRibbonBoot'),null,{timeout:25000});
+  assert(await page.locator('#heroStage').isVisible(),'original hero missing after puff');
   await page.locator('#showroom .showroom-heading h2').scrollIntoViewIfNeeded();
   await page.waitForFunction(()=>window.GBShowroomCinema?.arrived,{timeout:25000});
   // Leave the heading below, so returning upwards actually crosses the
@@ -45,8 +57,10 @@ try{
      overflow:document.documentElement.scrollWidth-innerWidth};
    });
   };
-  const a=await go(.43),b=await go(.64);
+  const a=await go(.56),b=await go(.72);
   assert(a.reversing&&b.reversing,'reverse thaw state did not engage '+JSON.stringify({viewport,a,b}));
+  assert(a.cold>.70&&b.cold<.35,
+   'thaw is not fast enough across the shorter 34vh scroll travel '+JSON.stringify({a,b}));
   assert(a.cold>b.cold&&a.cold<1&&b.cold>0,
    'cold->paper sequence is not smoothly reversible '+JSON.stringify({a,b}));
   assert(Number(b.paperOpacity)>Number(a.paperOpacity),
@@ -57,10 +71,10 @@ try{
   mkdirSync('tmp/gb-cold-v48',{recursive:true});
   await page.locator('#showroom .showroom-heading').screenshot({
    path:'tmp/gb-cold-v48/return-'+viewport.width+'.png',animations:'allow'});
-  const c=await go(.47);
+  const c=await go(.61);
   assert(c.reversing&&c.cold>b.cold,
    'reverse direction did not re-freeze smoothly '+JSON.stringify({b,c}));
-  const d=await go(.97);
+  const d=await go(.86);
   assert(!d.reversing&&d.warm&&d.cold===0,
    'paper state failed to settle after full upward exit '+JSON.stringify(d));
   assert(Number.isFinite(Number(d.paperOpacity)),'scroll state generated invalid style');
@@ -74,6 +88,21 @@ try{
   console.log('V48 reverse cold room passed '+JSON.stringify({viewport,a:a.cold,b:b.cold,c:c.cold,d:d.cold,errors}));
   await context.close();
  }
+ // A deep-link is an intentional shortcut, not a page deletion or intro bug.
+ const deepCtx=await browser.newContext({viewport:{width:390,height:844}});
+ const deepPage=await deepCtx.newPage();
+ await deepPage.goto(base+'/#showroom',{waitUntil:'domcontentloaded',timeout:40000});
+ await deepPage.waitForFunction(()=>window.GB_CORE_READY===true,null,{timeout:25000});
+ const deepStat=await deepPage.evaluate(()=>({
+  hash:location.hash,opening:GBPuffIntro.opening,
+  stage:!!document.getElementById('gbRibbonBoot'),
+  hasHero:!!document.getElementById('heroStage'),
+  hasShowroom:!!document.getElementById('showroom')
+ }));
+ assert(deepStat.hash==='#showroom'&&!deepStat.opening&&!deepStat.stage&&deepStat.hasHero&&deepStat.hasShowroom,
+  'deep section link must skip only intro, never delete landing content '+JSON.stringify(deepStat));
+ console.log('V48 deep-link skip expected '+JSON.stringify(deepStat));
+ await deepCtx.close();
  const reduced=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'});
  const page=await reduced.newPage();
  await page.goto(base+'/',{waitUntil:'domcontentloaded',timeout:40000});
