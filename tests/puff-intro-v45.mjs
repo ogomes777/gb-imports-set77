@@ -10,6 +10,8 @@ const BASE=(process.argv[2]||'http://127.0.0.1:8080/').replace(/\/?$/,'/');
 const results=[];let failures=0;
 const check=(sc,name,ok,detail='')=>{results.push({sc,name,ok});if(!ok)failures++;console.log(`  ${ok?'✓':'✗'} [${sc}] ${name}${ok?'':' '+detail}`)};
 const browser=await chromium.launch();
+// GB_FROM=<n>: start at section n (1 poster, 2 live, 3 touch, 4 failures, 5 routes, 6 revisit) to resume a long remote run
+const FROM=+(process.env.GB_FROM||1);
 
 async function open(sc,{w=1440,h=900,path='',reduced=false,touch=false,cpu=0,block=[],init=null}={}){
   const ctx=await browser.newContext({viewport:{width:w,height:h},hasTouch:touch,isMobile:touch,deviceScaleFactor:1,reducedMotion:reduced?'reduce':'no-preference'});
@@ -54,7 +56,7 @@ const GBPuffIntroReason=r=>r!=='skip';
 const firstBrand=page=>page.evaluate(()=>{const f=window.__puff.frames.find(x=>x.camOp>.02);return f?{...f}:null});
 
 // 1. Desktop, default policy. Software GPU here → the real-fur poster is the brand object, then the dive.
-{
+if(FROM<=1){
   const sc='1440 poster';
   const {ctx,page,errors,bad}=await open(sc);
   const ok=await finished(page);
@@ -74,7 +76,7 @@ const firstBrand=page=>page.evaluate(()=>{const f=window.__puff.frames.find(x=>x
 }
 
 // 2. Live (forced on the software GPU): PlushTile original, verified frame, fibres answer the cursor, teardown.
-{
+if(FROM<=2){
   const sc='1440 live';
   const {ctx,page,errors,bad}=await open(sc,{path:'?gbPuffLive=1&gbPuffHold=1'});
   const live=await page.waitForFunction(()=>window.GBPuffIntro&&(GBPuffIntro.timeline.liveReady>0||GBPuffIntro.removed),null,{timeout:20000}).then(()=>page.evaluate(()=>GBPuffIntro.timeline.liveReady>0)).catch(()=>false);
@@ -102,7 +104,7 @@ const firstBrand=page=>page.evaluate(()=>{const f=window.__puff.frames.find(x=>x
 }
 
 // 3. Mobile touch: a finger on the puff moves the fibres and never skips; the skip control does.
-{
+if(FROM<=3){
   const sc='390 touch';
   const {ctx,page,errors,bad}=await open(sc,{w:390,h:844,touch:true,path:'?gbPuffLive=1&gbPuffHold=1'});
   const live=await page.waitForFunction(()=>window.GBPuffIntro&&(GBPuffIntro.timeline.liveReady>0||GBPuffIntro.removed),null,{timeout:20000}).then(()=>page.evaluate(()=>GBPuffIntro.timeline.liveReady>0)).catch(()=>false);
@@ -121,7 +123,7 @@ const firstBrand=page=>page.evaluate(()=>{const f=window.__puff.frames.find(x=>x
   await ctx.close();
 }
 // 3b. The skip control (no GPU involved): a tap on PULAR releases the store at once.
-{
+if(FROM<=3){
   const sc='390 pular';
   const {ctx,page,errors}=await open(sc,{w:390,h:844,touch:true});
   await page.waitForFunction(()=>window.GBPuffIntro?.visible,null,{timeout:12000});
@@ -144,7 +146,9 @@ const failures4=[
   ['CPU 4× mais lenta',{cpu:4},s=>true],
   ['sem WebGL2',{path:'?gbPuffLive=1',init:()=>{delete window.WebGL2RenderingContext}},s=>s.mode==='poster'],
 ];
-for(const [name,opt,modeOk] of failures4){
+if(FROM<=4)for(const [name,opt,modeOk] of failures4){
+  // GB_SKIP_FORCED_LIVE=1: over a remote preview, skip the forced software-GPU failure cases (covered locally)
+  if(process.env.GB_SKIP_FORCED_LIVE&&/gbPuffLive/.test(opt.path||''))continue;
   const sc='falha: '+name;
   const {ctx,page,errors}=await open(sc,opt);
   const ok=await finished(page);
@@ -163,7 +167,7 @@ for(const [name,opt,modeOk] of failures4){
 
 // 5. Reduced motion, deep links and routes: no intro, no plush chunk, store straight away.
 // (python's http.server has no clean URLs: /gb/club.html is what Vercel serves for /gb/club)
-for(const [sc,opt] of [['reduced motion',{reduced:true}],['/#colecao',{path:'#colecao'}],['/gb/club',{path:'gb/club.html'}]]){
+if(FROM<=5)for(const [sc,opt] of [['reduced motion',{reduced:true}],['/#colecao',{path:'#colecao'}],['/gb/club',{path:'gb/club.html'}]]){
   const {ctx,page,errors,bad,requests}=await open(sc,opt);
   await page.waitForFunction(()=>window.GB_CORE_READY===true,null,{timeout:20000}).catch(()=>{});
   const s=await page.evaluate(()=>({host:!!document.getElementById('gbRibbonBoot'),state:window.GBPuffIntro?.state,frames:window.GBPuffIntro?.frames,core:window.GB_CORE_READY,
@@ -175,7 +179,7 @@ for(const [sc,opt] of [['reduced motion',{reduced:true}],['/#colecao',{path:'#co
 }
 
 // 6. Revisit in the same session: shorter hold.
-{
+if(FROM<=6){
   const sc='revisita';
   const {ctx,page}=await open(sc);
   await finished(page);
