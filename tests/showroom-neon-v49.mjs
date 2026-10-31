@@ -75,7 +75,12 @@ try{
   // Change garments; the new reveal must not hijack the existing two-layer
   // catalogue transition, customer action, hit boxes or product history.
   await page.locator('#showroomSelector [data-show-index="1"]').click();
-  await page.waitForTimeout(950);
+  // Existing v04/v07 transitions are time-based. Wait for the final
+  // opacity instead of sampling a perfectly valid 97%-complete frame.
+  await page.waitForFunction(()=>{
+   const on=document.querySelector('#showroomFeatureMedia .sf-layer.is-on');
+   return on&&Number(getComputedStyle(on).opacity)>.99;
+  },null,{timeout:4000});
   assert((await page.locator('#showroomFeatureName').innerText()).toUpperCase().includes('AZUL'),
    'colour selector failed after reveal');
   const switched=await page.evaluate(()=>({
@@ -84,7 +89,7 @@ try{
     on:[...document.querySelectorAll('#showroomFeatureMedia .sf-layer.is-on')].length,
     opacity:getComputedStyle(document.querySelector('#showroomFeatureMedia .sf-layer.is-on')).opacity
   }));
-  assert(switched.current==='1'&&switched.completed&&switched.on===1&&switched.opacity==='1',
+  assert(switched.current==='1'&&switched.completed&&switched.on===1&&Number(switched.opacity)>.99,
    'garment switching broken after introduction '+JSON.stringify(switched));
   assert(errors.length===0,'JS console errors '+errors.join(' | '));
   console.log('GB SHOWROOM V49 OK '+JSON.stringify({viewport,start,state,switched,errors}));
