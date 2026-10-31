@@ -91,7 +91,9 @@ body[data-gb-theme="trama"] #inicio .gb-hero-cosmos-v46{opacity:.55}
  * Real z-stacking, never transparent garment pixels; original photography only.
  * Disable repeated yellow blade over the hero while the 360 orbit auto-advances.
  */
-#inicio .hero-art { position:relative; isolation:isolate; overflow:visible; }
+/* Restore V03/V04 absolute positioning. position:relative collapsed the
+ * entire stage to height:0, hiding ALL jackets and the cosmic canvas. */
+#inicio .hero-art { position:absolute; isolation:isolate; overflow:visible; }
 #inicio .gb-hero-cosmos-v46 {
  z-index:3!important;
  opacity:1!important;
