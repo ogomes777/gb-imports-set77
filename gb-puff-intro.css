@@ -16,6 +16,10 @@
   transition:opacity .62s cubic-bezier(.2,.7,.2,1),transform 1.1s cubic-bezier(.16,1,.3,1),filter .8s ease-out}
 /* after the entrance the camera stops promoting a layer: the canvas composites on its own */
 #gbRibbonBoot.is-brand.is-settled .gb-puff-camera{will-change:auto}
+/* live path: no filter ever touches the WebGL canvas (a blur over it is the costliest thing on the page) —
+   the live tile rises from the black with scale and opacity only */
+#gbRibbonBoot.is-live-path .gb-puff-camera{filter:none;transform:scale(.88)}
+#gbRibbonBoot.is-live-path.is-brand .gb-puff-camera{transform:none;transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform 1.25s cubic-bezier(.16,1,.3,1)}
 
 /* poster: real rendered fur (RGBA), never a flat monogram; shown only after decode */
 /* calibrated against the live render at 1440×900 and 390×844: same silhouette width and centre within a few px */
@@ -46,8 +50,8 @@
 
 /* the dive: the camera passes through the puff while the black opens onto the landing */
 #gbRibbonBoot.is-diving{background-color:rgba(0,0,0,0)}
-#gbRibbonBoot.is-diving .gb-puff-camera{opacity:0;transform:scale(3.4);filter:blur(12px);
-  transition:transform var(--gb-dive) cubic-bezier(.55,0,.2,1),filter calc(var(--gb-dive) * .8) ease-in calc(var(--gb-dive) * .2),opacity calc(var(--gb-dive) * .55) ease-in calc(var(--gb-dive) * .45)}
+#gbRibbonBoot.is-diving .gb-puff-camera{opacity:0;transform:scale(3.6);filter:none;
+  transition:transform var(--gb-dive) cubic-bezier(.55,0,.2,1),opacity calc(var(--gb-dive) * .5) ease-in calc(var(--gb-dive) * .5)}
 #gbRibbonBoot.is-diving .gb-puff-glass,#gbRibbonBoot.is-diving .gb-puff-skip{opacity:0;transition:opacity .25s ease}
 
 /* while the intro plays the store is laid out but not painted (V33): no compositing behind the stage.

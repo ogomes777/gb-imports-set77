@@ -16,6 +16,10 @@
 .gb-intro.is-on .gb-intro-word span{transform:none}
 .gb-intro.is-out .gb-intro-mark{opacity:0;transform:scale(.92)}
 .gb-intro.is-out .gb-intro-grid i{transform:scale(0)}
+/* V45: depois do puff o muro chega dourado, como os capítulos amarelos (monograma preto, palavra em tinta) */
+.gb-intro.is-gold{--chap-bg:#ffd447}
+.gb-intro.is-gold .gb-intro-word{color:#111214}
+.gb-intro.is-gold .gb-intro-mark img{filter:none}
 .gb-chap-host{position:relative}
 .gb-chap{position:absolute;inset:0;z-index:40;pointer-events:none;overflow:hidden;--chap-bg:#ffd447;--chap-ink:#111214}
 .gb-chap.is-ink{--chap-bg:#111214;--chap-ink:#f4f1e8}

@@ -848,6 +848,9 @@ export interface PlushTileProps {
     style?: CSSProperties
     /** GB IMPORTS: most strands this device draws (the original cap is MAX_STRANDS). */
     strandCap?: number
+    /** GB IMPORTS: most backing-store pixels (the original budget is PIXEL_BUDGET) and the highest DPR drawn. */
+    pixelBudget?: number
+    maxDpr?: number
     /** GB IMPORTS: draw on software rasterisers (SwiftShader, llvmpipe). Off for visitors; on for controlled capture. */
     allowSoftware?: boolean
 }
@@ -868,6 +871,8 @@ function __OriginkitBase_PlushTile({
     advanced = {"glow":60,"lens":20,"seed":0,"clump":28,"crimp":20,"sheen":25,"bounce":55,"emboss":50,"shadow":50,"tipFade":25,"edgeFlow":75,"rimLight":90,"rimShare":26,"hairWidth":0.85,"rootShade":60,"undercoat":22,"depthShade":45,"keyFalloff":75,"lightAngle":100,"lightColor":"#FFF4E6","colorJitter":22,"lightHeight":40},
     style,
     strandCap = MAX_STRANDS,
+    pixelBudget = PIXEL_BUDGET,
+    maxDpr = 2,
     allowSoftware = false,
 }: PlushTileProps) {
     const rootRef = useRef<HTMLDivElement>(null)
@@ -894,6 +899,8 @@ function __OriginkitBase_PlushTile({
         // Everything the artwork and flow textures are built from.
         artKey: [src, art.fit, art.size, art.offsetY, furColor, fr.flow, adv.edgeFlow].join("|"),
         cap: Math.max(1000, Math.min(MAX_STRANDS, num(strandCap, MAX_STRANDS))),
+        pixels: Math.max(200_000, Math.min(PIXEL_BUDGET, num(pixelBudget, PIXEL_BUDGET))),
+        maxDpr: Math.max(1, Math.min(2, num(maxDpr, 2))),
     }
     const cfgRef = useRef(cfg)
     cfgRef.current = cfg
@@ -1076,8 +1083,9 @@ function __OriginkitBase_PlushTile({
         let cssH = Math.max(1, root.offsetHeight)
         let quality = 1
         const applySize = () => {
-            const dpr = Math.min(window.devicePixelRatio || 1, 2)
-            const budget = Math.min(1, Math.sqrt(PIXEL_BUDGET / Math.max(1, cssW * cssH * dpr * dpr)))
+            // GB IMPORTS: per-device DPR and pixel budget (the original: DPR 2, PIXEL_BUDGET)
+            const dpr = Math.min(window.devicePixelRatio || 1, cfgRef.current.maxDpr)
+            const budget = Math.min(1, Math.sqrt(cfgRef.current.pixels / Math.max(1, cssW * cssH * dpr * dpr)))
             const k = dpr * budget * quality
             const w = Math.max(1, Math.round(cssW * k))
             const h = Math.max(1, Math.round(cssH * k))

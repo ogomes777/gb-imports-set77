@@ -106,9 +106,10 @@ const coreBoot = [
 '})();',
 '</script>'
 ].join('\n');
-// Poster and plush chunk are fetched early on the landing only; deep routes (/gb…, #colecao) never pay for them.
+// The poster (the fallback puff) is fetched early on the landing only; deep routes (/gb…, #colecao) never pay for it.
+// The plush chunk is not preloaded: the intro requests it only after its GPU probe finds a real GPU.
 const introPreload='<script>if(location.pathname==="/"&&(!location.hash||location.hash==="#inicio")&&!matchMedia("(prefers-reduced-motion: reduce)").matches){'+
-  [['image','./'+POSTER,'high'],['script','./'+plushName,'auto']].map(([as,href,p])=>'{const l=document.createElement("link");l.rel="preload";l.as="'+as+'";l.href="'+href+'";l.fetchPriority="'+p+'";document.head.append(l)}').join('')+'}</script>';
+  '{const l=document.createElement("link");l.rel="preload";l.as="image";l.href="./'+POSTER+'";l.fetchPriority="auto";document.head.append(l)}}</script>';
 const introGlobals='<script>window.GB_PLUSH_BUNDLE_SRC="./'+plushName+'";window.GB_PUFF_POSTER_URL="./'+POSTER+'"</script>';
 let out=stripLocal(html)
  .replace('</head>',()=>introPreload+'\n<link href="./'+cssName+'" rel="stylesheet"/>\n</head>')

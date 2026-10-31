@@ -30,20 +30,44 @@ já tenha o pelo inteiro — nunca toco curto nem almofada lisa.
 próprio componente (rAF, ResizeObserver, IntersectionObserver, listeners, texturas, buffers, programas) e depois
 `WEBGL_lose_context`.
 
-## Primeiro quadro, poster e live
+## Primeiro quadro: live do começo ao fim (V45.1)
 
 1. **Primeira pintura (HTML crítico):** o palco `#gbRibbonBoot` já cobre a página, preto, sem logo nem tile.
-2. **Poster de pelo real** (`assets/brand/gb-puff-poster-v44.webp`, RGBA 553×549, do pacote de handoff): é
-   pré-carregado só na landing, decodificado (`img.decode()`) e só então aparece, com entrada de câmera (escala 0,9 → 1,
-   desfoque 14 → 0 px). É provisório: a captura em alta resolução a partir do próprio renderizador existe
-   (`scripts/capture-gb-puff-poster-v45.mjs`), mas numa GPU por software 60 000 fios a 1100 px passam de vários
-   minutos por quadro; rodar numa máquina com GPU física e trocar o arquivo depois de comparar.
-3. **Live:** com WebGL2 numa GPU física e sem Save-Data, o chunk do PlushTile (pré-carregado só na landing) monta
-   depois que o boot da loja já foi disparado; o canvas fica invisível (mas medido, nunca `display:none`) até o
-   `gb:plush-ready`, e aí poster → live é um cross-fade no lugar. O poster foi calibrado contra o render ao vivo
-   (1440×900 e 390×844): mesma largura de silhueta e centro a poucos px.
+2. **Sondagem de GPU** (antes de qualquer marca): um contexto WebGL2 descartável com
+   `failIfMajorPerformanceCaveat` + o nome do renderizador decidem o caminho.
+3. **GPU física → live do primeiro ao último quadro.** O chunk do PlushTile é pedido na hora (só neste caminho) e o
+   tile monta assim que chega; o palco fica preto até o `gb:plush-ready` (pelo iluminado lido de volta) e então o
+   puff ao vivo sobe do escuro (escala 0,88 → 1 e opacidade, **sem filtro sobre o canvas**). Não existe troca de
+   "tecido": o poster nunca aparece antes do live.
+4. **Sem GPU física** (rasterizador por software, sem WebGL2, Save-Data) → o poster de pelo real é o puff, do começo
+   ao fim, e o chunk do PlushTile nem é baixado.
+5. **Se o live não sobe em 1,5 s** numa GPU física (aparelho lento, rede ruim), o poster assume e fica — o live é
+   desmontado e um quadro pronto depois é ignorado (sem troca tardia).
 
-Sem poster e sem GPU, o palco fica preto por um instante e a loja abre — nunca um ícone plano.
+O poster (`assets/brand/gb-puff-poster-v44.webp`, RGBA 553×549, provisório) é pré-carregado só na landing e
+decodificado antes de aparecer. Está calibrado contra o render ao vivo (1440×900 e 390×844: mesma silhueta e centro
+a poucos px). A captura em alta resolução pelo próprio renderizador (`scripts/capture-gb-puff-poster-v45.mjs`)
+precisa de uma máquina com GPU física.
+
+## Desempenho
+
+| Aparelho | Fios | Pixels do canvas | DPR máx. |
+|---|---:|---:|---:|
+| Desktop | 70 000 | 1,9 M | 1,5 |
+| ≤ 4 GB ou ≤ 4 núcleos | 34 000 | 1,4 M | 1,5 |
+| Toque ou < 720 px | 22 000 | 1,0 M | 2 |
+
+Dentro disso roda a qualidade adaptativa do original (resolução 0,6–1 e afinamento quando os quadros atrasam; 60 fps
+com interação, 30 fps só com a brisa). Nenhum filtro (desfoque) toca o canvas WebGL: entrada e mergulho são só
+escala e opacidade. No caminho live a loja começa a carregar logo depois do primeiro quadro do pelo (ou aos 1,2 s),
+para os dois não disputarem a thread principal.
+
+## Saída: mergulho + abertura dourada
+
+O mergulho escala a câmera 3,6× e dissolve o palco. No meio dele, quando o puff ocupa o quadro, a abertura da
+própria landing (V12, `window.GBEditOpening({gold:true})`) entra em **dourado** — muro amarelo, monograma preto,
+GB IMPORTS — e explode em blocos sobre o hero, como os muros amarelos dos capítulos. Sem a loja carregada (watchdog
+antes do core), o mergulho segue direto para a página.
 
 ## Máquina de estados e boot
 
@@ -57,9 +81,9 @@ idle → visible-poster → visible-live → transitioning → finished
 | Tempo | O quê |
 |---|---|
 | 0 | palco preto; poster e chunk pedidos |
-| ~0,3 s | poster decodificado aparece (`visible-poster`) |
-| 0,65 s | **boot da loja** (`GB_BOOT_CORE`, grupos espaçados por idle callback) — em paralelo, nunca à espera da GPU |
-| depois | live monta (só GPU física); primeiro quadro verificado → `visible-live` |
+| ~0,1–0,3 s | GPU física: primeiro quadro verificado do live (`visible-live`); sem GPU: poster (`visible-poster`) |
+| 0,65 s (poster) · após o 1º quadro do live, no máx. 1,2 s (live) | **boot da loja** (`GB_BOOT_CORE`, grupos espaçados por idle callback) — nunca à espera da GPU |
+| 1,5 s | prazo do live: sem quadro verificado, o poster assume e fica |
 | 2,6 s após o puff aparecer (1,3 s na revisita da sessão) | se a loja está pronta e ninguém está mexendo no puff: mergulho (950 ms) |
 | 5,2 s | **watchdog**: mergulho rápido (480 ms) aconteça o que acontecer |
 | 9 s | garantia **só de CSS**: a página reaparece e o palco some mesmo se o JS morreu ou a thread principal travou |
@@ -69,9 +93,6 @@ a loja: o botão PULAR, Escape/Enter/Espaço/Page Down/↓, a roda do mouse (dep
 `pagehide`. **Tocar ou arrastar o puff nunca pula** — é aí que os fios respondem (o palco usa `touch-action: pan-y`,
 como o original). Movimento reduzido, links diretos (`#colecao`, `?peca=`, `/gb…`) e rotas não mostram a intro nem
 baixam o chunk ou o poster. O muro de blocos da V12 continua desligado (`GB_GLASS_RIBBON_INTRO`).
-
-Orçamento de fios: 90 000 (desktop), 36 000 (≤ 4 GB ou ≤ 4 núcleos), 26 000 (toque ou < 720 px), além da qualidade
-adaptativa do original (resolução 0,6–1 e afinamento quando quadros atrasam).
 
 `window.GBPuffIntro` é a API (estado, modo, linha do tempo, `live`, `brush`, `finish()`); `window.GBGlassRibbons` é
 um alias, porque a navbar, a CSS de rotas, o boot da loja e as suítes leem o ciclo da intro por esse nome.

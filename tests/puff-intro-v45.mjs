@@ -38,8 +38,9 @@ async function open(sc,{w=1440,h=900,path='',reduced=false,touch=false,cpu=0,blo
           liveOp:live?+getComputedStyle(live).opacity:0,
           canvas:live?.querySelector('canvas')?[live.querySelector('canvas').width,live.querySelector('canvas').height]:null,
           flat:[...h.querySelectorAll('img,svg,object,use')].filter(e=>/monograma|\.svg/.test(e.getAttribute('src')||e.getAttribute('href')||'')).length,
-          bg:getComputedStyle(h).backgroundColor,state:h.dataset.state||'',brush:window.GBPuffIntro?.brush||0});
+          bg:getComputedStyle(h).backgroundColor,state:h.dataset.state||'',brush:window.GBPuffIntro?.brush||0,gold:!!document.querySelector('.gb-intro.is-gold')});
       }
+      else if(document.querySelector('.gb-intro.is-gold'))window.__puff.goldAfter=true;
       if(window.__puff.frames.length<1200)requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
@@ -58,19 +59,22 @@ const firstBrand=page=>page.evaluate(()=>{const f=window.__puff.frames.find(x=>x
 // 1. Desktop, default policy. Software GPU here → the real-fur poster is the brand object, then the dive.
 if(FROM<=1){
   const sc='1440 poster';
-  const {ctx,page,errors,bad}=await open(sc);
+  const {ctx,page,errors,bad,requests}=await open(sc);
   const ok=await finished(page);
   const s=await page.evaluate(()=>({api:{state:GBPuffIntro.state,mode:GBPuffIntro.mode,reason:GBPuffIntro.reason,removed:GBPuffIntro.removed,frames:GBPuffIntro.frames,tl:GBPuffIntro.timeline},fin:window.__puff.fin,
     playing:document.documentElement.classList.contains('gb-ribbon-intro-playing'),hero:!!document.querySelector('#heroArt,#heroStage'),
-    heroVisible:getComputedStyle(document.querySelector('#inicio')||document.body).visibility,core:window.GB_CORE_READY,v12wall:!!document.querySelector('.gb-intro')}));
+    heroVisible:getComputedStyle(document.querySelector('#inicio')||document.body).visibility,core:window.GB_CORE_READY,v12wall:!!document.querySelector('.gb-intro:not(.is-gold)')}));
   const fb=await firstBrand(page);
   check(sc,'intro termina e remove o palco (estado finished, host fora do DOM)',ok&&s.api.removed,JSON.stringify(s.api));
   check(sc,'primeiro objeto de marca visível é o poster de pelo real (decodificado), nunca um ícone chapado',!!fb&&fb.poster&&fb.flat===0,JSON.stringify(fb));
   check(sc,'palco preto (nenhum quadro branco)',(await page.evaluate(()=>window.__puff.frames.every(f=>/rgba?\(0, 0, 0/.test(f.bg)))),'');
   check(sc,'poster aparece cedo (< 1,2 s) e a loja abre antes do watchdog (≤ 6 s)',s.api.tl.posterShown>0&&s.api.tl.posterShown<1200&&s.api.tl.finished<=6000,JSON.stringify(s.api.tl));
   check(sc,'loja inicia em paralelo (boot do core aos ~0,65 s, não no fim da intro)',s.api.tl.coreBoot>0&&s.api.tl.coreBoot<1500,JSON.stringify(s.api.tl));
-  check(sc,'depois da intro: página visível, hero presente, sem o muro da V12, core pronto',!s.playing&&s.hero&&s.heroVisible==='visible'&&!s.v12wall&&s.core===true,JSON.stringify(s));
-  check(sc,'GPU por software não roda o shader para visitantes (0 quadros live)',s.api.mode==='poster'&&s.api.frames===0,JSON.stringify(s.api));
+  check(sc,'depois da intro: página visível, hero presente, sem o muro escuro antigo da V12 (só o dourado do mergulho), core pronto',!s.playing&&s.hero&&s.heroVisible==='visible'&&!s.v12wall&&s.core===true,JSON.stringify(s));
+  check(sc,'GPU por software não roda o shader para visitantes (0 quadros live) nem baixa o chunk do PlushTile',s.api.mode==='poster'&&s.api.frames===0&&!requests.some(u=>/gb-plush\./.test(u)),JSON.stringify(s.api));
+  const gold=await page.evaluate(()=>window.__puff.frames.some(f=>f.gold)||!!window.__puff.goldAfter);
+  const goldGone=await page.waitForFunction(()=>!document.querySelector('.gb-intro'),null,{timeout:6000}).then(()=>true).catch(()=>false);
+  check(sc,'no mergulho a abertura da landing chega em dourado (muro amarelo que explode em blocos, V12) e sai sozinha',gold&&goldGone,JSON.stringify({gold,goldGone}));
   check(sc,'sem 404 e sem erro de JS',!bad.length&&!errors.length,JSON.stringify({bad,errors}));
   await ctx.close();
 }
@@ -84,7 +88,8 @@ if(FROM<=2){
   if(live){
     const st=await page.evaluate(()=>({live:GBPuffIntro.live,canvas:GBPuffIntro.canvasSize,cls:document.getElementById('gbRibbonBoot').className}));
     check(sc,'canvas medido no palco visível (nunca 1×1 / quadrado preto)',st.canvas[0]>=600&&st.canvas[1]>=400,JSON.stringify(st.canvas));
-    check(sc,'troca poster → live por cross-fade (classe is-live, mesmo palco)',/is-live/.test(st.cls),st.cls);
+    const noPoster=await page.evaluate(()=>window.__puff.frames.every(f=>!f.poster));
+    check(sc,'live desde o primeiro objeto: nenhum quadro de poster antes (sem troca de tecido)',/is-live/.test(st.cls)&&noPoster,JSON.stringify({cls:st.cls,noPoster}));
     check(sc,'monograma GB local como arte do pelo, fios instanciados contados',st.live&&st.live.count>=1000&&st.live.requested>=st.live.count,JSON.stringify(st.live));
     // the cursor runs through the fur: the brush opens under it (PlushTile's own uBrush)
     // the cursor leaves the stage (brush closes), then runs through the fur (brush opens under it)

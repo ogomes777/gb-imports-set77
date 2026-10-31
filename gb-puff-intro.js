@@ -18,7 +18,8 @@
 const stage=document.getElementById('heroStage');
 const host=document.getElementById('gbRibbonBoot');
 if(!stage||!host||window.GBPuffIntro)return;
-// The puff is the landing's opening: the V12 block-wall opening (gb-edit-v12) stands down, as it did for the ribbon.
+// The puff opens the landing; the V12 opening (gb-edit-v12) does not start by itself — the puff plays it, gold,
+// in the middle of its dive (window.GBEditOpening).
 window.GB_GLASS_RIBBON_INTRO=true;
 
 const now=()=>performance.now();
@@ -72,77 +73,113 @@ host.classList.remove('is-boot');
 host.classList.add('is-opening');
 mark('start');set('idle');
 
-/* ---------- storefront: boots in parallel; the intro only listens ---------- */
-const bootCore=()=>{if(!tl.coreBoot){mark('coreBoot');window.GB_BOOT_CORE?.()}};
-later(bootCore,CORE_AT);
-const coreDone=()=>window.GB_CORE_READY||window.GB_CORE_FAILED||!window.GB_BOOT_CORE;
-on(document,'gb:core-ready',()=>{mark('coreReady');maybeLeave()});
-
-/* ---------- first brand object: the real-fur poster, decoded before it is shown ---------- */
-function showBrand(kind){
- if(brandAt||finished)return;
- brandAt=now();
- host.classList.add('is-brand',kind==='live'?'is-live-first':'is-poster-first');
- later(()=>host.classList.add('is-settled'),1200);  // entrance done: the camera stops promoting a layer
- later(maybeLeave,SHOW);
-}
-if(POSTER&&posterEl){
- const img=new Image();
- img.decoding='async';
- img.src=POSTER;
- const ready=img.decode?img.decode():new Promise((ok,ko)=>{img.onload=ok;img.onerror=ko});
- ready.then(()=>{
-  if(finished||!img.naturalWidth)return;
-  posterEl.src=img.src;
-  if(state==='idle'){set('visible-poster');mode='poster';mark('posterShown');showBrand('poster')}
- },()=>{
-  host.dataset.poster='failed';
-  if(!brandAt&&(!wantLive||host.dataset.live))later(()=>finish('no-visual'),0);
- });
-}
-
-/* ---------- live: the original PlushTile, only on a real GPU and a full connection ---------- */
+/* ---------- the GPU decides the path before anything is shown ----------
+   A real GPU gets the original PlushTile live from its very first visible frame and keeps it to the end: the stage
+   stays black until a verified lit frame, then the puff rises. Without one (software rasteriser, no WebGL2,
+   Save-Data) the real-fur poster is the puff, and it stays — never a poster that turns into something else. */
 const conn=navigator.connection;
 const saveData=!!conn?.saveData||/(^|-)2g$/.test(conn?.effectiveType||'');
 const forceLive=params.get('gbPuffLive')==='1';           // QA capture on software GPUs only
 const coarse=matchMedia('(pointer: coarse)').matches;
 const mem=navigator.deviceMemory||8,cores=navigator.hardwareConcurrency||8;
-const strandCap=forceLive?12000:coarse||innerWidth<720?26000:mem<=4||cores<=4?36000:90000;
-const wantLive=!!BUNDLE&&!!liveEl&&!saveData&&!!window.WebGL2RenderingContext;
-
-function mountLive(){
- if(finished||!window.GBPlush||mode==='live')return;
- // the store's boot is queued first: a busy GPU loop must never be what delays the shop
- if(!tl.coreBoot)return later(mountLive,Math.max(0,CORE_AT-(now()-T0))+16);
- try{window.GBPlush.mount(liveEl,{strandCap,allowSoftware:forceLive})}catch(err){liveFailed('mount')}
+function probeGpu(){
+ // Chrome hands out no context at all with failIfMajorPerformanceCaveat on a software rasteriser
+ try{
+  const c=document.createElement('canvas');
+  const gl=c.getContext('webgl2',{failIfMajorPerformanceCaveat:true,powerPreference:'low-power',antialias:false,depth:false});
+  if(!gl)return 'none';
+  const d=gl.getExtension('WEBGL_debug_renderer_info');
+  const name=String(d?gl.getParameter(d.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER));
+  gl.getExtension('WEBGL_lose_context')?.loseContext();
+  return /swiftshader|llvmpipe|software|basic render/i.test(name)?'software':'hardware';
+ }catch{return 'none'}
 }
+const gpu=window.WebGL2RenderingContext?probeGpu():'none';
+const wantLive=!!BUNDLE&&!!liveEl&&!saveData&&!!window.WebGL2RenderingContext&&(gpu==='hardware'||forceLive);
+// device budget: strands, backing-store pixels and DPR (the original's adaptive quality works inside these)
+const budget=forceLive?{strandCap:12000,pixelBudget:900000,maxDpr:1}
+ :coarse||innerWidth<720?{strandCap:22000,pixelBudget:1000000,maxDpr:2}
+ :mem<=4||cores<=4?{strandCap:34000,pixelBudget:1400000,maxDpr:1.5}
+ :{strandCap:70000,pixelBudget:1900000,maxDpr:1.5};
+const strandCap=budget.strandCap;
+const LIVE_WAIT=forceLive?12000:1500;   // the live tile must be up by then, or the poster takes the stage for good
+host.dataset.gpu=gpu;
+if(wantLive)host.classList.add('is-live-path');
+
+/* ---------- storefront: boots in parallel; the intro only listens ---------- */
+const bootCore=()=>{if(!tl.coreBoot){mark('coreBoot');window.GB_BOOT_CORE?.()}};
+// on the live path the store waits for the first fur frame (or 1.2 s, whichever is first), so the two never fight
+later(bootCore,wantLive?1200:CORE_AT);
+const coreDone=()=>window.GB_CORE_READY||window.GB_CORE_FAILED||!window.GB_BOOT_CORE;
+on(document,'gb:core-ready',()=>{mark('coreReady');maybeLeave()});
+
+function showBrand(kind){
+ if(brandAt||finished)return;
+ brandAt=now();
+ host.classList.add('is-brand',kind==='live'?'is-live-first':'is-poster-first');
+ later(()=>host.classList.add('is-settled'),1300);  // entrance done: the camera stops promoting a layer
+ later(maybeLeave,SHOW);
+}
+
+/* ---------- poster: decoded early as the fallback; shown only when there is no live tile ---------- */
+let posterImg=null,posterReady=false,posterFailed=!POSTER||!posterEl,liveGaveUp=!wantLive;
+function showPoster(){
+ if(finished||brandAt||!posterReady)return;
+ posterEl.src=posterImg.src;
+ set('visible-poster');mode='poster';mark('posterShown');showBrand('poster');
+ if(wantLive)dropLive();
+}
+if(!posterFailed){
+ posterImg=new Image();
+ posterImg.decoding='async';
+ posterImg.src=POSTER;
+ (posterImg.decode?posterImg.decode():new Promise((ok,ko)=>{posterImg.onload=ok;posterImg.onerror=ko})).then(()=>{
+  if(!posterImg.naturalWidth)throw 0;
+  posterReady=true;
+  if(liveGaveUp)showPoster();
+ }).catch(()=>{
+  posterFailed=true;host.dataset.poster='failed';
+  if(!brandAt&&liveGaveUp)later(()=>finish('no-visual'),0);
+ });
+}
+
+/* ---------- live: the original PlushTile, mounted the moment its chunk arrives ---------- */
+function mountLive(){
+ if(finished||!window.GBPlush||liveGaveUp)return;
+ try{window.GBPlush.mount(liveEl,{strandCap,pixelBudget:budget.pixelBudget,maxDpr:budget.maxDpr,allowSoftware:forceLive})}catch{liveFailed('mount')}
+}
+function dropLive(){try{window.GBPlush?.unmount()}catch{} host.dataset.live=host.dataset.live||'late'}
 function liveFailed(why){
- host.dataset.live=why||'failed';
- if(state==='idle'&&!POSTER)set('failed');
- else if(state==='visible-poster')mode='poster';
- if(!brandAt&&(!POSTER||host.dataset.poster==='failed'))later(()=>finish('no-visual'),0);
+ if(liveGaveUp&&host.dataset.live)return;
+ liveGaveUp=true;host.dataset.live=why||'failed';
+ if(brandAt)return;
+ if(posterReady)showPoster();
+ else if(posterFailed)later(()=>finish('no-visual'),0);
 }
 if(wantLive){
  on(liveEl,'gb:plush-ready',()=>{
   if(finished)return;
+  if(brandAt||liveGaveUp){dropLive();return}   // the poster already holds the stage: no swap, free the GPU
   mark('liveReady');mode='live';
   host.classList.add('is-live');
-  if(state==='idle'||state==='visible-poster')set('visible-live');
+  set('visible-live');
   showBrand('live');
+  later(bootCore,250);
  });
  on(liveEl,'gb:plush-unsupported',e=>liveFailed(e.detail?.reason));
  on(liveEl,'gb:plush-failed',e=>liveFailed(e.detail?.reason));
+ later(()=>{if(!brandAt)liveFailed('late')},LIVE_WAIT);
  if(window.GBPlush)mountLive();
  else{
   on(document,'gb:plush-bundle',mountLive,{once:true});
   const sc=document.createElement('script');
-  sc.src=BUNDLE;sc.async=true;
+  sc.src=BUNDLE;sc.async=true;sc.fetchPriority='high';
   sc.onerror=()=>liveFailed('bundle');
   document.head.append(sc);
  }
-}else host.dataset.live=BUNDLE?'skipped':'no-bundle';
+}else host.dataset.live=BUNDLE?(gpu==='hardware'?'save-data':'gpu-'+gpu):'no-bundle';
 // nothing drawable at all: black glass for a breath, then the store
-if(!wantLive&&!POSTER)later(()=>finish('no-visual'),400);
+if(!wantLive&&posterFailed)later(()=>finish('no-visual'),400);
 
 /* ---------- touch and cursor: the fibres answer (inside PlushTile); the intro only notes activity ---------- */
 on(host,'pointermove',()=>{lastTouch=now()},{passive:true});
@@ -177,6 +214,9 @@ function finish(why){
  host.classList.remove('is-opening');
  host.classList.add('is-diving');
  host.style.pointerEvents='none';
+ // halfway through the dive the puff fills the frame: the landing's own V12 opening (gold wall, monogram,
+ // GB IMPORTS) takes over and bursts into blocks onto the hero, like every chapter wall of the page
+ if(!/^(hidden|pagehide|no-visual)$/.test(why))later(()=>window.GBEditOpening?.({gold:true,hold:quick?700:1000}),Math.round(dur*.45));
  later(teardown,dur+40);
 }
 
@@ -200,7 +240,7 @@ function publish(){
  const canvas=()=>liveEl?.querySelector('canvas');
  const api=Object.freeze({
   get state(){return play?state:'skipped'},get mode(){return mode},get reason(){return reason},
-  get timeline(){return {...tl}},get strandCap(){return strandCap},get live(){const s=live();return s?{...s}:null},
+  get timeline(){return {...tl}},get strandCap(){return strandCap},get gpu(){return gpu},get live(){const s=live();return s?{...s}:null},
   // lifecycle names kept from the ribbon film, read by gb-nav-v39, the core boot and the suites
   get visible(){return !!brandAt},  // the puff (poster or live) is on screen
   get opening(){return play&&!transitionAt&&!finished},

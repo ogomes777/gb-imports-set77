@@ -12,7 +12,7 @@ import PlushTile from './PlushTile.tsx'
 let current = null
 
 /** `breeze` is only overridden by the offline poster capture (0: the tile settles and stops drawing). */
-function mount(node, { strandCap, allowSoftware = false, breeze } = {}) {
+function mount(node, { strandCap, pixelBudget, maxDpr, allowSoftware = false, breeze } = {}) {
   if (current || !node || !node.isConnected) return false
   const root = createRoot(node)
   root.render(
@@ -20,6 +20,8 @@ function mount(node, { strandCap, allowSoftware = false, breeze } = {}) {
       image: { src: './assets/brand/gb-monograma-amarelo-preto.svg', alt: 'GB' },
       entrance: { animate: false },
       strandCap,
+      pixelBudget,
+      maxDpr,
       allowSoftware,
       ...(breeze === undefined ? null : { breeze }),
     })
