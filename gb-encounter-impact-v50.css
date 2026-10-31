@@ -1,0 +1,62 @@
+/* GB IMPORTS V50 / ENCOUNTER SIGNAL
+   Isolado do rig V15: apenas planos de luz. Sem blur/filter ou animacao infinita.
+   O impacto visual ocorre NO salve do Gui, e nao por flashes sem contexto. */
+.gbe.gb50-ready .gb50-atmos,
+.gbe.gb50-ready .gb50-strike{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.gbe .gb50-atmos{z-index:0}
+.gbe .gb50-strike{z-index:5}
+.gbe .gb50-atmos>i,.gbe .gb50-strike>i{position:absolute;display:block;opacity:0;pointer-events:none;transform-origin:center}
+.gbe .gb50-core{
+  left:-22%;top:-2%;width:144%;height:105%;border-radius:50%;
+  background:radial-gradient(ellipse at 50% 48%,rgba(255,245,192,.45) 0,rgba(255,212,71,.33) 13%,rgba(255,190,40,.13) 34%,rgba(255,196,55,0) 67%);
+}
+.gbe .gb50-gate{
+  left:50%;top:-12%;height:122%;width:7%;transform:translateX(-50%);
+  background:linear-gradient(90deg,transparent,rgba(255,199,55,.24) 28%,rgba(255,251,214,.94) 49%,rgba(255,199,55,.24) 72%,transparent);
+}
+.gbe .gb50-reveal{top:2%;height:92%;width:51%;border-radius:48%;background:
+  linear-gradient(90deg,transparent,rgba(255,214,91,.13) 28%,rgba(255,242,182,.68) 54%,rgba(255,212,71,.09) 75%,transparent);
+}
+.gbe .gb50-reveal-left{left:-12%;transform-origin:75% 50%}
+.gbe .gb50-reveal-right{right:-12%;transform-origin:25% 50%;background:
+  linear-gradient(270deg,transparent,rgba(255,214,91,.13) 28%,rgba(255,242,182,.68) 54%,rgba(255,212,71,.09) 75%,transparent)}
+.gbe .gb50-ground{left:-21%;right:-21%;bottom:-8%;height:18%;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(255,247,207,.89) 0,rgba(255,204,65,.49) 26%,rgba(255,192,38,.14) 56%,transparent 76%)}
+.gbe .gb50-orbit{left:50%;top:40%;width:88%;height:79%;border-radius:50%;transform:translate(-50%,-50%);
+  border:1px solid rgba(255,218,99,.6);
+  background:radial-gradient(ellipse at center,rgba(255,207,63,.14),transparent 64%)}
+.gbe .gb50-flare{left:49%;top:24%;width:125%;height:5px;transform:translate(-50%,-50%);border-radius:99px;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,224,121,.08) 8%,rgba(255,224,121,.54) 34%,#fff9dc 50%,rgba(255,216,92,.54) 68%,transparent 100%)}
+.gbe .gb50-shock{left:49%;top:24%;width:36%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;
+  border:2px solid rgba(255,234,154,.93);
+  background:radial-gradient(circle,rgba(255,215,74,.21),transparent 66%);
+  box-shadow:0 0 12px rgba(255,203,62,.18) inset}
+.gbe .gb50-shock-b{border-width:1px;border-color:rgba(255,209,70,.78);width:28%}
+.gbe .gb50-afterglow{left:49%;top:24%;width:72%;height:45%;transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse,rgba(255,227,126,.33) 0,rgba(255,208,74,.16) 34%,transparent 74%)}
+.gbe .gb50-spark{left:49%;top:24%;width:3px;height:18px;border-radius:6px;
+  background:linear-gradient(180deg,#fff7dd 0%,#ffd447 42%,rgba(255,174,0,0) 100%);
+  transform-origin:50% 0}
+.gbe .gb50-spark:nth-of-type(2n){width:2px;height:12px}
+.gbe .gb50-glint{position:absolute;left:0;top:0;width:calc(var(--gbe-hpx,600px)*.24);height:calc(var(--gbe-hpx,600px)*.24);
+  border-radius:50%;z-index:4;pointer-events:none;opacity:0;transition:opacity .2s ease;
+  background:radial-gradient(circle,rgba(255,243,183,.30) 0%,rgba(255,212,71,.09) 35%,transparent 70%)}
+.gbe .gb50-glint.is-visible{opacity:1}
+.gbe .gb50-tap{position:absolute;display:block;width:70px;height:70px;border-radius:50%;
+  border:1.5px solid rgba(255,228,131,.95);pointer-events:none;opacity:0;
+  box-shadow:0 0 16px rgba(255,212,71,.20)}
+/* Os dois personagens ficam acima da atmosfera, com seus 4 WebP e pivôs originais.
+   Não se altera .gbe-hand/.gbe-head/.gbe-char nem timing da V15. */
+@media(max-width:600px){
+  .gbe .gb50-core{left:-30%;width:160%;height:105%}
+  .gbe .gb50-gate{width:9%;height:110%}
+  .gbe .gb50-flare{height:3px;width:112%}
+  .gbe .gb50-shock{border-width:1px;width:44%}
+  .gbe .gb50-reveal{width:60%;height:86%}
+  .gbe .gb50-spark{height:11px;width:2px}
+  .gbe .gb50-orbit{width:100%}
+  .gbe .gb50-glint{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .gbe .gb50-atmos,.gbe .gb50-strike,.gbe .gb50-glint{display:none!important}
+}
