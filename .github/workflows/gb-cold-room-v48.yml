@@ -1,0 +1,41 @@
+name: GB Imports | Cold Room Reverse Reveal V48
+on:
+  push:
+    branches: [feat/gb-cold-room-bidirectional-v48]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'showroom-cinema.js'
+      - 'showroom-cinema.css'
+      - 'tests/cold-room-reverse-v48.mjs'
+permissions:
+  contents: read
+jobs:
+  cold-room:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies and Chromium
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save playwright
+          npx playwright install chromium
+      - name: Build original GB landing
+        run: node scripts/build.mjs
+      - name: Test freeze -> thaw -> re-freeze, mobile and fallback
+        run: |
+          python3 -m http.server 8080 --directory dist > /tmp/gb-cold-http.log 2>&1 &
+          sleep 2
+          node tests/cold-room-reverse-v48.mjs
+      - name: Save visual proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gb-cold-room-reverse-v48
+          path: tmp/gb-cold-v48/*.png
+          if-no-files-found: ignore
+          retention-days: 7
