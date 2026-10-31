@@ -471,9 +471,10 @@ function reverseFrame(){
  const r=heading.getBoundingClientRect(),view=Math.max(1,innerHeight);
  const movingUp=scrollY<reverseLastY-1;
  reverseLastY=scrollY;
- // Cold at top<28vh; paper at top>86vh. The same interpolation is used
- // in both directions, even when the visitor changes scroll direction.
- const p=reverseRound((view*.86-r.top)/(view*.58));
+ // V48.1: compress the thaw into 34vh instead of 58vh (~41% shorter).
+ // At top<48vh the Cold Room is frozen; at >82vh it is paper again.
+ // This remains bidirectional: changing scroll direction re-freezes instantly.
+ const p=reverseRound((view*.82-r.top)/(view*.34));
  if(!reverser){
   if(!arrived||!movingUp||r.top<view*.24||r.top>view*.87)return;
   reverser=true;
@@ -490,12 +491,12 @@ function reverseFrame(){
   scene3d?.setScrollFreeze(p);
  }
  // Ink and ice use the exact same scroll progress as the shader front.
- if(p<=.001&&r.top>=view*.88){
+ if(p<=.001&&r.top>=view*.825){
   reverser=false;heading.classList.remove('is-rewinding');
   setWarm(true);scene3d?.setFrozen(false);
   arrived=false;arrivalReady=false;
   gsap?.set(glows,{opacity:0});
- }else if(p>=.999&&r.top<=view*.27){
+ }else if(p>=.999&&r.top<=view*.475){
   reverser=false;heading.classList.remove('is-rewinding');
   setWarm(false);scene3d?.setFrozen(true);
  }
