@@ -17,109 +17,177 @@ const mobile=()=>innerWidth<781;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 let seed=772026;
 const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
-const stars=Array.from({length:95},(_,i)=>({
- a:random()*6.28318,r:.24+random()*.72,z:.2+random()*.8,
- skew:(random()-.5)*.42,width:.45+random()*1.2,speed:.35+random()*.6,lane:i%5
+const stars=Array.from({length:165},(_,i)=>({
+ a:random()*Math.PI*2,r:.16+Math.pow(random(),.68)*.87,z:.16+random()*.84,
+ skew:(random()-.5)*.19,width:.45+random()*1.28,speed:.25+random()*.65,lane:i%6,
+ twinkle:random()*Math.PI*2
 }));
+const nebula=document.createElement('canvas');
+const nctx=nebula.getContext('2d',{alpha:true});
+let nebulaTheme='',nebulaReady=false,nebulaBuilds=0;
 function resize(){
  const box=art.getBoundingClientRect();if(box.width<10||box.height<10)return;
  w=box.width;h=box.height;
  dpr=Math.min(devicePixelRatio||1,mobile()?1:1.35,Math.sqrt((mobile()?420000:1050000)/Math.max(1,w*h)));
  canvas.width=Math.max(2,Math.round(w*dpr));canvas.height=Math.max(2,Math.round(h*dpr));
  ctx.setTransform(dpr,0,0,dpr,0,0);
+ nebulaReady=false;
+ if(nctx)buildNebula();
 }
 function project(angle,r,skew){
  const z=.5+.5*Math.cos(angle+.36),pers=1/(1.28-.39*z),rr=r*pers;
  return{x:w*(.53+Math.cos(angle)*rr*.42)+mx*7*(1-z),
   y:h*(.49+(Math.sin(angle)*.29+skew*.17)*rr)+my*5*(1-z)};
 }
+/* An actual spiral-galaxy image, generated from dust/clouds/starlight.
+ * No paths, lines, scribbles, ellipses or decorative orbit strokes.
+ * All expensive fog/shader-like work is cached on resize or theme change.
+ * The animated layer renders only individual distant stars.
+ */
+function buildNebula(){
+ if(!nctx||w<10||h<10)return;
+ const theme=document.body.dataset.gbTheme||'origem';
+ const dark=theme==='sinal',silver=theme==='trama';
+ const pixels=mobile()?390000:780000;
+ const ratio=Math.min(1,Math.sqrt(pixels/(w*h)));
+ nebula.width=Math.max(2,Math.round(w*ratio));
+ nebula.height=Math.max(2,Math.round(h*ratio));
+ nctx.setTransform(ratio,0,0,ratio,0,0);
+ nctx.clearRect(0,0,w,h);
+ const cx=w*.53,cy=h*.495,rx=w*.45,ry=h*.44,span=Math.min(w,h);
+ let seed=770042;
+ const rnd=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+ const warm=dark?'255,200,99':silver?'229,218,199':'235,179,77';
+ const ice=dark?'133,181,231':'112,128,151';
+ const outer=dark?'20,29,49':'17,24,38';
+ const glow=(x,y,r,col,a)=>{
+  const g=nctx.createRadialGradient(x,y,0,x,y,r);
+  g.addColorStop(0,'rgba('+col+','+a+')');
+  g.addColorStop(.43,'rgba('+col+','+(a*.35)+')');
+  g.addColorStop(1,'rgba('+col+',0)');
+  nctx.fillStyle=g;nctx.fillRect(x-r,y-r,2*r,2*r);
+ };
+ // Dark, feathered spatial volume. This is an atmospheric galaxy viewport
+ // behind clothes, not a rectangle or an outline drawn on cream paper.
+ nctx.save();
+ nctx.translate(cx,cy);nctx.scale(rx,ry);
+ const voidG=nctx.createRadialGradient(0,0,.04,0,0,1.07);
+ voidG.addColorStop(0,'rgba('+outer+','+(dark?.95:.90)+')');
+ voidG.addColorStop(.50,'rgba('+outer+','+(dark?.88:.79)+')');
+ voidG.addColorStop(.77,'rgba('+outer+','+(dark?.57:.48)+')');
+ voidG.addColorStop(.94,'rgba('+outer+',.11)');
+ voidG.addColorStop(1,'rgba('+outer+',0)');
+ nctx.fillStyle=voidG;nctx.fillRect(-1.1,-1.1,2.2,2.2);
+ nctx.restore();
+ // Pre-baked glow stamps, much cheaper than thousands of dynamic gradients.
+ const makeSprite=(col)=>{
+   const c=document.createElement('canvas');c.width=c.height=64;
+   const g=c.getContext('2d');
+   const light=g.createRadialGradient(32,32,0,32,32,32);
+   light.addColorStop(0,'rgba('+col+',.24)');
+   light.addColorStop(.22,'rgba('+col+',.17)');
+   light.addColorStop(.62,'rgba('+col+',.042)');
+   light.addColorStop(1,'rgba('+col+',0)');
+   g.fillStyle=light;g.fillRect(0,0,64,64);
+   return c;
+ };
+ const dustWarm=makeSprite(warm),dustIce=makeSprite(ice),dustWhite=makeSprite('250,240,218');
+ nctx.save();nctx.globalCompositeOperation='screen';
+ // Three intertwined logarithmic spiral arms, made of overlapping billowing
+ // nebula clouds and thousands of stellar grains. Never draw polylines.
+ const clouds=mobile()?750:1500;
+ for(let i=0;i<clouds;i++){
+   const arm=i%3;
+   const t=Math.pow(rnd(),.79);
+   const theta=t*Math.PI*3.45+(arm*Math.PI*2/3)-1.3;
+   const radius=.045+.91*t;
+   const spread=(.028+.070*t)*(rnd()-.5)*2;
+   const rr=radius+spread;
+   const x=cx+Math.cos(theta)*rx*rr;
+   const y=cy+Math.sin(theta)*ry*rr*.80;
+   const radiusPx=(.018+rnd()*.058)*(1-t*.48)*span;
+   const sprite=arm===0?dustWarm:arm===1?dustWhite:dustIce;
+   nctx.globalAlpha=(.18+.37*rnd())*(1-t*.36);
+   nctx.drawImage(sprite,x-radiusPx,y-radiusPx,radiusPx*2,radiusPx*2);
+ }
+ // Astronomical dust lanes add depth without graphic arcs.
+ nctx.globalAlpha=.68;
+ for(let i=0;i<(mobile()?450:950);i++){
+   const arm=i%3,t=rnd(),theta=t*10.2+arm*2.094-1.30;
+   const rr=.06+t*.86+(rnd()-.5)*.07;
+   const x=cx+Math.cos(theta)*rx*rr,y=cy+Math.sin(theta)*ry*rr*.80;
+   const size=.28+rnd()*.95;
+   nctx.fillStyle=(i%6===0?'rgba(230,209,157,.85)':'rgba(240,239,228,.70)');
+   nctx.fillRect(x,y,size,size);
+ }
+ nctx.restore();
+ // Luminous galactic bulge, with an intense core and warm auroral haze.
+ glow(cx,cy,span*.29,warm,dark?.23:.18);
+ glow(cx,cy,span*.14,'255,230,175',dark?.36:.30);
+ glow(cx,cy,span*.062,'255,251,229',.56);
+ glow(cx,cy,span*.016,'255,255,246',.70);
+ // Secondary blue-slate arms: an immersive counterpoint to GB yellow.
+ glow(cx-rx*.28,cy+ry*.10,span*.18,ice,.13);
+ glow(cx+rx*.39,cy-ry*.12,span*.20,ice,.11);
+ // Hundreds of tiny sharp pinpricks, concentrated toward the spiral.
+ const points=mobile()?370:880;
+ for(let i=0;i<points;i++){
+   const arm=i%3,t=Math.pow(rnd(),.83),ang=t*10.8+arm*2.094-1.3;
+   const rr=.06+t*.92+(rnd()-.5)*.15;
+   const x=cx+Math.cos(ang)*rx*rr,y=cy+Math.sin(ang)*ry*rr*.81;
+   const alpha=(.24+rnd()*.54)*(1-t*.30);
+   nctx.fillStyle='rgba('+(i%8===0?warm:'243,241,225')+','+alpha+')';
+   const size=(i%26===0?2.0:.45+rnd()*.85)*(mobile()?.8:1);
+   nctx.fillRect(x,y,size,size);
+ }
+ // The entire cloud composition has a feathered edge. No harsh circle.
+ nctx.save();
+ nctx.globalCompositeOperation='destination-in';
+ nctx.translate(cx,cy);nctx.scale(rx,ry);
+ const feather=nctx.createRadialGradient(0,0,.16,0,0,1.035);
+ feather.addColorStop(0,'rgba(0,0,0,1)');
+ feather.addColorStop(.64,'rgba(0,0,0,1)');
+ feather.addColorStop(.82,'rgba(0,0,0,.79)');
+ feather.addColorStop(1,'rgba(0,0,0,0)');
+ nctx.fillStyle=feather;nctx.fillRect(-1.1,-1.1,2.2,2.2);
+ nctx.restore();
+ nebulaTheme=theme;nebulaReady=true;nebulaBuilds++;
+}
 function paint(time){
+ if(!nebulaReady||nebulaTheme!==(document.body.dataset.gbTheme||'origem'))buildNebula();
  ctx.clearRect(0,0,w,h);
- const theme=document.body.dataset.gbTheme;
- const dark=theme==='sinal';
- const gold=dark?'255,207,93':'152,102,15';
- const ink=dark?'211,226,238':'83,70,44';
- const cx=w*.515,cy=h*.495,scale=Math.min(w,h);
- const spin=time*.00022;
- const isMob=mobile();
- // Controlled vignette with light held BEHIND the garment, not across text.
- const halo=ctx.createRadialGradient(cx,cy,scale*.07,cx,cy,scale*.66);
- halo.addColorStop(0,'rgba('+gold+','+(dark?.11:.078)+')');
- halo.addColorStop(.44,'rgba('+gold+','+(dark?.055:.059)+')');
- halo.addColorStop(1,'rgba(0,0,0,0)');
- ctx.fillStyle=halo;ctx.fillRect(0,0,w,h);
- ctx.save();
- // Four interrupted orbital light-paths in spatial perspective, with
- // distinct major axes and bank angles. The original assets stay in front.
- const bands=[
-  {r:.43,tilt:-.36,width:2.3,omega:.29,part:1.70},
-  {r:.62,tilt:.29,width:1.8,omega:-.22,part:1.38},
-  {r:.82,tilt:-.61,width:1.4,omega:.13,part:1.15},
-  {r:1.02,tilt:.14,width:1.2,omega:-.14,part:.86}
- ];
- for(let k=0;k<bands.length;k++){
-  const ring=bands[k],rx=w*.385*ring.r,ry=h*.31*ring.r;
-  const start=spin*ring.omega+k*1.47;
-  // A dark metallic foundation for a believable trajectory.
-  ctx.save();ctx.translate(cx,cy);ctx.rotate(ring.tilt);
-  ctx.strokeStyle='rgba('+ink+','+(dark?.075:.11)+')';
-  ctx.lineWidth=ring.width*.8;
-  ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,0,2*Math.PI);
-  ctx.stroke();
-  for(let j=0;j<2;j++){
-   const lo=start+j*Math.PI*.92;
-   ctx.beginPath();
-   ctx.ellipse(0,0,rx,ry,0,lo,lo+ring.part*(j===0?1:.52));
-   ctx.lineWidth=ring.width*(j===0?1:.55)*(isMob?.8:1);
-   ctx.strokeStyle='rgba('+(j===0?gold:ink)+','+(dark?.44:.38)/(1+k*.16)+')';
-   ctx.stroke();
-  }
-  ctx.restore();
- }
- // Deliberate streaks sweep on those same planes and have depth-dependent
- // length and luminance. More visible than original V46, without particle fog.
- const n=M.Prefs.lite?17:isMob?36:92;
- const t=time*.00023;
- for(let i=0;i<n;i++){
-  const star=stars[i%stars.length];
-  const angle=star.a+t*star.speed;
-  const length=(.27+.31*star.z)*(star.lane===0?1.7:1);
-  const alpha=(dark?.43:.38)*(star.z*.58+.46)*(star.lane===0?1:.66);
-  const color=star.lane===0?gold:ink;
-  const thick=(isMob?.89:1.15)*star.width;
-  ctx.beginPath();
-  const steps=isMob?5:9;
-  for(let j=0;j<=steps;j++){
-   const v=project(angle+(j/steps)*length,star.r,star.skew);
-   j===0?ctx.moveTo(v.x,v.y):ctx.lineTo(v.x,v.y);
-  }
-  ctx.lineWidth=thick;
-  ctx.strokeStyle='rgba('+color+','+alpha.toFixed(3)+')';
-  ctx.stroke();
-  if(i%5===0){
-   const v=project(angle+length,star.r,star.skew);
-   ctx.beginPath();
-   ctx.arc(v.x,v.y,isMob?1:1.5,0,2*Math.PI);
-   ctx.fillStyle='rgba('+gold+','+Math.min(.67,alpha*1.6).toFixed(3)+')';
-   ctx.fill();
-  }
- }
- // Three larger strokes establish a "galaxy of lines" in motion, not just a
- // background speckle. Use lightweight paths instead of shaders/shadows.
- for(let k=0;k<(isMob?2:3);k++){
-  const t0=t*.72+k*2.094,rad=.82+k*.15;
-  ctx.beginPath();
-  for(let j=0;j<=38;j++){
-   const a=t0+j/38*1.96;
-   const x=cx+Math.cos(a)*w*.42*rad;
-   const y=cy+Math.sin(a)*h*.26*rad+Math.cos(a*.5+k)*h*.025;
-   j===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  }
-  ctx.strokeStyle='rgba('+gold+','+(dark?.18:.16)+')';
-  ctx.lineWidth=isMob?1.05:1.5;
-  ctx.stroke();
- }
+ if(!nebulaReady)return;
+ const cx=w*.53,cy=h*.495;
+ // The whole nebulous galaxy rotates very slowly. Stellar foreground drifts
+ // at a separate speed, yielding cinematic depth rather than pen scribbles.
+ ctx.save();ctx.translate(cx,cy);
+ ctx.rotate(Math.sin(time*.000055)*.023);
+ ctx.drawImage(nebula,-cx,-cy,w,h);
  ctx.restore();
+ const theme=document.body.dataset.gbTheme||'origem';
+ const dark=theme==='sinal',gold=dark?'255,213,125':'242,208,147';
+ const t=time*.000085;
+ const count=M.Prefs.lite?24:mobile()?58:127;
+ for(let i=0;i<count;i++){
+   const star=stars[i];
+   const a=star.a+t*star.speed;
+   const r=star.r,near=star.z;
+   const persp=.70+.40*near;
+   const x=cx+Math.cos(a)*w*.39*r*persp+mx*16*near;
+   const y=cy+Math.sin(a)*h*.35*r*.78*persp+my*12*near;
+   const scint=.62+.38*Math.sin(time*.0016+star.twinkle);
+   const alpha=(dark?.43:.48)*scint*(.40+near*.60);
+   ctx.fillStyle='rgba('+(star.lane===0?gold:'247,243,231')+','+alpha.toFixed(3)+')';
+   const radius=(.55+star.width*.72)*(.7+near*.44);
+   ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);ctx.fill();
+   if(i%27===0&&!mobile()){
+     // A very occasional point-source diffraction glint, not a line trail.
+     const size=3.8+near*3;
+     ctx.fillStyle='rgba(255,249,222,'+(alpha*.22).toFixed(3)+')';
+     ctx.fillRect(x-size/2,y-.35,size,.7);
+     ctx.fillRect(x-.35,y-size/2,.7,size);
+   }
+ }
  frames++;
 }
 function runnable(){
@@ -177,5 +245,5 @@ if('ResizeObserver'in window)new ResizeObserver(resize).observe(art);
 resize();
 window.GBHeroCosmosV46={get frames(){return frames},get active(){return attached&&runnable()},
  get quality(){return mobile()?'mobile/20fps':M.Prefs.lite?'lite/15fps':'desktop/30fps'},
- get dimensions(){return{w,h,canvas:[canvas.width,canvas.height],dpr}},stop(){visible=false;pause()}};
+ get dimensions(){return{w,h,canvas:[canvas.width,canvas.height],dpr}},get scene(){return 'volumetric-spiral-galaxy'},get nebulaBuilds(){return nebulaBuilds},stop(){visible=false;pause()}};
 })();
