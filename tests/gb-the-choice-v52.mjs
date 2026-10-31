@@ -22,7 +22,7 @@ for(const vp of [{width:1440,height:900},{width:768,height:1024},{width:430,heig
  });
  assert(init.ready==='ready'&&init.scenes===2&&init.shadow&&init.first==='BUTTON'&&init.second==='BUTTON',
    'V52 or original buttons missing '+JSON.stringify(init));
- assert(init.products.length===2&&init.products.every(p=>p.loaded),'Missing original product assets '+JSON.stringify(init));
+ assert(init.products.length===2&&init.products.every(p=>p.name),'Original product references missing '+JSON.stringify(init));
  for(const category of ['track','short']){
    await page.evaluate(c=>{
      const el=document.querySelector('.category-tile[data-go-filter="'+c+'"]');
@@ -30,6 +30,7 @@ for(const vp of [{width:1440,height:900},{width:768,height:1024},{width:430,heig
      window.scrollTo({top:window.scrollY+r.top-Math.max(0,(innerHeight-r.height)/2),behavior:'instant'});
    },category);
    await page.waitForFunction(c=>window.GBTheChoiceV52.states.some(s=>s.category===c&&s.shown),category,{timeout:13000});
+   await page.waitForFunction(c=>[...document.querySelectorAll('.category-tile[data-go-filter="'+c+'"] .gb52-piece img')].every(i=>i.complete&&i.naturalWidth>0),category,{timeout:12000});
    const info=await page.evaluate(c=>{
      const tile=document.querySelector('.category-tile[data-go-filter="'+c+'"]');
      const t=tile.getBoundingClientRect(),orig=tile.querySelector('.category-object > .garment-svg');
