@@ -35,36 +35,91 @@ function project(angle,r,skew){
 }
 function paint(time){
  ctx.clearRect(0,0,w,h);
- const light=document.body.dataset.gbTheme!=='sinal',gold=light?'138,105,32':'255,208,100',ink=light?'85,73,66':'188,198,213';
- const cx=w*.52,cy=h*.49,rad=Math.max(w*.36,h*.32);
- const halo=ctx.createRadialGradient(cx,cy,0,cx,cy,rad);
- halo.addColorStop(0,'rgba('+gold+','+(light?.014:.034)+')');
- halo.addColorStop(.55,'rgba('+gold+','+(light?.036:.060)+')');halo.addColorStop(1,'rgba(0,0,0,0)');
+ const theme=document.body.dataset.gbTheme;
+ const dark=theme==='sinal';
+ const gold=dark?'255,207,93':'152,102,15';
+ const ink=dark?'211,226,238':'83,70,44';
+ const cx=w*.515,cy=h*.495,scale=Math.min(w,h);
+ const spin=time*.00022;
+ const isMob=mobile();
+ // Controlled vignette with light held BEHIND the garment, not across text.
+ const halo=ctx.createRadialGradient(cx,cy,scale*.07,cx,cy,scale*.66);
+ halo.addColorStop(0,'rgba('+gold+','+(dark?.11:.078)+')');
+ halo.addColorStop(.44,'rgba('+gold+','+(dark?.055:.059)+')');
+ halo.addColorStop(1,'rgba(0,0,0,0)');
  ctx.fillStyle=halo;ctx.fillRect(0,0,w,h);
- const n=M.Prefs.lite?14:mobile()?29:70,spin=time*.00013;
- for(let i=0;i<n;i++){
-  const s=stars[i],angle=s.a+spin*s.speed,length=(.19+.23*s.z)*(s.lane===0?1.9:1);
-  const alpha=(light?.085:.15)*(s.z*.65+.37)*(s.lane===0?1:.64);
-  ctx.strokeStyle='rgba('+(s.lane===0?gold:ink)+','+alpha.toFixed(3)+')';
-  ctx.lineWidth=(mobile()?.72:.9)*s.width;
-  ctx.beginPath();
-  const steps=mobile()?5:8;
-  for(let k=0;k<=steps;k++){
-   const p=project(angle+(k/steps)*length,s.r,s.skew);
-   if(k===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);
-  }
+ ctx.save();
+ // Four interrupted orbital light-paths in spatial perspective, with
+ // distinct major axes and bank angles. The original assets stay in front.
+ const bands=[
+  {r:.43,tilt:-.36,width:2.3,omega:.29,part:1.70},
+  {r:.62,tilt:.29,width:1.8,omega:-.22,part:1.38},
+  {r:.82,tilt:-.61,width:1.4,omega:.13,part:1.15},
+  {r:1.02,tilt:.14,width:1.2,omega:-.14,part:.86}
+ ];
+ for(let k=0;k<bands.length;k++){
+  const ring=bands[k],rx=w*.385*ring.r,ry=h*.31*ring.r;
+  const start=spin*ring.omega+k*1.47;
+  // A dark metallic foundation for a believable trajectory.
+  ctx.save();ctx.translate(cx,cy);ctx.rotate(ring.tilt);
+  ctx.strokeStyle='rgba('+ink+','+(dark?.075:.11)+')';
+  ctx.lineWidth=ring.width*.8;
+  ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,0,2*Math.PI);
   ctx.stroke();
-  if(i%5===0){const p=project(angle+length,s.r,s.skew);
-   ctx.fillStyle='rgba('+gold+','+(alpha*1.35).toFixed(3)+')';
-   ctx.beginPath();ctx.arc(p.x,p.y,mobile()?.65:1.1,0,Math.PI*2);ctx.fill();
+  for(let j=0;j<2;j++){
+   const lo=start+j*Math.PI*.92;
+   ctx.beginPath();
+   ctx.ellipse(0,0,rx,ry,0,lo,lo+ring.part*(j===0?1:.52));
+   ctx.lineWidth=ring.width*(j===0?1:.55)*(isMob?.8:1);
+   ctx.strokeStyle='rgba('+(j===0?gold:ink)+','+(dark?.44:.38)/(1+k*.16)+')';
+   ctx.stroke();
+  }
+  ctx.restore();
+ }
+ // Deliberate streaks sweep on those same planes and have depth-dependent
+ // length and luminance. More visible than original V46, without particle fog.
+ const n=M.Prefs.lite?17:isMob?36:92;
+ const t=time*.00023;
+ for(let i=0;i<n;i++){
+  const star=stars[i%stars.length];
+  const angle=star.a+t*star.speed;
+  const length=(.27+.31*star.z)*(star.lane===0?1.7:1);
+  const alpha=(dark?.43:.38)*(star.z*.58+.46)*(star.lane===0?1:.66);
+  const color=star.lane===0?gold:ink;
+  const thick=(isMob?.89:1.15)*star.width;
+  ctx.beginPath();
+  const steps=isMob?5:9;
+  for(let j=0;j<=steps;j++){
+   const v=project(angle+(j/steps)*length,star.r,star.skew);
+   j===0?ctx.moveTo(v.x,v.y):ctx.lineTo(v.x,v.y);
+  }
+  ctx.lineWidth=thick;
+  ctx.strokeStyle='rgba('+color+','+alpha.toFixed(3)+')';
+  ctx.stroke();
+  if(i%5===0){
+   const v=project(angle+length,star.r,star.skew);
+   ctx.beginPath();
+   ctx.arc(v.x,v.y,isMob?1:1.5,0,2*Math.PI);
+   ctx.fillStyle='rgba('+gold+','+Math.min(.67,alpha*1.6).toFixed(3)+')';
+   ctx.fill();
   }
  }
- if(!mobile()&&!M.Prefs.lite){
-  for(let i=70;i<95;i++){const s=stars[i],p=project(s.a+spin*.2,s.r*.85,s.skew);
-   ctx.fillStyle='rgba('+gold+','+(light?.07:.13)+')';
-   ctx.fillRect(p.x,p.y,s.width*.75,s.width*.75);
+ // Three larger strokes establish a "galaxy of lines" in motion, not just a
+ // background speckle. Use lightweight paths instead of shaders/shadows.
+ for(let k=0;k<(isMob?2:3);k++){
+  const t0=t*.72+k*2.094,rad=.82+k*.15;
+  ctx.beginPath();
+  for(let j=0;j<=38;j++){
+   const a=t0+j/38*1.96;
+   const x=cx+Math.cos(a)*w*.42*rad;
+   const y=cy+Math.sin(a)*h*.26*rad+Math.cos(a*.5+k)*h*.025;
+   j===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
   }
+  ctx.strokeStyle='rgba('+gold+','+(dark?.18:.16)+')';
+  ctx.lineWidth=isMob?1.05:1.5;
+  ctx.stroke();
  }
+ ctx.restore();
  frames++;
 }
 function runnable(){
@@ -82,7 +137,14 @@ function start(){
  attached=true;acc=0;M.Ticker.add(tick);
 }
 function pause(){ctx.clearRect(0,0,w,h)}
-M.onVisible(stage,v=>{visible=v;if(v)start();else pause()},{threshold:.08});
+M.onVisible(stage,v=>{
+ visible=v;if(v)start();else pause();
+},{threshold:.08});
+// The intro can hold no-scroll while IO already reports the hero as visible.
+// Wake the renderer when the storefront unlocks, or the canvas stays blank.
+new MutationObserver(()=>{if(visible&&!document.body.classList.contains('no-scroll'))start()})
+ .observe(document.body,{attributes:true,attributeFilter:['class']});
+document.addEventListener('gb:core-ready',()=>{if(visible)start()},{once:true});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)start()});
 reduced.addEventListener?.('change',e=>{if(!e.matches)start();else pause()});
 stage.addEventListener('pointermove',e=>{
