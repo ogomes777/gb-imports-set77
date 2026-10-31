@@ -62,6 +62,23 @@ function enable(){
 /* ---------- composição responsiva: o palco nunca cobre o texto nem corta pés/boné ---------- */
 function layout(){
   const S=sec.getBoundingClientRect(),M=model.getBoundingClientRect(),copy=sec.querySelector('.editorial-copy').getBoundingClientRect();
+  // V51: no mobile o palco e um bloco proprio ABAIXO do texto. Nao tentar encaixar
+  // os personagens no espaco residual do editorial como na versao absoluta antiga.
+  // Preserva o rig V15 inteiro (corpos, mao do Gui, cabeca do Vitin e timeline).
+  if(window.innerWidth<=780&&getComputedStyle(model).position==='relative'){
+    const pad=Math.max(12,Math.min(30,Math.round(M.width*.038)));
+    const top=30,tagRoom=68;
+    const h=Math.max(160,Math.floor(Math.min((M.width-pad*2)/CAM,M.height-top-tagRoom)));
+    const bottom=Math.max(0,M.height-top-h),st=model.style;
+    st.setProperty('--gbe-t',top+'px');
+    st.setProperty('--gbe-l',pad+'px');st.setProperty('--gbe-r',pad+'px');
+    st.setProperty('--gbe-b',bottom+'px');st.setProperty('--gbe-hpx',h+'px');
+    stage.querySelectorAll('img').forEach(img=>{
+      const c=CH[img.dataset.k],v=Math.ceil(c.r*c.h*h/40)*40+'px';
+      if(img.sizes!==v)img.sizes=v;
+    });
+    return;
+  }
   const R=s=>sec.querySelector(s)?.getBoundingClientRect();
   const h2=R('.editorial-copy h2'),p=R('.editorial-copy p'),link=R('.editorial-link'),strip=R('.editorial-bottom');
   const BAR=52,side=M.left>=copy.right-2;   // desktop: texto e palco lado a lado
