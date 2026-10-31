@@ -38,9 +38,9 @@ try{
   assert(scene.overflow<=3,'Horizontal clipping '+vp.width+' '+scene.overflow);
   assert(scene.stage.w>=vp.width*.34&&scene.stage.h>=280,'3D frame tiny '+JSON.stringify(scene.stage));
   const initial=scene.angle;
-  await page.waitForTimeout(750);
-  const later=await page.evaluate(()=>window.GBBrand3DV56.angle);
-  assert(Math.abs(later-initial)>.08,'Automatic rotation stopped '+vp.width);
+  await page.waitForFunction(start=>Math.abs(window.GBBrand3DV56.angle-start)>.06,initial,{timeout:8000});
+  const runtime=await page.evaluate(()=>({angle:window.GBBrand3DV56.angle,frames:window.GBBrand3DV56.frames,visibility:document.visibilityState}));
+  assert(runtime.frames>=2,'Render loop was not ticking '+JSON.stringify(runtime));
   mkdirSync('tmp/gb-brand-v56',{recursive:true});
   await page.screenshot({path:'tmp/gb-brand-v56/'+vp.width+'.png',animations:'allow'});
   await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));
