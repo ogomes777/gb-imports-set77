@@ -47,6 +47,7 @@ function play(){
 function arm(){
  if(ready||played)return;
  if(!readyMedia())return;
+ initialLayer=current();
  ready=true;
  if(!accessible()){revealNow();return}
  section.classList.add('gb49-cued');
@@ -78,7 +79,7 @@ let initialLayer=null;
 mediaObserver.observe(media,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
 function guardArm(){
  if(ready)return;
- if(readyMedia()){initialLayer=current();arm();}
+ if(readyMedia())arm();
 }
 guardArm();
 const wake=()=>{if(!ready)guardArm();else if(!played&&!playing)play()};
