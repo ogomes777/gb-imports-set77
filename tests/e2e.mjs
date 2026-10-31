@@ -181,7 +181,8 @@ async function run(w,h,reduced=false){
   await page.fill('#catalogSearch','Polo areia');await page.waitForTimeout(260);
   await page.locator('#productGrid .product-visual').first().click();
   // espera o efeito (o viewer com o produto), não um tempo fixo: sob carga 700 ms não bastavam
-  await page.waitForFunction(()=>{const v=document.querySelector('#railViewer');return v&&getComputedStyle(v).visibility!=='hidden'&&v.offsetParent!==null&&/POLO AREIA/.test(document.querySelector('#railViewerName')?.textContent||'')},null,{timeout:3000}).catch(()=>{});
+  await page.locator('#railViewer').waitFor({state:'visible',timeout:3000}).catch(()=>{});
+  await page.waitForFunction(()=>/POLO AREIA/.test(document.querySelector('#railViewerName')?.textContent||''),null,{timeout:3000}).catch(()=>{});
   await page.waitForTimeout(200);
   check(vp,'V08: card abre o Object View',await page.locator('#railViewer').isVisible());
   check(vp,'V08: Object View mostra o produto real',(await page.locator('#railViewerName').textContent()).includes('POLO AREIA'));
@@ -381,7 +382,7 @@ async function run(w,h,reduced=false){
   await page.locator('#colecao .product-grid').scrollIntoViewIfNeeded();
   let okLoop=true;
   // espera o efeito (viewer aberto / fechado), não um tempo fixo: sob carga 250/450 ms não bastavam
-  const viewerIs=open=>page.waitForFunction(o=>{const v=document.querySelector('#railViewer');const vis=!!v&&v.offsetParent!==null&&getComputedStyle(v).visibility!=='hidden';return vis===o},open,{timeout:3000}).then(()=>true).catch(()=>false);
+  const viewerIs=open=>page.locator('#railViewer').waitFor({state:open?'visible':'hidden',timeout:3000}).then(()=>true).catch(()=>false);
   for(let i=0;i<10;i++){await page.locator('#productGrid .product-visual').nth(i%4).click();if(!(await viewerIs(true)))okLoop=false;await page.keyboard.press('Escape');if(!(await viewerIs(false)))okLoop=false}
   check(vp,'produto: abrir/fechar 10x',okLoop);
   check(vp,'produto: URL limpa após 10x',!page.url().includes('peca='));
