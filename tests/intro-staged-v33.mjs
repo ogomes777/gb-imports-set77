@@ -11,9 +11,10 @@ for(const [w,h,slow] of [[1440,900,false],[390,844,false],[360,780,true]]){
  const started=Date.now();
  await p.goto('http://127.0.0.1:8080/',{waitUntil:'domcontentloaded',timeout:30000});
  await p.waitForFunction(()=>window.GBGlassRibbons,null,{timeout:10000});
+ // V45.1: the store starts ~60 ms after the intro (its evaluation lands in the puff's rise) — never before the stage
  const atStart=await p.evaluate(()=>({opening:GBGlassRibbons.opening,ready:window.GB_CORE_READY,original:GBGlassRibbons.logoAsset,
-  heavy:document.querySelectorAll('script[src*="gb-core-"]').length,hidden:getComputedStyle(document.querySelector('#top')).visibility}));
- assert(atStart.opening&&!atStart.ready&&atStart.heavy===0&&atStart.hidden==='hidden','store scripts raced the first paint '+JSON.stringify(atStart));
+  tl:GBGlassRibbons.timeline,hidden:getComputedStyle(document.querySelector('#top')).visibility}));
+ assert(atStart.opening&&!atStart.ready&&atStart.hidden==='hidden'&&(!atStart.tl.coreBoot||atStart.tl.coreBoot>=40),'store scripts raced the first paint '+JSON.stringify(atStart));
  await p.waitForFunction(()=>GBGlassRibbons.visible,null,{timeout:12000});
  await p.waitForFunction(()=>document.querySelectorAll('script[src*="gb-core-"]').length>0||GBGlassRibbons.removed,null,{timeout:12000});
  const during=await p.evaluate(()=>({opening:GBGlassRibbons.opening,heavy:document.querySelectorAll('script[src*="gb-core-"]').length,coreBoot:GBGlassRibbons.timeline.coreBoot,visible:GBGlassRibbons.visible}));

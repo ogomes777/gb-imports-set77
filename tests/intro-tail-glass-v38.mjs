@@ -19,7 +19,8 @@ for(const cfg of configs){
  await p.goto('http://127.0.0.1:8080/',{waitUntil:'domcontentloaded'});
  await p.waitForFunction(()=>window.GBGlassRibbons,null,{timeout:20000});
  const mid=await p.evaluate(()=>{const host=document.getElementById('gbRibbonBoot');return host?{hostbg:getComputedStyle(host).backgroundColor,mode:GBGlassRibbons.mode,opening:GBGlassRibbons.opening}:{gone:true}});
- assert(mid.gone||mid.hostbg==='rgb(0, 0, 0)','stage is not black glass in this theme '+JSON.stringify(mid));
+ // while it opens the stage is black in every theme; once leaving (the dive clears its background) any value is fine
+ assert(mid.gone||!mid.opening||mid.hostbg==='rgb(0, 0, 0)','stage is not black glass in this theme '+JSON.stringify(mid));
  await p.waitForFunction(()=>GB_CORE_READY&&GBGlassRibbons.removed,null,{timeout:25000});
  const end=await p.evaluate(()=>({removed:GBGlassRibbons.removed,active:GBGlassRibbons.active,mode:GBGlassRibbons.mode,fit:typeof window.GBFitting,overflow:document.documentElement.scrollWidth-innerWidth,
   playing:document.documentElement.classList.contains('gb-ribbon-intro-playing')}));
