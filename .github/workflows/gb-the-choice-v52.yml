@@ -1,0 +1,38 @@
+name: GB Imports | The Choice V52 Cinematic QA
+on:
+  push:
+    branches: [feat/gb-the-choice-v52]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cinematic-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies and Chromium
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save playwright
+          npx playwright install chromium
+      - name: Build flagship and verify catalogue
+        run: |
+          npm run build
+          node scripts/validar-crt.mjs
+      - name: Test The Choice desktop/mobile motion and category links
+        run: |
+          python3 -m http.server 8080 --directory dist >/tmp/gb-v52-server.log 2>&1 &
+          sleep 2
+          node tests/gb-the-choice-v52.mjs
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gb-the-choice-v52-desktop-mobile
+          path: tmp/gb-the-choice-v52/*.png
+          if-no-files-found: ignore
+          retention-days: 7
