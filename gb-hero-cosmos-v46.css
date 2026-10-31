@@ -190,3 +190,28 @@ body[data-gb-theme="trama"] #inicio .gb-hero-cosmos-v46{
  #inicio .gb-hero-cosmos-v46{display:none!important}
  #inicio .hero-trio .trio-media{animation:none!important;will-change:auto!important}
 }
+
+/* V47 | Dual-theme atmosphere. A quieter field, not an illustrated galaxy.
+   The original Tech Fleece remains the visual protagonist. */
+#inicio .gb-hero-cosmos-v46{
+ opacity:.94!important;
+ mix-blend-mode:normal!important;
+ pointer-events:none!important;
+ filter:none!important;
+}
+body[data-gb-theme="trama"] #inicio .gb-hero-cosmos-v46{
+ opacity:.83!important;
+ mix-blend-mode:normal!important;
+}
+body[data-gb-theme="sinal"] #inicio .gb-hero-cosmos-v46{
+ opacity:.88!important;
+ mix-blend-mode:normal!important;
+}
+@media(max-width:780px){
+ #inicio .gb-hero-cosmos-v46{opacity:.83!important}
+ body[data-gb-theme="trama"] #inicio .gb-hero-cosmos-v46{opacity:.75!important}
+ body[data-gb-theme="sinal"] #inicio .gb-hero-cosmos-v46{opacity:.81!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #inicio .gb-hero-cosmos-v46{display:none!important}
+}
