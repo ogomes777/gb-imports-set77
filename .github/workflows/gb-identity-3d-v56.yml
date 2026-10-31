@@ -1,0 +1,36 @@
+name: GB Imports | V56 Brand 3D QA
+on:
+  push:
+    branches: [feat/gb-identity-3d-v56]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  brand-3d:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Install dependencies + browser
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save playwright
+          npx playwright install chromium
+      - name: Compile and check products
+        run: |
+          npm run build
+          node scripts/validar-crt.mjs
+      - name: Validate real volume and auto-rotation
+        run: |
+          python3 -m http.server 8080 --directory dist > /tmp/gb-v56.log 2>&1 &
+          sleep 2
+          node tests/gb-identity-3d-v56.mjs
+      - name: Screenshots across desktop/mobile
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gb-v56-real-3d-screens
+          path: tmp/gb-brand-v56/*.png
+          if-no-files-found: ignore
+          retention-days: 7
