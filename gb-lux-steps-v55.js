@@ -11,7 +11,7 @@ const links=[...section?.querySelectorAll('.gb55-track')||[]];
 if(!section||!grid||cards.length!==3||links.length!==2||section.dataset.gb55)return;
 section.dataset.gb55='ready';
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
-const lite=!!navigator.connection?.saveData||((navigator.hardwareConcurrency||8)<=4);
+const lite=!!navigator.connection?.saveData; // CSS opacity/transform loops remain light even on 4-core mobile.
 if(lite)section.classList.add('gb55-lite');
 const pointer=matchMedia('(pointer:fine) and (hover:hover)');
 let pending=0;
