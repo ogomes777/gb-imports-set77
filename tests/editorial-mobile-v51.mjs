@@ -22,7 +22,16 @@ try{
    await page.goto(origin+'/#editorial',{waitUntil:'domcontentloaded',timeout:35000});
    await page.waitForFunction(()=>Boolean(window.GB_CORE_READY)&&!document.getElementById('gbRibbonBoot'),null,{timeout:32000});
    await page.locator('#editorial .editorial-model').scrollIntoViewIfNeeded();
-   await page.waitForFunction(()=>document.querySelector('.editorial-model')?.classList.contains('gbe-done'),null,{timeout:22000});
+   await page.waitForTimeout(4500);
+   const debug=await page.evaluate(()=>{
+     const model=document.querySelector('#editorial .editorial-model');
+     const stage=document.querySelector('#editorial .gbe');
+     const wall=document.querySelector('#editorial>.gb-chap');
+     const r=model?.getBoundingClientRect();
+     return {core:window.GB_CORE_READY,ready:model?.className,stage:stage?.className,stageCount:!!stage,imgs:stage&&[...stage.querySelectorAll('img')].slice(0,4).map(i=>({ok:i.complete,w:i.naturalWidth})),wall:wall?.className,model:r&&{y:r.y,h:r.height},scrollY,viewport:innerHeight,bodyHeight:document.body.scrollHeight};
+   });
+   console.log('GB_V51_DEBUG '+vp.width+' '+JSON.stringify(debug));
+   await page.waitForFunction(()=>document.querySelector('.editorial-model')?.classList.contains('gbe-done'),null,{timeout:16000});
    const m=await page.evaluate(()=>{
      const get=s=>document.querySelector(s),rr=e=>{const r=e.getBoundingClientRect();return{x:r.x,y:r.y,l:r.left,r:r.right,t:r.top,b:r.bottom,w:r.width,h:r.height}};
      const section=get('#editorial'),model=get('#editorial .editorial-model'),stage=get('#editorial .gbe'),cam=get('#editorial .gbe-cam');
