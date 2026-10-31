@@ -1,0 +1,150 @@
+/* GB IMPORTS / V51 — EDITORIAL MOBILE RECOMPOSE
+   Pilha natural: copy > palco dos personagens > rodape.
+   V15 permanece com mesmo desenho/rig/timeline; V50 efeitos seguem seu palco.
+   Desktop >=781px fica integralmente na composicao anterior. */
+@media (max-width:780px){
+  #editorial.editorial-film{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    min-height:0;
+    height:auto;
+    padding:0 0 86px;
+    overflow:hidden;
+    isolation:isolate;
+  }
+  #editorial .editorial-copy{
+    position:relative;
+    z-index:5;
+    width:100%;
+    min-width:0;
+    box-sizing:border-box;
+    align-self:stretch;
+    padding:clamp(66px,10vw,90px) 6.2vw 0;
+    pointer-events:auto;
+  }
+  #editorial .editorial-copy h2{
+    display:block;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    margin:0 0 20px;
+    font-size:clamp(38px,11.1vw,72px)!important;
+    line-height:.94;
+    letter-spacing:-.07em;
+    white-space:normal;
+    overflow-wrap:normal;
+  }
+  #editorial .editorial-copy p{
+    max-width:36ch;
+    font-size:clamp(12px,3vw,14px);
+    line-height:1.65;
+    margin:0 0 22px;
+  }
+  #editorial .editorial-link{
+    box-sizing:border-box;
+    max-width:min(100%,350px);
+    min-height:45px;
+    font-size:clamp(9px,2.35vw,11px);
+    align-items:center;
+    padding:14px 0 8px;
+    margin:0;
+  }
+  #editorial .editorial-model{
+    position:relative;
+    inset:auto;
+    left:auto;
+    top:auto;
+    right:auto;
+    bottom:auto;
+    display:block;
+    flex:0 0 auto;
+    align-self:stretch;
+    box-sizing:border-box;
+    width:100%;
+    height:clamp(560px,145vw,800px);
+    min-height:0;
+    margin:12px 0 0;
+    padding:0;
+    opacity:1;
+    overflow:visible;
+    z-index:2;
+  }
+  #editorial .editorial-sphere{
+    width:min(96%,640px);
+    left:50%;
+    top:48%;
+    transform:translate(-50%,-50%);
+    max-width:100%;
+    opacity:.80;
+  }
+  #editorial .editorial-giant-letter{
+    left:50%;
+    top:45%;
+    font-size:clamp(270px,85vw,650px);
+    transform:translate(-50%,-50%) rotate(-14deg);
+    opacity:.28;
+  }
+  #editorial .gbe{
+    /* Remove o +58px reservado ao layout desktop: encaixe do rig = altura real. */
+    top:var(--gbe-t,30px);
+    left:var(--gbe-l,14px);
+    right:var(--gbe-r,14px);
+    bottom:var(--gbe-b,68px);
+    transform-origin:50% 88%;
+  }
+  #editorial .gbe-cam{
+    max-width:100%;
+    /* Cam e personagens sem scale artificial, width=.66 x h do rig original. */
+  }
+  #editorial .gbe-tag{
+    bottom:-50px;
+    left:-8%;
+    right:-8%;
+    justify-content:center;
+    gap:7px;
+    font-size:9px;
+    letter-spacing:1.1px;
+    line-height:1.5;
+    white-space:normal;
+    text-align:center;
+  }
+  #editorial .gbe-tag em{font-size:8px}
+  #editorial .gbe-bar{
+    top:6px;
+    left:6.2vw;
+    right:6.2vw;
+    height:48px;
+    z-index:9;
+  }
+  #editorial .gbe-replay{min-width:44px;min-height:44px}
+  #editorial .editorial-bottom{
+    position:absolute;
+    bottom:0;
+    left:0;right:0;
+    box-sizing:border-box;
+    min-height:68px;
+    padding:16px 6.2vw calc(17px + env(safe-area-inset-bottom,0px));
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    align-items:center;
+    font-size:clamp(7px,1.8vw,9px);
+    letter-spacing:.65px;
+    line-height:1.4;
+    flex-wrap:wrap;
+  }
+  #editorial .editorial-bottom span{display:none}
+  #editorial .editorial-vertical{display:none}
+  #editorial .editorial-product,#editorial .editorial-shadowline{pointer-events:none}
+}
+@media (max-width:360px){
+  #editorial .editorial-copy{padding-left:18px;padding-right:18px}
+  #editorial .editorial-copy h2{
+    font-size:clamp(36px,11.1vw,40px)!important;
+    letter-spacing:-.085em;
+  }
+  #editorial .editorial-copy p{font-size:12px;line-height:1.6}
+  #editorial .gbe-tag{gap:5px;letter-spacing:.7px;font-size:8px}
+  #editorial .gbe-tag em{font-size:7px;padding:3px 5px}
+}
