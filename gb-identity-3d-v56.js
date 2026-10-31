@@ -5,7 +5,7 @@ const section=document.querySelector('#universo.gb56-brand'),stage=section?.quer
 if(!section||!stage||!canvas||section.dataset.gb56)return;
 section.dataset.gb56='ready';
 const reduced=matchMedia('(prefers-reduced-motion:reduce)'),low=!!navigator.connection?.saveData||(navigator.hardwareConcurrency||8)<=4;
-let gl,program,buffer,tex,count=0,raf=0,loaded=false,failed=false,visible=false,angle=-.24,last=0,paint=0;
+let gl,program,buffer,tex,count=0,raf=0,loaded=false,failed=false,visible=false,angle=-.24,last=0,paint=0,frames=0;const epoch=performance.now();
 const uniform={},proj=new Float32Array(16),TWO=Math.PI*2;
 const vert=[
 'attribute vec3 aPos,aNormal;attribute vec2 aUV;attribute float aType;',
@@ -107,7 +107,7 @@ function stop(){if(raf)cancelAnimationFrame(raf);raf=0;last=0}
 function step(now){
  raf=0;if(!loaded||!visible||document.hidden||reduced.matches||failed)return;
  if(!last)last=now;
- const dt=Math.min(.08,(now-last)/1000);last=now;angle=(angle+dt*TWO/23.5)%TWO;
+ last=now;angle=-.24+((now-epoch)%23500)*TWO/23500;frames++;
  if(!low||now-paint>=32){draw();paint=now}
  raf=requestAnimationFrame(step);
 }
@@ -136,5 +136,5 @@ if('IntersectionObserver'in window)new IntersectionObserver(([e])=>{
  visible=!!e?.isIntersecting;if(visible){init();start()}else stop();
 },{rootMargin:'140px 0px 140px 0px',threshold:0}).observe(stage);
 else{visible=true;init()}
-window.GBBrand3DV56={version:56,get ready(){return loaded},get running(){return !!raf},get failed(){return failed},get angle(){return angle},get triangles(){return count/3},get fallback(){return !stage.classList.contains('gb56-webgl')}};
+window.GBBrand3DV56={version:56,get ready(){return loaded},get running(){return !!raf},get failed(){return failed},get angle(){return angle},get triangles(){return count/3},get frames(){return frames},get fallback(){return !stage.classList.contains('gb56-webgl')}};
 })();
