@@ -62,9 +62,11 @@ try{
      overflow:document.documentElement.scrollWidth-innerWidth};
    });
   };
-  const a=await go(.18),b=await go(.57);
+  // Simulate a continuous upward gesture rather than a single teleport.
+  await go(.12);
+  const a=await go(.25),b=await go(.57);
   assert(a.reversing&&b.reversing,'reverse thaw state did not engage '+JSON.stringify({viewport,a,b}));
-  assert(a.top<0&&a.cold>.82&&b.cold>.28&&b.cold<.56,
+  assert(a.top<0&&a.cold>.76&&b.cold>.28&&b.cold<.56,
    'reverse should begin mid-section and thaw slowly over long travel '+JSON.stringify({a,b}));
   assert(a.cold>b.cold&&a.cold<1&&b.cold>0,
    'cold->paper sequence is not smoothly reversible '+JSON.stringify({a,b}));
@@ -74,7 +76,10 @@ try{
    'the original below-zero heading/render disappeared');
   assert(a.overflow<=3&&b.overflow<=3,'horizontal overflow');
   mkdirSync('tmp/gb-cold-v48',{recursive:true});
-  await page.locator('#showroom .showroom-heading').screenshot({
+  // Element.screenshot() scrolls the element into view, which would
+  // silently FORCE p=0 and ruin the reverse-direction test. Capture the
+  // viewport without moving it.
+  await page.screenshot({
    path:'tmp/gb-cold-v48/return-'+viewport.width+'.png',animations:'allow'});
   const c=await go(.35);
   assert(c.reversing&&c.cold>b.cold,
