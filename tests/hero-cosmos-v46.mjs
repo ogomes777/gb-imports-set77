@@ -1,5 +1,6 @@
 /* GB HERO COSMOS V46 | regression tests, original shop untouched */
 import {chromium} from 'playwright';
+import {mkdirSync,statSync} from 'node:fs';
 import assert from 'node:assert/strict';
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 const url='http://127.0.0.1:8080/';
@@ -84,6 +85,21 @@ try{
    assert(motion1.transform!==motion2.transform,'the three items have become stationary');
    const result=await page.evaluate(()=>GBHeroCosmosV46);
    assert(snapshot.dimensions.canvas[0]<=1500&&snapshot.dimensions.canvas[1]<=1250,'unbounded canvas resolution');
+   const scene=await page.evaluate(()=>({
+    type:GBHeroCosmosV46.scene,
+    prebaked:GBHeroCosmosV46.nebulaBuilds,
+    originOpacity:getComputedStyle(document.getElementById('gbHeroCosmosV46')).opacity,
+    products:[...document.querySelectorAll('#heroTrio .trio-obj')].map(el=>getComputedStyle(el).opacity)
+   }));
+   assert(scene.type==='volumetric-spiral-galaxy'&&scene.prebaked>=1,
+    'the new galaxy was not pre-rendered: '+JSON.stringify(scene));
+   assert(scene.products.every(x=>x==='1'),'a garment became transparent again');
+   if(p.w===1440||p.w===390){
+    mkdirSync('tmp/galaxy-v46',{recursive:true});
+    const file='tmp/galaxy-v46/'+p.w+'x'+p.h+'.png';
+    await page.locator('#heroStage').screenshot({path:file,timeout:12000,animations:'allow'});
+    assert(statSync(file).size>25000,'galaxy evidence is suspiciously small');
+   }
    const ink=await page.evaluate(()=>{
      const canvas=document.getElementById('gbHeroCosmosV46');
      const rect=canvas.getBoundingClientRect();
