@@ -37,6 +37,30 @@ try{
   if(await page.evaluate(()=>GBShowroomArrivalV49.playing)){
    mkdirSync('tmp/gb-showroom-v49',{recursive:true});
    await page.waitForTimeout(160);
+   const impact=await page.evaluate(()=>{
+    const root=document.querySelector('#showroom');
+    const vfx=root.querySelector('.gb49-arrival-vfx');
+    const shock=getComputedStyle(vfx.querySelector('.gb49-neon-impact'));
+    const beam=getComputedStyle(vfx.querySelector('.gb49-lightshaft'));
+    const flare=getComputedStyle(vfx.querySelector('.gb49-flare'));
+    return {
+     entering:root.classList.contains('gb49-entering'),
+     impactBG:shock.backgroundImage,impactAnimation:shock.animationName,
+     beamBG:beam.backgroundImage,beamAnimation:beam.animationName,
+     flareAnimation:flare.animationName,
+     impactWidth:parseFloat(shock.width),featureWidth:root.querySelector('.showroom-feature').getBoundingClientRect().width,
+     mobileFilter:beam.filter,
+     media:matchMedia('(max-width:720px)').matches,
+     active:GBShowroomArrivalV49.activated
+    };
+   });
+   assert(impact.active&&impact.entering&&impact.impactAnimation==='gb49Impact'&&
+     impact.beamAnimation==='gb49LightRise'&&impact.flareAnimation==='gb49Flare',
+     'strong neon reveal not running '+JSON.stringify(impact));
+   assert(impact.impactBG.includes('252, 255, 255')&&impact.impactWidth>impact.featureWidth*.60,
+     'impact energy was not upgraded or too narrow '+JSON.stringify(impact));
+   assert(!impact.media||impact.mobileFilter==='none',
+     'mobile neon is paying for expensive filter blur '+JSON.stringify(impact));
    await page.screenshot({path:'tmp/gb-showroom-v49/arrival-'+viewport.width+'.png',animations:'allow'});
   }
   await page.waitForFunction(()=>window.GBShowroomArrivalV49.completed,null,{timeout:7000});
