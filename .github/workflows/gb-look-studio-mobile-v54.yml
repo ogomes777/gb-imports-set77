@@ -1,0 +1,32 @@
+name: GB Imports | Look Studio Mobile Audit V54
+on:
+  push:
+    branches: [audit/gb-look-studio-mobile-v54]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Build and browser
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save playwright
+          npx playwright install chromium
+          npm run build
+      - name: Audit stage and product controls
+        run: |
+          python3 -m http.server 8080 --directory dist >/tmp/gb-v54-http.log 2>&1 &
+          sleep 2
+          node tests/look-studio-mobile-audit-v54.mjs
+      - name: Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gb-look-studio-mobile-v54
+          path: tmp/gb-look-studio-audit/*.png
+          if-no-files-found: ignore
