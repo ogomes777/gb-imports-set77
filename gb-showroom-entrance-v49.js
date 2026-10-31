@@ -14,7 +14,7 @@ if(!section||!feature||!media||window.GBShowroomArrivalV49)return;
 const motion=matchMedia('(prefers-reduced-motion: reduce)');
 const saveData=!!navigator.connection?.saveData;
 const lite=()=>saveData||!!window.GBMotion?.Prefs?.lite;
-let ready=false,played=false,playing=false,observer=null,mediaObserver=null,release=0;
+let ready=false,played=false,playing=false,activated=false,observer=null,mediaObserver=null,release=0;
 const effects=document.createElement('div');
 effects.className='gb49-arrival-vfx';
 effects.setAttribute('aria-hidden','true');
@@ -38,6 +38,7 @@ function play(){
  // is covering the landing. The first real arrival will still animate.
  if(document.getElementById('gbRibbonBoot')||document.body.classList.contains('gb-experience-open'))return;
  playing=true;
+ activated=true;
  ready=true;
  section.classList.remove('gb49-cued');
  section.classList.add('gb49-entering');
@@ -97,6 +98,7 @@ addEventListener('pagehide',()=>{
 window.GBShowroomArrivalV49={
  get ready(){return ready},
  get playing(){return playing},
+ get activated(){return activated},
  get completed(){return played},
  get activeColor(){return document.querySelector('#showroomSelector button.active')?.dataset.showIndex??null},
  finish:revealNow
