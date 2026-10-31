@@ -35,11 +35,16 @@ try{
     window.scrollTo({top:h.getBoundingClientRect().top+scrollY+h.clientHeight+innerHeight*.44,behavior:'instant'});
   });
   await page.waitForTimeout(140);
+  // Instead of measuring a narrow near-edge strip, scrub the full
+  // section-relative transition: 0 = halfway into Cold Room (all ice),
+  // 1 = nearly all the way back in the catalogue (all warm paper).
   const go=async fraction=>{
    await page.evaluate(fr=>{
     const h=document.querySelector('#showroom .showroom-heading');
-    const y=window.scrollY+h.getBoundingClientRect().top-innerHeight*fr;
-    window.scrollTo({top:y,behavior:'instant'});
+    const r=h.getBoundingClientRect(),v=innerHeight;
+    const from=-Math.min(r.height*.5,v*.70),to=v*.88;
+    const target=from+fr*(to-from);
+    window.scrollTo({top:window.scrollY+r.top-target,behavior:'instant'});
    },fraction);
    await page.waitForTimeout(160);
    return page.evaluate(()=>{
@@ -57,10 +62,10 @@ try{
      overflow:document.documentElement.scrollWidth-innerWidth};
    });
   };
-  const a=await go(.56),b=await go(.72);
+  const a=await go(.18),b=await go(.57);
   assert(a.reversing&&b.reversing,'reverse thaw state did not engage '+JSON.stringify({viewport,a,b}));
-  assert(a.cold>.70&&b.cold<.35,
-   'thaw is not fast enough across the shorter 34vh scroll travel '+JSON.stringify({a,b}));
+  assert(a.top<0&&a.cold>.82&&b.cold>.28&&b.cold<.56,
+   'reverse should begin mid-section and thaw slowly over long travel '+JSON.stringify({a,b}));
   assert(a.cold>b.cold&&a.cold<1&&b.cold>0,
    'cold->paper sequence is not smoothly reversible '+JSON.stringify({a,b}));
   assert(Number(b.paperOpacity)>Number(a.paperOpacity),
@@ -71,10 +76,10 @@ try{
   mkdirSync('tmp/gb-cold-v48',{recursive:true});
   await page.locator('#showroom .showroom-heading').screenshot({
    path:'tmp/gb-cold-v48/return-'+viewport.width+'.png',animations:'allow'});
-  const c=await go(.61);
+  const c=await go(.35);
   assert(c.reversing&&c.cold>b.cold,
    'reverse direction did not re-freeze smoothly '+JSON.stringify({b,c}));
-  const d=await go(.86);
+  const d=await go(1);
   assert(!d.reversing&&d.warm&&d.cold===0,
    'paper state failed to settle after full upward exit '+JSON.stringify(d));
   assert(Number.isFinite(Number(d.paperOpacity)),'scroll state generated invalid style');
@@ -85,7 +90,7 @@ try{
   await page.locator('#colecao').scrollIntoViewIfNeeded();
   assert(await page.locator('#productGrid .product-card').count()>=8,'catalogue regressed');
   assert(!errors.length,'runtime errors: '+errors.join(' | '));
-  console.log('V48 reverse cold room passed '+JSON.stringify({viewport,a:a.cold,b:b.cold,c:c.cold,d:d.cold,errors}));
+  console.log('V48.2 slow reverse cold room passed '+JSON.stringify({viewport,a:a.cold,b:b.cold,c:c.cold,d:d.cold,errors}));
   await context.close();
  }
  // A deep-link is an intentional shortcut, not a page deletion or intro bug.
