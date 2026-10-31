@@ -33,6 +33,12 @@ try{
   // Naturally scroll to the showroom, not #showroom in the URL (which skips intro).
   await page.locator('#showroom .showroom-feature').scrollIntoViewIfNeeded();
   await page.waitForFunction(()=>document.querySelector('#showroomSelector button.active')?.dataset.showIndex==='0',null,{timeout:9000});
+  await page.waitForFunction(()=>window.GBShowroomArrivalV49.playing||window.GBShowroomArrivalV49.completed,null,{timeout:7000});
+  if(await page.evaluate(()=>GBShowroomArrivalV49.playing)){
+   mkdirSync('tmp/gb-showroom-v49',{recursive:true});
+   await page.waitForTimeout(160);
+   await page.screenshot({path:'tmp/gb-showroom-v49/arrival-'+viewport.width+'.png',animations:'allow'});
+  }
   await page.waitForFunction(()=>window.GBShowroomArrivalV49.completed,null,{timeout:7000});
   const state=await page.evaluate(()=>{
    const s=document.querySelector('#showroom'),media=document.querySelector('#showroomFeatureMedia');
@@ -40,6 +46,8 @@ try{
    const rect=product?.getBoundingClientRect();
    return{
     entered:s.classList.contains('gb49-complete'),
+    activated:GBShowroomArrivalV49.activated,
+    lite:!!window.GBMotion?.Prefs?.lite||!!navigator.connection?.saveData,
     remainsCued:s.classList.contains('gb49-cued'),
     remainsAnimating:s.classList.contains('gb49-entering'),
     productOpacity:product?getComputedStyle(product).opacity:null,
@@ -53,6 +61,8 @@ try{
   });
   assert(state.entered&&!state.remainsAnimating&&!state.remainsCued,
    'arrival not released for normal interaction '+JSON.stringify(state));
+  assert(state.activated||state.lite,
+   'entrance skipped on a capable browser instead of playing '+JSON.stringify(state));
   assert(state.productCount===2&&state.assetCount>=1&&state.productWidth>90,
    'garment disappeared after reveal '+JSON.stringify(state));
   assert(state.productOpacity==='1','product still transparent '+JSON.stringify(state));
