@@ -104,10 +104,12 @@ try{
    // must never receive the old black/navy solid galaxy disc.
    if(p.w===1440){
     const checks=[];
+    await page.evaluate(()=>{document.body.dataset.gbTheme='trama'});
+    await page.waitForTimeout(180);
     for(const theme of ['origem','sinal','trama']){
      const before=await page.evaluate(()=>GBHeroCosmosV46.nebulaBuilds);
      await page.evaluate(v=>{document.body.dataset.gbTheme=v},theme);
-     await page.waitForFunction(n=>GBHeroCosmosV46.nebulaBuilds>n,{timeout:3500},before);
+     await page.waitForFunction(n=>GBHeroCosmosV46.nebulaBuilds>n,before,{timeout:3500});
      const stat=await page.evaluate(()=>{
       const c=document.getElementById('gbHeroCosmosV46');
       const p=c.getContext('2d').getImageData(0,0,c.width,c.height).data;
