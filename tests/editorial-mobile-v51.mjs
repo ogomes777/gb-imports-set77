@@ -21,7 +21,7 @@ try{
    page.on('pageerror',e=>errors.push(e.message));
    await page.goto(origin+'/#editorial',{waitUntil:'domcontentloaded',timeout:35000});
    await page.waitForFunction(()=>Boolean(window.GB_CORE_READY)&&!document.getElementById('gbRibbonBoot'),null,{timeout:32000});
-   await page.locator('#editorial').scrollIntoViewIfNeeded();
+   await page.locator('#editorial .editorial-model').scrollIntoViewIfNeeded();
    await page.waitForFunction(()=>document.querySelector('.editorial-model')?.classList.contains('gbe-done'),null,{timeout:22000});
    const m=await page.evaluate(()=>{
      const get=s=>document.querySelector(s),rr=e=>{const r=e.getBoundingClientRect();return{x:r.x,y:r.y,l:r.left,r:r.right,t:r.top,b:r.bottom,w:r.width,h:r.height}};
