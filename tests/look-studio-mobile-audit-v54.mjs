@@ -17,7 +17,7 @@ try{
    const box=e=>{if(!e)return null;const r=e.getBoundingClientRect();return {x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height),right:Math.round(r.right),bottom:Math.round(r.bottom)}};
    const stage=q('.look-stage'),fig=q('#gbFitFigure'),panel=q('.look-controls'),layout=q('.look-layout');
    const all=Array.from(q('.fit-emotes')?.querySelectorAll('button')||[]);
-   return {viewport:innerWidth,layout:getComputedStyle(layout).gridTemplateColumns,stage:box(stage),figure:box(fig),panel:box(panel),topline:box(q('.look-topline')),title:box(q('.look-intro h2')),turnbar:box(q('.fit-turnbar')),
+   return {viewport:innerWidth,layout:getComputedStyle(layout).gridTemplateColumns,stage:box(stage),figure:box(fig),panel:box(panel),topline:box(q('.look-topline')),title:box(q('.look-intro h2')),turnbar:box(q('.fit-turnbar')),legal:box(q('.fit-legal')),
      shuffle:box(q('#lookShuffle')),emotes:all.map(x=>({label:x.getAttribute('aria-label')||x.textContent.trim(),...box(x),visible:getComputedStyle(x).display!=='none'})), rows:[...document.querySelectorAll('#lookstudio .look-step')].map(x=>({box:box(x),row:box(x.querySelector('.look-options')),thumb:box(x.querySelector('.look-option')),selected:!!x.querySelector('.look-option.active')})),
      nav:box(document.querySelector('.mobile-shop-nav')),horizontalOverflow:document.documentElement.scrollWidth-innerWidth,figureExists:!!fig,
      options:document.querySelectorAll('#lookstudio .look-option').length};
@@ -28,9 +28,18 @@ try{
   if(vp.width<=780){
     assert(metrics.stage.y+metrics.stage.h<=metrics.panel.y+4,'Stage/panel collision '+vp.width);
     assert(metrics.stage.w<=vp.width,'Stage too wide '+vp.width);
+    assert(metrics.emotes.length>=5&&metrics.emotes.every(x=>x.w>=44&&x.h>=44),'Tiny mobile gesture buttons '+JSON.stringify(metrics.emotes));
+    if(metrics.nav?.w>0) assert(metrics.legal?.bottom<=metrics.nav.y+2,'Legal copy behind fixed mobile nav '+JSON.stringify({legal:metrics.legal,nav:metrics.nav}));
+    if(vp.width>=600)assert(metrics.figure?.h>=600,'Mannequin too small on portrait tablet '+JSON.stringify(metrics.figure));
   }
   mkdirSync('tmp/gb-look-studio-audit',{recursive:true});
   await page.locator('#lookstudio').screenshot({path:'tmp/gb-look-studio-audit/'+vp.width+'.png',animations:'disabled',timeout:25000});
+  if(vp.width<=430){
+    const top=page.locator('#lookTops .look-option');
+    await top.nth(2).click({timeout:12000});
+    const chosen=await page.evaluate(()=>({active:document.querySelectorAll('#lookTops .look-option.active').length,figure:!!document.querySelector('#gbFitFigure'),state:window.GBFitting?.state?.topId}));
+    assert(chosen.active===1&&chosen.figure&&chosen.state,'Tap-to-change fit stopped responding '+JSON.stringify(chosen));
+  }
   await page.close();
  }
  console.log('GB_LOOK_AUDIT_DONE');
