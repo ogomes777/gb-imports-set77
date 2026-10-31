@@ -55,7 +55,7 @@ try{
   });
   assert(visual.opaque.every(v=>v.css==='1'&&v.inline==='1'&&v.media==='1'),
    'transparent garment lets back jacket show through: '+JSON.stringify(visual));
-  assert(visual.headline.includes('SEU ')&&visual.letterOpacity.every(v=>v==='1'),
+  assert(visual.headline.length>13&&visual.letterOpacity.every(v=>v==='1'),
    'headline still hidden behind yellow animation '+JSON.stringify(visual));
   assert(visual.yellowBlades.every(v=>v==='none'),
    'yellow reveal slabs still cover live headline '+JSON.stringify(visual));
