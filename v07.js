@@ -31,21 +31,32 @@ if(stage&&art){
   const objs=qa('.trio-obj',trio),medias=objs.map(o=>q('.trio-media',o)),shadows=objs.map(o=>q('.trio-shadow',o));
   const phase=new Spring(heroIndex,M.Tokens.spring.object);
   let W=trio.clientWidth,H=trio.clientHeight,running=false;
+  const dNearBack=(u,n)=>Math.cos(u/n*2*Math.PI)<-.55;
   function render(){
     const p=phase.x;
     objs.forEach((el,j)=>{
       const u=mod(j-p,N),o=poseAt(u);
       el.style.transform=`translate3d(${(o.x*W).toFixed(1)}px,${(o.y*H).toFixed(1)}px,0) perspective(1200px) rotateY(${o.yaw.toFixed(2)}deg) rotate(${o.r.toFixed(2)}deg) scale(${o.s.toFixed(3)})`;
-      el.style.zIndex=String(o.z);el.style.opacity=o.o.toFixed(3);   // profundidade por opacidade (filtro por quadro repintaria)
+      // FIX V46.1: depth uses stacking, scale and physical shading, never alpha.
+      // A 70%-opacity rear garment must not show through the front hoodie.
+      el.style.zIndex=String(o.z);
+      el.style.opacity='1';
+      el.style.setProperty('--gb-hero-depth',o.l.toFixed(3));
       shadows[j].style.opacity=(.15+.55*o.l).toFixed(3);
-      const front=u<.5||u>N-.5;el.classList.toggle('is-front',front);el.setAttribute('aria-current',front?'true':'false');
+      const front=u<.5||u>N-.5;
+      el.classList.toggle('is-front',front);
+      el.classList.toggle('is-back',dNearBack(u,N));
+      el.setAttribute('aria-current',front?'true':'false');
     });
   }
   // giro contínuo: o anel nunca para; interação (clique, seta, arrasto) assume e o giro volta em seguida
-  const SPEED=1/4.2;let orbitOn=false,holdUntil=0,heroVisible=true,userPaused=false,autoCall=false,lastFront=-1;
+  const SPEED=1/3.65;let orbitOn=false,holdUntil=0,heroVisible=true,userPaused=false,autoCall=false,lastFront=-1,mobileDt=0;
   const canOrbit=()=>!Prefs.reduced&&heroVisible&&!document.hidden&&!userPaused&&!document.body.classList.contains('no-scroll');
   function orbit(dt){
     if(!orbitOn){objs.forEach(o=>M.animating(o,false));return false}
+    // Mobile 30 Hz compositor updates instead of expensive 60 Hz CSS 3D,
+    // while retaining elapsed time and the same orbital velocity.
+    if(mob){mobileDt+=dt;if(mobileDt<1/30)return true;dt=Math.min(.05,mobileDt);mobileDt=0}
     const now=performance.now();if(!dragging&&now>holdUntil)phase.target+=dt*SPEED;
     phase.step(dt);render();
     const f=mod(Math.round(phase.x),N);if(f!==lastFront){lastFront=f;if(f!==heroIndex&&!dragging&&now>holdUntil){autoCall=true;changeHero(f);autoCall=false}}
