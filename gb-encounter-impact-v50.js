@@ -57,9 +57,8 @@ function attach(){
   function play(){
     stop();
     if(reduce.matches)return;
-    const w=cam.clientWidth, h=cam.clientHeight;
+    const w=cam.clientWidth;
     const small=lite||w<360;
-    const flash={opacity:0,transform:'scale(.35)'};
     // 01 / O sinal GB abre o espaco. A luz acompanha a chegada real dos dois.
     animate('.gb50-gate',[
       {opacity:0,transform:'translateX(-50%) scaleY(.08) scaleX(.3)'},
@@ -94,7 +93,7 @@ function attach(){
       {opacity:.16,transform:'translate(-50%,-50%) scale(1.18)'}
     ],1800,900);
     // 03 / Na batida do salve (~2.14 s na V15), o gesto dispara o choque.
-    const hit=small?1840:2140;
+    const hit=lite?1800:2140;
     animate('.gb50-flare',[
       {opacity:0,transform:'translate(-50%,-50%) scaleX(.08)'},
       {opacity:1,transform:'translate(-50%,-50%) scaleX(1.16)',offset:.23},
@@ -158,7 +157,7 @@ function attach(){
     section.addEventListener('pointerleave',()=>glint.classList.remove('is-visible'),{passive:true});
   }
   section.addEventListener('pointerdown',event=>{
-    if(reduce.matches||lite||!stage.classList.contains('is-done')||event.target.closest('a,button,input,select'))return;
+    if(reduce.matches||!stage.classList.contains('is-done')||event.target.closest('a,button,input,select'))return;
     const rect=cam.getBoundingClientRect();
     const x=event.clientX-rect.left,y=event.clientY-rect.top;
     if(x<0||x>rect.width||y<0||y>rect.height)return;
