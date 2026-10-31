@@ -14,8 +14,8 @@
 .gb-puff-camera{position:absolute;inset:0;transform-origin:50% 50%;opacity:0;transform:scale(.9);filter:blur(14px);will-change:transform,opacity,filter}
 #gbRibbonBoot.is-brand .gb-puff-camera{opacity:1;transform:none;filter:none;
   transition:opacity .62s cubic-bezier(.2,.7,.2,1),transform 1.1s cubic-bezier(.16,1,.3,1),filter .8s ease-out}
-/* after the entrance the camera stops promoting a layer: the canvas composites on its own */
-#gbRibbonBoot.is-brand.is-settled .gb-puff-camera{will-change:auto}
+/* the camera keeps its own compositor layer for the whole intro: dropping it after the entrance made the dive
+   re-promote and re-raster it in one go (a 150–300 ms stall measured right at the start of the dive) */
 /* live path: no filter ever touches the WebGL canvas (a blur over it is the costliest thing on the page) —
    the live tile rises from the black with scale and opacity only */
 #gbRibbonBoot.is-live-path .gb-puff-camera{filter:none;transform:scale(.88)}

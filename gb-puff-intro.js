@@ -111,13 +111,26 @@ const bootCore=()=>{if(!tl.coreBoot){mark('coreBoot');window.GB_BOOT_CORE?.()}};
 // on the live path the store waits for the first fur frame (or 1.2 s, whichever is first), so the two never fight
 later(bootCore,wantLive?1200:CORE_AT);
 const coreDone=()=>window.GB_CORE_READY||window.GB_CORE_FAILED||!window.GB_BOOT_CORE;
-on(document,'gb:core-ready',()=>{mark('coreReady');maybeLeave()});
+// The landing's first layout and paint is the heaviest frame of the visit. It happens here, under the opaque stage,
+// while the puff holds — never during the dive — and the dive waits until it has settled.
+let revealedAt=0;
+function revealPage(){
+ if(revealedAt)return;
+ revealedAt=now();
+ document.documentElement.classList.remove('gb-ribbon-intro-playing');
+ // the gold opening that follows the dive is built now, invisible, so the dive itself does no DOM work
+ later(()=>{if(!transitionAt&&!goldWall)goldWall=window.GBEditOpening?.({gold:true,hold:1000,defer:true})||null},120);
+}
+let goldWall=null;
+const REVEAL_SETTLE=520;
+on(document,'gb:core-ready',()=>{mark('coreReady');if(brandAt)revealPage();maybeLeave()});
 
 function showBrand(kind){
  if(brandAt||finished)return;
  brandAt=now();
  host.classList.add('is-brand',kind==='live'?'is-live-first':'is-poster-first');
  later(()=>host.classList.add('is-settled'),1300);  // entrance done: the camera stops promoting a layer
+ if(coreDone())later(revealPage,400);
  later(maybeLeave,SHOW);
 }
 
@@ -196,7 +209,9 @@ function maybeLeave(){
  if(finished||transitionAt||!brandAt||hold)return;
  const held=now()-brandAt>=SHOW;
  const touching=now()-lastTouch<550;
- if(held&&coreDone()&&!touching)return finish('ready');
+ if(coreDone())revealPage();
+ const settled=revealedAt&&now()-revealedAt>=REVEAL_SETTLE;
+ if(held&&coreDone()&&settled&&!touching)return finish('ready');
  later(maybeLeave,touching?300:160);
 }
 if(!hold)later(()=>finish('watchdog'),WATCHDOG);
@@ -209,14 +224,18 @@ function finish(why){
  const quick=why==='skip'||why==='hidden'||why==='pagehide'||why==='no-visual'||why==='watchdog';
  const dur=why==='hidden'||why==='pagehide'?0:quick?DIVE_SKIP:DIVE;
  host.style.setProperty('--gb-dive',dur+'ms');
- // The landing is already laid out underneath: un-hide it and let the camera pass through the puff.
- document.documentElement.classList.remove('gb-ribbon-intro-playing');
+ // The landing is already laid out underneath (revealed while the puff held): the camera passes through the puff.
+ revealPage();
  host.classList.remove('is-opening');
  host.classList.add('is-diving');
  host.style.pointerEvents='none';
  // halfway through the dive the puff fills the frame: the landing's own V12 opening (gold wall, monogram,
  // GB IMPORTS) takes over and bursts into blocks onto the hero, like every chapter wall of the page
- if(!/^(hidden|pagehide|no-visual)$/.test(why))later(()=>window.GBEditOpening?.({gold:true,hold:quick?700:1000}),Math.round(dur*.45));
+ if(!/^(hidden|pagehide|no-visual)$/.test(why))later(()=>{
+  if(goldWall){if(quick)goldWall.drop(),goldWall=null;else return goldWall.play()}
+  window.GBEditOpening?.({gold:true,hold:quick?700:1000});
+ },Math.round(dur*.45));
+ else goldWall?.drop();
  later(teardown,dur+40);
 }
 

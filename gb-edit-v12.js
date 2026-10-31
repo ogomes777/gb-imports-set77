@@ -12,15 +12,20 @@ const blocks=(n=24,cols=6)=>Array.from({length:n},(_,i)=>{const r=Math.floor(i/c
 /* abertura: muro de tinta + monograma (SVG) + GB IMPORTS → blocos abrem o hero. Toque/rolagem pula.
    Com a intro do puff (V45) ela não começa sozinha: o puff a chama em dourado no meio do mergulho, como os muros
    amarelos dos capítulos (window.GBEditOpening({gold, hold})). */
-const opening=({gold=false,hold=1500}={})=>{
-  if(document.querySelector('.gb-intro'))return;
-  const intro=document.createElement('div');intro.className='gb-intro'+(gold?' is-gold':'');intro.setAttribute('aria-hidden','true');
+const opening=({gold=false,hold=1500,defer=false}={})=>{
+  if(document.querySelector('.gb-intro'))return null;
+  const intro=document.createElement('div');intro.className='gb-intro'+(gold?' is-gold':'')+(defer?' is-staged':'');intro.setAttribute('aria-hidden','true');
   const mark=gold?'./assets/brand/gb-monograma-preto.svg':'./assets/brand/gb-monograma-amarelo-preto.svg';
-  intro.innerHTML=`<div class="gb-intro-grid">${blocks()}</div><div class="gb-intro-mark"><img alt="" src="${mark}" width="190" height="127"/><span class="gb-intro-word">${[...'GB IMPORTS'].map((c,i)=>`<span style="--i:${i}">${c===' '?'&nbsp;':c}</span>`).join('')}</span></div>`;
+  intro.innerHTML=`<div class="gb-intro-grid">${blocks()}</div><div class="gb-intro-mark"><img alt="" src="${mark}" width="190" height="127" decoding="async"/><span class="gb-intro-word">${[...'GB IMPORTS'].map((c,i)=>`<span style="--i:${i}">${c===' '?'&nbsp;':c}</span>`).join('')}</span></div>`;
   document.body.append(intro);
-  let gone=false;const out=()=>{if(gone)return;gone=true;intro.classList.add('is-out');setTimeout(()=>intro.remove(),1400)};
-  requestAnimationFrame(()=>requestAnimationFrame(()=>intro.classList.add('is-on')));
-  setTimeout(out,hold);addEventListener('pointerdown',out,{once:true,passive:true});addEventListener('wheel',out,{once:true,passive:true});addEventListener('keydown',out,{once:true});
+  let gone=false,played=false;const out=()=>{if(gone)return;gone=true;intro.classList.add('is-out');setTimeout(()=>intro.remove(),1400)};
+  // staged (defer): built and laid out ahead of time, invisible; play() only flips classes — no DOM work mid-dive
+  const play=()=>{if(played)return;played=true;intro.classList.remove('is-staged');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>intro.classList.add('is-on')));
+    setTimeout(out,hold);addEventListener('pointerdown',out,{once:true,passive:true});addEventListener('wheel',out,{once:true,passive:true});addEventListener('keydown',out,{once:true})};
+  const drop=()=>{if(!played)intro.remove()};
+  if(!defer)play();
+  return {play,drop};
 };
 window.GBEditOpening=opening;
 if(!window.GB_GLASS_RIBBON_INTRO&&(document.readyState!=='complete'||scrollY<40))opening();
