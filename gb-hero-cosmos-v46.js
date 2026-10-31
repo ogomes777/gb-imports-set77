@@ -177,7 +177,9 @@ function paint(time){
   const x=cx+Math.cos(angle)*w*.40*r+mx*10*near;
   const y=cy+Math.sin(angle)*h*.34*r*.76+my*8*near;
   const twinkle=.68+.32*Math.sin(time*.0009+star.twinkle);
-  const a=(dark?.31:silver?.19:.27)*twinkle*(dark||silver?.43:.48+near*.05+0)*(.95+near*.12);
+  // The dark/trama twinkle math is bit-for-bit unchanged from V47.1.
+  const a=dark?(.31*twinkle*(.43+near*.52)):
+    silver?(.19*twinkle*(.43+near*.52)):(.29*twinkle*(.48+near*.56));
   const radius=(mobile()?.40:.47)+star.width*(mobile()?.34:.40);
   ctx.fillStyle='rgba('+(i%6===0?warm:pearl)+','+a.toFixed(3)+')';
   ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);ctx.fill();
