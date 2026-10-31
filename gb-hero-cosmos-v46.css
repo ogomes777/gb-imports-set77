@@ -234,3 +234,30 @@ body[data-gb-theme="sinal"] #inicio .hero-giant-mark{opacity:.15!important}
  body[data-gb-theme="sinal"] #inicio .gb-hero-cosmos-v46{opacity:1!important}
  #inicio .hero-giant-mark{opacity:.145!important}
 }
+
+/* V47.2 | ORIGEM LIGHT SIGNATURE ONLY.
+ * Dark / Sinal is deliberately untouched. Clarity must stay premium:
+ * larger champagne atmosphere, restrained slate-blue refraction, no glow fog
+ * over headlines, no extra GPU post-processing. */
+body[data-gb-theme="origem"] #inicio .gb-hero-cosmos-v46{
+ opacity:1!important;
+ filter:saturate(1.07) brightness(1.035)!important;
+ mix-blend-mode:normal!important;
+}
+body[data-gb-theme="origem"] #inicio .hero-giant-mark{
+ opacity:.12!important;
+}
+@media(max-width:780px){
+ body[data-gb-theme="origem"] #inicio .gb-hero-cosmos-v46{
+  opacity:1!important;
+  filter:saturate(1.04) brightness(1.02)!important;
+ }
+ body[data-gb-theme="origem"] #inicio .hero-giant-mark{
+  opacity:.11!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-gb-theme="origem"] #inicio .gb-hero-cosmos-v46{
+  display:none!important;
+ }
+}
