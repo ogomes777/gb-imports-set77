@@ -77,7 +77,7 @@ const firstBrand=page=>page.evaluate(()=>{const f=window.__puff.frames.find(x=>x
 {
   const sc='1440 live';
   const {ctx,page,errors,bad}=await open(sc,{path:'?gbPuffLive=1&gbPuffHold=1'});
-  const live=await page.waitForFunction(()=>GBPuffIntro.timeline.liveReady>0||GBPuffIntro.removed,null,{timeout:20000}).then(()=>page.evaluate(()=>GBPuffIntro.timeline.liveReady>0)).catch(()=>false);
+  const live=await page.waitForFunction(()=>window.GBPuffIntro&&(GBPuffIntro.timeline.liveReady>0||GBPuffIntro.removed),null,{timeout:20000}).then(()=>page.evaluate(()=>GBPuffIntro.timeline.liveReady>0)).catch(()=>false);
   check(sc,'PlushTile original monta e entrega um quadro verificado (pelo iluminado no centro)',live);
   if(live){
     const st=await page.evaluate(()=>({live:GBPuffIntro.live,canvas:GBPuffIntro.canvasSize,cls:document.getElementById('gbRibbonBoot').className}));
@@ -87,10 +87,10 @@ const firstBrand=page=>page.evaluate(()=>{const f=window.__puff.frames.find(x=>x
     // the cursor runs through the fur: the brush opens under it (PlushTile's own uBrush)
     // the cursor leaves the stage (brush closes), then runs through the fur (brush opens under it)
     await page.mouse.move(-1,-1).catch(()=>{});await page.dispatchEvent('#gbRibbonBoot .gb-puff-live > div','pointerleave').catch(()=>{});
-    await page.waitForFunction(()=>GBPuffIntro.brush<.05,null,{timeout:8000}).catch(()=>{});
+    await page.waitForFunction(()=>window.GBPuffIntro&&GBPuffIntro.brush<.05,null,{timeout:8000}).catch(()=>{});
     const b0=await page.evaluate(()=>GBPuffIntro.brush);
     await page.mouse.move(600,380);await page.mouse.move(720,450,{steps:6});await page.mouse.move(820,470,{steps:4});
-    const opened=await page.waitForFunction(b=>GBPuffIntro.brush>b+.1,b0,{timeout:12000}).then(()=>page.evaluate(()=>GBPuffIntro.brush)).catch(()=>0);
+    const opened=await page.waitForFunction(b=>window.GBPuffIntro&&GBPuffIntro.brush>b+.1,b0,{timeout:12000}).then(()=>page.evaluate(()=>GBPuffIntro.brush)).catch(()=>0);
     check(sc,'cursor abre os fios (pincel do original sobe a partir do repouso) e a intro não pula por isso',b0<.05&&opened>b0+.1&&GBPuffIntroReason(await page.evaluate(()=>GBPuffIntro.reason)),JSON.stringify({b0,opened}));
     await page.evaluate(()=>GBPuffIntro.finish());
   }
@@ -105,7 +105,7 @@ const firstBrand=page=>page.evaluate(()=>{const f=window.__puff.frames.find(x=>x
 {
   const sc='390 touch';
   const {ctx,page,errors,bad}=await open(sc,{w:390,h:844,touch:true,path:'?gbPuffLive=1&gbPuffHold=1'});
-  const live=await page.waitForFunction(()=>GBPuffIntro.timeline.liveReady>0||GBPuffIntro.removed,null,{timeout:20000}).then(()=>page.evaluate(()=>GBPuffIntro.timeline.liveReady>0)).catch(()=>false);
+  const live=await page.waitForFunction(()=>window.GBPuffIntro&&(GBPuffIntro.timeline.liveReady>0||GBPuffIntro.removed),null,{timeout:20000}).then(()=>page.evaluate(()=>GBPuffIntro.timeline.liveReady>0)).catch(()=>false);
   if(live){
     const cdp=await ctx.newCDPSession(page);
     const tp=(type,x,y)=>cdp.send('Input.dispatchTouchEvent',{type,touchPoints:type==='touchEnd'?[]:[{x,y}]});
@@ -125,7 +125,7 @@ const firstBrand=page=>page.evaluate(()=>{const f=window.__puff.frames.find(x=>x
   await page.waitForTimeout(1000);
   const t=await page.evaluate(()=>performance.now());
   await page.locator('.gb-puff-skip').tap({timeout:5000});
-  const skipped=await page.waitForFunction(()=>GBPuffIntro.removed,null,{timeout:4000}).then(()=>true).catch(()=>false);
+  const skipped=await page.waitForFunction(()=>window.GBPuffIntro&&GBPuffIntro.removed,null,{timeout:4000}).then(()=>true).catch(()=>false);
   const s=await page.evaluate(t=>({reason:GBPuffIntro.reason,ms:Math.round(GBPuffIntro.timeline.finished-(t-0)),tl:GBPuffIntro.timeline}),t);
   check(sc,'PULAR libera a loja em menos de 1 s',skipped&&s.reason==='skip',JSON.stringify(s));
   check(sc,'sem erro de JS',!errors.length,JSON.stringify(errors));
