@@ -1,0 +1,38 @@
+name: GB Imports | Editorial Mobile V51 Layout QA
+on:
+  push:
+    branches: [fix/gb-editorial-mobile-v51]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mobile-layout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install and set up Chromium
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save playwright
+          npx playwright install chromium
+      - name: Build release and validate catalogue
+        run: |
+          npm run build
+          node scripts/validar-crt.mjs
+      - name: Visual geometry, text flow, impact and replay checks
+        run: |
+          python3 -m http.server 8080 --directory dist >/tmp/gb-v51-http.log 2>&1 &
+          sleep 2
+          node tests/editorial-mobile-v51.mjs
+      - name: Screenshots (mobile and desktop)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gb-editorial-mobile-v51-screenshots
+          path: tmp/gb-editorial-mobile-v51/*.png
+          if-no-files-found: ignore
+          retention-days: 7
