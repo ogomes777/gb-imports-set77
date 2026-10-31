@@ -454,7 +454,7 @@ let arrivalReady=false;
  * shader runs backward, including snow, flake and a letter-by-letter thaw.
  * The cold->paper handoff is continuous, not an abrupt .is-warm switch.
  */
-let reverser=false,reverseRaf=0,reverseLastY=scrollY,reverseProgress=1;
+let reverser=false,reverseRaf=0,reverseLastY=scrollY,reverseProgress=1,reverseIntentUp=false;
 const setReversePaper=()=>{
  heading.style.setProperty('--sc-paper-color',
    document.body?.dataset.gbTheme==='sinal'?'#111214':'#f4f1e8');
@@ -469,7 +469,11 @@ function reverseFrame(){
  reverseRaf=0;
  if(destroyed||reduce.matches||document.hidden)return;
  const r=heading.getBoundingClientRect(),view=Math.max(1,innerHeight);
- const movingUp=scrollY<reverseLastY-1;
+ // Retain the last meaningful scroll direction. A resize/IO tick may
+ // run between scroll frames and must never erase the upward intention.
+ const delta=scrollY-reverseLastY;
+ if(delta<-.45)reverseIntentUp=true;
+ else if(delta>.45)reverseIntentUp=false;
  reverseLastY=scrollY;
  // V48.2: start reversing when roughly HALF the Cold Room has reentered
  // view, rather than waiting for the top seam. Full ~1.3 viewport travel
@@ -481,7 +485,7 @@ function reverseFrame(){
  // Smoothstep softens beginning/end yet scrubs directly with real scroll.
  const p=reverseRound(1-(t*t*(3-2*t)));
  if(!reverser){
-  if(!arrived||!movingUp||r.top<startTop-2||r.top>endTop)return;
+  if(!arrived||!reverseIntentUp||r.top<startTop-2||r.top>endTop)return;
   reverser=true;
   endThaw();
   gsap?.killTweensOf(chars);
@@ -501,7 +505,7 @@ function reverseFrame(){
   setWarm(true);scene3d?.setFrozen(false);
   arrived=false;arrivalReady=false;
   gsap?.set(glows,{opacity:0});
- }else if(p>=.999&&r.top<=startTop+view*.015&&!movingUp){
+ }else if(p>=.999&&r.top<=startTop+view*.015&&!reverseIntentUp){
   reverser=false;heading.classList.remove('is-rewinding');
   setWarm(false);scene3d?.setFrozen(true);
  }
