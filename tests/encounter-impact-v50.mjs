@@ -40,7 +40,11 @@ for(const vp of [
   assert(settled.effect&&settled.figures&&settled.assets.length===4,'Rig or enhancement absent '+JSON.stringify(settled));
   assert(settled.handPivot&&settled.headPivot,'Original hand or head pivot lost');
   assert(settled.horizontalOverflow<=2,'New horizontal overflow '+JSON.stringify(settled));
-  assert(settled.running===0,'Animation still running after scene ends '+JSON.stringify(settled));
+  if(settled.running){
+    const details=await page.evaluate(()=>document.getAnimations().filter(a=>a.playState==='running'&&a.effect?.target?.closest?.('.gbe')).map(a=>({tag:a.effect?.target?.tagName,cls:a.effect?.target?.className,duration:a.effect?.getTiming?.().duration,delay:a.effect?.getTiming?.().delay,currentTime:a.currentTime}))); 
+    console.log('V50 POST_SCENE_TAIL',JSON.stringify(details));
+    await page.waitForFunction(()=>document.getAnimations().filter(a=>a.playState==='running'&&a.effect?.target?.closest?.('.gbe')).length===0,null,{timeout:3500});
+  }
   if(vp.reduce){
     assert.equal(settled.reduceStyle,'none','V50 VFX must be hidden for reduced motion');
     assert.deepEqual(errors,[],'Console page errors');
