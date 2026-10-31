@@ -36,7 +36,7 @@ function attach(){
   const glint=document.createElement('span');
   glint.className='gb50-glint';
   glint.setAttribute('aria-hidden','true');
-  stage.append(glint);
+  cam.append(glint);
 
   const effects=[...atmosphere.querySelectorAll('i'),...strike.querySelectorAll('i')];
   const sparks=[...strike.querySelectorAll('.gb50-spark')];
