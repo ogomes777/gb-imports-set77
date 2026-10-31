@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// GB IMPORTS / build estático sem dependências.
+// GB IMPORTS / build estático. Única dependência: a intro de pelúcia (PlushTile original, React) empacotada com esbuild.
 // - Valida a sintaxe de todas as camadas JS (falha o build se houver erro).
 // - Concatena CSS e JS na ordem do index.html em dois arquivos com hash (cache imutável).
 // - Copia assets/, data/ e robots.txt para dist/.
@@ -10,6 +10,7 @@ import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {dirname,join,extname} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {createRequire} from 'node:module';
 
 const ROOT=join(dirname(fileURLToPath(import.meta.url)),'..');
 const DIST=join(ROOT,'dist');
@@ -28,7 +29,7 @@ for(const f of scripts){
 // CSS: remove só comentários e linhas vazias (sem minificador agressivo, para não alterar seletores).
 const css=styles.map(f=>`/* ${f} */\n`+read(f).replace(/\/\*[\s\S]*?\*\//g,'').replace(/\n\s*\n/g,'\n').trim()).join('\n');
 // The intro is an independent render entrypoint: it begins before the heavy store JS.
-const introScript='gb-ribbon-intro.js';
+const introScript='gb-puff-intro.js';
 if(!scripts.includes(introScript))throw new Error('Intro JS missing');
 const introJs=read(introScript).trim();
 const restScripts=scripts.filter(f=>f!==introScript);
@@ -58,6 +59,27 @@ mkdirSync(join(DIST,'_gb'),{recursive:true});
 writeFileSync(join(DIST,cssName),css);
 for(const part of coreFiles)writeFileSync(join(DIST,part.name),part.content);
 writeFileSync(join(DIST,introName),introJs);
+
+// V45: the user's original PlushTile is its own chunk, loaded only by the landing intro. It is REQUIRED:
+// a missing esbuild/React or a compile error fails the build — never a READY deploy with a flat fallback.
+let plushName;
+try{
+  const esbuild=createRequire(import.meta.url)('esbuild');
+  const out=await esbuild.build({
+    entryPoints:[join(ROOT,'src/plush/gb-plush-entry.jsx')],bundle:true,write:false,platform:'browser',format:'iife',
+    jsx:'automatic',target:['es2020'],minify:true,legalComments:'none',logLevel:'silent',
+    define:{'process.env.NODE_ENV':'"production"'},
+  });
+  const text=out.outputFiles[0].text;
+  if(!/gb:plush-ready/.test(text)||!/transformFeedbackVaryings/.test(text))throw new Error('bundle sem o renderizador PlushTile');
+  plushName='_gb/gb-plush.'+hash(text)+'.js';
+  writeFileSync(join(DIST,plushName),text);
+}catch(err){
+  console.error('✗ PlushTile (intro V45) não empacotou: '+(err.message||err)+'\n  Rode `npm ci` (esbuild + react + react-dom) antes do build.');
+  process.exit(1);
+}
+const POSTER='assets/brand/gb-puff-poster-v44.webp';
+if(!existsSync(join(ROOT,POSTER)))throw new Error('Poster de pelo real ausente: '+POSTER);
 for(const d of ['assets','data'])cpSync(join(ROOT,d),join(DIST,d),{recursive:true});
 if(existsSync(join(ROOT,'robots.txt')))cpSync(join(ROOT,'robots.txt'),join(DIST,'robots.txt'));
 
@@ -78,16 +100,20 @@ const coreBoot = [
 '  document.head.append(sc);',
 ' };',
 ' window.GB_BOOT_CORE=()=>{if(started)return;started=true;next()};',
-' if(window.GBGlassRibbons?.opening){',
-'  setTimeout(()=>{const pre=document.createElement("link");pre.rel="prefetch";pre.href=groups[0];document.head.append(pre)},750);',
-'  setTimeout(window.GB_BOOT_CORE,9000);',
-' }else window.GB_BOOT_CORE();',
+// The intro starts the core ~0.65 s in; this timer is the store's own guarantee, independent of the intro.
+' if(window.GBGlassRibbons?.opening)setTimeout(window.GB_BOOT_CORE,1200);',
+' else window.GB_BOOT_CORE();',
 '})();',
 '</script>'
 ].join('\n');
+// The poster (the fallback puff) is fetched early on the landing only; deep routes (/gb…, #colecao) never pay for it.
+// The plush chunk is not preloaded: the intro requests it only after its GPU probe finds a real GPU.
+const introPreload='<script>if(location.pathname==="/"&&(!location.hash||location.hash==="#inicio")&&!matchMedia("(prefers-reduced-motion: reduce)").matches){'+
+  '{const l=document.createElement("link");l.rel="preload";l.as="image";l.href="./'+POSTER+'";l.fetchPriority="auto";document.head.append(l)}}</script>';
+const introGlobals='<script>window.GB_PLUSH_BUNDLE_SRC="./'+plushName+'";window.GB_PUFF_POSTER_URL="./'+POSTER+'"</script>';
 let out=stripLocal(html)
- .replace('</head>',()=>'<link href="./'+cssName+'" rel="stylesheet"/>\n</head>')
- .replace('</body>',()=>'<script src="./'+introName+'"></script>\n'+coreBoot+'\n</body>');
+ .replace('</head>',()=>introPreload+'\n<link href="./'+cssName+'" rel="stylesheet"/>\n</head>')
+ .replace('</body>',()=>introGlobals+'\n<script src="./'+introName+'"></script>\n'+coreBoot+'\n</body>');
 writeFileSync(join(DIST,'index.html'),out);
 
 // V40 route entrypoints: emit real clean-URL HTML files for every visual route.
@@ -119,7 +145,8 @@ writeFileSync(join(DIST,'gb-standalone.html'),inlineAssets(standalone));
 const kb=f=>(statSync(join(DIST,f)).size/1024).toFixed(1)+' KB';
 console.log('✓ build GB concluído em dist/');
 console.log(`  ${cssName}  ${kb(cssName)}  (${styles.length} camadas)`);
-console.log('  '+introName+'  '+kb(introName)+' (cinema primeiro)');
+console.log('  '+introName+'  '+kb(introName)+' (intro primeiro)');
+console.log('  '+plushName+'  '+kb(plushName)+' (PlushTile original + React, só na landing)');
 console.log('  '+coreFiles.length+' blocos JS da loja, '+restScripts.length+' camadas sequenciais');
 for(const part of coreFiles)console.log('    '+part.name+'  '+kb(part.name)+'  '+part.files.join(', '));
 console.log(`  index.html  ${kb('index.html')}`);

@@ -17,6 +17,8 @@ jobs:
         run: node scripts/validar-crt.mjs
       - name: Verify GB RAIL V10 curation (114 decisions, media hashes, generated catalogue up to date)
         run: node scripts/gerar-rail-v10.mjs --check
+      - name: Install pinned build dependencies (esbuild, React)
+        run: npm ci --no-audit --no-fund
       - name: Build flagship website
         run: node scripts/build.mjs
       - name: Install Playwright and Chromium

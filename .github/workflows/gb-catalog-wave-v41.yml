@@ -24,6 +24,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Install pinned build dependencies (esbuild, React)
+        run: npm ci --no-audit --no-fund
       - name: Build current GB storefront
         run: node scripts/build.mjs
       - name: Setup Chromium

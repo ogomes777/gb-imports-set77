@@ -1,10 +1,14 @@
-name: GB Imports | Ribbon Tail + Light Glass V38
+name: GB Imports | Puff Intro V45 (and the V25–V38 intro contracts)
 on:
   pull_request:
     branches: [main, 'fix/gb-intro-reveal-stutter-v36', 'fix/gb-glass-no-flicker-v37']
     paths:
-      - 'gb-ribbon-intro.js'
-      - 'gb-ribbon-intro.css'
+      - 'gb-puff-intro.js'
+      - 'gb-puff-intro.css'
+      - 'src/plush/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tests/puff-intro-v45.mjs'
       - 'gb-edit-v12.js'
       - 'index.html'
       - 'tests/intro-v25.mjs'
@@ -20,7 +24,7 @@ on:
       - 'tests/intro-no-stutter-v36.mjs'
       - 'tests/intro-no-flicker-v37.mjs'
       - 'tests/intro-tail-glass-v38.mjs'
-      - 'assets/brand/gb-glass-pearl-v37.webp'
+      - 'assets/brand/gb-puff-poster-v44.webp'
       - 'scripts/build.mjs'
       - 'tests/e2e.mjs'
       - '.github/workflows/gb-intro-v25.yml'
@@ -36,16 +40,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Install pinned build dependencies (esbuild, React)
+        run: npm ci --no-audit --no-fund
       - name: Build existing GB flagship
         run: node scripts/build.mjs
       - name: Chromium for desktop and mobile tests
         run: |
           npm install --no-save playwright
           npx playwright install chromium
-      - name: Verify first-paint intro, removal of all ribbon GPU work, and intact storefront
+      - name: Verify the V45 puff intro (first paint, poster, live PlushTile, fibres, failure matrix, teardown) and intact storefront
         run: |
           python3 -m http.server 8080 --directory dist > /tmp/gb-ribbon-http.log 2>&1 &
           sleep 2
+          node tests/puff-intro-v45.mjs
           node tests/intro-staged-v33.mjs
           node tests/intro-retire-v34.mjs
           node tests/intro-fast-v35.mjs

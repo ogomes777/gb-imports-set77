@@ -179,7 +179,11 @@ async function run(w,h,reduced=false){
   check(vp,'SHOP sem roupas ilustrativas do antigo preview',shop.studies===0&&shop.noPhoto===0&&shop.svg===0,JSON.stringify(shop));
   // Detalhe: conjunto fotografado com superior/inferior reais, sem laboratório de cores fictício.
   await page.fill('#catalogSearch','Polo areia');await page.waitForTimeout(260);
-  await page.locator('#productGrid .product-visual').first().click();await page.waitForTimeout(700);
+  await page.locator('#productGrid .product-visual').first().click();
+  // espera o efeito (o viewer com o produto), não um tempo fixo: sob carga 700 ms não bastavam
+  await page.locator('#railViewer').waitFor({state:'visible',timeout:3000}).catch(()=>{});
+  await page.waitForFunction(()=>/POLO AREIA/.test(document.querySelector('#railViewerName')?.textContent||''),null,{timeout:3000}).catch(()=>{});
+  await page.waitForTimeout(200);
   check(vp,'V08: card abre o Object View',await page.locator('#railViewer').isVisible());
   check(vp,'V08: Object View mostra o produto real',(await page.locator('#railViewerName').textContent()).includes('POLO AREIA'));
   check(vp,'V08: cores de estudo ocultas para produto com foto',await page.locator('#gbTabColors').isHidden());
@@ -377,7 +381,9 @@ async function run(w,h,reduced=false){
   // Produto: abrir/fechar 10 vezes, foco volta ao card, URL limpa, voltar do navegador fecha
   await page.locator('#colecao .product-grid').scrollIntoViewIfNeeded();
   let okLoop=true;
-  for(let i=0;i<10;i++){await page.locator('#productGrid .product-visual').nth(i%4).click();await page.waitForTimeout(250);if(!(await page.locator('#railViewer').isVisible()))okLoop=false;await page.keyboard.press('Escape');await page.waitForTimeout(450);if(await page.locator('#railViewer').isVisible())okLoop=false}
+  // espera o efeito (viewer aberto / fechado), não um tempo fixo: sob carga 250/450 ms não bastavam
+  const viewerIs=open=>page.locator('#railViewer').waitFor({state:open?'visible':'hidden',timeout:3000}).then(()=>true).catch(()=>false);
+  for(let i=0;i<10;i++){await page.locator('#productGrid .product-visual').nth(i%4).click();if(!(await viewerIs(true)))okLoop=false;await page.keyboard.press('Escape');if(!(await viewerIs(false)))okLoop=false}
   check(vp,'produto: abrir/fechar 10x',okLoop);
   check(vp,'produto: URL limpa após 10x',!page.url().includes('peca='));
   check(vp,'produto: foco volta ao card',await page.evaluate(()=>!!document.activeElement?.closest('#productGrid')));

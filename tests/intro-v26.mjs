@@ -1,3 +1,4 @@
+// V26 → V45: full-bleed black glass, the original GB monogram as the fur's artwork, release onto the store.
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import {tmpdir} from 'node:os';
@@ -9,54 +10,33 @@ for(const [width,height] of [[1440,900],[390,844]]){
  let errors=[];page.on('pageerror',e=>errors.push(e.message));
  page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
  await page.goto('http://127.0.0.1:8080/',{waitUntil:'domcontentloaded'});
- await page.waitForFunction(()=>window.GBGlassRibbons&&document.querySelector('.gb-ribbon-layer'),null,{timeout:16000});
- await page.waitForTimeout(1240);
+ await page.waitForFunction(()=>window.GBGlassRibbons?.visible,null,{timeout:16000});
  const reveal=await page.evaluate(()=>({
-  opening:GBGlassRibbons.opening,frames:GBGlassRibbons.frames,
-  logo:getComputedStyle(document.querySelector('.gb-ribbon-signature')).opacity,
-  image:getComputedStyle(document.querySelector('.gb-ribbon-signature img')).clipPath,
-  glass:!!document.querySelector('.gb-ribbon-glass'),
-  oldIntro:!!document.querySelector('.gb-intro-grid'),
-  overlayParent:document.querySelector('.gb-ribbon-layer')?.parentElement?.tagName,
-  ribbon:!!document.querySelector('.gb-ribbon-canvas'),
-  fullGlass:GBGlassRibbons.fullGlass,
-  originalLogo:GBGlassRibbons.logoAsset
+  opening:GBGlassRibbons.opening,fullGlass:GBGlassRibbons.fullGlass,originalLogo:GBGlassRibbons.logoAsset,
+  bg:getComputedStyle(document.getElementById('gbRibbonBoot')).backgroundColor,
+  overlayParent:document.querySelector('#gbRibbonBoot')?.parentElement?.tagName,
+  flat:[...document.querySelectorAll('#gbRibbonBoot img')].filter(i=>/\.svg/.test(i.getAttribute('src')||'')).length
  }));
- await page.screenshot({path:shot('v25-'+width+'-reveal.jpg'),type:'jpeg',quality:58});
- assert(reveal.frames>2,'ribbons not rendering: '+JSON.stringify(reveal));
- assert(reveal.opening,'opening finished too early');
- assert(!reveal.oldIntro,'old block intro still mounted');
- assert(reveal.overlayParent==='BODY','intro not fullscreen');
+ await page.screenshot({path:shot('v26-'+width+'-reveal.jpg'),type:'jpeg',quality:58});
+ assert(reveal.opening&&reveal.overlayParent==='BODY','intro not fullscreen/opening '+JSON.stringify(reveal));
  assert(reveal.fullGlass,'Glass background not full bleed');
+ assert(reveal.bg==='rgb(0, 0, 0)','stage is not black glass '+reveal.bg);
  assert(reveal.originalLogo==='./assets/brand/gb-monograma-amarelo-preto.svg','Original GB logo was replaced');
- const oldFrames=reveal.frames;
- if(width<600){await page.touchscreen.tap(120,340)}else{await page.mouse.move(800,320);await page.mouse.down();await page.mouse.up()}
- // V34+: a abertura assina o logo, vira portal e se retira; nada dela fica pintando no hero
+ assert(reveal.flat===0,'flat SVG monogram shown on the stage');
  await page.waitForFunction(()=>GBGlassRibbons.settled&&GBGlassRibbons.removed,null,{timeout:18000});
  await page.waitForTimeout(400);
  const settled=await page.evaluate(()=>({
-  opening:GBGlassRibbons.opening,
-  settled:GBGlassRibbons.settled,
-  frames:GBGlassRibbons.frames,
-  canvas:GBGlassRibbons.canvasSize,
-  removed:GBGlassRibbons.removed,active:GBGlassRibbons.active,
-  layer:!!document.querySelector('.gb-ribbon-layer'),
-  hero:!!document.querySelector('#heroArt'),
-  fit:!!document.querySelector('#lookstudio'),
-  overflow:document.documentElement.scrollWidth-innerWidth,
-  modal:document.querySelector('#productModal')?.className
+  settled:GBGlassRibbons.settled,opening:GBGlassRibbons.opening,removed:GBGlassRibbons.removed,
+  hero:!!document.querySelector('#heroArt'),fit:!!document.querySelector('#lookstudio'),
+  overflow:document.documentElement.scrollWidth-innerWidth,modal:document.querySelector('#productModal')?.className
  }));
- await page.screenshot({path:shot('v25-'+width+'-settled.jpg'),type:'jpeg',quality:58});
- assert(settled.settled&&!settled.opening,'never settled: '+JSON.stringify(settled));
- assert(settled.frames>oldFrames,'ribbons stopped before the signature: '+JSON.stringify(settled));
- assert(settled.removed&&!settled.active&&!settled.layer,'intro still painting over the hero: '+JSON.stringify(settled));
+ await page.screenshot({path:shot('v26-'+width+'-settled.jpg'),type:'jpeg',quality:58});
+ assert(settled.settled&&!settled.opening&&settled.removed,'never settled: '+JSON.stringify(settled));
  assert(settled.hero&&settled.fit,'existing site damaged: '+JSON.stringify(settled));
-  assert(settled.overflow<=3,'horizontal overflow: '+JSON.stringify(settled));
+ assert(settled.overflow<=3,'horizontal overflow: '+JSON.stringify(settled));
  assert(!settled.modal?.includes('is-open'),'pointer leaked to product modal: '+settled.modal);
  assert(errors.length===0,'runtime errors '+JSON.stringify(errors));
- const pointer=await page.evaluate(()=>GBGlassRibbons.pointer);
- assert(pointer[0]>0.2&&pointer[0]<.9,'pointer/touch not tracked '+pointer);
- console.log(JSON.stringify({viewport:width+'x'+height,success:true,reveal,settled,pointer,errors}));
+ console.log(JSON.stringify({viewport:width+'x'+height,success:true,reveal,settled,errors}));
  await page.close();
 }
 await browser.close();

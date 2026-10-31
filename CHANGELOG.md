@@ -1,5 +1,18 @@
 # GB Flagship / Changelog
 
+## V45 — 30/10/2026 · "PUFF"
+- V45.1 — live do começo ao fim: numa GPU física o puff já nasce ao vivo (palco preto até o primeiro quadro verificado) e fica ao vivo; o poster só existe onde não há GPU física (e aí fica do começo ao fim) ou se o live não sobe em 1,5 s. Sem troca de "tecido".
+- V45.1 — desempenho: sondagem de GPU antes de qualquer marca; chunk do PlushTile baixado só com GPU física; orçamento de fios, pixels e DPR por aparelho (70 k / 34 k / 22 k fios); nenhum desfoque sobre o canvas WebGL (entrada e mergulho só com escala e opacidade); a loja começa depois do primeiro quadro do pelo.
+- V45.1 — a abertura dourada volta: no meio do mergulho, o muro amarelo da V12 com o monograma e GB IMPORTS entra e explode em blocos sobre o hero, como os capítulos.
+- Abertura nova: palco preto-vidro e o puff de pelúcia da GB — almofada branca/marfim com o monograma oficial amarelo/preto formado pelos próprios fios. Sai a fita de vidro (V25–V38).
+- O renderizador é o PlushTile ORIGINAL do usuário (`src/plush/PlushTile.tsx`, guardado intacto num commit próprio; as adaptações GB vêm como diff): GB local no lugar do CDN/blob, GPU por software fica no poster, teto de fios por aparelho, evento de primeiro quadro só com pelo iluminado lido de volta.
+- Primeiro objeto visível é sempre pelo real: poster RGBA decodificado antes de aparecer e, numa GPU física, cross-fade para o live no mesmo enquadramento (calibrado contra o render). Nunca ícone chapado, almofada lisa, quadrado preto, spinner ou flash branco.
+- Cursor e dedo abrem os fios (pincel do original) e o tile inclina; tocar no puff nunca pula. PULAR, teclas e roda saem.
+- Saída: a câmera mergulha no puff (escala, desfoque, dissolve) e a landing já pronta assume.
+- Loja sempre abre: boot em paralelo aos 0,65 s, watchdog 5,2 s, garantia só de CSS aos 9 s, `finish` idempotente e teardown de React/GPU. Movimento reduzido, links diretos e rotas pulam a intro e não baixam o chunk.
+- Build: o chunk do PlushTile (React 19 + esbuild, versões fixas no lockfile) é obrigatório — sem ele o build falha; Vercel e workflows rodam `npm ci`.
+- QA: `tests/puff-intro-v45.mjs` (matriz de aceite) e as suítes V25–V38 reescritas para o contrato V45. Detalhes em `docs/PUFF_V45.md`.
+
 ## V11 — 30/10/2026 · "GB RAIL IMMERSIVE"
 - V11.4 — loja dentro de um shopping: do outro lado da vitrine, o corredor do mall com pilares redondos, vitrines acesas de outras lojas (térreo e mezanino com guarda-corpo de vidro) e claraboia; à noite, as vitrines ficam quentes. Tudo fora de foco e sem marca.
 - V11.4 — piso de porcelanato polido: placas grandes com rejunte fino e leve variação de tom, reflexo do vidro antes do trilho, risco especular de cada spot e a peça em foco espelhada com mais brilho.
