@@ -75,7 +75,7 @@ try{
      assert(m.gui.h>250,'Desktop characters missing');
    }
    mkdirSync('tmp/gb-editorial-mobile-v51',{recursive:true});
-   await page.locator('#editorial').screenshot({path:'tmp/gb-editorial-mobile-v51/'+vp.width+'x'+vp.height+'.png',animations:'disabled',timeout:30000});
+   await page.screenshot({path:'tmp/gb-editorial-mobile-v51/'+vp.width+'x'+vp.height+'.png',fullPage:false});
    await page.locator('.gbe-replay').click();
    const gesture=await page.evaluate(()=>{
      const k=s=>document.querySelector(s).getAnimations().flatMap(a=>a.effect?.getKeyframes?.()||[]).map(f=>f.transform||'');
