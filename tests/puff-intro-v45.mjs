@@ -115,6 +115,9 @@ const firstBrand=page=>page.evaluate(()=>{const f=window.__puff.frames.find(x=>x
     check(sc,'dedo no puff abre os fios (pincel > 0,2) sem disparar a saída',during.brush>.2&&during.reason!=='skip',JSON.stringify(during));
   }else check(sc,'live forçado disponível para o teste de toque',false);
   check(sc,'sem 404 e sem erro de JS',!bad.length&&!errors.length,JSON.stringify({bad,errors}));
+  // held live loop on a software GPU: leave first, so closing the context never waits on a busy frame
+  await page.evaluate(()=>window.GBPuffIntro?.finish()).catch(()=>{});
+  await page.waitForFunction(()=>window.GBPuffIntro?.removed,null,{timeout:15000}).catch(()=>{});
   await ctx.close();
 }
 // 3b. The skip control (no GPU involved): a tap on PULAR releases the store at once.
