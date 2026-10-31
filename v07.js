@@ -31,14 +31,22 @@ if(stage&&art){
   const objs=qa('.trio-obj',trio),medias=objs.map(o=>q('.trio-media',o)),shadows=objs.map(o=>q('.trio-shadow',o));
   const phase=new Spring(heroIndex,M.Tokens.spring.object);
   let W=trio.clientWidth,H=trio.clientHeight,running=false;
+  const dNearBack=(u,n)=>Math.cos(u/n*2*Math.PI)<-.55;
   function render(){
     const p=phase.x;
     objs.forEach((el,j)=>{
       const u=mod(j-p,N),o=poseAt(u);
       el.style.transform=`translate3d(${(o.x*W).toFixed(1)}px,${(o.y*H).toFixed(1)}px,0) perspective(1200px) rotateY(${o.yaw.toFixed(2)}deg) rotate(${o.r.toFixed(2)}deg) scale(${o.s.toFixed(3)})`;
-      el.style.zIndex=String(o.z);el.style.opacity=o.o.toFixed(3);   // profundidade por opacidade (filtro por quadro repintaria)
+      // FIX V46.1: depth uses stacking, scale and physical shading, never alpha.
+      // A 70%-opacity rear garment must not show through the front hoodie.
+      el.style.zIndex=String(o.z);
+      el.style.opacity='1';
+      el.style.setProperty('--gb-hero-depth',o.l.toFixed(3));
       shadows[j].style.opacity=(.15+.55*o.l).toFixed(3);
-      const front=u<.5||u>N-.5;el.classList.toggle('is-front',front);el.setAttribute('aria-current',front?'true':'false');
+      const front=u<.5||u>N-.5;
+      el.classList.toggle('is-front',front);
+      el.classList.toggle('is-back',dNearBack(u,N));
+      el.setAttribute('aria-current',front?'true':'false');
     });
   }
   // giro contínuo: o anel nunca para; interação (clique, seta, arrasto) assume e o giro volta em seguida
