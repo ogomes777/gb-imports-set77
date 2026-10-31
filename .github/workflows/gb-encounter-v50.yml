@@ -1,0 +1,38 @@
+name: GB Imports | Encounter Signal V50 QA
+on:
+  push:
+    branches: [feat/gb-encounter-impact-v50]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  encounter-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned dependencies + browser
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save playwright
+          npx playwright install chromium
+      - name: Compile store and intro; verify all script syntax
+        run: npm run build
+      - name: Validate existing product/catalogue integrity
+        run: node scripts/validar-crt.mjs
+      - name: Validate V50 desktop/mobile + original V15 gesture
+        run: |
+          python3 -m http.server 8080 --directory dist > /tmp/gb-encounter-v50-http.log 2>&1 &
+          sleep 2
+          node tests/encounter-impact-v50.mjs
+      - name: Attach screenshots (desktop + mobile)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gb-encounter-v50-desktop-mobile
+          path: tmp/gb-encounter-v50/*.png
+          if-no-files-found: ignore
+          retention-days: 7
