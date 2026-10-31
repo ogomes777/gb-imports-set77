@@ -72,14 +72,16 @@ try{
    assert(snapshot.dimensions.canvas[0]<=1500&&snapshot.dimensions.canvas[1]<=1250,'unbounded canvas resolution');
    const ink=await page.evaluate(()=>{
      const canvas=document.getElementById('gbHeroCosmosV46');
+     const rect=canvas.getBoundingClientRect();
      const d=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
      let nonempty=0,brightest=0;
      for(let i=0;i<d.length;i+=32){
       if(d[i+3]>0)nonempty++;
       if(d[i+3]>brightest)brightest=d[i+3];
      }
-     return{nonempty,brightest};
+     return{nonempty,brightest,canvas:[canvas.width,canvas.height],rect:[rect.width,rect.height],stage:getComputedStyle(document.querySelector('#heroStage')).display};
    });
+   assert(ink.canvas[0]>160&&ink.canvas[1]>160,'cosmos backing surface still 1px '+JSON.stringify(ink));
    assert(ink.nonempty>90&&ink.brightest>20,'cosmic trails invisible, too dark or never painted '+JSON.stringify(ink));
    if(p.w<600){
     assert(snapshot.quality.includes('mobile'),'adaptive mobile rendering missing');
