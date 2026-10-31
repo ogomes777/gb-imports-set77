@@ -410,7 +410,12 @@ async function makeWebGL(THREE){
   const kick=v=>{U.uWarp.value=Math.max(U.uWarp.value,v*.5);if(!drag)vy+=1};
   const destroy=()=>{pause();clearTimeout(resizeTimer);window.removeEventListener('resize',resize);window.removeEventListener('resize',measure);heading.removeEventListener('pointermove',move);heading.removeEventListener('pointerleave',resetPointer);heading.removeEventListener('pointerdown',down);heading.removeEventListener('pointerup',up);heading.removeEventListener('pointercancel',up);canvas.removeEventListener('webglcontextlost',contextLost);disposables.forEach(d=>d.dispose?.());renderer.dispose();canvas.remove()};
   // congelar: a frente de gelo varre do floco para fora; setFrozen posiciona sem animação (fora da tela)
-  const setFreeze=v=>{U.uFreeze.value=v};const setPaper=()=>{U.uPaper.value.set(...paperRGB())};const origin=()=>U.uOrigin.value;
+  const setFreeze=v=>{U.uFreeze.value=v};
+  // V48: drive the original ice-front shader in either scroll direction.
+  const setScrollFreeze=v=>{
+    const p=cap(v,0,1);U.uFreeze.value=p;birth=p;bgDirty=true;
+  };
+  const setPaper=()=>{U.uPaper.value.set(...paperRGB())};const origin=()=>U.uOrigin.value;
   const setFrozen=v=>{if(gsap)gsap.killTweensOf(U.uFreeze);U.uFreeze.value=v?1:0;birth=v?1:0;bgDirty=true};
   tint(state);
   // shaders compilados fora do caminho da rolagem (paralelo quando o navegador suporta); o céu compila para o buffer onde é desenhado
@@ -419,7 +424,7 @@ async function makeWebGL(THREE){
   try{await idle();if(destroyed){destroy();return null}const f0=U.uFreeze.value;U.uFreeze.value=1;renderer.setRenderTarget(rt);renderer.render(bgScene,bgCam);renderer.setRenderTarget(null);
     await idle();if(destroyed){destroy();return null}renderer.render(world,camera);U.uFreeze.value=f0;bgDirty=true}catch(err){}
   if(destroyed){destroy();return null}
-  return{resume,pause,tint,destroy,arrive:arriveFx,kick,setFreeze,setFrozen,origin,setPaper};
+  return{resume,pause,tint,destroy,arrive:arriveFx,kick,setFreeze,setScrollFreeze,setFrozen,origin,setPaper};
 }
 async function ensure3d(){
   if(scene3d||loading3d||webglFailed||lite()||reduce.matches||destroyed)return;
@@ -439,15 +444,80 @@ async function init(){
     gsap=await loadGSAP();if(destroyed||reduce.matches)return;
     if(chars.length&&!arrived&&!warm)gsap.set(chars,{yPercent:118,rotationX:-88,opacity:0});
     activate();bindTilt();
-    if(arrivalReady&&!arrived)arrive();
+    if(arrivalReady&&!arrived&&!reverser)arrive();
   }catch(err){stage.classList.add('cinema-css-fallback');setWarm(false);activate()}
 }
 // visível (pré-carrega) × chegou de fato (título em tela): a troca de cor dispara na chegada
 let arrivalReady=false;
+/* V48 / BIDIRECTIONAL ICE FRONT
+ * The original downward reveal is unchanged. On reverse scroll, the SAME
+ * shader runs backward, including snow, flake and a letter-by-letter thaw.
+ * The cold->paper handoff is continuous, not an abrupt .is-warm switch.
+ */
+let reverser=false,reverseRaf=0,reverseLastY=scrollY,reverseProgress=1,reverseIntentUp=false;
+const setReversePaper=()=>{
+ heading.style.setProperty('--sc-paper-color',
+   document.body?.dataset.gbTheme==='sinal'?'#111214':'#f4f1e8');
+};
+const reverseOverlay=document.createElement('div');
+reverseOverlay.className='sc-scroll-paper';
+reverseOverlay.setAttribute('aria-hidden','true');
+stage.insertAdjacentElement('afterend',reverseOverlay);
+setReversePaper();
+const reverseRound=p=>Math.round(cap(p,0,1)*1000)/1000;
+function reverseFrame(){
+ reverseRaf=0;
+ if(destroyed||reduce.matches||document.hidden)return;
+ const r=heading.getBoundingClientRect(),view=Math.max(1,innerHeight);
+ // Retain the last meaningful scroll direction. A resize/IO tick may
+ // run between scroll frames and must never erase the upward intention.
+ const delta=scrollY-reverseLastY;
+ if(delta<-.45)reverseIntentUp=true;
+ else if(delta>.45)reverseIntentUp=false;
+ reverseLastY=scrollY;
+ // V48.2: start reversing when roughly HALF the Cold Room has reentered
+ // view, rather than waiting for the top seam. Full ~1.3 viewport travel
+ // means a slower, fluid cinematic thaw for both desktop and mobile.
+ const startTop=-Math.min(r.height*.5,view*.70);
+ const endTop=view*.88;
+ const travel=Math.max(1,endTop-startTop);
+ const t=cap((r.top-startTop)/travel,0,1);
+ // Smoothstep softens beginning/end yet scrubs directly with real scroll.
+ const p=reverseRound(1-(t*t*(3-2*t)));
+ if(!reverser){
+  if(!arrived||!reverseIntentUp||r.top<startTop-2||r.top>endTop)return;
+  reverser=true;
+  endThaw();
+  gsap?.killTweensOf(chars);
+  gsap?.set(chars,{yPercent:0,rotationX:0,opacity:1});
+  heading.classList.add('is-rewinding');
+  setWarm(false);
+ }
+ if(r.top<startTop-view*.08)return;
+ if(Math.abs(p-reverseProgress)>.001){
+  reverseProgress=p;
+  setVar('--sc-scroll-cold',String(p));
+  scene3d?.setScrollFreeze(p);
+ }
+ // Ink and ice use the exact same scroll progress as the shader front.
+ if(p<=.001&&r.top>=endTop-view*.015){
+  reverser=false;heading.classList.remove('is-rewinding');
+  setWarm(true);scene3d?.setFrozen(false);
+  arrived=false;arrivalReady=false;
+  gsap?.set(glows,{opacity:0});
+ }else if(p>=.999&&r.top<=startTop+view*.015&&!reverseIntentUp){
+  reverser=false;heading.classList.remove('is-rewinding');
+  setWarm(false);scene3d?.setFrozen(true);
+ }
+}
+const queueReverse=()=>{if(!reverseRaf)reverseRaf=requestAnimationFrame(reverseFrame)};
+addEventListener('scroll',queueReverse,{passive:true});
+addEventListener('resize',queueReverse,{passive:true});
+addEventListener('gb:themechange',setReversePaper);
 const io=('IntersectionObserver'in window)?new IntersectionObserver(entries=>{entries.forEach(entry=>{visible=entry.isIntersecting;if(visible){if(!initialized)init();else activate()}else deactivate()})},{threshold:0,rootMargin:'240px 0px'}):null;
 const arrivalIO=('IntersectionObserver'in window)?new IntersectionObserver(entries=>{entries.forEach(entry=>{
-  if(entry.isIntersecting){arrivalReady=true;if(gsap&&!arrived)arrive()}
-  else if(entry.boundingClientRect.top>0&&arrived&&gsap){arrived=false;cycle?.pause();   // saiu por baixo: a chegada se repete ao voltar
+  if(entry.isIntersecting){arrivalReady=true;if(gsap&&!arrived&&!reverser)arrive()}
+  else if(!reverser&&heading.getBoundingClientRect().top>=innerHeight*.93&&arrived&&gsap){arrived=false;cycle?.pause();   // only reset after FULL exit, not during reverse reveal
     if(canWarm()&&scene3d){endThaw();setWarm(true);scene3d.setFrozen(false);gsap.set(glows,{opacity:0})}else if(chars.length)gsap.set(chars,{yPercent:118,rotationX:-88,opacity:0})}
 })},{threshold:.35}):null;
 // pré-carga 1–2 telas antes: GSAP, Three, geometria e shaders ficam prontos em momentos ociosos; a seção já chega no papel
@@ -459,7 +529,7 @@ const mediaChange=()=>{if(reduce.matches)setStatic();else if(visible){if(!gsap){
 reduce.addEventListener?.('change',mediaChange);
 const visibilityChange=()=>{if(document.hidden)deactivate();else if(visible)activate()};
 document.addEventListener('visibilitychange',visibilityChange);
-const cleanup=()=>{if(destroyed)return;destroyed=true;deactivate();io?.disconnect();arrivalIO?.disconnect();preIO?.disconnect();titleMO?.disconnect();coldIO?.disconnect();reduce.removeEventListener?.('change',mediaChange);document.removeEventListener('visibilitychange',visibilityChange);cycle?.kill();tilt?.off();scene3d?.destroy()};
+const cleanup=()=>{if(destroyed)return;destroyed=true;cancelAnimationFrame(reverseRaf);removeEventListener('scroll',queueReverse);removeEventListener('resize',queueReverse);removeEventListener('gb:themechange',setReversePaper);deactivate();io?.disconnect();arrivalIO?.disconnect();preIO?.disconnect();titleMO?.disconnect();coldIO?.disconnect();reduce.removeEventListener?.('change',mediaChange);document.removeEventListener('visibilitychange',visibilityChange);cycle?.kill();tilt?.off();scene3d?.destroy()};
 window.addEventListener('pagehide',cleanup,{once:true});
-window.GBShowroomCinema={get active(){return active},get enabled(){return !reduce.matches},get hasWebGL(){return !!scene3d},get arrived(){return arrived},get color(){return heading.dataset.spectrum||'GELO'},pause:deactivate,resume:activate};
+window.GBShowroomCinema={get active(){return active},get enabled(){return !reduce.matches},get hasWebGL(){return !!scene3d},get arrived(){return arrived},get reversing(){return reverser},get reverseProgress(){return reverseProgress},get color(){return heading.dataset.spectrum||'GELO'},pause:deactivate,resume:activate};
 })();
