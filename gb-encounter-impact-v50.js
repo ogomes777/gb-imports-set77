@@ -104,18 +104,18 @@ function attach(){
       {opacity:0,transform:'translate(-50%,-50%) scale(.12)'},
       {opacity:1,transform:'translate(-50%,-50%) scale(.7)',offset:.24},
       {opacity:0,transform:'translate(-50%,-50%) scale(2.45)'}
-    ],930,hit+40);
+    ],lite?600:930,hit+40);
     animate('.gb50-shock-b',[
       {opacity:0,transform:'translate(-50%,-50%) scale(.08)'},
       {opacity:.76,transform:'translate(-50%,-50%) scale(.7)',offset:.35},
       {opacity:0,transform:'translate(-50%,-50%) scale(2.7)'}
-    ],1120,hit+130);
+    ],lite?740:1120,hit+130);
     // Sobra um brilho discreto e estatico apos a revelacao, sem GPU em loop.
     animate('.gb50-afterglow',[
       {opacity:0,transform:'translate(-50%,-50%) scale(.5)'},
       {opacity:.32,transform:'translate(-50%,-50%) scale(1.1)',offset:.52},
       {opacity:.13,transform:'translate(-50%,-50%) scale(1)'}
-    ],1300,hit+120);
+    ],lite?830:1300,hit+120);
     sparks.forEach((el,i)=>{
       const angle=(-145+i*(290/Math.max(1,sparks.length-1)))*Math.PI/180;
       const dist=(small?Math.min(48,w*.17):Math.min(104,w*.33))*(i%3===0?.73:1);
