@@ -62,7 +62,21 @@ try{
   if(!p.reduced) assert(visual.cosmosBlend==='normal',
    'galaxy darkened by multiply blending on ivory background');
   if(!p.reduced){
-   await page.waitForFunction(()=>GBHeroCosmosV46.frames>=2,{timeout:6000});
+   try{await page.waitForFunction(()=>GBHeroCosmosV46.frames>=2,{timeout:6000})}
+   catch(err){
+    const diag=await page.evaluate(()=>({
+     state:GBHeroCosmosV46.dimensions,frames:GBHeroCosmosV46.frames,
+     active:GBHeroCosmosV46.active,quality:GBHeroCosmosV46.quality,
+     hero:document.getElementById('heroStage').getBoundingClientRect().toJSON(),
+     art:document.getElementById('heroArt').getBoundingClientRect().toJSON(),
+     canvas:document.getElementById('gbHeroCosmosV46').getBoundingClientRect().toJSON(),
+     intro:!!document.getElementById('gbRibbonBoot'),
+     classes:document.body.className,html:document.documentElement.className,
+     reduced:matchMedia('(prefers-reduced-motion: reduce)').matches,
+     isHidden:document.hidden,scrollY,heroVisible:getComputedStyle(document.getElementById('heroStage')).visibility
+    }));
+    throw Error('Galaxy failed to render: '+JSON.stringify(diag));
+   }
    const motion1=await page.evaluate(()=>({phase:GBHeroStage.phase,transform:document.querySelector('#heroTrio .trio-obj').style.transform}));
    await page.waitForTimeout(600);
    const motion2=await page.evaluate(()=>({phase:GBHeroStage.phase,transform:document.querySelector('#heroTrio .trio-obj').style.transform}));
