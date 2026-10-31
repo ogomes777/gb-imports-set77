@@ -64,8 +64,10 @@ try{
   assert(!d.reversing&&d.warm&&d.cold===0,
    'paper state failed to settle after full upward exit '+JSON.stringify(d));
   assert(Number.isFinite(Number(d.paperOpacity)),'scroll state generated invalid style');
-  await go(.52);
-  await page.waitForFunction(()=>window.GBShowroomCinema?.arrived,{timeout:10000});
+  // On reentry the original reveal begins when the actual title enters
+  // the viewport, not merely when the top 52% of heading is onscreen.
+  await page.locator('#showroom .showroom-heading h2').scrollIntoViewIfNeeded();
+  await page.waitForFunction(()=>window.GBShowroomCinema?.arrived,null,{timeout:10000});
   await page.locator('#colecao').scrollIntoViewIfNeeded();
   assert(await page.locator('#productGrid .product-card').count()>=8,'catalogue regressed');
   assert(!errors.length,'runtime errors: '+errors.join(' | '));
