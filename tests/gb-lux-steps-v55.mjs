@@ -33,6 +33,7 @@ try{
   assert(info.copies.every(c=>c.length>=65&&c.length<=135),'Cards copy too short or long '+JSON.stringify(info.copies));
   assert(info.handoff&&info.previous&&info.extra,'Look Studio or campaign connection removed');
   assert(info.overflow<=3,'Horizontal overflow '+vp.width+': '+info.overflow);
+  assert(info.active,'Gold pulse should animate when section is in viewport '+vp.width);
   assert(info.cards.length===3&&info.cards.every(c=>c.w>220&&c.h>=240),'Tiny/clipped cards '+vp.width+' '+JSON.stringify(info.cards));
   assert(info.links.length===2&&info.linkOpacity.every(x=>+x>.4),'Connector invisible');
   if(vp.width<=900){
