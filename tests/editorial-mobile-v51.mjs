@@ -19,9 +19,12 @@ try{
    const context=await browser.newContext({viewport:vp,deviceScaleFactor:1,isMobile:vp.width<800,hasTouch:vp.width<800,reducedMotion:'no-preference'});
    const page=await context.newPage(),errors=[];
    page.on('pageerror',e=>errors.push(e.message));
-   await page.goto(origin+'/#editorial',{waitUntil:'domcontentloaded',timeout:35000});
+   await page.goto(origin+'/',{waitUntil:'domcontentloaded',timeout:35000});
    await page.waitForFunction(()=>Boolean(window.GB_CORE_READY)&&!document.getElementById('gbRibbonBoot'),null,{timeout:32000});
-   await page.locator('#editorial .editorial-model').scrollIntoViewIfNeeded();
+   await page.evaluate(()=>{
+     const rect=document.querySelector('#editorial .editorial-model').getBoundingClientRect();
+     window.scrollTo({top:window.scrollY+rect.top-Math.max(0,(innerHeight-rect.height)/2),behavior:'instant'});
+   });
    await page.waitForTimeout(4500);
    const debug=await page.evaluate(()=>{
      const model=document.querySelector('#editorial .editorial-model');
@@ -89,7 +92,7 @@ try{
  // Reduced-motion: cinematic effects disabled while the illustrated final frame remains.
  const ctx=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'});
  const page=await ctx.newPage();
- await page.goto(origin+'/#editorial',{waitUntil:'domcontentloaded',timeout:35000});
+ await page.goto(origin+'/',{waitUntil:'domcontentloaded',timeout:35000});
  await page.waitForFunction(()=>Boolean(window.GB_CORE_READY),null,{timeout:32000});
  await page.locator('#editorial').scrollIntoViewIfNeeded();
  await page.waitForFunction(()=>document.querySelector('.editorial-model')?.classList.contains('gbe-done'),null,{timeout:16000});
