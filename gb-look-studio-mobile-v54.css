@@ -1,0 +1,105 @@
+/* GB IMPORTS — LOOK STUDIO MOBILE V54.
+   Refinamento responsivo sem tocar no rig V19, assets, eventos ou skin desktop.
+   Avaliado: 320/360/390/430/768/1440 px. */
+@media (max-width:780px){
+  #lookstudio .look-layout{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:12px;
+    min-width:0;
+  }
+  #lookstudio .look-stage.has-fit{
+    min-width:0;
+    overflow:hidden;
+  }
+  /* Em 320/360px o CSS anterior reduzia a área de toque para 38px.
+     Recuperar 44x44 sem empurrar o manequim de sua caixa. */
+  #lookstudio .fit-emotes button{
+    width:44px!important;
+    min-width:44px!important;
+    height:44px!important;
+    min-height:44px!important;
+    padding:4px!important;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  #lookstudio .fit-emotes button i{
+    width:36px!important;
+    height:36px!important;
+    display:grid;
+    place-items:center;
+  }
+  #lookstudio .fit-emotes{
+    right:5px!important;
+    gap:5px!important;
+    padding:6px 3px!important;
+    max-width:50px;
+  }
+  /* Aviso afastado da barra fixa de navegação e do controle de orbitar. */
+  #lookstudio .look-stage.has-fit .fit-legal{
+    bottom:24px!important;
+    left:50%;
+    max-width:88%;
+    width:min(88%,300px);
+    line-height:1.35;
+    font-size:clamp(7px,1.9vw,8px);
+    letter-spacing:.65px;
+    pointer-events:none;
+  }
+  #lookstudio .look-controls{
+    box-sizing:border-box;
+    padding:clamp(23px,5.2vw,39px);
+    min-width:0;
+  }
+  #lookstudio .look-controls h3{
+    font-size:clamp(29px,8vw,48px);
+    max-width:100%;
+    line-height:.98;
+    letter-spacing:-.07em;
+    margin:18px 0 28px;
+  }
+  #lookstudio .look-step{
+    min-width:0;
+    padding-top:16px;
+    margin-bottom:20px;
+  }
+  #lookstudio .look-step-title{font-size:9px;gap:10px;line-height:1.45}
+  #lookstudio .look-options{
+    width:100%;
+    min-width:0;
+    padding:14px 2px 8px;
+    scroll-padding-inline:4px 34px;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  #lookstudio .look-option{
+    width:clamp(72px,22vw,90px);
+    min-width:clamp(72px,22vw,90px);
+    aspect-ratio:1/1.2;
+  }
+  #lookstudio .look-current{margin-top:5px}
+  #lookstudio .look-legal{font-size:10px;line-height:1.6}
+}
+@media (min-width:600px) and (max-width:780px){
+  #lookstudio .look-stage.has-fit{height:clamp(690px,78svh,800px)}
+  #lookstudio .fit-figure,
+  #lookstudio .fit-geom,
+  #lookstudio .fit-split-line{height:79%;bottom:15%}
+  #lookstudio .look-controls h3{font-size:clamp(42px,6.8vw,55px)}
+}
+@media (max-width:365px){
+  #lookstudio .fit-emotes{
+    top:18%!important;
+    right:3px!important;
+    gap:4px!important;
+  }
+  #lookstudio .look-controls{padding:22px 18px 28px}
+  #lookstudio .look-controls h3{font-size:29px}
+  #lookstudio .look-stage.has-fit .fit-legal{font-size:7px}
+}
+@media (prefers-reduced-motion:reduce){
+  #lookstudio .look-controls .look-option,
+  #lookstudio .fit-emotes button{transition:none!important}
+}
