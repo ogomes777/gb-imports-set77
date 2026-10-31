@@ -123,7 +123,7 @@ function paint(time){
  frames++;
 }
 function runnable(){
- return visible&&!reduced.matches&&!document.hidden&&!document.body.classList.contains('no-scroll')&&!document.body.classList.contains('gb-experience-open');
+ return visible&&!reduced.matches&&!document.hidden&&!document.getElementById('gbRibbonBoot')&&!document.body.classList.contains('gb-experience-open')&&!document.querySelector('.product-modal:not([hidden])');
 }
 function tick(dt,t){
  if(!runnable()){attached=false;ctx.clearRect(0,0,w,h);return false}
@@ -151,9 +151,19 @@ M.onVisible(stage,v=>{
 },{threshold:.08});
 // The intro can hold no-scroll while IO already reports the hero as visible.
 // Wake the renderer when the storefront unlocks, or the canvas stays blank.
-new MutationObserver(()=>{if(visible&&!document.body.classList.contains('no-scroll'))start()})
- .observe(document.body,{attributes:true,attributeFilter:['class']});
-document.addEventListener('gb:core-ready',()=>{if(visible)start()},{once:true});
+// Cinematic intro uses a class on html/body and can finish after the
+// original IntersectionObserver fires. Detect removal of its actual overlay
+// and independently measure whether the stage is onscreen.
+const wake=()=>{
+ if(document.getElementById('gbRibbonBoot'))return;
+ const box=stage.getBoundingClientRect();
+ if(box.bottom>0&&box.top<innerHeight){visible=true;start()}
+};
+const wakeObserver=new MutationObserver(wake);
+wakeObserver.observe(document.body,{childList:true,attributes:true,attributeFilter:['class']});
+document.addEventListener('gb:core-ready',wake);
+addEventListener('scroll',()=>{if(!attached)wake()},{passive:true});
+setTimeout(wake,0);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)start()});
 reduced.addEventListener?.('change',e=>{if(!e.matches)start();else pause()});
 stage.addEventListener('pointermove',e=>{
