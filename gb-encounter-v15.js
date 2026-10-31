@@ -44,7 +44,13 @@ let ready=false,played=false,anims=[],playId=0,waitingWall=false;
 function load(){
   layout();   // tamanho real antes do srcset: o navegador escolhe o arquivo uma vez só
   const imgs=[...stage.querySelectorAll('img')];
-  imgs.forEach(img=>{const n=`${BASE}gb-${img.dataset.k}-${img.dataset.l}`;img.srcset=`${n}-m.webp 720w, ${n}.webp 1280w`;img.src=`${n}.webp`});
+  imgs.forEach(img=>{
+    const n=`${BASE}gb-${img.dataset.k}-${img.dataset.l}`,r=CH[img.dataset.k].r;
+    // V51: 720/1280 e ALTURA dos WebPs, nao largura. Descritores w errados
+    // fazem o navegador subestimar a resolucao e ampliar sprites no retina mobile.
+    img.srcset=`${n}-m.webp ${Math.round(720*r)}w, ${n}.webp ${Math.round(1280*r)}w`;
+    img.src=`${n}.webp`;
+  });
   Promise.all(imgs.map(i=>i.decode())).then(enable,()=>{stage.remove();bar.remove()});   // falhou: o editorial segue com a foto do acervo
 }
 const near=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){near.disconnect();load()}},{rootMargin:'500px 0px'});
