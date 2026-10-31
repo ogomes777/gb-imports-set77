@@ -85,3 +85,106 @@ body[data-gb-theme="trama"] #inicio .gb-hero-cosmos-v46{opacity:.55}
  #inicio .trio-media img{filter:drop-shadow(0 12px 13px rgba(20,20,20,.23))!important}
  #inicio .gbf-spot{display:none}
 }
+
+
+/* ============ HERO COSMOS V46.1 | BUGFIX + VISIBLE CINEMATIC GALAXY ============
+ * Real z-stacking, never transparent garment pixels; original photography only.
+ * Disable repeated yellow blade over the hero while the 360 orbit auto-advances.
+ */
+#inicio .hero-art { position:relative; isolation:isolate; overflow:visible; }
+#inicio .gb-hero-cosmos-v46 {
+ z-index:3!important;
+ opacity:1!important;
+ mix-blend-mode:normal!important;
+ filter:none!important;
+ pointer-events:none!important;
+}
+#inicio .hero-art-circle,#inicio .hero-art-light { z-index:1;pointer-events:none; }
+#inicio .hero-trio {z-index:7!important;isolation:isolate;transform-style:flat!important; }
+#inicio .hero-trio .trio-obj {
+ opacity:1!important;
+ mix-blend-mode:normal!important;
+ transform-style:flat!important;
+ isolation:isolate;
+ backface-visibility:visible!important;
+}
+#inicio .hero-trio .trio-obj .trio-media,
+#inicio .hero-trio .trio-obj .trio-media img,
+#inicio .hero-trio .trio-obj .trio-media .garment-svg{
+ opacity:1!important;mix-blend-mode:normal!important;
+ backface-visibility:visible!important;
+}
+#inicio .hero-trio .trio-obj.is-front .trio-media{
+ filter:drop-shadow(0 28px 30px rgba(26,20,12,.20));
+}
+#inicio .hero-trio .trio-obj.is-back .trio-media{
+ filter:drop-shadow(0 14px 16px rgba(26,20,12,.13));
+}
+/* The V06 slideshow used to restart this blade on each auto orbit, causing
+ * its text to be masked for much of the rotation. Copy must NEVER disappear. */
+#inicio .hero-stage.is-orbit .hero-copy,
+#inicio .hero-stage.is-orbit .hero-copy h1,
+#inicio .hero-stage.is-orbit .hero-copy .hl,
+#inicio .hero-stage.is-orbit .hero-copy .hl>span {
+ opacity:1!important;
+ visibility:visible!important;
+ transform:none!important;
+ translate:none!important;
+ animation:none!important;
+}
+#inicio .hero-stage.is-orbit .hero-copy .hl::after{
+ content:none!important;display:none!important;animation:none!important;
+}
+/* Copy remains atop the depth field without blocking the visual art. */
+#inicio .hero-copy{position:relative;z-index:10}
+#inicio .hero-copy .hl{overflow:visible}
+/* Better levitation and breathing: distinct rhythms per piece. The original
+ * 3D orbit remains on .trio-obj; only inner media moves vertically. */
+@media(prefers-reduced-motion:no-preference){
+ #inicio.gb-hero-live .trio-media {
+  animation:gbLevitatePulseV461 4.7s cubic-bezier(.42,0,.58,1) infinite!important;
+  animation-play-state:running;
+ }
+ #inicio.gb-hero-live .trio-obj:nth-child(2) .trio-media{
+  animation-duration:5.18s!important;animation-delay:-1.7s!important;
+ }
+ #inicio.gb-hero-live .trio-obj:nth-child(3) .trio-media{
+  animation-duration:5.73s!important;animation-delay:-3.3s!important;
+ }
+}
+@keyframes gbLevitatePulseV461{
+ 0%,100%{transform:translate3d(0,9px,0) scale(.985) rotate(-.65deg)}
+ 26%{transform:translate3d(0,-15px,0) scale(1.016) rotate(.25deg)}
+ 51%{transform:translate3d(0,-31px,0) scale(1.044) rotate(.85deg)}
+ 76%{transform:translate3d(0,-11px,0) scale(1.016) rotate(-.15deg)}
+}
+body[data-gb-theme="sinal"] #inicio .gb-hero-cosmos-v46,
+body[data-gb-theme="trama"] #inicio .gb-hero-cosmos-v46{
+ opacity:1!important;
+ mix-blend-mode:normal!important;
+}
+@media(max-width:780px){
+ #inicio .hero-art{overflow:hidden}
+ #inicio .gb-hero-cosmos-v46{opacity:.85!important;mix-blend-mode:normal!important}
+ #inicio .hero-trio{inset:3% 1.5% 10% 1.5%!important}
+ #inicio .hero-trio .trio-obj{left:23%!important;width:54%!important;top:4%!important;height:83%!important}
+ #inicio .hero-trio .trio-obj:not(.is-front) .trio-media{opacity:1!important}
+ #inicio .hero-trio .trio-obj .trio-media img{opacity:1!important}
+ #inicio .trio-glow{opacity:.20!important}
+ #inicio .trio-obj .trio-shadow{filter:none!important}
+ #inicio .gb-stage-lights .gb-beam{opacity:.09!important}
+}
+@media(max-width:780px) and (prefers-reduced-motion:no-preference){
+ #inicio.gb-hero-live .trio-media {
+  animation-name:gbMobileLevitatePulseV461!important;
+  animation-duration:5.3s!important;
+ }
+}
+@keyframes gbMobileLevitatePulseV461{
+ 0%,100%{transform:translate3d(0,5px,0) scale(.990)}
+ 50%{transform:translate3d(0,-17px,0) scale(1.020)}
+}
+@media(prefers-reduced-motion:reduce){
+ #inicio .gb-hero-cosmos-v46{display:none!important}
+ #inicio .hero-trio .trio-media{animation:none!important;will-change:auto!important}
+}
