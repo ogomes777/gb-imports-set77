@@ -9,8 +9,8 @@ try{
   const errs=[];page.on('pageerror',e=>errs.push(e.message));
   await page.goto(origin+'/',{waitUntil:'domcontentloaded',timeout:40000});
   await page.waitForFunction(()=>window.GB_CORE_READY&&!document.getElementById('gbRibbonBoot'),null,{timeout:45000});
-  await page.waitForFunction(()=>document.querySelector('#lookstudio .look-stage')?.classList.contains('has-fit'),null,{timeout:30000});
   await page.evaluate(()=>{const el=document.querySelector('#lookstudio .look-stage'),r=el.getBoundingClientRect();scrollTo({top:r.top+scrollY-110,behavior:'instant'})});
+  await page.waitForFunction(()=>document.querySelector('#lookstudio .look-stage')?.classList.contains('has-fit'),null,{timeout:30000});
   await page.waitForTimeout(400);
   const metrics=await page.evaluate(()=>{
    const q=s=>document.querySelector('#lookstudio '+s);
