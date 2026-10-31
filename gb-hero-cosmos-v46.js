@@ -127,13 +127,22 @@ function runnable(){
 }
 function tick(dt,t){
  if(!runnable()){attached=false;ctx.clearRect(0,0,w,h);return false}
+ if(w<10||h<10){resize();return true}
  acc+=dt;const step=mobile()?1/20:M.Prefs.lite?1/15:1/30;
  if(acc<step)return true;
  acc=0;mx+=(tx-mx)*.11;my+=(ty-my)*.11;paint(t);
  return true;
 }
 function start(){
- if(attached||!runnable())return;
+ if(!runnable())return;
+ // Core chunks initialize while the intro hides <main>. The first resize
+ // therefore sees 0 x 0; rebuild the actual backing store AFTER unlock.
+ // Never let the original 300x150 canvas paint a galaxy into a 1px scene.
+ const box=art.getBoundingClientRect();
+ if(box.width>10&&box.height>10&&
+    (w<10||h<10||Math.abs(w-box.width)>2||Math.abs(h-box.height)>2))resize();
+ if(w<10||h<10)return;
+ if(attached)return;
  attached=true;acc=0;M.Ticker.add(tick);
 }
 function pause(){ctx.clearRect(0,0,w,h)}
