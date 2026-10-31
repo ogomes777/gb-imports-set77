@@ -380,7 +380,9 @@ async function run(w,h,reduced=false){
   // Produto: abrir/fechar 10 vezes, foco volta ao card, URL limpa, voltar do navegador fecha
   await page.locator('#colecao .product-grid').scrollIntoViewIfNeeded();
   let okLoop=true;
-  for(let i=0;i<10;i++){await page.locator('#productGrid .product-visual').nth(i%4).click();await page.waitForTimeout(250);if(!(await page.locator('#railViewer').isVisible()))okLoop=false;await page.keyboard.press('Escape');await page.waitForTimeout(450);if(await page.locator('#railViewer').isVisible())okLoop=false}
+  // espera o efeito (viewer aberto / fechado), não um tempo fixo: sob carga 250/450 ms não bastavam
+  const viewerIs=open=>page.waitForFunction(o=>{const v=document.querySelector('#railViewer');const vis=!!v&&v.offsetParent!==null&&getComputedStyle(v).visibility!=='hidden';return vis===o},open,{timeout:3000}).then(()=>true).catch(()=>false);
+  for(let i=0;i<10;i++){await page.locator('#productGrid .product-visual').nth(i%4).click();if(!(await viewerIs(true)))okLoop=false;await page.keyboard.press('Escape');if(!(await viewerIs(false)))okLoop=false}
   check(vp,'produto: abrir/fechar 10x',okLoop);
   check(vp,'produto: URL limpa após 10x',!page.url().includes('peca='));
   check(vp,'produto: foco volta ao card',await page.evaluate(()=>!!document.activeElement?.closest('#productGrid')));
