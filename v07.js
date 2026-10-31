@@ -42,10 +42,13 @@ if(stage&&art){
     });
   }
   // giro contínuo: o anel nunca para; interação (clique, seta, arrasto) assume e o giro volta em seguida
-  const SPEED=1/4.2;let orbitOn=false,holdUntil=0,heroVisible=true,userPaused=false,autoCall=false,lastFront=-1;
+  const SPEED=1/3.65;let orbitOn=false,holdUntil=0,heroVisible=true,userPaused=false,autoCall=false,lastFront=-1,mobileDt=0;
   const canOrbit=()=>!Prefs.reduced&&heroVisible&&!document.hidden&&!userPaused&&!document.body.classList.contains('no-scroll');
   function orbit(dt){
     if(!orbitOn){objs.forEach(o=>M.animating(o,false));return false}
+    // Mobile 30 Hz compositor updates instead of expensive 60 Hz CSS 3D,
+    // while retaining elapsed time and the same orbital velocity.
+    if(mob){mobileDt+=dt;if(mobileDt<1/30)return true;dt=Math.min(.05,mobileDt);mobileDt=0}
     const now=performance.now();if(!dragging&&now>holdUntil)phase.target+=dt*SPEED;
     phase.step(dt);render();
     const f=mod(Math.round(phase.x),N);if(f!==lastFront){lastFront=f;if(f!==heroIndex&&!dragging&&now>holdUntil){autoCall=true;changeHero(f);autoCall=false}}
