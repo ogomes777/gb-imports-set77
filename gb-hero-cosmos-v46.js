@@ -70,8 +70,9 @@ function buildNebula(){
   slate:'71,83,92',champagne:'188,152,103',blue:'91,132,164',
   graphite:.25,warm:.34,cool:.22,core:.32,cloud:.20,dust:.30
  }:{
-  slate:'77,88,94',champagne:'210,163,80',blue:'100,141,176',
-  graphite:.28,warm:.37,cool:.23,core:.35,cloud:.21,dust:.32
+  // ORIGEM / LIGHT ONLY. Keep the entire dark SINAL material untouched.
+  slate:'72,82,89',champagne:'221,172,83',blue:'105,148,186',
+  graphite:.33,warm:.475,cool:.285,core:.455,cloud:.285,dust:.34
  };
  function mist(x,y,rx,ry,col,alpha){
   nctx.save();
@@ -99,6 +100,14 @@ function buildNebula(){
  // Inner light is deliberately brighter than the old almost invisible fog.
  mist(cx+w*.015,cy+h*.01,span*.23,span*.24,'255,229,176',scheme.core);
  mist(cx+w*.095,cy-h*.09,span*.16,span*.19,scheme.champagne,scheme.core*.68);
+ // Four spacious beams of museum-grade light, Origem only. Feathered
+ // volumes create visible depth but never an outlined galactic disc.
+ if(!dark&&!silver){
+  mist(cx-w*.055,cy-h*.065,w*.32,h*.255,'247,226,185',.22);
+  mist(cx+w*.19,cy-h*.035,w*.24,h*.205,scheme.champagne,.205);
+  mist(cx-w*.225,cy+h*.085,w*.225,h*.195,scheme.blue,.17);
+  mist(cx+w*.045,cy+h*.185,w*.255,h*.17,'255,242,218',.12);
+ }
  // Airy asymmetric glow wisps: sampled sprites form a luminous gas sheet.
  let seed=770047;
  const rnd=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
@@ -128,7 +137,7 @@ function buildNebula(){
  }
  nctx.restore();
  // Sparse, purposeful pin-lights in the same physical volume.
- const grains=mob?19:40;
+ const grains=dark?(mob?19:40):silver?(mob?19:40):(mob?24:48);
  for(let i=0;i<grains;i++){
   const x=cx+(rnd()-.5)*w*.83;
   const y=cy+(rnd()-.5)*h*.58;
@@ -160,7 +169,7 @@ function paint(time){
  const warm=dark?'245,207,151':silver?'151,133,109':'172,137,83';
  const pearl=dark?'240,239,228':'127,115,101';
  const timePhase=time*.000046;
- const count=M.Prefs.lite?9:mobile()?16:30;
+ const count=M.Prefs.lite?9:dark?(mobile()?16:30):silver?(mobile()?16:30):(mobile()?19:35);
  for(let i=0;i<count;i++){
   const star=stars[i];
   const near=star.z,angle=star.a+timePhase*star.speed;
@@ -168,7 +177,7 @@ function paint(time){
   const x=cx+Math.cos(angle)*w*.40*r+mx*10*near;
   const y=cy+Math.sin(angle)*h*.34*r*.76+my*8*near;
   const twinkle=.68+.32*Math.sin(time*.0009+star.twinkle);
-  const a=(dark?.31:silver?.19:.21)*twinkle*(.43+near*.52);
+  const a=(dark?.31:silver?.19:.27)*twinkle*(dark||silver?.43:.48+near*.05+0)*(.95+near*.12);
   const radius=(mobile()?.40:.47)+star.width*(mobile()?.34:.40);
   ctx.fillStyle='rgba('+(i%6===0?warm:pearl)+','+a.toFixed(3)+')';
   ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);ctx.fill();
