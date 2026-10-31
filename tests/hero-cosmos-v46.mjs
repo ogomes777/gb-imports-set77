@@ -91,7 +91,7 @@ try{
     originOpacity:getComputedStyle(document.getElementById('gbHeroCosmosV46')).opacity,
     products:[...document.querySelectorAll('#heroTrio .trio-obj')].map(el=>getComputedStyle(el).opacity)
    }));
-   assert(scene.type==='volumetric-spiral-galaxy'&&scene.prebaked>=1,
+   assert(scene.type==='atmospheric-cosmos-dual-theme'&&scene.prebaked>=1,
     'the new galaxy was not pre-rendered: '+JSON.stringify(scene));
    assert(scene.products.every(x=>x==='1'),'a garment became transparent again');
    if(p.w===1440||p.w===390){
@@ -99,6 +99,30 @@ try{
     const file='tmp/galaxy-v46/'+p.w+'x'+p.h+'.png';
     await page.locator('#heroStage').screenshot({path:file,timeout:12000,animations:'allow'});
     assert(statSync(file).size>25000,'galaxy evidence is suspiciously small');
+   }
+   // Visually test the same atmosphere under both themes. A light theme
+   // must never receive the old black/navy solid galaxy disc.
+   if(p.w===1440){
+    const checks=[];
+    for(const theme of ['origem','sinal','trama']){
+     const before=await page.evaluate(()=>GBHeroCosmosV46.nebulaBuilds);
+     await page.evaluate(v=>{document.body.dataset.gbTheme=v},theme);
+     await page.waitForFunction(n=>GBHeroCosmosV46.nebulaBuilds>n,{timeout:3500},before);
+     const stat=await page.evaluate(()=>{
+      const c=document.getElementById('gbHeroCosmosV46');
+      const p=c.getContext('2d').getImageData(0,0,c.width,c.height).data;
+      let visible=0,alpha=0,total=0;
+      for(let k=0;k<p.length;k+=256){alpha+=p[k+3];visible+=p[k+3]>8?1:0;total++}
+      return{averageAlpha:alpha/total,coverage:visible/total,builds:GBHeroCosmosV46.nebulaBuilds};
+     });
+     checks.push({theme,...stat});
+     const file='tmp/galaxy-v46/'+theme+'-1440.png';
+     await page.locator('#heroStage').screenshot({path:file,timeout:12000,animations:'allow'});
+     assert(stat.averageAlpha<92,'theme background too dense '+JSON.stringify(checks));
+     assert(stat.coverage>.025,'theme background invisible '+JSON.stringify(checks));
+    }
+    await page.evaluate(()=>{document.body.dataset.gbTheme='origem'});
+    console.log('V47 theme atmosphere',JSON.stringify(checks));
    }
    const ink=await page.evaluate(()=>{
      const canvas=document.getElementById('gbHeroCosmosV46');
