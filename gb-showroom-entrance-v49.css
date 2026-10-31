@@ -1,0 +1,126 @@
+/* GB IMPORTS / V49 — NEON ARRIVAL OF GRAPHITE TECH FLEECE
+ * Runs once on the showroom visual. Uses only transforms and opacity:
+ * existing product swap, floor, ring, 3D cold environment and tap work unchanged.
+ */
+#showroom .showroom-feature{isolation:isolate}
+#showroom .gb49-arrival-vfx{
+ position:absolute;inset:0;z-index:1;overflow:hidden;
+ opacity:0;pointer-events:none;isolation:isolate;
+}
+#showroom .gb49-arrival-vfx>i{position:absolute;display:block;pointer-events:none}
+#showroom .gb49-lightshaft{
+ width:24%;height:100%;left:38%;top:8%;transform-origin:50% 100%;
+ opacity:0;transform:translate3d(0,32%,0) scaleY(.18);
+ background:linear-gradient(0deg,rgba(80,180,255,0),rgba(96,187,255,.35) 22%,rgba(225,246,255,.55) 52%,rgba(108,199,255,0) 96%);
+ -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 43%,#000 57%,transparent 100%);
+ mask-image:linear-gradient(90deg,transparent 0%,#000 43%,#000 57%,transparent 100%);
+}
+#showroom .gb49-portal{
+ width:95%;aspect-ratio:1;left:2.5%;top:0%;
+ border-radius:50%;opacity:0;
+ background:radial-gradient(circle,rgba(170,225,255,.28) 0%,rgba(45,128,249,.17) 31%,rgba(35,105,223,0) 67%);
+ transform:scale(.45);
+}
+#showroom .gb49-neon-impact{
+ left:11%;right:11%;bottom:12%;height:21%;border-radius:50%;opacity:0;
+ background:radial-gradient(ellipse,rgba(220,248,255,.52),rgba(83,176,255,.35) 21%,rgba(28,100,255,.14) 49%,transparent 76%);
+ transform:scale(.3,.35);
+}
+#showroom .gb49-flare{
+ left:11%;right:11%;top:42%;height:3px;opacity:0;
+ background:linear-gradient(90deg,transparent,rgba(149,219,255,.27) 18%,rgba(239,252,255,.95) 49%,rgba(149,219,255,.27) 82%,transparent);
+ transform:scaleX(.18);
+}
+#showroom .gb49-particles{
+ width:72%;height:70%;left:14%;top:13%;opacity:0;
+ background:
+ radial-gradient(circle at 12% 81%,rgba(202,238,255,.9) 0 1px,transparent 2px),
+ radial-gradient(circle at 80% 16%,rgba(202,238,255,.75) 0 1px,transparent 2px),
+ radial-gradient(circle at 27% 32%,rgba(150,213,255,.85) 0 1.5px,transparent 2.5px),
+ radial-gradient(circle at 75% 68%,rgba(202,238,255,.85) 0 1px,transparent 2px),
+ radial-gradient(circle at 45% 13%,rgba(150,213,255,.8) 0 1px,transparent 2px),
+ radial-gradient(circle at 63% 91%,rgba(202,238,255,.8) 0 1px,transparent 2px);
+ transform:translate3d(0,12%,0) scale(.76);
+}
+/* Only conceal the FIRST initial garment while the reveal is queued.
+ * No JS/no WebGL/reduced-motion means the image is always visible. */
+@media(prefers-reduced-motion:no-preference){
+ #showroom.gb49-cued #showroomFeatureMedia .sf-layer.is-on{
+  opacity:0!important;
+  transform:perspective(1100px) translate3d(0,24%,0) rotateX(9deg) scale(.77)!important;
+ }
+ #showroom.gb49-entering #showroomFeatureMedia .sf-layer.is-on{
+  animation:gb49FleeceRise 1.10s cubic-bezier(.16,1,.30,1) both!important;
+  transition:none!important;
+ }
+ #showroom.gb49-entering .gb49-arrival-vfx{opacity:1}
+ #showroom.gb49-entering .gb49-lightshaft{animation:gb49LightRise 1.05s ease-out both}
+ #showroom.gb49-entering .gb49-portal{animation:gb49Portal 1.1s ease-out both}
+ #showroom.gb49-entering .gb49-neon-impact{animation:gb49Impact 1.05s ease-out both}
+ #showroom.gb49-entering .gb49-flare{animation:gb49Flare .8s ease-out .38s both}
+ #showroom.gb49-entering .gb49-particles{animation:gb49Particles 1.05s ease-out .14s both}
+}
+@keyframes gb49FleeceRise{
+ 0%{opacity:0;transform:perspective(1100px) translate3d(0,24%,0) rotateX(9deg) scale(.77)}
+ 24%{opacity:.36}
+ 58%{opacity:1;transform:perspective(1100px) translate3d(0,-2.8%,0) rotateX(-1.2deg) scale(1.045)}
+ 82%{opacity:1;transform:perspective(1100px) translate3d(0,1%,0) rotateX(0) scale(.99)}
+ 100%{opacity:1;transform:none}
+}
+@keyframes gb49LightRise{
+ 0%{opacity:0;transform:translate3d(0,35%,0) scaleY(.16)}
+ 24%{opacity:.92}
+ 65%{opacity:.75;transform:translate3d(0,-8%,0) scaleY(1.1)}
+ 100%{opacity:0;transform:translate3d(0,-25%,0) scaleY(1.12)}
+}
+@keyframes gb49Portal{
+ 0%{opacity:0;transform:scale(.48)}
+ 31%{opacity:.9}
+ 65%{opacity:.58;transform:scale(1.06)}
+ 100%{opacity:0;transform:scale(1.24)}
+}
+@keyframes gb49Impact{
+ 0%,30%{opacity:0;transform:scale(.3,.35)}
+ 51%{opacity:.96;transform:scale(1.1,1)}
+ 75%{opacity:.43}
+ 100%{opacity:0;transform:scale(1.26,1.5)}
+}
+@keyframes gb49Flare{
+ 0%{opacity:0;transform:scaleX(.15)}
+ 36%{opacity:1;transform:scaleX(1)}
+ 100%{opacity:0;transform:scaleX(1.2)}
+}
+@keyframes gb49Particles{
+ 0%{opacity:0;transform:translate3d(0,10%,0) scale(.8)}
+ 45%{opacity:.8}
+ 100%{opacity:0;transform:translate3d(0,-12%,0) scale(1.1)}
+}
+#showroom.gb49-complete .gb49-arrival-vfx{opacity:0!important}
+@media(max-width:720px){
+ #showroom .gb49-lightshaft{width:32%;left:34%}
+ #showroom .gb49-portal{width:110%;left:-5%;top:7%}
+ #showroom .gb49-neon-impact{bottom:16%;left:7%;right:7%}
+ #showroom .gb49-flare{left:5%;right:5%}
+ #showroom .gb49-particles{opacity:0}
+ @media(prefers-reduced-motion:no-preference){
+  #showroom.gb49-entering #showroomFeatureMedia .sf-layer.is-on{
+   animation:gb49MobileRise .88s cubic-bezier(.16,1,.3,1) both!important;
+  }
+  #showroom.gb49-entering .gb49-portal{animation-duration:.88s}
+  #showroom.gb49-entering .gb49-lightshaft{animation-duration:.88s}
+  #showroom.gb49-entering .gb49-neon-impact{animation-duration:.88s}
+  #showroom.gb49-entering .gb49-particles{animation:none}
+ }
+}
+@keyframes gb49MobileRise{
+ 0%{opacity:0;transform:translate3d(0,18%,0) scale(.85)}
+ 62%{opacity:1;transform:translate3d(0,-2%,0) scale(1.022)}
+ 100%{opacity:1;transform:none}
+}
+@media(prefers-reduced-motion:reduce){
+ #showroom .gb49-arrival-vfx{display:none!important}
+ #showroom.gb49-cued #showroomFeatureMedia .sf-layer.is-on,
+ #showroom.gb49-entering #showroomFeatureMedia .sf-layer.is-on{
+  opacity:1!important;transform:none!important;animation:none!important;
+ }
+}
