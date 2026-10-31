@@ -91,7 +91,7 @@ try{
     originOpacity:getComputedStyle(document.getElementById('gbHeroCosmosV46')).opacity,
     products:[...document.querySelectorAll('#heroTrio .trio-obj')].map(el=>getComputedStyle(el).opacity)
    }));
-   assert(scene.type==='atmospheric-cosmos-dual-theme'&&scene.prebaked>=1,
+   assert(scene.type==='visible-atmospheric-cosmos-dual-theme'&&scene.prebaked>=1,
     'the new galaxy was not pre-rendered: '+JSON.stringify(scene));
    assert(scene.products.every(x=>x==='1'),'a garment became transparent again');
    if(p.w===1440||p.w===390){
@@ -121,11 +121,24 @@ try{
      const file='tmp/galaxy-v46/'+theme+'-1440.png';
      await page.locator('#heroStage').screenshot({path:file,timeout:12000,animations:'allow'});
      assert(stat.averageAlpha<92,'theme background too dense '+JSON.stringify(checks));
+     assert(stat.averageAlpha>14,'cosmic atmosphere is effectively invisible '+JSON.stringify(checks));
      assert(stat.coverage>.025,'theme background invisible '+JSON.stringify(checks));
     }
     await page.evaluate(()=>{document.body.dataset.gbTheme='origem'});
     console.log('V47 theme atmosphere',JSON.stringify(checks));
    }
+   const brightness=await page.evaluate(()=>{
+    const c=document.getElementById('gbHeroCosmosV46'),q=c.getContext('2d');
+    const cx=Math.floor(c.width*.525),cy=Math.floor(c.height*.49);
+    const values=[];
+    for(const [dx,dy] of [[0,0],[-.15,-.15],[.16,.12],[-.06,.14]]){
+     const p=q.getImageData(Math.max(0,Math.min(c.width-1,cx+Math.floor(c.width*dx))),
+       Math.max(0,Math.min(c.height-1,cy+Math.floor(c.height*dy))),1,1).data;
+     values.push({alpha:p[3],red:p[0],green:p[1],blue:p[2]});
+    }
+    return values;
+   });
+   assert(brightness.some(p=>p.alpha>=42),'central galaxy has no visible light volume '+JSON.stringify(brightness));
    const ink=await page.evaluate(()=>{
      const canvas=document.getElementById('gbHeroCosmosV46');
      const rect=canvas.getBoundingClientRect();
