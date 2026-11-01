@@ -35,23 +35,29 @@ try{
       label:cta.textContent.trim(),icon:!!cta.querySelector('svg path[d]'),
       iconFill:getComputedStyle(cta).color,note:s.querySelector('.gb62-wa-disclaimer')?.textContent,
       ring:getComputedStyle(s.querySelector('.gb62-whatsapp-neon')).animationName,
-      preview:s.querySelector('.gb62-chat-preview p')?.textContent},
+      preview:s.querySelector('.gb62-chat-preview p')?.textContent,previewDisplay:getComputedStyle(s.querySelector('.gb62-chat-preview')).display},
     ready:window.GBWhatsAppV62.ready,
     whatsappMode:window.GBWhatsAppV62.mode,
     look:!!document.querySelector('#lookstudio .look-stage')
    };
   });
-  console.log('GB_V62_LIGHT '+width+' '+JSON.stringify({overflow:d.overflow,cards:d.cards.map(x=>Math.round(x.box.width)),ring:d.cards.map(x=>x.ring.animation),lines:d.lines.map(x=>({x:Math.round(x.box.left),w:x.box.width,h:x.box.height})),waMode:d.whatsappMode,wa:d.whatsapp.link.slice(0,38)}));
+  console.log('GB_V63_LIGHT '+width+' '+JSON.stringify({overflow:d.overflow,cards:d.cards.map(x=>Math.round(x.box.width)),ring:d.cards.map(x=>x.ring.animation),lines:d.lines.map(x=>({x:Math.round(x.box.left),w:x.box.width,h:x.box.height})),waMode:d.whatsappMode,wa:d.whatsapp.link.slice(0,38)}));
   assert(d.overflow<=3,'Overflow at '+width+': '+d.overflow);
   assert(d.cards.length===3&&d.lines.length===2&&d.look,'Missing cards, connector or Look Studio');
-  assert(d.cards.every(x=>x.ring.display==='block'&&x.ring.animation.includes('gb62-neon-travel')),'Infinite yellow loop missing');
+  assert(d.cards.every(x=>x.ring.display==='block'&&x.ring.animation.includes('gb63-energy-loop')),'Infinite yellow loop missing');
   assert(d.cards.every(x=>x.numberColor!=='rgb(164, 170, 171)'),'Numbers still gray');
-  assert(d.whatsapp.icon&&d.whatsapp.ring.includes('gb62-neon-travel'),'WhatsApp authentic icon or green loop missing');
+  assert(d.whatsapp.icon&&d.whatsapp.ring.includes('gb63-energy-loop'),'WhatsApp authentic icon or green loop missing');
   assert(d.whatsapp.link.startsWith('https://wa.me/'),'CTA does not open WhatsApp');
   assert(!d.whatsapp.link.includes('chat.whatsapp.com'),'CTA must not redirect to news group');
   assert(d.whatsapp.link.includes('text='),'Prepared contact text missing');
   assert(d.whatsapp.preview?.includes('Oi, GB!'),'Conversation preview missing');
   assert(d.whatsapp.box.width>=250&&d.whatsapp.box.right<=width+3,'WhatsApp panel clipped');
+  if(width<=560){
+    assert(d.whatsapp.previewDisplay==='none','Large redundant preview should be hidden on phone');
+    assert(d.whatsapp.box.height<=390,'WhatsApp card remains too tall on '+width+': '+d.whatsapp.box.height);
+  }else{
+    assert(d.whatsapp.previewDisplay!=='none','Conversation preview missing on wider displays');
+  }
   if(width<=900){
     assert(d.cards.every(x=>x.box.right<=width+3&&x.box.width>=250),'Mobile cards clipped');
     assert(d.lines.every(x=>x.box.width<=3&&x.box.height>=12),'Mobile connection wrong');
@@ -97,5 +103,5 @@ try{
  await page.evaluate(()=>window.GBSetLanguage('pt'));
  await page.waitForFunction(()=>document.querySelector('.gb62-wa-intro p')?.textContent.includes('Encontrou uma peça'),null,{timeout:9000});
  await ctx.close();
- console.log('GB_V62_PASS | 7 widths, yellow light border loop, green WhatsApp loop, safe prepared share link, dark isolated, reduced motion, locales');
+ console.log('GB_V63_PASS | 7 widths, yellow light border loop, green WhatsApp loop, safe prepared share link, dark isolated, reduced motion, locales');
 }finally{await browser.close()}
