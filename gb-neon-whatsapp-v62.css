@@ -1,0 +1,286 @@
+/* GB IMPORTS V62
+   LIGHT: precise neon traveling around the three cards, numbered GB yellow,
+   more technical graphite links with restrained amber running signal.
+   BOTH: WhatsApp message CTA with original WhatsApp glyph, verified-number
+   routing, elegant green energy. Dark step cards intentionally untouched.
+*/
+@property --gb62-phase {
+ syntax:"<angle>";
+ initial-value:0deg;
+ inherits:false;
+}
+@keyframes gb62-neon-travel {to{--gb62-phase:360deg}}
+@keyframes gb62-dot-signal {
+ 0%{opacity:.20;transform:scale(.84)}
+ 35%{opacity:1;transform:scale(1.12)}
+ 68%{opacity:.50;transform:scale(.91)}
+ 100%{opacity:.20;transform:scale(.84)}
+}
+@keyframes gb62-message-breathe{
+ 0%,100%{box-shadow:0 0 0 0 rgba(43,210,112,0)}
+ 50%{box-shadow:0 0 0 7px rgba(43,210,112,.065)}
+}
+.how-section.gb55-how .gb62-neon-outline{display:none}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .how-num {
+ color:#edbf28;
+ opacity:1;
+ text-shadow:0 1px 0 rgba(56,44,6,.20),0 0 20px rgba(244,195,40,.09);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .how-card{
+ position:relative;
+ isolation:isolate;
+ overflow:visible;
+ border-color:rgba(66,76,81,.19)!important;
+ box-shadow:0 17px 34px -20px rgba(19,29,34,.20),0 6px 15px -9px rgba(26,35,39,.11),inset 0 1px rgba(255,255,255,.95);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb62-neon-outline{
+ display:block;
+ position:absolute;
+ inset:-2px;
+ z-index:5;
+ border-radius:19px;
+ border:1px solid rgba(216,172,45,.14);
+ padding:2px;
+ pointer-events:none;
+ opacity:.77;
+ background:conic-gradient(from var(--gb62-phase),transparent 0deg,transparent 229deg,
+  rgba(238,190,50,.03) 246deg,
+  rgba(255,215,84,.75) 263deg,
+  #fff1a5 278deg,
+  rgba(247,191,36,.65) 290deg,
+  transparent 310deg,transparent 360deg);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+ -webkit-mask-composite:xor;
+ mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+ mask-composite:exclude;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech.gb55-active:not(.gb55-lite) .gb62-neon-outline{
+ animation:gb62-neon-travel 7.8s linear infinite;
+ opacity:1;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .how-card:nth-child(2) .gb62-neon-outline{animation-delay:-2.6s}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .how-card:nth-child(3) .gb62-neon-outline{animation-delay:-5.2s}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb55-card-inner{
+ position:relative;z-index:2;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb55-track{
+ z-index:8;
+ background:linear-gradient(90deg,rgba(70,81,88,.19) 0%,rgba(40,50,57,.79) 39%,rgba(70,81,88,.19) 100%);
+ box-shadow:none;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb55-track::before,
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb55-track::after{
+ border-radius:2px;
+ width:5px;height:5px;
+ background:#717b7c;
+ box-shadow:0 0 0 2px #f7f8f5,0 0 0 3px rgba(56,72,77,.31);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb55-track i{
+ width:12px;height:3px;
+ background:linear-gradient(90deg,transparent,#ffe380 42%,#f2b934 57%,transparent);
+ box-shadow:0 0 7px rgba(225,163,29,.37);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .how-card::after{
+ opacity:0;
+ animation:none!important;
+}
+@media(hover:hover) and (pointer:fine){
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .how-card:hover .gb62-neon-outline{
+  border-color:rgba(235,189,38,.35);
+  filter:drop-shadow(0 0 3px rgba(232,171,38,.26));
+ }
+}
+/* WhatsApp conversion panel. Shared layout but no re-theme of dark step cards. */
+.how-section.gb55-how .gb62-whatsapp-card {
+ position:relative;
+ display:grid;
+ grid-template-columns:minmax(0,1fr) minmax(260px,.78fr);
+ gap:clamp(28px,5.5vw,75px);
+ align-items:center;
+ padding:clamp(28px,3.4vw,47px);
+ border-radius:19px;
+ isolation:isolate;
+ overflow:hidden;
+ background:linear-gradient(121deg,#151a1c 0%,#121a1b 58%,#0f1d1a 100%);
+ border:1px solid rgba(81,166,125,.26);
+ color:#f2f8f2;
+ box-shadow:0 24px 52px -28px rgba(18,31,28,.39),inset 0 1px rgba(255,255,255,.065);
+}
+.how-section.gb55-how .gb62-whatsapp-neon{
+ position:absolute;inset:-2px;z-index:3;
+ border-radius:20px;padding:2px;
+ pointer-events:none;
+ opacity:.76;
+ background:conic-gradient(from var(--gb62-phase),transparent 0deg,transparent 220deg,
+ rgba(52,212,117,.03) 238deg,rgba(70,221,127,.60) 258deg,
+ #a7ffc3 280deg,rgba(40,193,102,.65) 300deg,
+ transparent 319deg,transparent 360deg);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+ -webkit-mask-composite:xor;
+ mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+ mask-composite:exclude;
+}
+.how-section.gb55-how.gb55-active:not(.gb55-lite) .gb62-whatsapp-neon{
+ animation:gb62-neon-travel 9s linear infinite;
+ opacity:1;
+}
+.how-section.gb55-how .gb62-wa-intro,
+.how-section.gb55-how .gb62-wa-action{
+ position:relative;z-index:2;min-width:0;
+}
+.how-section.gb55-how .gb62-wa-head{
+ display:flex;align-items:center;gap:11px;
+ margin-bottom:clamp(24px,2.6vw,33px);
+}
+.how-section.gb55-how .gb62-wa-brand-icon{
+ width:37px;height:37px;
+ display:grid;place-items:center;
+ color:#31d47c;
+ border-radius:12px;
+ background:rgba(43,190,107,.08);
+ border:1px solid rgba(57,195,109,.23);
+}
+.how-section.gb55-how .gb62-wa-brand-icon svg{width:23px;height:23px}
+.how-section.gb55-how .gb62-wa-identifier{
+ color:#a5dcb4;
+ font:800 10px/1.35 var(--font,Arial,sans-serif);
+ letter-spacing:.11em;
+}
+.how-section.gb55-how .gb62-wa-intro .gb59-lead-eyebrow {
+ color:#bbd0c3;
+ font-size:10px;
+ letter-spacing:.075em;
+ margin-bottom:14px;
+}
+.how-section.gb55-how .gb62-wa-intro h3{
+ font:900 clamp(24px,2.8vw,40px)/1.04 var(--display,Arial,sans-serif);
+ letter-spacing:-.055em;
+ max-width:19ch;
+ text-wrap:balance;
+ margin:0 0 19px;
+}
+.how-section.gb55-how .gb62-wa-intro p{
+ color:rgba(235,246,239,.75);
+ font:600 clamp(13px,1.08vw,15px)/1.7 var(--font,Arial,sans-serif);
+ max-width:60ch;
+ margin:0;
+ text-wrap:pretty;
+}
+.how-section.gb55-how .gb62-wa-action{
+ display:flex;flex-direction:column;align-items:stretch;gap:14px;
+}
+.how-section.gb55-how .gb62-chat-preview{
+ width:100%;max-width:510px;
+ padding:18px 20px 19px;
+ border-radius:15px 15px 5px 15px;
+ background:linear-gradient(135deg,rgba(32,78,55,.70),rgba(27,64,47,.93));
+ border:1px solid rgba(98,200,135,.18);
+ box-shadow:0 12px 30px rgba(2,18,10,.19),inset 0 1px rgba(255,255,255,.06);
+}
+.how-section.gb55-how .gb62-chat-overline{
+ display:block;margin-bottom:11px;
+ color:#a6cbb1;
+ font:800 10px/1.35 var(--font,Arial,sans-serif);
+ letter-spacing:.08em;
+}
+.how-section.gb55-how .gb62-chat-preview p{
+ color:#f0fff5;
+ font:650 clamp(13px,1vw,15px)/1.52 var(--font,Arial,sans-serif);
+ margin:0;
+ max-width:36ch;
+}
+.how-section.gb55-how .gb62-chat-dots{
+ display:flex;justify-content:flex-end;gap:4px;margin-top:13px;
+}
+.how-section.gb55-how .gb62-chat-dots i{
+ display:block;width:4px;height:4px;background:rgba(126,226,160,.72);border-radius:50%;
+}
+.how-section.gb55-how .gb62-wa-cta{
+ display:flex;align-items:center;justify-content:center;
+ gap:11px;min-height:56px;
+ width:100%;
+ padding:13px 19px;
+ text-decoration:none;
+ border-radius:11px;
+ color:#092614;
+ border:1px solid rgba(126,245,166,.72);
+ background:linear-gradient(125deg,#46dc8a,#2bc76b 58%,#21ad59);
+ font:900 clamp(11px,.92vw,14px)/1.42 var(--font,Arial,sans-serif);
+ letter-spacing:.018em;
+ text-align:center;
+ box-shadow:0 12px 23px rgba(30,159,89,.16),inset 0 1px rgba(234,255,240,.55);
+ transition:background .2s ease,box-shadow .2s ease,transform .2s ease;
+}
+.how-section.gb55-how .gb62-wa-cta svg{width:22px;height:22px;min-width:22px;flex:none}
+.how-section.gb55-how .gb62-wa-cta span{overflow-wrap:anywhere}
+.how-section.gb55-how .gb62-wa-cta:focus-visible{outline:2px solid #c5ffdd;outline-offset:4px}
+.how-section.gb55-how .gb62-wa-disclaimer{
+ font:600 11px/1.5 var(--font,Arial,sans-serif);
+ color:rgba(226,242,228,.66);
+ text-align:center;
+ max-width:42ch;
+ align-self:center;
+}
+@media(hover:hover) and (pointer:fine){
+ .how-section.gb55-how .gb62-wa-cta:hover{
+  background:linear-gradient(125deg,#80efa8,#35db7b);
+  box-shadow:0 14px 29px rgba(40,214,111,.24);
+  transform:translateY(-2px);
+ }
+}
+/* Light uses pale-neutral ambient materials. Dark step cards remain exactly V61. */
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb62-whatsapp-card{
+ border-color:rgba(73,160,107,.34);
+ background:linear-gradient(116deg,#171d1e 0%,#14201d 56%,#10251b 100%);
+}
+@media(max-width:900px){
+ .how-section.gb55-how .gb62-whatsapp-card{
+  grid-template-columns:minmax(0,1fr);
+  gap:clamp(21px,3vw,31px);
+  margin-top:clamp(27px,4vw,42px);
+  padding:clamp(25px,4.7vw,39px);
+ }
+ .how-section.gb55-how .gb62-wa-action{max-width:680px;width:100%}
+ .how-section.gb55-how .gb62-chat-preview{max-width:none}
+ .how-section.gb55-how .gb62-wa-intro h3{max-width:24ch}
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .how-card::after{
+  border-radius:50%;
+  width:8px;height:8px;
+  opacity:1!important;
+ }
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb55-track{
+  width:1px!important;
+  background:linear-gradient(to bottom,rgba(62,73,80,.21),rgba(55,68,72,.70),rgba(62,73,80,.21));
+ }
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb55-track i{
+  width:3px;height:13px;
+  background:linear-gradient(to bottom,transparent,#ffe380 40%,#d6a52f 60%,transparent);
+ }
+}
+@media(max-width:490px){
+ .how-section.gb55-how .gb62-whatsapp-card{
+  margin-top:31px;
+  padding:22px 18px 23px;
+  gap:22px;border-radius:16px;
+ }
+ .how-section.gb55-how .gb62-whatsapp-neon{border-radius:17px}
+ .how-section.gb55-how .gb62-wa-head{margin-bottom:20px}
+ .how-section.gb55-how .gb62-wa-intro h3{font-size:clamp(25px,7.2vw,32px);margin-bottom:14px}
+ .how-section.gb55-how .gb62-wa-intro p{font-size:13px;line-height:1.63}
+ .how-section.gb55-how .gb62-chat-preview{padding:15px 16px 14px}
+ .how-section.gb55-how .gb62-chat-preview p{font-size:13px}
+ .how-section.gb55-how .gb62-wa-cta{min-height:54px;padding:12px 13px;gap:9px}
+ .how-section.gb55-how .gb62-wa-cta svg{width:20px;height:20px;min-width:20px}
+ .how-section.gb55-how .gb62-wa-disclaimer{font-size:11px}
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb62-neon-outline{border-radius:16px}
+}
+@media(prefers-reduced-motion:reduce){
+ .how-section.gb55-how .gb62-whatsapp-neon,
+ .how-section.gb55-how .gb62-neon-outline{
+  animation:none!important;opacity:.35!important;
+ }
+ .how-section.gb55-how .gb62-wa-cta{transition:none!important}
+ .how-section.gb55-how .gb62-wa-cta:hover{transform:none!important}
+}
+.how-section.gb55-how.gb55-lite .gb62-whatsapp-neon,
+.how-section.gb55-how.gb55-lite .gb62-neon-outline{animation:none!important}
