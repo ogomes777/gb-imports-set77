@@ -67,7 +67,7 @@
  const updateAccount=()=>{
    const c=counts();
    account.innerHTML=panelHeader('MINHA GB','ÁREA PESSOAL')+
-     '<p class="gb-nav-sub">Sua curadoria neste navegador. Pedidos, login e ranking estarão disponíveis apenas quando a GB habilitar esses serviços.</p>'+
+     '<p class="gb-nav-sub">Suas peças salvas ficam neste navegador. Para consultar tamanhos, preços e disponibilidade, fale diretamente com a GB. Contas e pedidos ainda são demonstrações.</p>'+
      panelButton('Favoritos salvos','favorites',String(c.saved).padStart(2,'0'))+
      panelButton('Minha seleção','bag',String(c.bag).padStart(2,'0'))+
      panelButton('Montar meu look','studio')+
@@ -204,7 +204,7 @@
      panelButton('Tema claro / escuro','theme','☼')+
      '<div class="gb-nav-settings-lang" aria-label="Idioma da GB">'+
      ['pt','en','es','it'].map(l=>'<button type="button" data-gb-lang="'+l+'">'+l.toUpperCase()+'</button>').join('')+'</div>'+
-     '<p class="gb-nav-sub">Minha GB: as escolhas e favoritos ficam salvos neste navegador. Contas e pedidos ainda não estão habilitados.</p>';
+     '<p class="gb-nav-sub">Sua seleção e seus favoritos ficam salvos aqui. Esta área ainda não recebe dados de contas ou pedidos reais.</p>';
    mobileNav.append(group);
  }
  document.querySelector('#navDrawer')?.addEventListener('click',e=>{
