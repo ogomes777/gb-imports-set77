@@ -120,7 +120,6 @@ body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .how-card p {
  max-width:41ch;
 }
 body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb55-track {
- height:1px!important;
  background:linear-gradient(90deg,rgba(90,102,108,.42),rgba(53,66,73,.78) 40%,rgba(90,102,108,.42));
  box-shadow:none;
  border-radius:0;
@@ -162,6 +161,9 @@ body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb59-after-st
 }
 body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb59-after-steps>a:hover {
  background:#f3dba2;border-color:#f3dba2;
+}
+@media(min-width:901px){
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb55-track {height:1px!important}
 }
 /* The V55 JS calculates the line positions as actual box geometry. On mobile
    the line moves to an external left rail. No new observers, timers or canvases. */
