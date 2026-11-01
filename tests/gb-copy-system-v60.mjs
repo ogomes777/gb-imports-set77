@@ -6,7 +6,7 @@ import {chromium} from 'playwright';
 import {mkdirSync} from 'node:fs';
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--enable-unsafe-swiftshader']});
 const base=process.env.GB_TEST_URL||'http://127.0.0.1:8080';
-const paths=['/gb','/gb/perfil','/gb/entrar','/gb/cadastro','/gb/pedidos','/gb/pedido','/gb/rastreio','/gb/favoritos','/gb/sacola','/gb/checkout','/gb/comparar','/gb/medidas','/gb/alertas','/gb/colecoes','/gb/drops','/gb/marcas','/gb/busca','/gb/club','/gb/club/avatar','/gb/club/recompensas','/gb/comunidade','/gb/comunidade/publicar','/gb/ajuda','/gb/trocas','/gb/privacidade','/gb/configuracoes','/gb-studio','/gb-studio/produtos'];
+const paths=["/gb","/gb/entrar","/gb/cadastro","/gb/perfil","/gb/identidade","/gb/pedidos","/gb/pedido","/gb/rastreio","/gb/favoritos","/gb/sacola","/gb/checkout","/gb/comparar","/gb/medidas","/gb/alertas","/gb/colecoes","/gb/drops","/gb/marcas","/gb/busca","/gb/club","/gb/club/avatar","/gb/club/distrito","/gb/club/conquistas","/gb/club/temporada","/gb/club/armario","/gb/club/recompensas","/gb/club/ranking","/gb/club/amigos","/gb/comunidade","/gb/comunidade/publicar","/gb/ajuda","/gb/trocas","/gb/privacidade","/gb/acessibilidade","/gb/configuracoes","/gb-studio","/gb-studio/pedidos","/gb-studio/produtos","/gb-studio/clientes","/gb-studio/comunidade","/gb-studio/beneficios","/gb-studio/financeiro","/gb-studio/newsletter"];
 try{
  for(const width of [320,390,768,1440]){
   const height=width===768?1024:width>=1000?900:844;
