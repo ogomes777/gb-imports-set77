@@ -1,0 +1,136 @@
+/* GB IMPORTS V60 - RETAIL CONTENT FINISH
+   Visible content first. Preserve every functional control and WebGL/3D render.
+   The demo route continues to identify unavailable services truthfully. */
+#gbExperience .gx-empty-glyph,
+#gbExperience .gx-tile>i:empty{
+ display:none!important;
+}
+#gbExperience .gx-empty{
+ padding:clamp(26px,5vw,54px);
+}
+#gbExperience .gx-card-kicker{
+ font-size:10px;
+ letter-spacing:.065em;
+ line-height:1.5;
+ font-weight:850;
+ margin-bottom:clamp(16px,2vw,25px);
+}
+#gbExperience .gx-tile strong{
+ font-family:var(--display,'Archivo Black',Arial,sans-serif);
+ font-size:clamp(19px,2vw,27px);
+ line-height:1.1;
+ letter-spacing:-.04em;
+ text-wrap:balance;
+}
+#gbExperience .gx-tile p{
+ color:var(--gx-ink);
+ opacity:.8;
+ font-size:clamp(12px,1vw,14px);
+ font-weight:600;
+ line-height:1.6;
+ margin-bottom:0;
+ text-wrap:pretty;
+}
+#gbExperience .gx-page-head p,
+#gbExperience .gx-panel p,
+#gbExperience .gx-empty p{
+ font-size:clamp(13px,1.05vw,15px);
+ line-height:1.72;
+ font-weight:550;
+ text-wrap:pretty;
+}
+#gbExperience .gx-rail-head{
+ line-height:1.35;
+ font-weight:850;
+}
+#gbExperience .gx-rail-head small{
+ font-size:10px;
+ font-weight:750;
+ letter-spacing:.05em;
+}
+#gbExperience .gx-demo{
+ line-height:1.6;
+ font-weight:650;
+}
+#gbExperience .gx-btn,
+#gbExperience .gx-tile,
+#gbExperience .gx-rail a{
+ -webkit-tap-highlight-color:transparent;
+}
+#gbExperience .gx-btn:focus-visible,
+#gbExperience .gx-tile:focus-visible,
+#gbExperience .gx-rail a:focus-visible{
+ outline:2px solid #dfb83e;
+ outline-offset:3px;
+}
+.gb-nav-panel-item,
+#navDrawer .gb-nav-mobile-tools .gb-nav-panel-item{
+ min-height:44px;
+ font-weight:750;
+ line-height:1.52;
+ letter-spacing:.005em;
+}
+.gb-nav-sub{
+ line-height:1.6!important;
+ font-size:clamp(11px,1vw,13px)!important;
+ font-weight:600;
+}
+#gbExperience .gx-product-body small{
+ font-weight:800;
+ letter-spacing:.055em;
+ line-height:1.5;
+}
+#gbExperience .gx-product-body p{
+ font-size:12px;
+ line-height:1.62;
+ font-weight:600;
+}
+#gbExperience .gx-tile,
+#gbExperience .gx-panel,
+#gbExperience .gx-product{
+ min-width:0;
+ overflow-wrap:anywhere;
+}
+.gb-search-count,.search-all>span,.product-detail .detail-heading{
+ letter-spacing:.04em;
+ font-weight:800;
+}
+#productModal .gallery-topline{
+ font-weight:800;
+ line-height:1.5;
+}
+#productModal .detail-footer{
+ line-height:1.65;
+ font-size:clamp(11px,.9vw,13px);
+}
+#lookstudio .look-saved-title,
+#lookstudio .fit-legal,
+#railViewer .rail-viewer-art-label{
+ line-height:1.6;
+ letter-spacing:.025em;
+}
+@media(max-width:768px){
+ #gbExperience .gx-card-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+ #gbExperience .gx-tile{min-height:185px;padding:clamp(18px,3.4vw,26px)}
+ #gbExperience .gx-tile strong{font-size:clamp(18px,3vw,23px)}
+ #gbExperience .gx-tile p{font-size:12px}
+ #gbExperience .gx-page-head p,
+ #gbExperience .gx-panel p{font-size:13px;line-height:1.66}
+}
+@media(max-width:490px){
+ #gbExperience .gx-card-grid{grid-template-columns:minmax(0,1fr)}
+ #gbExperience .gx-tile{min-height:0;padding:21px 20px}
+ #gbExperience .gx-card-kicker{margin-bottom:13px}
+ #gbExperience .gx-tile strong{font-size:22px}
+ #gbExperience .gx-tile p{font-size:13px;line-height:1.58}
+ #gbExperience .gx-panel{padding:clamp(20px,5.6vw,27px)}
+ #gbExperience .gx-rail-head{letter-spacing:.02em}
+ #navDrawer .gb-nav-mobile-tools .gb-nav-panel-item{min-height:48px;padding:12px 13px}
+ #productModal .detail-heading{font-size:11px;line-height:1.55}
+ #lookstudio .fit-legal{font-size:8px;max-width:89%}
+}
+@media(prefers-reduced-motion:reduce){
+ #gbExperience .gx-tile:hover{transform:none}
+}
