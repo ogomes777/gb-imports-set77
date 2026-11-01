@@ -57,7 +57,7 @@ try{
     assert(data.tracks.every(t=>t.rect.height>=16&&t.rect.width<=3),'Vertical connector broken');
     assert(data.cards.every(c=>c.node==='1'),'External mobile nodes not active');
   }else{
-    assert(Math.abs(data.cards[0].rect.y-data.cards[1].rect.y)<4,'Desktop cards not side by side');
+    assert(Math.abs(data.cards[0].rect.y-data.cards[1].rect.y)<14,'Desktop cards should share a row (allow V55 floating animation)');
     assert(data.tracks.every(t=>t.rect.width>=8&&t.rect.height<=3),'Desktop circuit lines missing');
   }
   mkdirSync('tmp/gb-v61',{recursive:true});
