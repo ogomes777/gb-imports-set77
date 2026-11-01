@@ -1,0 +1,215 @@
+/* GB IMPORTS V59
+   Editorial content system. Remove decorative kit icons and slash-heavy template marks,
+   preserve essential controls and real 3D/showroom/garment interactions.
+   Conversion journey: discover -> build -> confirm directly with GB. */
+.how-section.gb55-how .how-icon,
+.how-section.gb55-how .gb55-card-tail{display:none!important}
+.how-section.gb55-how .gb55-card-inner,
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-card-inner{
+  min-height:365px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  padding:clamp(28px,2.6vw,42px);
+}
+.how-section.gb55-how .gb55-card-eyebrow{
+  margin:8px 88px 66px 0;
+  font-size:clamp(10px,.78vw,12px);
+  font-weight:850;
+  letter-spacing:.075em;
+  line-height:1.45;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-card-eyebrow{
+  font-size:clamp(10px,.78vw,12px);
+  color:#7a520e;
+  font-weight:900;
+}
+.how-section.gb55-how .how-num,
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-num{
+  top:26px;right:26px;
+  font-size:clamp(48px,4.4vw,70px);
+  font-weight:900;
+}
+.how-section.gb55-how .how-card h3,
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-card h3{
+  font-family:var(--display,Arial,sans-serif);
+  font-size:clamp(24px,2.03vw,32px);
+  line-height:1.09;
+  letter-spacing:-.047em;
+  margin:0 0 16px;
+  max-width:18ch;
+  text-wrap:balance;
+}
+.how-section.gb55-how .how-card p,
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-card p{
+  font-family:var(--font,Arial,sans-serif);
+  font-size:clamp(13px,1.03vw,15px);
+  line-height:1.66;
+  font-weight:650;
+  max-width:40ch;
+  margin:0;
+  text-wrap:pretty;
+}
+.how-section.gb55-how .how-card{
+  min-height:365px;
+}
+.how-section.gb55-how .gb55-heading-aside{
+  font-weight:700;
+  line-height:1.65;
+  max-width:345px;
+}
+.how-section.gb55-how .gb59-after-steps{
+  position:relative;
+  z-index:4;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:clamp(28px,5vw,75px);
+  margin-top:clamp(38px,5.5vw,88px);
+  padding:clamp(27px,3.5vw,50px);
+  background:#151514;
+  border:1px solid rgba(247,200,63,.26);
+  color:#f7f4ea;
+  box-shadow:0 22px 47px rgba(40,32,13,.13);
+}
+.how-section.gb55-how .gb59-lead-eyebrow{
+  display:block;
+  margin-bottom:13px;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.075em;
+  color:#f2cc5b;
+}
+.how-section.gb55-how .gb59-after-steps h3{
+  margin:0 0 12px;
+  font:900 clamp(24px,2.65vw,39px)/1.03 var(--display,Arial,sans-serif);
+  letter-spacing:-.045em;
+  text-wrap:balance;
+  max-width:27ch;
+}
+.how-section.gb55-how .gb59-after-steps p{
+  max-width:69ch;
+  margin:0;
+  color:#e0dbce;
+  font:600 clamp(13px,1.08vw,15px)/1.7 var(--font,Arial,sans-serif);
+}
+.how-section.gb55-how .gb59-after-steps>a{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:52px;min-width:190px;
+  padding:16px 22px;
+  border:1px solid #efc23b;
+  color:#15140f;
+  background:#f1cc4c;
+  font:900 11px/1.5 var(--font,Arial,sans-serif);
+  text-decoration:none;
+  text-align:center;
+  letter-spacing:.045em;
+  transition:background-color .2s ease,transform .2s ease;
+}
+@media(hover:hover){
+  .how-section.gb55-how .gb59-after-steps>a:hover{
+    background:#ffe385;transform:translateY(-2px)
+  }
+}
+.how-section.gb55-how .gb59-after-steps>a:focus-visible{
+  outline:3px solid #fff;outline-offset:4px;
+}
+/* Keep control iconography; remove decorative symbols only. */
+.kicker-dash,.category-top .category-corner,
+.product-meta .product-arrow,
+.catalog-search>span[aria-hidden="true"],
+.gb-search-input-wrap>span[aria-hidden="true"]{display:none!important}
+.mobile-shop-nav a>span,
+.mobile-shop-nav button>span{display:none!important}
+.mobile-shop-nav a,.mobile-shop-nav button{
+  min-height:48px!important;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font,Arial,sans-serif);
+}
+.mobile-shop-nav small{
+  font-size:clamp(9px,2.5vw,11px)!important;
+  font-weight:850!important;letter-spacing:.015em!important;
+  color:inherit;
+}
+.gb56-story .gb56-story p,.rail-head-note,.section-aside p,.look-intro p{
+  text-wrap:pretty;
+}
+#universo.gb56-brand .gb56-story p,
+#universo.gb56-brand .gb57-action-detail{
+  font-weight:650;
+}
+#universo.gb56-brand .gb56-story .gb56-lead{
+  font-weight:800;
+}
+#universo.gb56-brand .gb56-values span{
+  font-weight:650;
+}
+.category-bottom p{font-weight:650;line-height:1.5}
+.rail-head-note,.section-aside p{
+  font-weight:600;
+  line-height:1.72;
+}
+@media(max-width:900px){
+ .how-section.gb55-how .how-card,
+ .how-section.gb55-how .gb55-card-inner,
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-card-inner{
+   min-height:245px;
+ }
+ .how-section.gb55-how .gb55-card-eyebrow{
+   margin:0 85px 34px 0;
+ }
+ .how-section.gb55-how .gb59-after-steps{
+   grid-template-columns:minmax(0,1fr);
+   gap:20px;
+ }
+ .how-section.gb55-how .gb59-after-steps>a{
+   width:fit-content;
+ }
+}
+@media(max-width:490px){
+ .how-section.gb55-how .how-card,
+ .how-section.gb55-how .gb55-card-inner,
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-card-inner{
+   min-height:0;
+ }
+ .how-section.gb55-how .gb55-card-inner,
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-card-inner{
+   padding:clamp(23px,6.2vw,30px);
+ }
+ .how-section.gb55-how .gb55-card-eyebrow{
+   font-size:10px;
+   margin-bottom:34px;
+   max-width:21ch;
+ }
+ .how-section.gb55-how .how-num,
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-num{
+   top:18px;right:22px;font-size:52px;
+ }
+ .how-section.gb55-how .how-card h3,
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-card h3{
+   font-size:clamp(23px,6.5vw,27px);
+   line-height:1.1;margin-bottom:12px;
+ }
+ .how-section.gb55-how .how-card p,
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-card p{
+   font-size:13px;line-height:1.61;margin-bottom:0;
+ }
+ .how-section.gb55-how .gb59-after-steps{
+   margin-top:40px;
+   padding:26px 22px;
+ }
+ .how-section.gb55-how .gb59-after-steps h3{
+   font-size:clamp(25px,7.25vw,33px);
+ }
+ .how-section.gb55-how .gb59-after-steps p{
+   font-size:13px;line-height:1.7;
+ }
+ .how-section.gb55-how .gb59-after-steps>a{
+   width:100%;
+   min-height:51px;
+ }
+ .how-section.gb55-how .how-heading h2{font-size:clamp(36px,10.4vw,51px)}
+ .how-section.gb55-how .gb55-heading-aside{max-width:39ch;font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){
+ .how-section.gb55-how .gb59-after-steps>a{transition:none!important}
+}
