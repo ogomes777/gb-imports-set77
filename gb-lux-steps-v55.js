@@ -22,7 +22,8 @@ function layout(){
    const a=cards[i].getBoundingClientRect(),b=cards[i+1].getBoundingClientRect(),link=links[i];
    let left,top,width,height;
    if(vertical){
-     const x=(a.left+a.width/2+b.left+b.width/2)/2;
+     const techSide=section.classList.contains('gb61-tech')&&document.body.dataset.gbTheme!=='sinal';
+     const x=techSide?a.left-12:(a.left+a.width/2+b.left+b.width/2)/2;
      left=x-gridRect.left-1;
      top=a.bottom-gridRect.top+1;
      width=2;height=Math.max(0,b.top-a.bottom-2);
@@ -46,6 +47,7 @@ if('ResizeObserver'in window){
  ro.observe(grid);cards.forEach(c=>ro.observe(c));
 }else addEventListener('resize',schedule,{passive:true});
 addEventListener('orientationchange',schedule,{passive:true});
+addEventListener('gb:themechange',schedule);
 if('IntersectionObserver'in window){
  const io=new IntersectionObserver(([entry])=>{
    section.classList.toggle('gb55-active',entry.isIntersecting&&!reduce.matches&&!lite);

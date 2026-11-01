@@ -1,0 +1,34 @@
+name: GB Imports V61 | Technical Signal QA
+on:
+  push:
+    branches: [feat/gb-tech-signal-v61]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  signal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Build and Chromium
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save playwright
+          npx playwright install chromium
+          npm run build
+          node scripts/validar-crt.mjs
+      - name: Test mobile signal rails, light and dark
+        run: |
+          python3 -m http.server 8080 --directory dist >/tmp/gb-v61-server.log 2>&1 &
+          sleep 2
+          node tests/gb-tech-signal-v61.mjs
+      - name: Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gb-v61-light-signal-mobile
+          path: tmp/gb-v61/*.png
+          if-no-files-found: ignore
+          retention-days: 7
