@@ -1,0 +1,35 @@
+name: GB Imports V62 | Neon and WhatsApp Conversion
+on:
+  push:
+    branches: [feat/gb-neon-whatsapp-v62]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  cards-and-whatsapp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build and prepare Chromium
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save playwright
+          npx playwright install chromium
+          npm run build
+          node scripts/validar-crt.mjs
+      - name: Verify authentic WhatsApp link and neon across seven sizes
+        run: |
+          python3 -m http.server 8080 --directory dist >/tmp/gb-v62-server.log 2>&1 &
+          sleep 2
+          node tests/gb-neon-whatsapp-v62.mjs
+      - name: Screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gb-neon-v62-light-mobile
+          path: tmp/gb-v62-neon/*.png
+          if-no-files-found: ignore
+          retention-days: 7
