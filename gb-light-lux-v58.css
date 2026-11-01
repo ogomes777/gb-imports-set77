@@ -1,0 +1,227 @@
+/* GB IMPORTS | V58 — SOLAR ATELIER / LIGHT ONLY
+   Richer material, stronger editorial type, connected warm-gold light path.
+   Fully scoped to #como-funciona when the theme is not "sinal".
+   Preserves existing V55 motion, translated copy and dark styling. */
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how{
+ --gb55-paper:#f7f4ed;
+ --gb55-ink:#17140e;
+ --gb55-copy:#514b3f;
+ --gb55-glass:#fffcf3;
+ --gb55-edge:rgba(166,111,13,.37);
+ --gb55-aura:rgba(247,186,27,.28);
+ --gb58-amber:#bd8000;
+ background:
+  radial-gradient(ellipse 55% 42% at 52% -10%,rgba(249,197,56,.22) 0,transparent 75%),
+  radial-gradient(ellipse 42% 70% at 102% 83%,rgba(242,194,71,.12),transparent 77%),
+  repeating-linear-gradient(90deg,transparent 0 129px,rgba(108,83,30,.023) 130px,transparent 131px),
+  linear-gradient(180deg,#f8f5ed 0%,#f3efe4 100%);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-heading{
+ margin-bottom:clamp(34px,4.1vw,61px);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-kicker{
+ color:#73591d;
+ font-size:clamp(10px,.9vw,12px);font-weight:900;letter-spacing:.11em;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-kicker::before{
+ width:34px;height:2px;background:linear-gradient(90deg,#a76e00,#f5bd1f);
+ box-shadow:0 0 12px rgba(228,167,32,.24);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-heading h2{
+ color:#151410;letter-spacing:-.07em;
+ text-shadow:0 2px 0 rgba(255,255,255,.75);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-heading h2 span{
+ color:#e1b500;text-shadow:0 0 22px rgba(226,170,22,.15);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-heading-aside{
+ font-size:clamp(13px,1.1vw,15px);
+ font-weight:700;color:#665a47;line-height:1.56;
+ border-left:2px solid rgba(190,139,26,.48);
+ padding-left:19px;
+ max-width:310px;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-grid{
+ gap:clamp(16px,1.75vw,27px);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-card{
+ min-height:330px;
+ border:1px solid rgba(175,125,26,.44)!important;
+ border-radius:24px;
+ background:
+  radial-gradient(ellipse 95% 80% at 0% 0%,rgba(255,241,192,.68),transparent 70%),
+  linear-gradient(143deg,rgba(255,254,251,.99) 0%,rgba(255,252,241,.98) 53%,rgba(249,239,211,.91) 100%)!important;
+ box-shadow:
+   0 32px 62px -25px rgba(107,76,21,.19),
+   0 12px 23px -15px rgba(103,70,18,.17),
+   0 2px 4px rgba(79,56,15,.055),
+   inset 0 1px 0 rgba(255,255,255,.99),
+   inset 0 -1px 0 rgba(188,140,42,.13);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-card::before{
+ border-radius:inherit;
+ background:
+  linear-gradient(132deg,rgba(255,255,255,.92),transparent 24%,transparent 75%,rgba(228,181,69,.08)),
+  repeating-linear-gradient(0deg,transparent 0 12px,rgba(150,108,24,.018) 13px,transparent 14px);
+ opacity:1;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-card::after{
+ inset:-2px;border-radius:26px;
+ box-shadow:
+   0 0 0 1px rgba(201,142,19,.75),
+   0 0 18px 2px rgba(247,188,41,.26),
+   0 0 42px 7px rgba(233,181,54,.14);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-card-aura{
+ opacity:.92;
+ background:
+  radial-gradient(ellipse 62% 57% at var(--gb55-x,18%) var(--gb55-y,0%),rgba(253,198,52,.33),transparent 78%),
+  linear-gradient(130deg,rgba(255,255,255,.19),transparent 55%);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-card-aura::before{
+ content:"";position:absolute;top:0;left:27px;right:27px;height:2px;
+ background:linear-gradient(90deg,transparent,rgba(224,163,26,.69) 30%,rgba(255,242,182,.93) 50%,rgba(224,163,26,.69) 70%,transparent);
+ opacity:.75;pointer-events:none;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-card-inner{
+ min-height:330px;
+ padding:clamp(25px,2.5vw,38px);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-num{
+ top:18px;right:27px;
+ color:#c0b294;opacity:1;
+ font-size:clamp(53px,4.7vw,79px);
+ letter-spacing:-.09em;
+ text-shadow:0 1px 0 #fff,0 2px 0 rgba(98,73,21,.095),0 7px 13px rgba(111,83,31,.12);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-icon{
+ width:66px;height:66px;min-width:66px;border-radius:18px;
+ color:#1b170e;
+ border:1px solid rgba(170,111,0,.55);
+ background:
+  radial-gradient(circle at 25% 17%,rgba(255,255,255,.86),transparent 42%),
+  linear-gradient(135deg,#ffe99c 0%,#ffd23e 41%,#d99b12 100%);
+ box-shadow:
+  0 12px 26px -12px rgba(177,117,10,.55),
+  0 0 0 6px rgba(246,202,83,.17),
+  inset 0 2px 2px rgba(255,255,255,.75),
+  inset 0 -3px 3px rgba(157,95,4,.18);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-icon svg{
+ width:28px;height:28px;stroke-width:1.8;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-card-eyebrow{
+ font-size:clamp(10px,.77vw,11px);
+ letter-spacing:.105em;
+ font-weight:900;color:#8b631b;
+ margin-bottom:16px;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-card h3{
+ font-size:clamp(23px,2.08vw,32px);
+ line-height:1.04;letter-spacing:-.055em;
+ color:#141310!important;
+ margin-bottom:14px;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-card p{
+ color:#534b3f!important;
+ font-size:clamp(13px,1.06vw,15px);
+ line-height:1.64;
+ font-weight:650;
+ max-width:36ch;
+ margin-bottom:25px;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-card-tail{
+ color:#7f6228;gap:11px;font-size:10px;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-card-tail>i{
+ width:6px;height:6px;background:#d89c06;
+ box-shadow:0 0 0 4px rgba(225,164,24,.13),0 0 12px rgba(234,172,29,.42);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-card-tail b{
+ font-size:10px;font-weight:900;letter-spacing:.16em;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-tail-line{
+ opacity:.8;
+ background:linear-gradient(90deg,rgba(160,109,20,.80),rgba(236,178,52,.20) 67%,rgba(167,112,16,.09));
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-track{
+ opacity:1!important;
+ background:linear-gradient(90deg,#ce970f,#f2c44c 40%,#b47c07 100%);
+ box-shadow:0 0 8px rgba(228,159,17,.46),0 0 22px rgba(255,214,82,.28);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-track::before,
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-track::after{
+ width:9px;height:9px;
+ background:radial-gradient(circle at 34% 28%,#fff4cb,#d29a19 70%);
+ box-shadow:0 0 0 4px rgba(210,149,13,.15),0 0 16px 4px rgba(237,173,41,.38);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-track i{
+ background:linear-gradient(90deg,transparent,#fff7d0 45%,#ffe07e 60%,transparent);
+ box-shadow:0 0 12px 3px rgba(239,179,31,.67);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-arrival-bead{
+ background:#fff0af;
+ box-shadow:0 0 0 5px rgba(234,172,36,.18),0 0 18px 6px rgba(223,161,16,.32);
+}
+@media(hover:hover) and (pointer:fine){
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how.is-in .how-card:hover{
+  transform:translateY(-9px);
+  border-color:rgba(180,112,5,.8)!important;
+  box-shadow:
+    0 43px 69px -24px rgba(106,70,12,.26),
+    0 15px 27px -17px rgba(171,116,16,.25),
+    inset 0 1px 0 rgba(255,255,255,.98);
+ }
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-card:hover .gb55-card-aura{opacity:1}
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-card:hover::after{opacity:.84}
+}
+/* Mobile: vertical gold connection, generous type, fewer empty bands. */
+@media(max-width:900px){
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-grid{gap:32px}
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-card,
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-card-inner{min-height:266px}
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-track{
+  background:linear-gradient(to bottom,#cb9111,#f5c94e 42%,#ad7410);
+  box-shadow:0 0 9px rgba(229,165,28,.40),0 0 15px rgba(229,165,28,.16);
+ }
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-track i{
+  background:linear-gradient(to bottom,transparent,#fff7d0 45%,#ffe07e 60%,transparent);
+ }
+}
+@media(max-width:490px){
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how{
+  padding:78px 16px 82px;
+ }
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-heading{
+  margin-bottom:31px;
+ }
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-heading-aside{
+  padding-left:13px;font-size:13px;max-width:33ch;
+ }
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-grid{gap:29px}
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-card{
+  border-radius:20px;min-height:255px;
+ }
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-card-inner{
+  min-height:255px;padding:23px 23px 22px;
+ }
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-num{
+  font-size:56px;top:16px;right:22px;
+ }
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-icon{
+  width:58px;height:58px;min-width:58px;border-radius:16px;margin-bottom:17px;
+ }
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .gb55-card-eyebrow{
+  font-size:10px;margin-bottom:11px;
+ }
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-card h3{
+  font-size:clamp(23px,6.1vw,27px);margin-bottom:10px;
+ }
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-card p{
+  font-size:13px;line-height:1.57;font-weight:650;
+  margin-bottom:18px;max-width:38ch;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body:not([data-gb-theme="sinal"]) .how-section.gb55-how .how-card::after{opacity:.14}
+}
