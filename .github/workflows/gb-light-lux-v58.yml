@@ -1,0 +1,34 @@
+name: GB Imports | Light Lux V58 QA
+on:
+  push:
+    branches: [feat/gb-light-lux-v58]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  light-cards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Build and install Chromium
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save playwright
+          npx playwright install chromium
+          npm run build
+          node scripts/validar-crt.mjs
+      - name: Compare light and dark in Chromium
+        run: |
+          python3 -m http.server 8080 --directory dist >/tmp/gb-v58-http.log 2>&1 &
+          sleep 2
+          node tests/gb-light-lux-v58.mjs
+      - name: Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gb-light-lux-v58-mobile-desktop
+          path: tmp/gb-light-lux-v58/*.png
+          if-no-files-found: ignore
+          retention-days: 7
