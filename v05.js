@@ -27,8 +27,8 @@
  setTheme(initial,false);
  if(typeof heroSlides!=='undefined'&&heroSlides[0]){
   heroSlides[0].title='SEU ESTILO.<br><span class="emphasis">SEU CORRE.</span><br><span class="hero-title-outline">SEU MUNDO.</span>';
-  heroSlides[0].sub='A GB tem origem, rua e gente. Uma seleção para viver seu próprio estilo, da loja para o digital.';
-  heroSlides[0].eyebrow='GB / ORIGEM · CAPÍTULO 001';
+  heroSlides[0].sub='Explore peças da GB Imports, compare opções e monte combinações para decidir o que quer consultar com a loja.';
+  heroSlides[0].eyebrow='CONJUNTOS, CAMISETAS E TÊNIS';
  }
  const foot=document.querySelector('.prototype-ribbon');if(foot)foot.dataset.brand='manual-v1';
  window.GBSetTheme=setTheme;
