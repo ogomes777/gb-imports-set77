@@ -142,7 +142,16 @@
  "QUER CONFIRMAR UMA PEÇA?":["¿QUIERES CONSULTAR UNA PRENDA?","WANT TO CHECK A PIECE?","VUOI VERIFICARE UN CAPO?"],
  "CONVERSAR COM A GB NO INSTAGRAM ↗":["HABLAR CON GB EN INSTAGRAM ↗","MESSAGE GB ON INSTAGRAM ↗","PARLA CON GB SU INSTAGRAM ↗"],
  "CURADORIA EM MOVIMENTO":["SELECCIÓN EN MOVIMIENTO","CURATION IN MOTION","SELEZIONE IN MOVIMENTO"],
- "ESTILO DO SEU JEITO":["ESTILO A TU MANERA","STYLE YOUR WAY","STILE A MODO TUO"]
+ "ESTILO DO SEU JEITO":["ESTILO A TU MANERA","STYLE YOUR WAY","STILE A MODO TUO"],
+"01 / A CURADORIA":["01 / LA SELECCIÓN","01 / THE CURATION","01 / LA SELEZIONE"],
+"02 / SEU ESTILO":["02 / TU ESTILO","02 / YOUR STYLE","02 / IL TUO STILE"],
+"VER A SELEÇÃO":["VER LA SELECCIÓN","VIEW THE SELECTION","VEDI LA SELEZIONE"],
+"COMPOR MEU LOOK":["CREAR MI LOOK","BUILD MY LOOK","COMPONI IL MIO LOOK"],
+"Descubra as peças escolhidas pela GB.":["Descubre las prendas seleccionadas por GB.","Discover the pieces selected by GB.","Scopri i capi selezionati da GB."],
+"Experimente combinações no Look Studio.":["Prueba combinaciones en Look Studio.","Try combinations in Look Studio.","Prova gli abbinamenti nel Look Studio."],
+"03 / CONEXÃO DIRETA":["03 / CONTACTO DIRECTO","03 / DIRECT CONTACT","03 / CONTATTO DIRETTO"],
+"Tamanhos, disponibilidade e condições são confirmados no atendimento.":["Las tallas, la disponibilidad y las condiciones se confirman en contacto directo.","Sizing, availability and terms are confirmed through direct contact.","Taglie, disponibilità e condizioni vengono confermate tramite contatto diretto."],
+"CONSULTAR A GB PELO DIRECT":["CONSULTAR A GB POR DIRECT","MESSAGE GB ON INSTAGRAM","CONTATTA GB SU INSTAGRAM"]
  };
  const TERMS={
  es:[["Agasalhos","Chaquetas"],["Agasalho","Chaqueta"],["Calçados","Calzado"],["Acessórios","Accesorios"],["Camisetas","Camisetas"],["Camisa","Camiseta"],["Camiseta","Camiseta"],["Calças","Pantalones"],["Calça","Pantalón"],["Bermudas","Bermudas"],["Bermuda","Bermuda"],["Tênis","Zapatillas"],["Chinelo","Chanclas"],["Shorts","Shorts"],["Short","Shorts"],["Conjuntos","Conjuntos"],["Conjunto","Conjunto"],["preta","negra"],["preto","negro"],["branca","blanca"],["branco","blanco"],["cinza","gris"],["vermelha","roja"],["vermelho","rojo"],["creme","crema"],["grafite","grafito"],["contraste","contraste"],["jaqueta","chaqueta"],["moletons","sudaderas"],["frio","abrigo"],["preço","precio"],["tamanhos","tallas"],["estoque","existencias"],["a validar","por validar"],["azul-claro","azul claro"],["azul","azul"],["roxo","morado"],["roxa","morada"],["verde","verde"],["vinho","vino"],["rosa","rosa"],["bege","beige"],["marrom","marrón"],["amarelo","amarillo"],["laranja","naranja"],["lilás","lila"],["Moletom","Sudadera"],["Bonés","Gorras"],["Boné","Gorra"],["gola","cuello"],["com","con"],["e","y"],["esportivo","deportivo"],["esportiva","deportiva"],["padronagem","estampado"],["estilo","estilo"],["amortecimento","amortiguación"],["acolchoado","acolchado"],["texturizado","texturizado"],["solado","suela"],["detalhe","detalle"],["monocromático","monocromático"],["zíper","cremallera"],["corta-vento","cortavientos"],["parte superior","parte superior"],["parte inferior","parte inferior"],["selecionada","seleccionada"],["selecionado","seleccionado"]],
