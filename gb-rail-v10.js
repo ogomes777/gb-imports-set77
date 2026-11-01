@@ -546,9 +546,9 @@ async function drawViewer({dir=0,entry=false,variantOnly=false}={}){
   if(!modeFor(it,v,S.view)&&!it.study)S.view='combo';
   viewer.dataset.productId=v.sourceId;viewer.dataset.item=it.id;viewer.dataset.variant=v.id;viewer.dataset.view=S.view;viewer.dataset.orientation=S.orientation;viewer.dataset.tier=it.tier;
   vName.textContent=it.title.toUpperCase();
-  varLine.textContent=it.study?'ILUSTRAÇÃO, NÃO É FOTO':it.variants.length>1?`COR ${v.label}. FOTO ${fmt(variantSel.get(it.id))} DE ${fmt(it.variants.length-1)}`:'COR ÚNICA FOTOGRAFADA';
+  varLine.textContent=it.study?'ILUSTRAÇÃO, NÃO É FOTO':it.variants.length>1?`COR ${v.label}. FOTO ${fmt(variantSel.get(it.id))} DE ${fmt(it.variants.length-1)}`:'COR DA PEÇA FOTOGRAFADA';
   const listIdx=S.list.indexOf(it);
-  q('#railViewerIndex').textContent=it.adhoc?`ACERVO / ${esc(p?.id||'')}`:`${fmt(listIdx)} / ${fmt(S.list.length-1)}`;
+  q('#railViewerIndex').textContent=it.adhoc?`PEÇA ${esc(p?.id||'')}`:`${fmt(listIdx)} / ${fmt(S.list.length-1)}`;
   q('#railViewerDescription').textContent=it.study?'Esta é uma ilustração, não uma foto do produto. Consulte a GB para confirmar imagens e características.':`${it.label.charAt(0)+it.label.slice(1).toLowerCase()}. Imagem do acervo GB; nome de trabalho, marca, procedência, preço e estoque em validação.${it.variants.length>1?' As cores mostradas foram fotografadas, não são simulação.':''}`;
   q('.rail-viewer-art-label').textContent=it.study?'ILUSTRAÇÃO DE REFERÊNCIA, NÃO É FOTO REAL':'IMAGEM DE REFERÊNCIA. SOMENTE A FRENTE FOI FOTOGRAFADA';
   // composição: só modos com foto real para esta cor
