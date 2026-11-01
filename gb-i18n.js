@@ -2,7 +2,7 @@
 (()=>{
  const LANGS=['pt','es','en','it'],HTML_LANG={pt:'pt-BR',es:'es',en:'en',it:'it-IT'};
  const COPY={
- "GB IMPORTS | Seu estilo. Seu corre. Flagship":["GB IMPORTS | Tu estilo. Tu camino. Flagship","GB IMPORTS | Your style. Your move. Flagship","GB IMPORTS | Il tuo stile. La tua strada. Flagship"],
+ "GB Imports | Encontre as peças. Monte seu look.":["GB Imports | Encuentra prendas. Crea tu look.","GB Imports | Find the pieces. Build your look.","GB Imports | Trova i capi. Crea il tuo look."],
  "Pular para o catálogo":["Saltar al catálogo","Skip to catalog","Salta al catalogo"],"ESTUDO DE EXPERIÊNCIA + IDENTIDADE V1":["ESTUDIO DE EXPERIENCIA + IDENTIDAD V1","EXPERIENCE + IDENTITY STUDY V1","STUDIO DI ESPERIENZA + IDENTITÀ V1"],"COMPRA AINDA NÃO ATIVA":["COMPRA AÚN NO DISPONIBLE","PURCHASE NOT YET ACTIVE","ACQUISTO NON ANCORA ATTIVO"],"ORIGEM / RUA / MOVIMENTO":["ORIGEN / CALLE / MOVIMIENTO","ORIGIN / STREET / MOVEMENT","ORIGINE / STRADA / MOVIMENTO"],"ENTRE NO UNIVERSO GB ↗":["ENTRA EN EL UNIVERSO GB ↗","ENTER THE GB UNIVERSE ↗","ENTRA NELL'UNIVERSO GB ↗"],
  "FECHAR ✕":["CERRAR ✕","CLOSE ✕","CHIUDI ✕"],
  "SELEÇÃO":["SELECCIÓN","SELECTION","SELEZIONE"],
@@ -221,11 +221,11 @@
  function applyShowroomTitle(lang){const h=document.querySelector('.showroom-heading h2');if(!h)return;h.innerHTML=({pt:'ABAIXO<br/>DE ZER<span>O.</span>',es:'BAJO<br/>CER<span>O.</span>',en:'SUB<br/>ZER<span>O.</span>',it:'SOTTO<br/>ZER<span>O.</span>'})[lang]||'ABAIXO<br/>DE ZER<span>O.</span>'}
  function applyEditorialTitle(lang){const h=document.querySelector('.editorial-copy h2');if(!h)return;h.innerHTML=({pt:'NÃO É<br/>SOBRE <i>TER.</i><br/>É SOBRE<br/><mark>SER.</mark>',es:'NO SE TRATA DE<br/><i>TENER.</i><br/>SE TRATA DE<br/><mark>SER.</mark>',en:'IT’S NOT ABOUT<br/><i>HAVING.</i><br/>IT’S ABOUT<br/><mark>BEING.</mark>',it:'NON È QUESTIONE DI<br/><i>AVERE.</i><br/>È QUESTIONE DI<br/><mark>ESSERE.</mark>'})[lang]||'NÃO É<br/>SOBRE <i>TER.</i><br/>É SOBRE<br/><mark>SER.</mark>'}
  function applyMeta(lang){
-  const title="GB IMPORTS | Seu estilo. Seu corre. Flagship";document.title=translatePhrase(title,lang);
+  const title="GB Imports | Encontre as peças. Monte seu look.";document.title=translatePhrase(title,lang);
   const metas=[
-   ["meta[name=\"description\"]","GB Imports: streetwear, conjuntos e peças selecionadas. Conheça a direção de experiência digital da GB. Protótipo não transacional.",["GB Imports: streetwear, conjuntos y prendas seleccionadas. Conoce la experiencia digital de GB. Prototipo no transaccional.","GB Imports: streetwear, sets and selected pieces. Explore the GB digital experience direction. Non-transactional prototype.","GB Imports: streetwear, completi e capi selezionati. Scopri l'esperienza digitale GB. Prototipo non transazionale."]],
-   ["meta[property=\"og:title\"]","GB IMPORTS / THE GB EDIT",["GB IMPORTS / THE GB EDIT","GB IMPORTS / THE GB EDIT","GB IMPORTS / THE GB EDIT"]],
-   ["meta[property=\"og:description\"]","A curadoria encontra a rua. Experiência digital GB Imports, protótipo conceitual.",["La selección encuentra la calle. Experiencia digital GB Imports, prototipo conceptual.","Curation meets the street. GB Imports digital experience, conceptual prototype.","La selezione incontra la strada. Esperienza digitale GB Imports, prototipo concettuale."]]
+   ["meta[name=\"description\"]","Explore conjuntos, camisetas, tênis e acessórios da GB Imports. Monte combinações no Look Studio e consulte tamanhos e disponibilidade diretamente com a loja.",["GB Imports: streetwear, conjuntos y prendas seleccionadas. Conoce la experiencia digital de GB. Prototipo no transaccional.","GB Imports: streetwear, sets and selected pieces. Explore the GB digital experience direction. Non-transactional prototype.","GB Imports: streetwear, completi e capi selezionati. Scopri l'esperienza digitale GB. Prototipo non transazionale."]],
+   ["meta[property=\"og:title\"]","GB IMPORTS | ENCONTRE SEU LOOK",["GB IMPORTS / THE GB EDIT","GB IMPORTS / THE GB EDIT","GB IMPORTS / THE GB EDIT"]],
+   ["meta[property=\"og:description\"]","Explore conjuntos, camisetas, tênis e acessórios. Monte combinações no Look Studio e consulte a GB para confirmar os detalhes.",["La selección encuentra la calle. Experiencia digital GB Imports, prototipo conceptual.","Curation meets the street. GB Imports digital experience, conceptual prototype.","La selezione incontra la strada. Esperienza digitale GB Imports, prototipo concettuale."]]
   ];
   metas.forEach(([sel,src,vals])=>{const el=document.querySelector(sel);if(el)el.setAttribute('content',lang==='pt'?src:vals[LANGS.indexOf(lang)-1])})
  }
