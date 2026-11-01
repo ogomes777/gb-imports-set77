@@ -892,9 +892,9 @@ function mount(el,initial){
   scene.innerHTML=`<div class="fit-backdrop" aria-hidden="true"><i class="fit-wall"></i><i class="fit-led fit-led-l"></i><i class="fit-led fit-led-r"></i><i class="fit-arch"></i><img class="fit-mark" src="./assets/brand/gb-monograma-claro.svg" alt="" decoding="async" loading="lazy"/><i class="fit-halo"></i><i class="fit-spot fit-spot-l"></i><i class="fit-spot fit-spot-r"></i><i class="fit-key"></i><i class="fit-rim"></i><i class="fit-horizon"></i><i class="fit-gloss"></i></div>
    <div class="fit-figure" id="gbFitFigure">${figureSVG('fitA','Manequim GB vestindo o look selecionado')}</div>
    <div class="fit-plat" aria-hidden="true"><i></i><b></b></div><div class="fit-turn" aria-hidden="true"></div>
-   <span class="fit-orbit-note" aria-hidden="true">GIRO EDITORIAL · COSTAS NÃO FOTOGRAFADAS</span>
+   <span class="fit-orbit-note" aria-hidden="true">VISUALIZAÇÃO DO MANEQUIM. CONFIRME IMAGENS REAIS COM A GB</span>
     <div class="fit-emotes" role="group" aria-label="Emotes do GB UNIT">
-      <span class="fit-emotes-title" aria-hidden="true">GB / GESTOS</span>
+      <span class="fit-emotes-title" aria-hidden="true">MOVIMENTOS</span>
       <button type="button" data-fit-emote="dance" aria-label="Passinho do Jamal" aria-pressed="false"><i aria-hidden="true">${icon('dance')}</i><b>PASSINHO</b></button>
       <button type="button" data-fit-emote="wave" aria-label="Acenar tchau" aria-pressed="false"><i aria-hidden="true">${icon('wave')}</i><b>TCHAU</b></button>
       <button type="button" data-fit-emote="salute" aria-label="Salve com paz e amor" aria-pressed="false"><i aria-hidden="true">${icon('salute')}</i><b>SALVE</b></button>
@@ -902,14 +902,14 @@ function mount(el,initial){
       <button type="button" data-fit-emote="jump" aria-label="Pular" aria-pressed="false"><i aria-hidden="true">${icon('jump')}</i><b>PULAR</b></button>
     </div>
     <div class="fit-turnbar" role="group" aria-label="Girar o GB UNIT">
-      <span class="fit-turn-title" aria-hidden="true">GB / ORBIT CONTROL</span>
+      <span class="fit-turn-title" aria-hidden="true">GIRAR O MANEQUIM</span>
       <button type="button" data-fit-turn="-1" aria-label="Girar para a esquerda" aria-pressed="false"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
       <span class="fit-dial" role="slider" tabindex="0" aria-label="Giro do manequim" aria-valuemin="-45" aria-valuemax="45" aria-valuenow="0" aria-valuetext="FRENTE"><b>ORBITAR</b><span class="fit-spin-track" aria-hidden="true"><i data-pose="-1"></i><i data-pose="0" class="is-active"></i><i data-pose="1"></i><i class="fit-orbit-thumb"></i></span></span>
       <button type="button" data-fit-turn="0" aria-label="De frente" aria-pressed="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
       <button type="button" data-fit-turn="1" aria-label="Girar para a direita" aria-pressed="false"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
     </div>
     <p class="fit-tag" aria-hidden="true"></p>
-   <p class="fit-legal">SIMULAÇÃO EDITORIAL DE COMPOSIÇÃO · FOTOS REAIS DO ACERVO GB · NÃO É PROVADOR DE CAIMENTO</p>
+   <p class="fit-legal">O LOOK É UMA SIMULAÇÃO VISUAL. CONFIRME O TAMANHO E AS PEÇAS COM A GB</p>
    <div class="fit-compare" hidden><div class="fit-cmp-a"></div><div class="fit-cmp-b"></div><span class="fit-split-line" aria-hidden="true"><i>A | B</i></span><label class="fit-split"><span class="sr-only">Divisor entre o look A (atual) e o look B (salvo)</span><input type="range" min="8" max="92" value="50" step="1"></label></div>`;
   stage.prepend(scene);
   fig=scene.querySelector('.fit-figure');

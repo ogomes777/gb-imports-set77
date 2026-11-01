@@ -1,0 +1,36 @@
+name: GB Imports V60 Full Content Audit
+on:
+  push:
+    branches: [feat/gb-copy-system-v60]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  content:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Install, build and prepare Chromium
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save playwright
+          npx playwright install chromium
+          npm run build
+          node scripts/validar-crt.mjs
+      - name: Test live landing and 42 internal routes on 4 sizes
+        run: |
+          python3 -m http.server 8080 --directory dist >/tmp/gb-v60-http.log 2>&1 &
+          sleep 2
+          node tests/gb-copy-system-v60.mjs
+      - name: Preserve V59 mobile customer journey
+        run: node tests/gb-human-copy-v59.mjs
+      - name: Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gb-v60-route-mobile-audit
+          path: tmp/gb-v60-audit/*.png
+          if-no-files-found: ignore
+          retention-days: 7

@@ -168,7 +168,7 @@ function renderProducts(){
  const display=showAll||searchQuery?products:products.slice(0,8)
  grid.innerHTML=display.length?display.map((p,i)=>makeCard(p,i)).join(''):`<div class="catalog-empty"><strong>${currentFilter==='saved'&&!searchQuery?'NENHUMA PEÇA SALVA AINDA.':'NENHUMA PEÇA ENCONTRADA.'}</strong><p>${currentFilter==='saved'&&!searchQuery?'Salve as peças de que gostou. Assim fica mais fácil comparar e consultar a GB depois.':'Tente outro termo: time, “agasalho”, “kit” ou “short”.'}</p><button type="button" class="text-link" data-catalog-reset>LIMPAR BUSCA E FILTROS ↺</button></div>`
  grid.classList.remove('is-entering');void grid.offsetWidth;grid.classList.add('is-entering')
- const more=$('#showMore');more.textContent=showAll?'VER MENOS ↑':`VER TODAS AS ${products.length} PEÇAS ↗`;more.hidden=!!searchQuery||products.length<=8
+ const more=$('#showMore');more.textContent=showAll?'MOSTRAR MENOS':`VER TODAS AS ${products.length} PEÇAS`;more.hidden=!!searchQuery||products.length<=8
  const count=$('#catalogCount');if(count)count.textContent=searchQuery?`${pad2(products.length)} RESULTADO${products.length===1?'':'S'} PARA “${searchQuery.toUpperCase()}”`:`${pad2(products.length)} ${products.length===1?'PEÇA':'PEÇAS'}${currentFilter==='saved'?' SALVAS':''}`
  syncCatalogURL()
 }
@@ -216,7 +216,7 @@ const SEARCH_HINTS=['Agasalho','Kit','Real Madrid','Manchester','Chelsea','Short
 function renderSearch(q=''){
  const found=q.trim()?PUBLIC_PRODUCTS.filter(p=>matchesQuery(p,q)):[]
  const hints=`<div class="search-hints"><span>SUGESTÕES</span>${SEARCH_HINTS.map(h=>`<button type="button" data-search-hint="${h}">${h}</button>`).join('')}</div>`
- if(!q.trim()){$('#searchResults').innerHTML=hints+`<div class="search-all"><span>SELEÇÃO EM DESTAQUE / ${pad2(Math.min(PUBLIC_PRODUCTS.length,8))}</span>${PUBLIC_PRODUCTS.slice(0,8).map(p=>`<button class="search-result" data-searchproduct="${p.id}"><span class="drawer-thumb">${productMedia(p)}</span><span><b>${escaped(p.name)}</b><p>${escaped(p.label)} · Em revisão</p></span><span class="search-go" aria-hidden="true">↗</span></button>`).join('')}</div>`;return}
+ if(!q.trim()){$('#searchResults').innerHTML=hints+`<div class="search-all"><span>PEÇAS PARA COMEÇAR</span>${PUBLIC_PRODUCTS.slice(0,8).map(p=>`<button class="search-result" data-searchproduct="${p.id}"><span class="drawer-thumb">${productMedia(p)}</span><span><b>${escaped(p.name)}</b><p>${escaped(p.label)} · Em revisão</p></span><span class="search-go" aria-hidden="true">↗</span></button>`).join('')}</div>`;return}
  $('#searchResults').innerHTML=found.length?`<p class="search-count" role="status">${pad2(found.length)} resultado${found.length===1?'':'s'}</p>`+found.map(p=>`<button class="search-result" data-searchproduct="${p.id}"><span class="drawer-thumb">${productMedia(p)}</span><span><b>${escaped(p.name)}</b><p>${escaped(p.label)} · Em revisão</p></span><span class="search-go" aria-hidden="true">↗</span></button>`).join(''):`<div class="drawer-empty"><strong>NENHUMA PEÇA ENCONTRADA.</strong><p>Busque pelo tipo de conjunto, pelo time ou pela referência do catálogo.</p></div>`+hints
 }
 function copyText(text){
@@ -264,19 +264,19 @@ function renderProductModal(){
  const rel=related.length?related.slice((PRODUCTS.indexOf(p))%Math.max(1,related.length-3)).slice(0,4):[]
  const sizeGroup=(part,label,current)=>`<div class="size-label"><span>${label}</span><small>PREFERÊNCIA / NÃO CONFIRMA ESTOQUE</small></div><div class="size-buttons" role="group" aria-label="Selecionar ${label.toLowerCase()}">${['P','M','G','GG'].map(s=>`<button type="button" data-size="${part}" data-value="${s}" class="${current===s?'active':''}" aria-pressed="${current===s}">${s}</button>`).join('')}</div>`
  $('#productModal').innerHTML=`<button class="modal-close" data-close aria-label="Fechar detalhes">✕</button>
- <div class="product-gallery"><div class="gallery-topline"><span>GB / ${photo?'IMAGEM DO ACERVO':'ESTUDO DE PRODUTO'} / ${escaped(p.id)}</span><span>${views.length>1?`${pad2(views.indexOf(modalView)+1)} / ${pad2(views.length)}`:''}</span></div>
+ <div class="product-gallery"><div class="gallery-topline"><span>${photo?'FOTO DE REFERÊNCIA':'IMAGEM ILUSTRATIVA'} ${escaped(p.id)}</span><span>${views.length>1?`${pad2(views.indexOf(modalView)+1)} / ${pad2(views.length)}`:''}</span></div>
  <div class="gallery-hero" id="galleryHero" data-view="${modalView}">${productMedia(p,modalView)}${views.length>1?`<button type="button" class="gallery-step gallery-prev" data-gallery-step="-1" aria-label="Vista anterior">←</button><button type="button" class="gallery-step gallery-next" data-gallery-step="1" aria-label="Próxima vista">→</button>`:''}</div>
  ${views.length>1?`<div class="gallery-thumbs" role="group" aria-label="Vistas da peça">${views.map(view=>`<button type="button" data-gallery="${view}" aria-label="Ver ${VIEW_LABEL[view]}" aria-pressed="${modalView===view}" class="${modalView===view?'active':''}">${productMedia(p,view)}<small>${labels[view]}</small></button>`).join('')}</div>`:''}
  ${photo?'':`<p class="gallery-note">Ilustração de estudo. A imagem do acervo desta peça entra assim que o recorte oficial for importado.</p>`}</div>
- <div class="product-detail"><div class="detail-nav"><button type="button" data-step-product="-1" aria-label="Peça anterior">← ANTERIOR</button><span>${pad2(pos+1)} / ${pad2(list.length)}</span><button type="button" data-step-product="1" aria-label="Próxima peça">PRÓXIMA →</button></div>
- <span class="detail-heading">GB / ${escaped(p.label.toUpperCase())} / ${escaped(p.tag)}</span><h2>${escaped(p.name).toUpperCase()}</h2>
+ <div class="product-detail"><div class="detail-nav"><button type="button" data-step-product="-1" aria-label="Peça anterior">← ANTERIOR</button><span>PEÇA ${pad2(pos+1)} DE ${pad2(list.length)}</span><button type="button" data-step-product="1" aria-label="Próxima peça">PRÓXIMA →</button></div>
+ <span class="detail-heading">${escaped(p.label.toUpperCase())}. ${escaped(p.tag)}</span><h2>${escaped(p.name).toUpperCase()}</h2>
  <p>${p.single?'Peça do acervo GB.':`Conjunto${p.category==='track'?' agasalho + calça':p.category==='short'?' camisa + short':''}${views.length>1?' com vistas do kit completo e das partes':''}.`} Nome de trabalho para organização do catálogo — não confirma marca, licença ou procedência.</p>
- <dl class="detail-facts"><div><dt>PREÇO</dt><dd>A confirmar com a GB</dd></div><div><dt>ESTOQUE / TAMANHOS</dt><dd>A confirmar por variante</dd></div><div><dt>ENTREGA / RETIRADA</dt><dd>Condições em validação</dd></div></dl>
+ <dl class="detail-facts"><div><dt>PREÇO</dt><dd>A confirmar com a GB</dd></div><div><dt>ESTOQUE E TAMANHOS</dt><dd>A confirmar por variante</dd></div><div><dt>ENTREGA E RETIRADA</dt><dd>Condições em validação</dd></div></dl>
  ${p.single?sizeGroup('top','TAMANHO',topSize):sizeGroup('top','TAMANHO DA PARTE SUPERIOR',topSize)+sizeGroup('bottom','TAMANHO DA PARTE INFERIOR',bottomSize)}
- <div class="detail-add"><button type="button" class="btn btn-yellow" id="addInterest">ADICIONAR À SELEÇÃO DE INTERESSE <span>↗</span></button>
- <div class="detail-actions"><button type="button" class="detail-action ${fav?'is-fav':''}" data-fav="${p.id}" aria-pressed="${fav}">${heartSVG}<span>${fav?'SALVO':'SALVAR'}</span></button><button type="button" class="detail-action" data-consult="${p.id}">CONSULTAR NA GB ↗</button><button type="button" class="detail-action" data-share="${p.id}">COPIAR LINK</button></div></div>
+ <div class="detail-add"><button type="button" class="btn btn-yellow" id="addInterest">SALVAR ESTA PEÇA PARA CONSULTAR</button>
+ <div class="detail-actions"><button type="button" class="detail-action ${fav?'is-fav':''}" data-fav="${p.id}" aria-pressed="${fav}">${heartSVG}<span>${fav?'SALVO':'SALVAR'}</span></button><button type="button" class="detail-action" data-consult="${p.id}">CONSULTAR ESTA PEÇA COM A GB</button><button type="button" class="detail-action" data-share="${p.id}">COPIAR LINK</button></div></div>
  <p class="detail-footer">Tamanhos indicam preferência, não disponibilidade nem equivalência garantida. Nenhuma cobrança ocorre nesta versão.</p>
- ${rel.length?`<div class="detail-related"><span>MESMA LINHA / ${escaped(p.label.toUpperCase())}</span><div>${rel.map(r=>`<button type="button" data-related="${r.id}" aria-label="Ver ${escaped(r.name)}"><span class="drawer-thumb">${productMedia(r)}</span><small>${escaped(r.name)}</small></button>`).join('')}</div></div>`:''}
+ ${rel.length?`<div class="detail-related"><span>OUTRAS OPÇÕES DE ${escaped(p.label.toUpperCase())}</span><div>${rel.map(r=>`<button type="button" data-related="${r.id}" aria-label="Ver ${escaped(r.name)}"><span class="drawer-thumb">${productMedia(r)}</span><small>${escaped(r.name)}</small></button>`).join('')}</div></div>`:''}
  </div>`
 }
 function setGalleryView(view){

@@ -63,22 +63,22 @@
  const safeSaved=key=>{try{const x=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(x)?x:[]}catch{return[]}};
  const counts=()=>({saved:safeSaved('gb-v03-favs').length,bag:safeSaved('gb-v03-bag').length});
  const panelHeader=(title,side)=>'<div class="gb-nav-panel-head"><strong>'+title+'</strong><small>'+side+'</small></div>';
- const panelButton=(label,action,right)=>'<button type="button" class="gb-nav-panel-item" data-gb-action="'+action+'"><span>'+label+'</span><span>'+right+'</span></button>';
+ const panelButton=(label,action,right='')=>'<button type="button" class="gb-nav-panel-item" data-gb-action="'+action+'"><span>'+label+'</span>'+(right?'<span>'+right+'</span>':'')+'</button>';
  const updateAccount=()=>{
    const c=counts();
    account.innerHTML=panelHeader('MINHA GB','ÁREA PESSOAL')+
-     '<p class="gb-nav-sub">Sua curadoria neste navegador. Pedidos, login e ranking estarão disponíveis apenas quando a GB habilitar esses serviços.</p>'+
+     '<p class="gb-nav-sub">Suas peças salvas ficam neste navegador. Para consultar tamanhos, preços e disponibilidade, fale diretamente com a GB. Contas e pedidos ainda são demonstrações.</p>'+
      panelButton('Favoritos salvos','favorites',String(c.saved).padStart(2,'0'))+
      panelButton('Minha seleção','bag',String(c.bag).padStart(2,'0'))+
-     panelButton('Montar look','studio','↗')+
-     panelButton('Explorar o shop','shop','↗')+
+     panelButton('Montar meu look','studio')+
+     panelButton('Explorar as peças','shop')+
      '<div class="gb-nav-panel-divider"></div>'+
-     panelButton('Painel Minha GB','dashboard','↗')+
-     panelButton('Pedidos e rastreio','orders','↗')+
-     panelButton('GB ACCESS / Clube','club','↗')+
-     panelButton('Ranking e recompensas','rewards','↗')+
-     panelButton('Comunidade','community','↗')+
-     panelButton('Ajuda e trocas','help','↗');
+     panelButton('Minha GB, área demonstrativa','dashboard')+
+     panelButton('Pedidos, ainda indisponível','orders')+
+     panelButton('Clube GB, demonstração','club')+
+     panelButton('Benefícios, demonstração','rewards')+
+     panelButton('Conhecer a comunidade','community')+
+     panelButton('Dúvidas e atendimento','help');
  };
  const closePanels=()=>{
    if(account)account.hidden=true;
@@ -191,20 +191,20 @@
  if(mobileNav&&!mobileNav.querySelector('[data-gb-action]')){
    const group=document.createElement('div');group.className='gb-nav-mobile-tools';
    group.innerHTML='<div class="gb-nav-panel-divider"></div>'+
-     panelButton('Buscar peças','search','⌕')+
-     panelButton('Minha seleção','bag','↗')+
-     panelButton('Favoritos','favorites','♡')+
-     panelButton('Look Studio','studio','↗')+
-     panelButton('Minha GB / Painel','dashboard','↗')+
-     panelButton('Pedidos e rastreio','orders','↗')+
-     panelButton('GB ACCESS / Clube','club','↗')+
-     panelButton('Ranking e recompensas','rewards','↗')+
-     panelButton('Comunidade','community','↗')+
-     panelButton('Ajuda e trocas','help','↗')+
+     panelButton('Buscar peças','search')+
+     panelButton('Peças selecionadas','bag')+
+     panelButton('Meus favoritos','favorites')+
+     panelButton('Montar look no Studio','studio')+
+     panelButton('Minha GB, demonstração','dashboard')+
+     panelButton('Pedidos, ainda indisponível','orders')+
+     panelButton('Clube GB, demonstração','club')+
+     panelButton('Benefícios, demonstração','rewards')+
+     panelButton('Conhecer a comunidade','community')+
+     panelButton('Dúvidas e atendimento','help')+
      panelButton('Tema claro / escuro','theme','☼')+
      '<div class="gb-nav-settings-lang" aria-label="Idioma da GB">'+
      ['pt','en','es','it'].map(l=>'<button type="button" data-gb-lang="'+l+'">'+l.toUpperCase()+'</button>').join('')+'</div>'+
-     '<p class="gb-nav-sub">Minha GB: as escolhas e favoritos ficam salvos neste navegador. Contas e pedidos ainda não estão habilitados.</p>';
+     '<p class="gb-nav-sub">Sua seleção e seus favoritos ficam salvos aqui. Esta área ainda não recebe dados de contas ou pedidos reais.</p>';
    mobileNav.append(group);
  }
  document.querySelector('#navDrawer')?.addEventListener('click',e=>{

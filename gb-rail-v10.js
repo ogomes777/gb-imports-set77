@@ -412,7 +412,7 @@ function updateInfo(){
   q('#railFocusType').textContent=it.label+(it.variants.length>1?` · ${it.variants.length} CORES`:'');
   const cap=q('#r10Caption');if(cap){
     cap.querySelector('[data-cap-name]').textContent=it.title.toUpperCase();
-    cap.querySelector('[data-cap-color]').textContent=it.variants.length>1?`COR / ${v.label} · ${it.variants.length} FOTOGRAFADAS`:it.label;
+    cap.querySelector('[data-cap-color]').textContent=it.variants.length>1?`COR ${v.label}. ${it.variants.length} CORES FOTOGRAFADAS`:it.label;
   }
   if(railTags&&railTags.dataset.item!==it.id){retractTags(railTags);railTags=null}
   prefetch(target);
@@ -444,7 +444,7 @@ async function chooseVariant(it,i,scope){
   announce.textContent=`${it.title}: cor ${v.label.toLowerCase()} selecionada.`;
   document.dispatchEvent(new CustomEvent('gb:rail-variant',{detail:{item:it.id,variant:v.id,productId:v.sourceId}}));
 }
-function updateCaptionOnly(it){const v=currentVariant(it),cap=q('#r10Caption');if(cap)cap.querySelector('[data-cap-color]').textContent=`COR / ${v.label} · ${it.variants.length} FOTOGRAFADAS`}
+function updateCaptionOnly(it){const v=currentVariant(it),cap=q('#r10Caption');if(cap)cap.querySelector('[data-cap-color]').textContent=`COR ${v.label}. ${it.variants.length} CORES FOTOGRAFADAS`}
 
 /* ---------- entrada: gesto, teclado, setas, roda horizontal, hover ---------- */
 // clique só é clique: se o ponteiro andou (em qualquer eixo) desde o toque, não abre nem troca nada
@@ -546,11 +546,11 @@ async function drawViewer({dir=0,entry=false,variantOnly=false}={}){
   if(!modeFor(it,v,S.view)&&!it.study)S.view='combo';
   viewer.dataset.productId=v.sourceId;viewer.dataset.item=it.id;viewer.dataset.variant=v.id;viewer.dataset.view=S.view;viewer.dataset.orientation=S.orientation;viewer.dataset.tier=it.tier;
   vName.textContent=it.title.toUpperCase();
-  varLine.textContent=it.study?'ESTUDO GRÁFICO / NÃO É FOTO':it.variants.length>1?`COR / ${v.label} · ${fmt(variantSel.get(it.id))} DE ${fmt(it.variants.length-1)} FOTOGRAFADAS`:'COR ÚNICA FOTOGRAFADA';
+  varLine.textContent=it.study?'ILUSTRAÇÃO, NÃO É FOTO':it.variants.length>1?`COR ${v.label}. FOTO ${fmt(variantSel.get(it.id))} DE ${fmt(it.variants.length-1)}`:'COR DA PEÇA FOTOGRAFADA';
   const listIdx=S.list.indexOf(it);
-  q('#railViewerIndex').textContent=it.adhoc?`ACERVO / ${esc(p?.id||'')}`:`${fmt(listIdx)} / ${fmt(S.list.length-1)}`;
-  q('#railViewerDescription').textContent=it.study?'Ilustração de estudo até a entrada da foto oficial da GB. Não representa a peça real.':`${it.label.charAt(0)+it.label.slice(1).toLowerCase()}. Imagem do acervo GB; nome de trabalho, marca, procedência, preço e estoque em validação.${it.variants.length>1?' As cores mostradas foram fotografadas, não são simulação.':''}`;
-  q('.rail-viewer-art-label').textContent=it.study?'ARQUIVO DE ESTUDO / CATÁLOGO EM CONSTRUÇÃO':'IMAGEM DO ACERVO / A VALIDAR · SÓ FRENTE FOTOGRAFADA';
+  q('#railViewerIndex').textContent=it.adhoc?`PEÇA ${esc(p?.id||'')}`:`${fmt(listIdx)} / ${fmt(S.list.length-1)}`;
+  q('#railViewerDescription').textContent=it.study?'Esta é uma ilustração, não uma foto do produto. Consulte a GB para confirmar imagens e características.':`${it.label.charAt(0)+it.label.slice(1).toLowerCase()}. Imagem do acervo GB; nome de trabalho, marca, procedência, preço e estoque em validação.${it.variants.length>1?' As cores mostradas foram fotografadas, não são simulação.':''}`;
+  q('.rail-viewer-art-label').textContent=it.study?'ILUSTRAÇÃO DE REFERÊNCIA, NÃO É FOTO REAL':'IMAGEM DE REFERÊNCIA. SOMENTE A FRENTE FOI FOTOGRAFADA';
   // composição: só modos com foto real para esta cor
   let shown=0;qa('[data-rail-view]').forEach(b=>{const view=b.dataset.railView,ok=it.study?availableViews(p).includes(view):!!modeFor(it,v,view)&&(view==='combo'||it.family==='set');b.hidden=!ok;shown+=ok;const on=view===S.view;b.classList.toggle('selected',on);b.setAttribute('aria-pressed',String(on))});
   const sw=q('.rail-view-switch');if(sw)sw.hidden=shown<2;
@@ -559,7 +559,7 @@ async function drawViewer({dir=0,entry=false,variantOnly=false}={}){
   const caps=it.study?{front:true}:(window.GBRailViews?.resolve(v.sourceId)||{front:true});
   if(!caps[S.orientation])S.orientation='front';viewer.dataset.orientation=S.orientation;
   qa('[data-orient]',orient).forEach(b=>{const o=b.dataset.orient,on=o===S.orientation;b.setAttribute('aria-pressed',String(on));b.classList.toggle('selected',on);b.setAttribute('aria-disabled',String(!caps[o]))});
-  const note=q('#r10OrientNote');if(note)note.textContent=caps.back||caps.side?'Vistas com foto real aprovada do acervo.':(caps.reason||'Só a frente foi fotografada. Lateral e costas aguardam fotos reais: o verso não é simulado.');
+  const note=q('#r10OrientNote');if(note)note.textContent=caps.back||caps.side?'Há fotos adicionais para esta cor.':(caps.reason||'Há apenas foto da frente. Não mostramos costas ou lateral sem imagens reais da peça.');
   orient.hidden=!!it.study;
   // avisa as outras camadas antes de esperar pelas fotos (o V08 esconde o estudo de cor de peça com foto na hora)
   document.dispatchEvent(new CustomEvent('gb:object-product',{detail:{product:p,item:it.id,variant:v.id,view:S.view,orientation:S.orientation,study:!!it.study,photo:!it.study}}));
