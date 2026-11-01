@@ -19,7 +19,7 @@ jobs:
           npx playwright install chromium
           npm run build
           node scripts/validar-crt.mjs
-      - name: Test live landing and 28 internal routes on 4 sizes
+      - name: Test live landing and 42 internal routes on 4 sizes
         run: |
           python3 -m http.server 8080 --directory dist >/tmp/gb-v60-http.log 2>&1 &
           sleep 2
