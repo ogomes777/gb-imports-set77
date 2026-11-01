@@ -1,0 +1,34 @@
+name: GB Imports V63 | Strong Neon Compact Mobile
+on:
+  push:
+    branches: [feat/gb-neon-mobile-v63]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  neon:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Build and browser
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save playwright
+          npx playwright install chromium
+          npm run build
+          node scripts/validar-crt.mjs
+      - name: Responsive premium neon and WhatsApp
+        run: |
+          python3 -m http.server 8080 --directory dist >/tmp/gb-v63-http.log 2>&1 &
+          sleep 2
+          node tests/gb-neon-whatsapp-v62.mjs
+      - name: Responsive evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gb-v63-mobile-360-desktop
+          path: tmp/gb-v62-neon/*.png
+          if-no-files-found: ignore
+          retention-days: 7

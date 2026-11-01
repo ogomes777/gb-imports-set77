@@ -284,3 +284,194 @@ body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb62-whatsapp
 }
 .how-section.gb55-how.gb55-lite .gb62-whatsapp-neon,
 .how-section.gb55-how.gb55-lite .gb62-neon-outline{animation:none!important}
+
+
+/* GB IMPORTS V63 | NEON SIGNATURE + COMPACT CONTACT
+   Tight revision to V62: strong traveling light, controlled green signal,
+   mobile-height reduction. Dark upper cards deliberately unchanged. */
+@keyframes gb63-energy-loop {
+  to {--gb62-phase:360deg}
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .how-card {
+  border-color:rgba(83,79,58,.20)!important;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .how-num {
+  color:#e9bc17;
+  text-shadow:0 0 15px rgba(239,189,24,.23),0 1px 0 rgba(62,47,10,.15);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb62-neon-outline {
+  inset:-2px;
+  border-radius:20px;
+  border:1px solid rgba(241,193,44,.30);
+  padding:2px;
+  opacity:1;
+  background:conic-gradient(from var(--gb62-phase),
+    rgba(216,172,28,.20) 0deg,rgba(216,172,28,.13) 100deg,
+    rgba(216,172,28,.19) 200deg,
+    rgba(255,211,41,.60) 233deg,
+    #ffe881 249deg,
+    #fff4c1 268deg,
+    #ffd22d 286deg,
+    rgba(248,193,27,.48) 310deg,
+    rgba(216,172,28,.20) 342deg,
+    rgba(216,172,28,.20) 360deg);
+  filter:drop-shadow(0 0 3px rgba(248,195,33,.43))
+         drop-shadow(0 0 7px rgba(243,188,30,.22));
+}
+/* One continuous animated gradient per card, staggered without JS timers. */
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech.gb55-active .gb62-neon-outline,
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech.gb55-active.gb55-lite .gb62-neon-outline {
+  animation:gb63-energy-loop 6.4s linear infinite!important;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech.gb55-active .how-card:nth-child(2) .gb62-neon-outline {
+  animation-delay:-2.13s!important;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech.gb55-active .how-card:nth-child(3) .gb62-neon-outline {
+  animation-delay:-4.26s!important;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb55-track {
+  background:linear-gradient(90deg,rgba(59,71,77,.20),rgba(43,53,59,.75) 43%,rgba(59,71,77,.20));
+  box-shadow:none!important;
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb55-track i {
+  background:linear-gradient(90deg,transparent,#ffeb8a 45%,#f0c128 59%,transparent);
+  box-shadow:0 0 8px rgba(243,184,20,.48);
+}
+/* WhatsApp panel is still a true message action, not a fake chat or group link. */
+.how-section.gb55-how .gb62-whatsapp-card {
+  overflow:visible;
+  border-radius:19px;
+  border-color:rgba(69,192,111,.36);
+  background:linear-gradient(116deg,#111a1a 0%,#121d1a 51%,#10261d 100%);
+  box-shadow:0 19px 44px -27px rgba(4,21,13,.46),
+             inset 0 1px rgba(214,255,223,.06);
+}
+body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb62-whatsapp-card {
+  background:linear-gradient(116deg,#111a1a 0%,#121d1a 51%,#10261d 100%);
+  border-color:rgba(69,192,111,.36);
+}
+.how-section.gb55-how .gb62-whatsapp-neon {
+  inset:-2px;
+  padding:2px;
+  border-radius:21px;
+  opacity:1;
+  background:conic-gradient(from var(--gb62-phase),
+    rgba(42,187,101,.15) 0deg,
+    rgba(42,187,101,.14) 195deg,
+    rgba(48,229,117,.45) 225deg,
+    #6bffa8 247deg,
+    #d5ffe4 268deg,
+    #42f38d 290deg,
+    rgba(33,183,100,.40) 313deg,
+    rgba(42,187,101,.15) 343deg,
+    rgba(42,187,101,.15) 360deg);
+  filter:drop-shadow(0 0 4px rgba(48,235,115,.44))
+         drop-shadow(0 0 10px rgba(48,216,108,.20));
+}
+.how-section.gb55-how.gb55-active .gb62-whatsapp-neon,
+.how-section.gb55-how.gb55-active.gb55-lite .gb62-whatsapp-neon {
+  animation:gb63-energy-loop 6.8s linear infinite!important;
+}
+.how-section.gb55-how .gb62-wa-head {margin-bottom:clamp(13px,1.8vw,20px)}
+.how-section.gb55-how .gb62-wa-intro h3 {
+  max-width:18ch;
+  margin-bottom:12px;
+}
+.how-section.gb55-how .gb62-wa-intro p {
+  font-weight:600;
+  color:rgba(237,249,239,.78);
+}
+.how-section.gb55-how .gb62-chat-preview {
+  background:linear-gradient(135deg,rgba(30,89,57,.88),rgba(23,67,47,.95));
+  border-color:rgba(111,230,157,.21);
+}
+.how-section.gb55-how .gb62-wa-cta {
+  min-height:54px;
+  background:linear-gradient(125deg,#60ec99,#31d879 57%,#1bb55c);
+  border-color:rgba(144,246,174,.74);
+  border-radius:11px;
+  box-shadow:0 11px 25px rgba(33,177,90,.20),inset 0 1px rgba(251,255,251,.56);
+}
+@media(hover:hover) and (pointer:fine) {
+  .how-section.gb55-how .gb62-wa-cta:hover {
+    background:linear-gradient(125deg,#81f4b0,#40df83);
+    box-shadow:0 13px 27px rgba(38,195,102,.27);
+  }
+}
+@media(max-width:900px) {
+  .how-section.gb55-how .gb62-whatsapp-card {
+    grid-template-columns:minmax(0,1fr);
+    gap:17px;
+    margin-top:25px;
+    padding:23px 22px;
+  }
+  .how-section.gb55-how .gb62-wa-head {margin-bottom:15px}
+  .how-section.gb55-how .gb62-wa-intro h3 {
+    font-size:clamp(24px,4.3vw,32px);
+    line-height:1.06;
+    max-width:22ch;
+  }
+  .how-section.gb55-how .gb62-wa-intro p {
+    font-size:13px;line-height:1.58;max-width:58ch;
+  }
+  .how-section.gb55-how .gb62-chat-preview {
+    max-width:none;padding:13px 16px;
+  }
+  .how-section.gb55-how .gb62-wa-cta {min-height:50px}
+  /* Keep the V61 mobile rail vertical, not a horizontal gold stroke. */
+  body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb55-track {
+    background:linear-gradient(to bottom,rgba(59,71,77,.16),rgba(43,53,59,.74),rgba(59,71,77,.16));
+  }
+  body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb55-track i {
+    background:linear-gradient(to bottom,transparent,#ffeb8a 45%,#f0c128 59%,transparent);
+  }
+}
+@media(max-width:560px) {
+  /* The preview box was duplicating the CTA and consuming too much vertical space. */
+  .how-section.gb55-how .gb62-whatsapp-card {
+    padding:18px 17px 19px;
+    gap:12px;
+    margin-top:26px;
+    border-radius:15px;
+  }
+  .how-section.gb55-how .gb62-whatsapp-neon {border-radius:17px}
+  .how-section.gb55-how .gb62-wa-brand-icon {width:32px;height:32px;border-radius:10px}
+  .how-section.gb55-how .gb62-wa-brand-icon svg {width:19px;height:19px}
+  .how-section.gb55-how .gb62-wa-head {gap:9px;margin-bottom:12px}
+  .how-section.gb55-how .gb62-wa-identifier {font-size:9px;letter-spacing:.055em}
+  .how-section.gb55-how .gb62-wa-intro .gb59-lead-eyebrow {margin-bottom:8px;font-size:9px}
+  .how-section.gb55-how .gb62-wa-intro h3 {
+    max-width:22ch;
+    font-size:clamp(22px,6.5vw,28px);
+    line-height:1.08;
+    margin-bottom:9px;
+  }
+  .how-section.gb55-how .gb62-wa-intro p {
+    font-size:12px;
+    line-height:1.53;
+    max-width:43ch;
+  }
+  .how-section.gb55-how .gb62-chat-preview {display:none}
+  .how-section.gb55-how .gb62-wa-action {gap:9px}
+  .how-section.gb55-how .gb62-wa-cta {
+    min-height:48px;
+    font-size:10px;
+    padding:10px 10px;
+    gap:9px;
+    border-radius:9px;
+  }
+  .how-section.gb55-how .gb62-wa-cta svg {width:19px;height:19px;min-width:19px}
+  .how-section.gb55-how .gb62-wa-disclaimer {font-size:10px;line-height:1.35}
+  body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech .gb62-neon-outline {
+    border-radius:16px;
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech.gb55-active .gb62-neon-outline,
+  body:not([data-gb-theme="sinal"]) .how-section.gb55-how.gb61-tech.gb55-active.gb55-lite .gb62-neon-outline,
+  .how-section.gb55-how.gb55-active .gb62-whatsapp-neon,
+  .how-section.gb55-how.gb55-active.gb55-lite .gb62-whatsapp-neon {
+    animation:none!important;
+    opacity:.48;
+  }
+}
