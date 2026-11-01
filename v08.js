@@ -17,12 +17,12 @@ const tabs=document.createElement('div');
 tabs.className='gb-object-tabs';
 tabs.setAttribute('role','tablist');
 tabs.setAttribute('aria-label','Experiências da peça');
-tabs.innerHTML='<button type="button" id="gbTabObject" role="tab" aria-controls="gbObjectPanel" aria-selected="true">01 / VISUALIZAR</button><button type="button" id="gbTabColors" role="tab" aria-controls="gbColorPanel" aria-selected="false">02 / EXPERIMENTAR CORES</button><span>GB / PRODUCT EXPERIENCE</span>';
+tabs.innerHTML='<button type="button" id="gbTabObject" role="tab" aria-controls="gbObjectPanel" aria-selected="true">VER A PEÇA</button><button type="button" id="gbTabColors" role="tab" aria-controls="gbColorPanel" aria-selected="false">TESTAR CORES</button><span>VISTAS E CORES</span>';
 header.after(tabs);
 const panel=document.createElement('section');
 panel.id='gbColorPanel';panel.className='gb-product-color-panel';panel.hidden=true;
 panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby','gbTabColors');
-panel.innerHTML='<div class="gb-lab-intro"><span class="gb-lab-eyebrow">GB / INTERACTIVE COLOR STUDY · NÃO COMERCIAL</span><h2>MUDA A<br><em>COR.</em><br>NÃO A<br>ATITUDE.</h2><p>Explore outras leituras da mesma silhueta. Cores conceituais, sem confirmar estoque, fabricação ou variantes disponíveis.</p><div id="gbLabSwatches" role="group" aria-label="Cores ilustrativas da peça"></div><div class="gb-lab-meta"><span id="gbLabColorName">01 / CARVÃO</span><span>04 ESTUDOS</span></div><button id="gbLabBack" type="button" class="gb-lab-return">← VOLTAR À PEÇA</button></div><div class="gb-lab-art"><span class="gb-lab-bg" aria-hidden="true">GB</span><div id="gbLabMedia" class="gb-lab-media" aria-live="off"></div><div class="gb-lab-art-foot"><span id="gbLabItemName">GB / PEÇA SELECIONADA</span><strong>ESTUDO DE COR · NÃO É VARIANTE À VENDA</strong></div></div>';
+panel.innerHTML='<div class="gb-lab-intro"><span class="gb-lab-eyebrow">CORES ILUSTRATIVAS, NÃO DISPONÍVEIS PARA COMPRA</span><h2>MUDA A<br><em>COR.</em><br>NÃO A<br>ATITUDE.</h2><p>Teste cores ilustrativas para imaginar outras combinações. Estas versões não são produtos disponíveis à venda; consulte a GB sobre cores reais.</p><div id="gbLabSwatches" role="group" aria-label="Cores ilustrativas da peça"></div><div class="gb-lab-meta"><span id="gbLabColorName">01 / CARVÃO</span><span>QUATRO CORES ILUSTRATIVAS</span></div><button id="gbLabBack" type="button" class="gb-lab-return">← VOLTAR À PEÇA</button></div><div class="gb-lab-art"><span class="gb-lab-bg" aria-hidden="true">GB</span><div id="gbLabMedia" class="gb-lab-media" aria-live="off"></div><div class="gb-lab-art-foot"><span id="gbLabItemName">PEÇA SELECIONADA</span><strong>ESTA COR É UMA ILUSTRAÇÃO, NÃO UM ITEM À VENDA</strong></div></div>';
 viewer.appendChild(panel);
 const swatches=panel.querySelector('#gbLabSwatches');
 const stage=panel.querySelector('#gbLabMedia');
@@ -46,8 +46,8 @@ function renderColor(){
  const colored=Object.assign({},product,{top:p.top,bottom:p.bottom,accent:p.accent,stripe:p.accent});
  stage.innerHTML=garmentSVG(colored,product.single?'top':'combo','garment-svg gb-lab-render');
  if(!reduced.matches){stage.classList.remove('gb-color-enter');void stage.offsetWidth;stage.classList.add('gb-color-enter');}
- swatchLabel.textContent=pad(position)+' / '+p.name;
- itemLabel.textContent='GB / '+product.name.toUpperCase();
+ swatchLabel.textContent=p.name;
+ itemLabel.textContent=product.name.toUpperCase();
  panel.style.setProperty('--gb-study-aura',p.top);
  swatches.querySelectorAll('[data-gb-color]').forEach(b=>{
   const selected=Number(b.dataset.gbColor)===position;
@@ -103,7 +103,7 @@ if(typeof window.renderProductModal==='function'){
   if(detail&&!detail.querySelector('#gbReturnObject')){
    const btn=document.createElement('button');
    btn.id='gbReturnObject';btn.type='button';btn.className='gb-return-object';
-   btn.textContent='↗ VOLTAR À PEÇA NO CABIDE';
+   btn.textContent='VOLTAR À PEÇA NO CABIDE';
    detail.querySelector('.detail-facts')?.before(btn);
   }
   return result;
