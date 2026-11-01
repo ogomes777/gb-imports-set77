@@ -79,16 +79,16 @@ function renderOptions(){
  requestAnimationFrame(()=>many('.look-options').forEach(r=>r._navSync?.()));
  for(const [id,selected,mode] of [['lookTops',selectedTop,'top'],['lookBottoms',selectedBottom,'bottom']]){
    const box=one('#'+id);
-   box.innerHTML=pool(mode).map((p,i)=>`<button type="button" class="look-option ${p.id===selected?'active':''}${isKit(p.id)?' is-kit':''}" data-look-mode="${mode}" data-look-id="${p.id}" aria-pressed="${p.id===selected}" title="${escaped(pieceName(p,mode))}" aria-label="${String(i+1).padStart(2,'0')} — ${escaped(pieceName(p,mode))} / ${mode==='top'?'parte superior':'parte inferior'}"><span class="look-index">${String(i+1).padStart(2,'0')}</span>${lookMedia(p,mode)}</button>`).join('');
+   box.innerHTML=pool(mode).map((p,i)=>`<button type="button" class="look-option ${p.id===selected?'active':''}${isKit(p.id)?' is-kit':''}" data-look-mode="${mode}" data-look-id="${p.id}" aria-pressed="${p.id===selected}" title="${escaped(pieceName(p,mode))}" aria-label="${String(i+1).padStart(2,'0')}, ${escaped(pieceName(p,mode))}, ${mode==='top'?'parte superior':'parte inferior'}"><span class="look-index">${String(i+1).padStart(2,'0')}</span>${lookMedia(p,mode)}</button>`).join('');
    const active=box.querySelector('.active');if(active){const ar=active.getBoundingClientRect(),br=box.getBoundingClientRect();box.scrollLeft+=ar.left-br.left-box.clientWidth/2+ar.width/2;}
  }
  // tênis e boné: a primeira opção é "sem" (bota do robô / sem boné)
  for(const [id,mode] of [['lookShoes','shoe'],['lookCaps','cap']]){
    const box=one('#'+id);if(!box)continue;const selected=getSel(mode);
    const hood=mode==='cap'&&hoodUp&&hasHood(selectedTop),noneOn=!selected&&!hood;
-   box.innerHTML=`<button type="button" class="look-option look-none ${noneOn?'active':''}" data-look-mode="${mode}" data-look-id="" aria-pressed="${noneOn}" aria-label="${NONE[mode]} / ${PART_LABEL[mode]}"><span class="look-index">00</span><span class="look-none-label">${NONE[mode]}</span></button>`+
-     (mode==='cap'?`<button type="button" class="look-option look-none look-hood ${hood?'active':''}" data-look-hood="1" aria-pressed="${hood}" ${hasHood(selectedTop)?'':'disabled'} title="${hasHood(selectedTop)?'Capuz na cabeça':'A parte superior escolhida não tem capuz'}" aria-label="Capuz na cabeça / ${hasHood(selectedTop)?'disponível':'indisponível para esta peça'}"><span class="look-index">CP</span><span class="look-none-label">CAPUZ</span></button>`:'')+
-     accPool(mode).map((p,i)=>`<button type="button" class="look-option ${p.id===selected?'active':''}" data-look-mode="${mode}" data-look-id="${p.id}" aria-pressed="${p.id===selected}" title="${escaped(p.name)}" aria-label="${String(i+1).padStart(2,'0')} — ${escaped(p.name)} / ${PART_LABEL[mode]}"><span class="look-index">${String(i+1).padStart(2,'0')}</span>${lookMedia(p,mode)}</button>`).join('');
+   box.innerHTML=`<button type="button" class="look-option look-none ${noneOn?'active':''}" data-look-mode="${mode}" data-look-id="" aria-pressed="${noneOn}" aria-label="${NONE[mode]} para ${PART_LABEL[mode]}"><span class="look-index">00</span><span class="look-none-label">${NONE[mode]}</span></button>`+
+     (mode==='cap'?`<button type="button" class="look-option look-none look-hood ${hood?'active':''}" data-look-hood="1" aria-pressed="${hood}" ${hasHood(selectedTop)?'':'disabled'} title="${hasHood(selectedTop)?'Capuz na cabeça':'A parte superior escolhida não tem capuz'}" aria-label="Capuz na cabeça, ${hasHood(selectedTop)?'disponível':'indisponível para esta peça'}"><span class="look-index">CP</span><span class="look-none-label">CAPUZ</span></button>`:'')+
+     accPool(mode).map((p,i)=>`<button type="button" class="look-option ${p.id===selected?'active':''}" data-look-mode="${mode}" data-look-id="${p.id}" aria-pressed="${p.id===selected}" title="${escaped(p.name)}" aria-label="${String(i+1).padStart(2,'0')}, ${escaped(p.name)}, ${PART_LABEL[mode]}"><span class="look-index">${String(i+1).padStart(2,'0')}</span>${lookMedia(p,mode)}</button>`).join('');
    const active=box.querySelector('.active');if(active){const ar=active.getBoundingClientRect(),br=box.getBoundingClientRect();box.scrollLeft+=ar.left-br.left-box.clientWidth/2+ar.width/2;}
  }
  // vizinhas já decodificadas: a próxima troca não espera a foto
@@ -100,13 +100,13 @@ function renderSummary(){
  one('#lookSummary').textContent=(isKit(top.id)?pieceName(top,'top'):top.name+' (superior)')+'  +  '+(isKit(bottom.id)?pieceName(bottom,'bottom'):bottom.name+' (inferior)')+(shoe?'  +  '+shoe.name:'')+(cap?'  +  '+cap.name:'')+(hoodUp&&hasHood(top.id)?'  ·  capuz na cabeça':'');
  // kit pela metade: um toque veste a outra parte do MESMO produto
  const kit=isKit(top.id)&&top.id!==bottom.id?top.id:isKit(bottom.id)&&bottom.id!==top.id?bottom.id:null;
- const links=one('#lookSources');if(links)links.innerHTML=`<button type="button" data-look-open="${top.id}">VER SUPERIOR ↗</button><button type="button" data-look-open="${bottom.id}">VER INFERIOR ↗</button>`+(shoe?`<button type="button" data-look-open="${shoe.id}">VER TÊNIS ↗</button>`:'')+(cap?`<button type="button" data-look-open="${cap.id}">VER BONÉ ↗</button>`:'')+(kit?`<button type="button" class="look-kit" data-look-kit="${kit}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 8l5-4 3 3 3-3 5 4-3 4v8H7v-8z"/><path d="M10 9h4m-2-2v13"/></svg><span>VESTIR KIT COMPLETO</span><span aria-hidden="true">↗</span></button>`:'');
+ const links=one('#lookSources');if(links)links.innerHTML=`<button type="button" data-look-open="${top.id}">VER PARTE DE CIMA</button><button type="button" data-look-open="${bottom.id}">VER PARTE DE BAIXO</button>`+(shoe?`<button type="button" data-look-open="${shoe.id}">VER O TÊNIS</button>`:'')+(cap?`<button type="button" data-look-open="${cap.id}">VER O BONÉ</button>`:'')+(kit?`<button type="button" class="look-kit" data-look-kit="${kit}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 8l5-4 3 3 3-3 5 4-3 4v8H7v-8z"/><path d="M10 9h4m-2-2v13"/></svg><span>VESTIR KIT COMPLETO</span><span aria-hidden="true">↗</span></button>`:'');
  try{localStorage.setItem('gb-v06-look',JSON.stringify({top:selectedTop,bottom:selectedBottom,shoe:selectedShoe,cap:selectedCap,hood:hoodUp}));}catch{}
 }
 function renderSaved(){
  const box=one('#lookSaved');if(!box)return;const list=readOutfits();
  box.hidden=!list.length;
- box.innerHTML=list.length?`<span class="look-saved-title">LOOKS SALVOS / ${String(list.length).padStart(2,'0')}</span><div class="look-saved-list">${list.map((o,i)=>`<div class="look-saved-item"><button type="button" class="look-saved-thumb" data-look-restore="${i}" aria-label="Restaurar look: ${escaped(pieceName(getItem(o.top),'top'))} com ${escaped(pieceName(getItem(o.bottom),'bottom'))}"><span>${lookMedia(getItem(o.top),'top')}</span><span>${lookMedia(getItem(o.bottom),'bottom')}</span></button><button type="button" class="look-saved-remove" data-look-remove="${i}" aria-label="Remover look salvo">×</button></div>`).join('')}</div>`:'';
+ box.innerHTML=list.length?`<span class="look-saved-title">LOOKS SALVOS: ${String(list.length).padStart(2,'0')}</span><div class="look-saved-list">${list.map((o,i)=>`<div class="look-saved-item"><button type="button" class="look-saved-thumb" data-look-restore="${i}" aria-label="Restaurar look: ${escaped(pieceName(getItem(o.top),'top'))} com ${escaped(pieceName(getItem(o.bottom),'bottom'))}"><span>${lookMedia(getItem(o.top),'top')}</span><span>${lookMedia(getItem(o.bottom),'bottom')}</span></button><button type="button" class="look-saved-remove" data-look-remove="${i}" aria-label="Remover look salvo">×</button></div>`).join('')}</div>`:'';
 }
 // setas ‹ › nas fileiras de peças: andam uma "página" da lista; somem quando não há mais para o lado
 function wireRowArrows(){
@@ -127,13 +127,13 @@ function renderCompare(){
  if(window.GBFitting?.state.topId){box.hidden=true;one('.look-stage')?.classList.toggle('is-compare',!!(comparing&&o));GBFitting.compare(!!(comparing&&o),o);return}
  if(!comparing||!o){box.hidden=true;one('.look-stage')?.classList.remove('is-compare');return}
  box.hidden=false;one('.look-stage')?.classList.add('is-compare');
- box.innerHTML=`<span class="look-compare-tag">B / SALVO</span><div class="look-compare-top">${productMedia(getItem(o.top),'top')}</div><div class="look-compare-bottom">${productMedia(getItem(o.bottom),'bottom')}</div><span class="look-compare-name">${escaped(getItem(o.top).name)} + ${escaped(getItem(o.bottom).name)}</span>`;
+ box.innerHTML=`<span class="look-compare-tag">LOOK SALVO</span><div class="look-compare-top">${productMedia(getItem(o.top),'top')}</div><div class="look-compare-bottom">${productMedia(getItem(o.bottom),'bottom')}</div><span class="look-compare-name">${escaped(getItem(o.top).name)} + ${escaped(getItem(o.bottom).name)}</span>`;
 }
 function toggleCompare(){
- if(!readOutfits().length){toast('Salve um look para comparar com o atual.');return}
+ if(!readOutfits().length){toast('Salve uma combinação no Look Studio para comparar com a que está montando.');return}
  comparing=!comparing;compareIndex=0;renderCompare();
- const b=one('#lookCompareBtn');if(b){b.setAttribute('aria-pressed',String(comparing));b.textContent=comparing?'FECHAR COMPARAÇÃO':'COMPARAR A / B'}
- if(comparing)toast('Comparando o look atual (A) com o salvo (B). Toque num look salvo para trocar o B.');
+ const b=one('#lookCompareBtn');if(b){b.setAttribute('aria-pressed',String(comparing));b.textContent=comparing?'FECHAR COMPARAÇÃO':'COMPARAR OS DOIS LOOKS'}
+ if(comparing)toast('O look atual está sendo comparado com sua combinação salva. Toque em outra combinação para comparar.');
 }
 function choose(mode,id,dir,snap=false){
  if(mode==='cap'&&hoodUp){hoodUp=false;setSel(mode,id);paintPiece(mode,dir,snap);renderOptions();renderSummary();if(comparing)renderCompare();return}
@@ -160,7 +160,7 @@ one('.look-studio')?.addEventListener('click',e=>{
  if(e.target.closest('#lookCompareBtn'))toggleCompare();
  const rest=e.target.closest('[data-look-restore]');if(rest&&comparing){compareIndex=+rest.dataset.lookRestore;renderCompare();return}
  if(rest){const o=readOutfits()[+rest.dataset.lookRestore];if(o){selectedTop=o.top;selectedBottom=o.bottom;if('shoe' in o)selectedShoe=inAcc('shoe',o.shoe)?o.shoe:'';if('cap' in o)selectedCap=inAcc('cap',o.cap)?o.cap:'';hoodUp=!!o.hood;withSource('restore',null,()=>{paintPiece('top',1);paintPiece('bottom',1)});renderOptions();renderSummary();toast('Look restaurado.')}}
- const rem=e.target.closest('[data-look-remove]');if(rem){const list=readOutfits();list.splice(+rem.dataset.lookRemove,1);writeOutfits(list);renderSaved();if(comparing){if(!list.length){comparing=false;const b=one('#lookCompareBtn');if(b){b.setAttribute('aria-pressed','false');b.textContent='COMPARAR A / B'}}compareIndex=0;renderCompare()}toast('Look removido.')}
+ const rem=e.target.closest('[data-look-remove]');if(rem){const list=readOutfits();list.splice(+rem.dataset.lookRemove,1);writeOutfits(list);renderSaved();if(comparing){if(!list.length){comparing=false;const b=one('#lookCompareBtn');if(b){b.setAttribute('aria-pressed','false');b.textContent='COMPARAR OS DOIS LOOKS'}}compareIndex=0;renderCompare()}toast('Look removido.')}
 });
 // Swipe no palco: metade de cima troca a parte superior, metade de baixo a inferior.
 const lookStage=one('.look-stage');let lsx=0,lsy=0,lsHalf='top',lsSkip=false;
